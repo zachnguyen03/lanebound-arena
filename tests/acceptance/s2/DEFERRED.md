@@ -26,4 +26,4 @@ These need S3 systems (zone, orbs, buffs, claims) or an M6 sample size. They are
 
 ## Intentionally not deferred (tested in S2)
 
-Chase-stops at sanctuary, at 10 tiles, and at `est_ttk > 2`; `fight_call` 2v2 / 3+ (next-tick, with `a_commit` / `shotcaller_id`); peel ≥ 70% preview over `dive` events with `peeler_perceived`; digest with AI on, `intent` only on change; WalkFromPad; the hooks in `05-attribute-hooks.test.ts`; R #3 hysteresis, perception/reaction delays, `hold_R` / Focus, and hexed-to-pad-centre.
+Chase-stops at sanctuary, at 10 tiles, and at `est_ttk > 2`; `fight_call` 2v2 / 3+ (next-tick, with `a_commit` / `shotcaller_id`); peel ≥ 70% preview over `dive` events with `peeler_perceived`; digest with AI on, `intent` only on change; WalkFromPad; the hooks in `05-attribute-hooks.test.ts`; R #3 hysteresis, perception/reaction delays, `hold_R` / Focus, and hexed-to-pad-centre; R #4 reach / follow-call / G9-near-pad.

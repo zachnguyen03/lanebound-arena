@@ -4,6 +4,7 @@
  * dps_est is the dummy 5 s / 5 recipe (R #3 S2-5 L1915); the cheap fallback is gone.
  * Escalation tests still use identical kits plus even HP or a large HP swing, and
  * never assert an exact A_true.
+ * R #4 S2-R4-3 L1927: nearOwnPad is removed; a G9 2v2 near a pad still escalates.
  */
 import { describe, expect, it } from "vitest";
 import { COMMITS, PIT, Run, cluster, runAi, type UId } from "./_harness.js";
@@ -11,9 +12,13 @@ import { COMMITS, PIT, Run, cluster, runAi, type UId } from "./_harness.js";
 const BM = "blue:mid" as UId;
 const BJ = "blue:jungle" as UId;
 const BA = "blue:adc" as UId;
+const BT = "blue:top" as UId;
+const BS = "blue:support" as UId;
 const RM = "red:mid" as UId;
 const RJ = "red:jungle" as UId;
 const RA = "red:adc" as UId;
+const RT = "red:top" as UId;
+const RS = "red:support" as UId;
 
 const SAME = "huntress";
 
@@ -155,5 +160,38 @@ describe("Fight declaration and L1 Fight Call (G9 L1890, §5.6 L281, §9.1 L1065
     expect(r.fightCalls().some((e) => e.tick === 2)).toBe(true);
     const late = r.fightCalls().filter((e) => (e.t as number) >= 2.2);
     expect(late).toHaveLength(0);
+  });
+
+  it("R #4 S2-R4-3 L1927: a G9-qualifying lopsided 2v2 just outside blue sanctuary (near the pad, inside the old 4-tile nearOwnPad radius) still escalates", () => {
+    // Pad centre is (1.5, 7.5). Sanctuary is x < 2. Cluster around (3.2, 7.5):
+    // every body has x ≥ 2.4 (out of sanctuary) and is within ~2 tiles of the
+    // pad (the removed nearOwnPad exclusion was dist ≤ 4).
+    // Unused defaultEvenConfig slots would WalkFromPad into this cluster and
+    // can emit a stray 2v2; park them far away. T=1.0 so they cannot arrive.
+    const at = { x: 3.2, y: 7.5 };
+    const units = {
+      ...cluster(at, [
+        { id: BM, champ: SAME },
+        { id: BA, champ: SAME },
+        { id: RM, champ: SAME, hp: 50 },
+        { id: RA, champ: SAME, hp: 50 },
+      ]),
+      [BT]: { champ: SAME, level: 7, x: 12, y: 1, auto: false },
+      [BJ]: { champ: SAME, level: 7, x: 13, y: 1, auto: false },
+      [BS]: { champ: SAME, level: 7, x: 11, y: 1, auto: false },
+      [RT]: { champ: SAME, level: 7, x: 12, y: 14, auto: false },
+      [RJ]: { champ: SAME, level: 7, x: 13, y: 14, auto: false },
+      [RS]: { champ: SAME, level: 7, x: 11, y: 14, auto: false },
+    };
+    for (const id of [BM, BA, RM, RA]) {
+      const u = units[id]!;
+      expect(u.x).toBeGreaterThanOrEqual(2);
+      expect(Math.hypot(u.x - 1.5, u.y - 7.5)).toBeLessThan(4);
+    }
+    const r = runAi({ T: 1.0, units });
+    const calls = r.fightCalls();
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[0]!.tick).toBe(2);
+    payloadOk(calls[0]!);
   });
 });

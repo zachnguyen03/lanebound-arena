@@ -1,5 +1,22 @@
 # s2-acceptance changelog
 
+## v3 — Appendix R #4 (23 Nov 2026)
+
+Rulings are binding. Tests assert observable events and positions; the reach formula is not re-implemented in the suite.
+
+### Tests added
+
+- `10-gd-rulings-r4.test.ts`: reach is monotone (closer identical body is `fight_call.focus_id`); a far legal body is still acquired (reach never 0); Teamwork 90 can freelance onto a much greener local (no 1.3 base threshold / no always-follow at 50+); a disengage call is always followed; Teamwork does not change Positioning hold distance.
+- `01-fight-call.test.ts`: a G9-qualifying lopsided 2v2 just outside blue sanctuary (inside the removed 4-tile `nearOwnPad` radius) still escalates (R #4 S2-R4-3).
+
+### v2 tests changed (one-line reasons)
+
+- `05-attribute-hooks.test.ts`: the Teamwork 90 follow-call fixture no longer makes the "greener local" the likely `focus_id`; equal kits and HP so call 1.30 vs local 1.00 is the contrast (R #4 S2-R4-2). The greener-local freelance and disengage cases live in `10-gd-rulings-r4.test.ts`.
+
+### Docs
+
+- R #4 items removed from the leftover-silence list in `OPEN-QUESTIONS.md` (reach formula, Teamwork follow inequality, `nearOwnPad`). The stale body line at L1044 ("At Teamwork 50+ this is always-follow") is flagged as a typo follow-up: R #4 is canonical.
+
 ## v2 — Appendix R #3 (23 Nov 2026)
 
 Rulings are binding. Tests were added or tightened to the ruling text; v1 tests that conflicted were changed, not loosened.

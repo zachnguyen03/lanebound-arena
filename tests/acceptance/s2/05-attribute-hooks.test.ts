@@ -1,12 +1,11 @@
 /**
  * The six in-match attribute hooks (§8.4 L922–1048), minus anything that needs
- * zone or orbs (those are in DEFERRED.md) and minus hooks listed in OPEN-QUESTIONS.md
- * (reaction vs perception stacking, exact hysteresis 1.0 vs Decision formula,
- * hold_R vs the 2cdcf26 combo_style union).
+ * zone or orbs (those are in DEFERRED.md).
  *
  * Aim vs Reflexes itself is already an S1 official test (11-aim-skillshots, L929).
  * This file adds the mastery scale on that hook, plus Execution / Positioning / Teamwork
- * behaviours that become observable once the Unit Brain exists.
+ * behaviours that become observable once the Unit Brain exists. The greener-local
+ * freelance and disengage-always-followed cases live in 10-gd-rulings-r4.test.ts.
  */
 import { describe, expect, it } from "vitest";
 import { PIT, cluster, runAi, type UId } from "./_harness.js";
@@ -108,28 +107,18 @@ describe("Positioning — backliner hold distance (§8.4 L1025)", () => {
   });
 });
 
-describe("Teamwork — follow the L1 focus (§8.4 L1039–1044) when Teamwork ≥ 50", () => {
-  it("Teamwork 90: once a fight_call names a focus_id, this unit's subsequent Cast / auto hits / intent target that focus, not a greener local body", () => {
+describe("Teamwork — follow the L1 focus (R #4 S2-R4-2 L1926, §8.4 L1039–1046)", () => {
+  it("Teamwork 90, otherwise equal targets: once a fight_call names a focus_id, this unit follows that focus (call 1.30 beats local 1.00 when the rest of priority is equal)", () => {
     const r = runAi({
       T: 4.0,
-      units: {
-        ...cluster(PIT, [
-          { id: "blue:mid" as UId, champ: "huntress", attrs: { teamwork: 90, decision: 70 } },
-          { id: "blue:adc" as UId, champ: "huntress", attrs: { teamwork: 90 } },
-          { id: "blue:jungle" as UId, champ: "huntress", attrs: { teamwork: 90 } },
-          { id: "red:mid" as UId, champ: "maelis", hp: 80 },
-          { id: "red:jungle" as UId, champ: "maelis" },
-          { id: "red:adc" as UId, champ: "maelis" },
-        ]),
-        ["blue:adc" as UId]: {
-          champ: "huntress",
-          level: 7,
-          x: PIT.x - 0.6,
-          y: PIT.y,
-          auto: true,
-          attrs: { teamwork: 90 },
-        },
-      },
+      units: cluster(PIT, [
+        { id: "blue:mid" as UId, champ: "huntress", attrs: { teamwork: 90, decision: 90 } },
+        { id: "blue:adc" as UId, champ: "huntress", auto: true, attrs: { teamwork: 90 } },
+        { id: "blue:jungle" as UId, champ: "huntress", attrs: { teamwork: 90 } },
+        { id: "red:mid" as UId, champ: "maelis" },
+        { id: "red:jungle" as UId, champ: "maelis" },
+        { id: "red:adc" as UId, champ: "maelis" },
+      ]),
     });
     const call = r.fightCalls("blue").find((e) => typeof e.focus_id === "string");
     expect(call).toBeTruthy();
