@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { evenOvrConfig, loadMatchConfig } from "@sim/match_config";
-import { simulate } from "@sim/simulate";
+import { defaultEvenConfig, simulate } from "@sim/simulate";
 import {
   cliDigest,
   EVEN_MATCH_NOTE,
   exportConfigJson,
   importConfigJson,
+  CLOCK_AI_NOTE,
+  runClockAiMatch,
   runWatchMatch,
 } from "./live-match";
 import { deathDecisionStrip, filterDecisions } from "./decisions";
@@ -47,6 +49,32 @@ describe("S4 live match", () => {
     expect(end?.reason).toBe("first_to_10");
     expect(watch.config.ai_enabled).toBe(true);
     expect(watch.config.forced_clock_end).toBe(false);
+  }, 120_000);
+
+  it("clock AI seed 20261122 matches S1 AI-on and melee autos land", () => {
+    const watch = runClockAiMatch(20261122);
+    const preset = defaultEvenConfig(20261122);
+    preset.ai_enabled = true;
+    preset.forced_clock_end = true;
+    expect(watch.digest).toBe(simulate(preset).digest);
+    expect(watch.config.notes).toBe(CLOCK_AI_NOTE);
+    expect(watch.config.forced_clock_end).toBe(true);
+    const slots = ["top", "jungle", "mid", "adc", "support"] as const;
+    const melee = new Set(["brannoch", "kerrig", "rhedan", "tolle"]);
+    const idChamp = new Map<string, string>();
+    const start = watch.result.events.find((e) => e.type === "match_start");
+    const blue = start?.blue_lineup as string[];
+    const red = start?.red_lineup as string[];
+    blue.forEach((c, i) => idChamp.set(`blue:${slots[i]}`, c));
+    red.forEach((c, i) => idChamp.set(`red:${slots[i]}`, c));
+    const hits = watch.result.events.filter(
+      (e) =>
+        e.type === "hit" && melee.has(idChamp.get(String(e.source_id)) ?? ""),
+    );
+    expect(hits).toHaveLength(102);
+    expect(hits.some((e) => idChamp.get(String(e.source_id)) === "kerrig" && e.tick === 2109)).toBe(
+      true,
+    );
   }, 120_000);
 
   it("seed 20261123 digest is stable and independent of debug_pos", () => {

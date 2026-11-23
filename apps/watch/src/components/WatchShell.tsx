@@ -30,6 +30,7 @@ import {
   exportConfigJson,
   importConfigJson,
   runFromConfig,
+  runClockAiMatch,
   runWatchMatch,
 } from "@watch/lib/live-match";
 import type { MatchConfig } from "@sim/types";
@@ -138,18 +139,21 @@ export function WatchShell() {
   }, [assets]);
 
   const startLive = useCallback(
-    (seed: number) => {
+    (seed: number, preset: "hold_the_pit" | "clock_ai" = "hold_the_pit") => {
       setPhase("loading");
       setError(null);
       setConfigError(null);
       setPlaying(false);
       try {
-        const { config, result, digest } = runWatchMatch(seed);
+        const { config, result, digest } =
+          preset === "clock_ai" ? runClockAiMatch(seed) : runWatchMatch(seed);
         const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
         setLiveDigest(digest);
         setLiveConfig(config);
-        setSourceName(`live seed ${seed}`);
+        setSourceName(
+          preset === "clock_ai" ? `clock AI seed ${seed}` : `live seed ${seed}`,
+        );
         setTick(0);
         setDeathEvent(null);
         setPhase("ready");
@@ -432,6 +436,7 @@ export function WatchShell() {
               <MatchSetup
                 busy={phase === "loading"}
                 onStart={startLive}
+                onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onImportText={importConfig}
               />
               {configError ? (
@@ -573,6 +578,7 @@ export function WatchShell() {
               <MatchSetup
                 busy={phase === "loading"}
                 onStart={startLive}
+                onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onExport={() => {
                   if (!liveConfig) return;
                   const json = exportConfigJson(liveConfig);

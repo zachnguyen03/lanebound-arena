@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 interface Props {
   busy?: boolean;
   onStart: (seed: number) => void;
+  onStartClockAi?: (seed: number) => void;
   onExport?: () => void;
   onImportText?: (text: string) => void;
   canExport?: boolean;
@@ -12,6 +13,7 @@ interface Props {
 export function MatchSetup({
   busy,
   onStart,
+  onStartClockAi,
   onExport,
   onImportText,
   canExport,
@@ -41,6 +43,17 @@ export function MatchSetup({
         >
           Start seed 20261123
         </Button>
+        {onStartClockAi ? (
+          <Button
+            data-testid="btn-start-clock-ai"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => onStartClockAi(20261122)}
+          >
+            Start clock AI 20261122
+          </Button>
+        ) : null}
         {onExport ? (
           <Button
             data-testid="btn-export-config"

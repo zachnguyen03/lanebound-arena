@@ -38,7 +38,10 @@ const EVEN_ATTRS: PlayerAttrs = {
 const BLUE_PICKS = ["brannoch", "sedge", "kerrig", "huntress", "ysol"];
 const RED_PICKS = ["rhedan", "tolle", "helvar", "maelis", "saelo"];
 
-function evenSide(picks: string[]): SideConfig {
+function evenSide(
+  picks: string[],
+  preset: SideConfig["tactics"]["preset"],
+): SideConfig {
   return {
     players: [0, 1, 2, 3, 4].map((i) => ({
       name: `P${i}`,
@@ -47,7 +50,7 @@ function evenSide(picks: string[]): SideConfig {
     })),
     picks: picks.slice(),
     tactics: {
-      preset: "hold_the_pit",
+      preset,
       aggression: 0,
       protect_the_carry: true,
       combo_style: "auto",
@@ -55,16 +58,34 @@ function evenSide(picks: string[]): SideConfig {
   };
 }
 
-export function canonicalConfig(seed: number): MatchConfig {
+function evenMatch(
+  seed: number,
+  preset: SideConfig["tactics"]["preset"],
+  notes: string,
+): MatchConfig {
   return {
     seed,
-    blue: evenSide(BLUE_PICKS),
-    red: evenSide(RED_PICKS),
+    blue: evenSide(BLUE_PICKS, preset),
+    red: evenSide(RED_PICKS, preset),
     draft_mode: "fixed",
     forced_clock_end: false,
     ai_enabled: true,
-    notes: EVEN_MATCH_NOTE,
+    notes,
   };
+}
+
+export function canonicalConfig(seed: number): MatchConfig {
+  return evenMatch(seed, "hold_the_pit", EVEN_MATCH_NOTE);
+}
+
+/**
+ * S1 even lineup with AI on and the clock end forced.
+ * Melee champions land autos here. The note is Watch copy.
+ */
+export const CLOCK_AI_NOTE = "Clock match";
+
+export function clockAiConfig(seed: number): MatchConfig {
+  return { ...evenMatch(seed, "hold_the_pit", CLOCK_AI_NOTE), forced_clock_end: true };
 }
 
 function requireClockEnd(raw: unknown): MatchConfig {
@@ -97,6 +118,10 @@ export function runFromConfig(config: MatchConfig) {
 
 export function runWatchMatch(seed: number) {
   return runFromConfig(canonicalConfig(seed));
+}
+
+export function runClockAiMatch(seed: number) {
+  return runFromConfig(clockAiConfig(seed));
 }
 
 export function cliDigest(seed: number): string {
