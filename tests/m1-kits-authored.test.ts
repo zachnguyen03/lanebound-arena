@@ -28,16 +28,16 @@ describe("M1 authored kits present for all 14", () => {
   });
 
   it("Huntress Q formula and Kerrig R cast 0.7 authored", () => {
-    expect(KITS.huntress!.Q.l7_formula).toBe("110 + 80% ATK");
+    expect(KITS.huntress!.Q.damage).toEqual({ base: 110, atk: 0.8 });
     expect(KITS.huntress!.Q.CD_s).toBe(8);
     expect(KITS.kerrig!.R.cast_s).toBe(0.7);
     expect(KITS.kerrig!.R.CD_s).toBe(42);
-    expect(KITS.maelis!.R.l7_formula).toBe("350 + 170% POW");
-    expect(KITS.huntress!.R.l7_formula).toBe("230 + 105% ATK");
-    expect(KITS.kerrig!.R.l7_formula).toBe("330 + 140% ATK + 15% POW");
+    expect(KITS.maelis!.R.damage).toEqual({ base: 350, pow: 1.7 });
+    expect(KITS.huntress!.R.damage).toEqual({ base: 230, atk: 1.05 });
+    expect(KITS.kerrig!.R.damage).toEqual({ base: 330, atk: 1.4, pow: 0.15 });
     expect(KITS.tolle!.W.cc![0]!.duration_s).toBe(1.8);
     expect(KITS.saelo!.R.radius).toBe(2.4);
-    expect(KITS.mirren!.W.cc![0]!.notes).toMatch(/35%/);
+    expect(KITS.mirren!.W.slow?.pct).toBe(0.35);
     expect(KITS.calder!.W.radius).toBe(0.0);
   });
 });

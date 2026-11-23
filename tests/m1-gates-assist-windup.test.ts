@@ -68,6 +68,7 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     cast_seq: 0,
     break_until: 0,
     commit_until: 0,
+    rewind_used: false,
     ...partial,
   };
 }

@@ -1,13 +1,16 @@
 import { constantsHash, digestEvents } from "./canonical.js";
 import {
+  cancelAutoWindup,
   landMissiles,
   resolvePendingDamage,
   tickAutos,
   recordAssistCredit,
   type AutoMissile,
 } from "./combat.js";
-import { mergeConstants, type Constants } from "./constants.js";
+import { LAB_SCRIPTED_ARRIVE_R, mergeConstants, type Constants } from "./constants.js";
 import {
+  applyPendingHealsShields,
+  applyPendingStatuses,
   landPendingSkills,
   processScriptedCasts,
   runScriptedSkillshots,
@@ -20,7 +23,7 @@ import { inEnemySanctuary } from "./map.js";
 import { applyDisplacement, integrateSteering } from "./motor.js";
 import { pruneMarks } from "./marks.js";
 import { RngBank } from "./rng.js";
-import { applyCc, emptyStatus, isTimeStopped, tickStatuses } from "./status.js";
+import { applyCc, emptyStatus, hasKind, isTimeStopped, kindCategory, tickStatuses } from "./status.js";
 import { statsAtLevel } from "./stats.js";
 import type {
   MatchConfig,
@@ -168,6 +171,7 @@ function makeUnit(
     cast_seq: 0,
     break_until: 0,
     commit_until: 0,
+    rewind_used: false,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -272,9 +276,14 @@ function updateScriptedMotor(
   for (const u of state.units) {
     if (!u.alive) continue;
     if (isTimeStopped(u.status)) continue;
+    // OQ-3: fear/hex skip the Unit Brain — clear scripted waypoints.
+    if (hasKind(u.status, "fear") || hasKind(u.status, "hex")) {
+      u.waypoint = null;
+      continue;
+    }
     const sm = scripted[u.id];
     if (!sm) continue;
-    const arrive = sm.arrive_r ?? c.SCRIPTED_ARRIVE_R;
+    const arrive = sm.arrive_r ?? LAB_SCRIPTED_ARRIVE_R;
     if (u.scripted_wp_i >= sm.waypoints.length) {
       if (sm.hold_at_end !== false) {
         u.waypoint = null;
@@ -335,6 +344,9 @@ export function simulate(config: MatchConfig): SimulateResult {
     units: buildUnits(config, c),
     displacements: [],
     pending_damage: [],
+    pending_status: [],
+    pending_heals: [],
+    pending_shields: [],
     event_seq: 0,
     config,
     forced_clock_end: config.forced_clock_end !== false,
@@ -436,7 +448,7 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     if (config.debug_pos) {
       for (const u of state.units) {
-        emit("pos", {
+        emit("move", {
           unit_id: u.id,
           x: u.x,
           y: u.y,
@@ -460,16 +472,41 @@ export function simulate(config: MatchConfig): SimulateResult {
         if (sc.tick !== tick) continue;
         const u = state.units.find((x) => x.id === sc.target_id);
         if (!u) continue;
+        const sourceId = sc.source_id ?? ("lab" as UnitId);
         if (sc.kind === "break") {
-          u.status.break_until = state.t + sc.duration;
+          const r = applyCc(u.status, {
+            kind: "break",
+            raw_duration: sc.duration,
+            school: "magic",
+            source_id: sourceId,
+            now: state.t,
+            dr_window: c.DR_WINDOW_S,
+            dr_factor: c.DR_FACTOR,
+            dr_floor: c.DR_FLOOR,
+            lock_budget: c.LOCK_BUDGET_S,
+            lock_taper: c.LOCK_TAPER,
+          });
+          u.status.break_until = state.t + r.applied_duration;
           u.break_until = u.status.break_until;
+          if (!r.rejected) {
+            emit("status_apply", {
+              source_id: sourceId,
+              target_id: u.id,
+              kind: "break",
+              category: "handicap",
+              raw_duration: sc.duration,
+              applied_duration: r.applied_duration,
+              dr_factor: r.dr_factor,
+              lock_taper: r.lock_taper,
+            });
+          }
           continue;
         }
-        applyCc(u.status, {
+        const r = applyCc(u.status, {
           kind: sc.kind,
           raw_duration: sc.duration,
           school: "magic",
-          source_id: sc.source_id ?? "lab",
+          source_id: sourceId,
           now: state.t,
           dr_window: c.DR_WINDOW_S,
           dr_factor: c.DR_FACTOR,
@@ -477,8 +514,27 @@ export function simulate(config: MatchConfig): SimulateResult {
           lock_budget: c.LOCK_BUDGET_S,
           lock_taper: c.LOCK_TAPER,
         });
-        if (sc.source_id) {
-          recordAssistCredit(u, sc.source_id, state.t, "cc");
+        if (!r.rejected && r.applied_duration > 0) {
+          if (sc.source_id) recordAssistCredit(u, sc.source_id, state.t, "cc");
+          emit("status_apply", {
+            source_id: sourceId,
+            target_id: u.id,
+            kind: sc.kind,
+            category: kindCategory(sc.kind),
+            raw_duration: sc.duration,
+            applied_duration: r.applied_duration,
+            dr_factor: r.dr_factor,
+            lock_taper: r.lock_taper,
+          });
+          // Lock / silence / disarm cancel an in-progress auto windup.
+          // Time-stop pauses windups instead (L448) — do not cancel.
+          if (
+            sc.kind === "silence" ||
+            sc.kind === "disarm" ||
+            (kindCategory(sc.kind) === "lock" && sc.kind !== "timestop")
+          ) {
+            cancelAutoWindup(u);
+          }
         }
       }
     }
@@ -487,7 +543,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     // (so cast_s is full duration; begin tick does not also consume DT).
     tickCasts(state, pendingLands, c, rng, emit);
     processScriptedCasts(state, config.scripted_casts, c, emit);
-    pendingLands = landPendingSkills(state, pendingLands, c, emit);
+    pendingLands = landPendingSkills(state, pendingLands, c, rng, emit);
 
     if (config.scripted_skillshots) {
       for (const ss of config.scripted_skillshots) {
@@ -522,19 +578,33 @@ export function simulate(config: MatchConfig): SimulateResult {
         if (!tgt || !tgt.alive || !src) continue;
         tgt.hp = Math.min(tgt.max_hp, tgt.hp + h.amount);
         recordAssistCredit(tgt, src.id, state.t, "heal");
-        emit("heal", { source_id: src.id, target_id: tgt.id, amount: h.amount });
+        emit("heal", {
+          source_id: src.id,
+          target_id: tgt.id,
+          skill_id: "scripted",
+          raw: h.amount,
+          applied: h.amount,
+          combat_scaled: false,
+        });
       }
     }
 
-    // 5. Damage
+    // 5 / phase 8: Damage then heals/shields
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
+    applyPendingHealsShields(state, c, emit);
 
-    // 6. Status — CC tick + regen (paused under time-stop)
+    // phase 9: new CC that landed this tick
+    applyPendingStatuses(state, c, emit);
+
+    // 6. Status — CC tick + regen (paused under time-stop; timestop itself still ticks)
     for (const u of state.units) {
       if (!u.alive) continue;
       pruneMarks(u.marks, state.t);
       const paused = isTimeStopped(u.status);
-      tickStatuses(u.status, c.DT, paused);
+      const expired = tickStatuses(u.status, c.DT, paused);
+      for (const kind of expired) {
+        emit("status_expire", { target_id: u.id, kind });
+      }
       if (!paused) {
         u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
       }
@@ -560,7 +630,8 @@ export function simulate(config: MatchConfig): SimulateResult {
             if (sourceId === killerId) return;
             if (seen.has(sourceId)) return;
             const asst = state.units.find((x) => x.id === sourceId);
-            if (!asst || !asst.alive || asst.team !== killer.team) return;
+            // Dead assistants are listed in the death recap but receive no XP (L526).
+            if (!asst || asst.team !== killer.team) return;
             seen.add(sourceId);
             assists.push(sourceId);
           };

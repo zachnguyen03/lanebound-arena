@@ -48,6 +48,8 @@ export interface StatusState {
   /** Applied Lock durations in the last LOCK_BUDGET_S window: { t_apply, applied } */
   lock_applies: Array<{ t: number; applied: number }>;
   shield_pool: number;
+  /** Remaining shield duration (s); ticks down, pauses under time-stop. */
+  shield_remaining: number;
   spawn_shield_until: number;
   spellward_until: number;
   break_until: number;
@@ -66,6 +68,7 @@ export function emptyStatus(spawnShieldUntil = 0): StatusState {
     ],
     lock_applies: [],
     shield_pool: 0,
+    shield_remaining: 0,
     spawn_shield_until: spawnShieldUntil,
     spellward_until: 0,
     break_until: 0,
@@ -200,12 +203,34 @@ export function applyCc(
   return { applied_duration: applied, dr_factor: dr, lock_taper: tapered, rejected: false };
 }
 
-export function tickStatuses(st: StatusState, dt: number, paused: boolean): void {
-  if (paused) return; // time-stop pauses CC timers on the victim
+/**
+ * Tick CC / shield timers.
+ * Time-stop pauses every timer on the victim EXCEPT the time-stop effect itself (OQ-8).
+ * Returns kinds that expired this tick (for status_expire events).
+ */
+export function tickStatuses(st: StatusState, dt: number, paused: boolean): string[] {
+  const expired: string[] = [];
   for (const e of st.effects) {
+    if (paused && e.kind !== "timestop") continue;
     e.remaining -= dt;
   }
-  st.effects = st.effects.filter((e) => e.remaining > 0);
+  const keep: StatusInstance[] = [];
+  for (const e of st.effects) {
+    if (e.remaining > 0) keep.push(e);
+    else expired.push(e.kind);
+  }
+  st.effects = keep;
+
+  if (!paused) {
+    if (st.shield_remaining > 0) {
+      st.shield_remaining -= dt;
+      if (st.shield_remaining <= 0) {
+        st.shield_remaining = 0;
+        st.shield_pool = 0;
+      }
+    }
+  }
+  return expired;
 }
 
 export function hasKind(st: StatusState, kind: CcKind): boolean {
@@ -237,7 +262,25 @@ export function isSilenced(st: StatusState): boolean {
 }
 
 export function isRooted(st: StatusState): boolean {
-  return hasKind(st, "root") || hasKind(st, "leash");
+  return hasKind(st, "root");
+}
+
+export function isLeashed(st: StatusState): boolean {
+  return hasKind(st, "leash");
+}
+
+export function isTaunted(st: StatusState): boolean {
+  return hasKind(st, "taunt");
+}
+
+export function tauntSourceId(st: StatusState): string | null {
+  const e = st.effects.find((x) => x.kind === "taunt" && x.remaining > 0);
+  return e?.source_id ?? null;
+}
+
+export function leashSourceId(st: StatusState): string | null {
+  const e = st.effects.find((x) => x.kind === "leash" && x.remaining > 0);
+  return e?.source_id ?? null;
 }
 
 export function underBreak(st: StatusState, now: number): boolean {
@@ -285,12 +328,21 @@ export function basicDispel(st: StatusState): string[] {
   return removed;
 }
 
-export function addShield(st: StatusState, amount: number, maxHp: number, capFrac: number): { applied: number; capped_to: number } {
+export function addShield(
+  st: StatusState,
+  amount: number,
+  maxHp: number,
+  capFrac: number,
+  duration_s?: number,
+): { applied: number; capped_to: number } {
   st.shield_pool += amount;
   const cap = maxHp * capFrac;
   const capped = Math.min(st.shield_pool, cap);
   const applied = amount - Math.max(0, st.shield_pool - capped);
   st.shield_pool = capped;
+  if (duration_s !== undefined && duration_s > 0) {
+    st.shield_remaining = Math.max(st.shield_remaining, duration_s);
+  }
   return { applied: Math.max(0, applied), capped_to: capped };
 }
 

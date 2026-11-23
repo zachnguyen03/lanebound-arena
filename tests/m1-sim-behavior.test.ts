@@ -336,7 +336,7 @@ describe("M1-14 Mirren Kiln-Cured (sim)", () => {
       true,
     );
     // Slow is authored 35% on Mirren W hex (kits.cc notes)
-    expect(KITS.mirren!.W.cc![0]!.notes).toMatch(/35%/);
+    expect(KITS.mirren!.W.slow?.pct).toBe(0.35);
     const hexApply = r.events.find((e) => e.type === "cc_apply" && e.kind === "hex")!;
     expect(hexApply).toBeDefined();
     // During hex window, Huntress Q should be kiln-amped; inspect mid-match state via hit

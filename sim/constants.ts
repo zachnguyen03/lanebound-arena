@@ -1,7 +1,11 @@
 /**
- * Build-spec §15 defaults. Do not change a default without reporting in lab/s0/REPORT.md.
- * Soft-separation knobs are inventions (INV-SEP-*), flagged in REPORT.md.
+ * Build-spec §15 defaults. Do not change a default without reporting in lab REPORT.md.
+ * SEPARATION_STRENGTH is GD-accepted (Appendix R #2). SCRIPTED_ARRIVE_R is lab-only
+ * (not in this table / constants_hash).
  */
+
+/** Lab-only scripted-motor arrive radius — not a gameplay constant. */
+export const LAB_SCRIPTED_ARRIVE_R = 0.15;
 
 export const XP_TO_LEVEL: Record<number, number> = {
   1: 0,
@@ -111,14 +115,12 @@ export interface Constants {
   DENY_ANY_UNIT: boolean;
   LAB_GAMES: number;
   LAB_SEED: number;
-  /** Invention INV-SEP-RADIUS: G6 soft separation radius (tiles). */
+  /** Soft ally separation radius (tiles). */
   SEPARATION_RADIUS: number;
-  /** Invention INV-SEP-STRENGTH: push speed at dist=0 (tiles/s). */
+  /** Soft ally separation push at dist=0 (tiles/s). GD-accepted Appendix R #2. */
   SEPARATION_STRENGTH: number;
   /** Invention INV-SPAWN-JITTER: ±y when two units would overlap on pad. */
   SPAWN_JITTER_Y: number;
-  /** Invention INV-ARRIVE-R: default scripted-motor arrive radius. */
-  SCRIPTED_ARRIVE_R: number;
 }
 
 export const DEFAULT_CONSTANTS: Constants = {
@@ -213,7 +215,6 @@ export const DEFAULT_CONSTANTS: Constants = {
   SEPARATION_RADIUS: 0.6,
   SEPARATION_STRENGTH: 2.0,
   SPAWN_JITTER_Y: 0.3,
-  SCRIPTED_ARRIVE_R: 0.15,
 };
 
 export function mergeConstants(overrides?: Partial<Record<string, unknown>>): Constants {

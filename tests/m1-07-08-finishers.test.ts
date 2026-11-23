@@ -7,7 +7,7 @@ describe("M1-07 Huntress R absolute packets (kits.ts)", () => {
   it("marked +35% absolute L7 values from kits formula", () => {
     const s = statsAtLevel("huntress", 7);
     const base = kitBase("huntress", "R", s.atk, s.pow);
-    expect(KITS.huntress!.R.l7_formula).toBe("230 + 105% ATK");
+    expect(KITS.huntress!.R.damage).toEqual({ base: 230, atk: 1.05 });
     expect(base).toBeCloseTo(230 + 1.05 * 100, 10);
     const a = huntressRPacket(7, s.atk, 36, true);
     const b = huntressRPacket(7, s.atk, 36, false);
@@ -23,7 +23,7 @@ describe("M1-07 Huntress R absolute packets (kits.ts)", () => {
 describe("M1-08 Maelis R and Kerrig R absolute finishers", () => {
   it("Maelis R absolute L7 within 0.02", () => {
     const s = statsAtLevel("maelis", 7);
-    expect(KITS.maelis!.R.l7_formula).toBe("350 + 170% POW");
+    expect(KITS.maelis!.R.damage).toEqual({ base: 350, pow: 1.7 });
     const base = kitBase("maelis", "R", s.atk, s.pow);
     expect(base).toBeCloseTo(350 + 1.7 * s.pow, 10);
     const miss = 0.4;
@@ -35,7 +35,7 @@ describe("M1-08 Maelis R and Kerrig R absolute finishers", () => {
 
   it("Kerrig R absolute L7 within 0.02; no mark fizzles", () => {
     const s = statsAtLevel("kerrig", 7);
-    expect(KITS.kerrig!.R.l7_formula).toBe("330 + 140% ATK + 15% POW");
+    expect(KITS.kerrig!.R.damage).toEqual({ base: 330, atk: 1.4, pow: 0.15 });
     const base = kitBase("kerrig", "R", s.atk, s.pow);
     expect(base).toBeCloseTo(330 + 1.4 * s.atk + 0.15 * s.pow, 10);
     const miss = 0.5;

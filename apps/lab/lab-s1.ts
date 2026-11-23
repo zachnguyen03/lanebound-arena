@@ -99,7 +99,7 @@ add("5", "helper", "L1/L7/L10 snapshots ×14", snapOk ? "all match" : "MISMATCH"
 add("11h", "helper", "Tolle W radius/duration from kits", `r=${KITS.tolle!.W.radius}; d=${KITS.tolle!.W.cc![0]!.duration_s}`, "0 / 1.8", KITS.tolle!.W.radius === 0 && KITS.tolle!.W.cc![0]!.duration_s === 1.8);
 add("12h", "helper", "Saelo R Still Hour r=2.4", `${KITS.saelo!.R.name} r=${KITS.saelo!.R.radius}`, "Still Hour / 2.4", KITS.saelo!.R.name === "Still Hour" && KITS.saelo!.R.radius === 2.4);
 add("calder", "helper", "Calder W radius 0.0", String(KITS.calder!.W.radius), "0.0", KITS.calder!.W.radius === 0);
-add("mirren-slow", "helper", "Mirren W hex slows 35%", String(KITS.mirren!.W.cc![0]!.notes), "35%", /35%/.test(KITS.mirren!.W.cc![0]!.notes ?? ""));
+add("mirren-slow", "helper", "Mirren W hex slows 35%", String(KITS.mirren!.W.slow?.pct), "0.35", KITS.mirren!.W.slow?.pct === 0.35);
 
 {
   const st = emptyStatus();

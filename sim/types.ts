@@ -203,6 +203,8 @@ export interface UnitState {
   cast_seq: number;
   break_until: number;
   commit_until: number;
+  /** Saelo Rewound Moment: once per fight. */
+  rewind_used: boolean;
 }
 
 export interface Displacement {
@@ -227,6 +229,57 @@ export interface PendingDamage {
   pre_mitigated?: number;
 }
 
+export interface PendingSkillLand {
+  land_t: number;
+  spawn_seq: number;
+  source_id: UnitId;
+  skill: "Q" | "W" | "R";
+  skill_id: string;
+  aim_x: number;
+  aim_y: number;
+  radius: number;
+  target_id: UnitId | null;
+  champ: string;
+}
+
+/** Queued CC / slow / mark-side status for phase 9. */
+export interface PendingStatus {
+  seq: number;
+  source_id: UnitId;
+  target_id: UnitId;
+  kind: import("./status.js").CcKind;
+  category: import("./status.js").CcCategory;
+  raw_duration: number;
+  school: "physical" | "magic";
+  slow?: number;
+  petrify?: boolean;
+  hex_from?: string;
+  /** Well-Fed / assist bookkeeping: skill that caused this CC. */
+  skill_id?: string;
+}
+
+export interface PendingHeal {
+  seq: number;
+  source_id: UnitId;
+  target_id: UnitId;
+  skill_id: string;
+  raw: number;
+  /** If true, skip skill_scale (already baked or passive). */
+  skip_skill_scale?: boolean;
+  /** Override combat scale (e.g. Well-Fed uses combat_heal_multiplier from passive). */
+  combat_mult?: number;
+}
+
+export interface PendingShield {
+  seq: number;
+  source_id: UnitId;
+  target_id: UnitId;
+  skill_id: string;
+  raw: number;
+  duration_s: number;
+  skip_skill_scale?: boolean;
+}
+
 export interface MatchState {
   tick: number;
   t: number;
@@ -241,6 +294,9 @@ export interface MatchState {
   units: UnitState[];
   displacements: Displacement[];
   pending_damage: PendingDamage[];
+  pending_status: PendingStatus[];
+  pending_heals: PendingHeal[];
+  pending_shields: PendingShield[];
   event_seq: number;
   config: MatchConfig;
   forced_clock_end: boolean;

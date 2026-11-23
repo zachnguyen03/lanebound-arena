@@ -18,7 +18,7 @@ import {
 import { DEFAULT_CONSTANTS } from "./constants.js";
 import { RngBank } from "./rng.js";
 import { sha256Hex } from "./sha256.js";
-import { evalL7Base } from "./formula.js";
+import { abilityBaseRaw, evalL7Base } from "./formula.js";
 import { rollSkillshotHit } from "./cast.js";
 
 export {
@@ -35,11 +35,12 @@ export {
   strongDispel,
   basicDispel,
   evalL7Base,
+  abilityBaseRaw,
   rollSkillshotHit,
 };
 
 export function kitBase(champ: string, skill: "Q" | "W" | "R", atk: number, pow: number): number {
-  return evalL7Base(KITS[champ]![skill].l7_formula, atk, pow);
+  return abilityBaseRaw(KITS[champ]![skill], atk, pow);
 }
 
 export function huntressQPacket(level: number, atk: number, targetPres: number): { raw: number; mitigated: number } {
@@ -54,7 +55,8 @@ export function maelisRPacket(
   missingHpFrac: number,
 ): { raw: number; mitigated: number; base_raw: number } {
   const base = kitBase("maelis", "R", 0, pow);
-  const fin = 1 + 0.2 * missingHpFrac;
+  const finCoef = KITS.maelis!.R.finisher ?? 0;
+  const fin = 1 + finCoef * missingHpFrac;
   const p = computePacket({
     base_raw: base,
     level,
@@ -75,7 +77,8 @@ export function kerrigRPacket(
 ): { raw: number; mitigated: number; fizzled: boolean; base_raw: number } {
   if (!hasMark) return { raw: 0, mitigated: 0, fizzled: true, base_raw: 0 };
   const base = kitBase("kerrig", "R", atk, pow);
-  const fin = 1 + 0.35 * missingHpFrac;
+  const finCoef = KITS.kerrig!.R.finisher ?? 0;
+  const fin = 1 + finCoef * missingHpFrac;
   const p = computePacket({
     base_raw: base,
     level,
@@ -93,7 +96,8 @@ export function huntressRPacket(
   marked: boolean,
 ): { raw: number; mitigated: number; consumed_mark: boolean; base_raw: number } {
   const base = kitBase("huntress", "R", atk, 0);
-  const fin = marked ? 1.35 : 1;
+  const bonus = KITS.huntress!.R.mark_bonus ?? 1;
+  const fin = marked ? bonus : 1;
   const p = computePacket({
     base_raw: base,
     level,
@@ -172,7 +176,6 @@ export function rollAimHits(
   c = DEFAULT_CONSTANTS,
 ): { hits: number; rate: number; replayDigest: string; hitChance: number } {
   const rng = new RngBank(seed);
-  // Consume the same reserved draws simulate() does before skillshot use.
   void rng.next("player", 0);
   void rng.next("skillshot", 0);
   const p = hitChance(effAimVal, reflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);

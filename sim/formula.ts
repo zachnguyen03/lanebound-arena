@@ -1,7 +1,9 @@
 /**
- * Parse authored L7 formulas from kits.ts (e.g. "110 + 80% ATK").
- * Do not hardcode kit bases outside this parser + kits.ts.
+ * Ability damage bases from structured kit data (AbilityDef.damage).
+ * Legacy L7 string parser retained for older lab/mutation tooling.
  */
+import type { AbilityDef } from "../data/champions/kits.js";
+
 export interface ParsedFormula {
   base: number;
   atk_ratio: number;
@@ -18,7 +20,6 @@ export function parseL7Formula(formula: string | undefined): ParsedFormula | nul
   let atk_ratio = 0;
   let pow_ratio = 0;
 
-  // Leading constant
   const baseM = s.match(/^(\d+(?:\.\d+)?)/);
   if (baseM) base = parseFloat(baseM[1]!);
 
@@ -35,4 +36,10 @@ export function evalL7Base(formula: string | undefined, atk: number, pow: number
   const p = parseL7Formula(formula);
   if (!p) return 0;
   return p.base + p.atk_ratio * atk + p.pow_ratio * pow;
+}
+
+/** Structured kit damage: base + atk*ATK + pow*POW. */
+export function abilityBaseRaw(ab: AbilityDef, atk: number, pow: number): number {
+  if (!ab.damage || ab.damage === "none") return 0;
+  return ab.damage.base + (ab.damage.atk ?? 0) * atk + (ab.damage.pow ?? 0) * pow;
 }
