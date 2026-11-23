@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Tip commit:** `TIP_PLACEHOLDER`  
+**Tip commit:** `774cfc0100f0d0a02f2978e40e88748bf7e93e3e`  
 **Layout tip verified independently:** `c6de901` (HUD rects ≤1 px, scale 1.0, bbox clean)  
 **Dummy tip verified independently:** `fc1697a`  
 **Date:** 23 Nov 2026  
