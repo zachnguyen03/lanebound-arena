@@ -3,7 +3,10 @@
 button.tab { background: transparent; color: inherit; border: 0; font: inherit; cursor: pointer; padding: 0 14px; }
 .file { position: absolute; width: 1px; height: 1px; overflow: hidden; }
 
-.wrap { padding: 20px 24px; display: grid; gap: 16px; height: calc(100vh - 56px); overflow: auto; }
+.wrap { padding: 20px 24px; display: grid; gap: 16px; height: calc(100vh - 56px); overflow: auto; align-content: start; }
+.wrap > .card { min-height: auto; }
+.wrap h2, .wrap h3, .wrap p { margin: 0; }
+.top .word { width: auto; padding: 0 12px; }
 .hero { position: relative; min-height: 180px; background: var(--c-panel); border: 1px solid var(--c-line); display: grid; grid-template-columns: 1fr 280px 1fr; }
 .side { display: flex; align-items: center; gap: 20px; padding: 24px 36px; }
 .side.r { flex-direction: row-reverse; text-align: right; }
@@ -25,6 +28,9 @@ button.tab { background: transparent; color: inherit; border: 0; font: inherit; 
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
 .form { font-family: var(--f-mono); }
 .note { color: var(--c-dim); font-size: 13px; }
+.faces { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.faces .clubpick { padding: 8px; }
+.faces img { width: 100%; height: auto; display: block; }
 .sub { display: flex; gap: 8px; }
 .sub button.on { background: var(--c-panel-2); }
 .bracket { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }

@@ -1,0 +1,140 @@
+import { expect, test, type Page } from "playwright/test";
+
+test.beforeEach(async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => indexedDB.deleteDatabase("lanebound-career"));
+  await page.reload();
+});
+
+test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a replay", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole("button", { name: "New career" }).click();
+  await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Hunt", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Starve", exact: true })).toBeVisible();
+  await expect(page.getByText("3 / 6 points")).toBeVisible();
+  await expect(page.getByText("3 / 3 cards")).toBeVisible();
+
+  await playAndRecap(page);
+  await expect(page.getByText("Game 2", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Draft" }).click();
+  await expect(page.getByText("Game 2 cannot repeat game 1.")).toBeVisible();
+  await expect(page.locator('[data-screen="cards"] button').first()).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeDisabled();
+
+  await playAndRecap(page);
+  if (await page.getByText("Game 3", { exact: true }).isVisible()) await playAndRecap(page);
+  await page.getByRole("button", { name: "Draft" }).click();
+  await expect(page.getByText("Game 1", { exact: true })).toBeVisible();
+  await expect(page.locator('[data-screen="cards"] button').first()).toBeEnabled();
+});
+
+test("prep and recap at the three desktop widths", async ({ page }) => {
+  const shots: Array<{ name: string; open: (page: Page) => Promise<void> }> = [
+    {
+      name: "09-tactics",
+      open: async (page) => {
+        await enter(page);
+        await page.locator('[data-screen="tactics"]').scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: "09c-tactics-cards",
+      open: async (page) => {
+        await enter(page);
+        await page.locator('[data-screen="cards"]').evaluate((el) => el.scrollIntoView({ block: "start" }));
+      },
+    },
+    {
+      name: "04-draft-fearless",
+      open: async (page) => {
+        await enter(page);
+        await page.getByTestId("play-map").click();
+        await expect(page.getByTestId("recap")).toBeVisible();
+        await page.getByRole("button", { name: "Draft" }).click();
+        await page.locator('[data-screen="draft"]').evaluate((el) => el.scrollIntoView({ block: "start" }));
+      },
+    },
+    {
+      name: "15-match-report",
+      open: async (page) => {
+        await enter(page);
+        await page.getByTestId("play-map").click();
+        await expect(page.getByTestId("recap")).toBeVisible();
+      },
+    },
+  ];
+  for (const [width, height] of [
+    [1440, 900],
+    [1280, 900],
+    [1280, 800],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    for (const shot of shots) {
+      await page.goto("/");
+      await page.evaluate(() => indexedDB.deleteDatabase("lanebound-career"));
+      await page.reload();
+      await shot.open(page);
+      await page.screenshot({ path: `../../lab/c5/shots/${shot.name}-${width}x${height}.png` });
+    }
+  }
+});
+
+test("overlays leave their controls on top", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await enter(page);
+  const date = page.locator(".date");
+  const dateBox = await date.boundingBox();
+  expect(dateBox).not.toBeNull();
+  const dateHit = await page.evaluate(({ x, y }) => {
+    const el = document.elementFromPoint(x, y);
+    return el ? el.closest(".date") !== null : false;
+  }, { x: dateBox!.x + dateBox!.width / 2, y: dateBox!.y + dateBox!.height / 2 });
+  expect(dateHit).toBe(true);
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(page.locator('[data-overlay="settings"]')).toBeVisible();
+  await expectNoOverlap(page, "settings");
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByTestId("import-file").setInputFiles({
+    name: "bad.json",
+    mimeType: "application/json",
+    buffer: Buffer.from("{"),
+  });
+  await expect(page.locator('[data-overlay="error"]')).toBeVisible();
+  await expectNoOverlap(page, "error");
+});
+
+async function enter(page: Page) {
+  await page.getByRole("button", { name: "New career" }).click();
+  await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeVisible();
+}
+
+async function playAndRecap(page: Page) {
+  await page.getByTestId("play-map").click();
+  const recap = page.getByTestId("recap");
+  await expect(recap).toContainText("source: fake");
+  await expect(recap).toContainText(/Fired|Expired/);
+  await expect(recap.locator("td").nth(1)).toContainText(/\d+\.\d/);
+  await expect(page.getByRole("button", { name: /replay/i })).toHaveCount(0);
+}
+
+async function expectNoOverlap(page: Page, overlay: string) {
+  const controls = page.locator(`[data-overlay="${overlay}"]`).locator("button, label");
+  await expect(controls.first()).toBeVisible();
+  const count = await controls.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i++) {
+    const box = await controls.nth(i).boundingBox();
+    expect(box).not.toBeNull();
+    const hit = await page.evaluate(({ x, y }) => {
+      const el = document.elementFromPoint(x, y);
+      return el ? el.closest("button, label, a") !== null : false;
+    }, { x: box!.x + box!.width / 2, y: box!.y + Math.min(box!.height / 2, 12) });
+    expect(hit).toBe(true);
+  }
+}

@@ -1,0 +1,792 @@
+{
+ "set": "Lanebound arena cards v2 \u00b7 batches 1\u20134 \u00b7 28 cards",
+ "scale": "authored 1x, @2x = integer nearest-neighbour only",
+ "alias": {
+  "unclaimed-ground": [
+   "ward-the-river"
+  ]
+ },
+ "geometry": {
+  "face": {
+   "size": [
+    240,
+    336
+   ],
+   "window": [
+    9,
+    9,
+    222,
+    102
+   ],
+   "cost_chip": [
+    14,
+    14
+   ],
+   "body": [
+    12,
+    119,
+    216,
+    206
+   ],
+   "font": {
+    "name": "Barlow Condensed 700 24px caps",
+    "rules": "Barlow Medium 14px/1.34 (12px/1.16 on Crown of the Split)",
+    "label": "Barlow Condensed 600/700 12px"
+   }
+  },
+  "small": {
+   "size": [
+    120,
+    168
+   ],
+   "window": [
+    6,
+    6,
+    108,
+    64
+   ],
+   "cost_chip": [
+    10,
+    10
+   ],
+   "marker_chip": "top-right"
+  },
+  "toast1080": {
+   "size": [
+    420,
+    72
+   ],
+   "slot": [
+    750,
+    800,
+    420,
+    72
+   ],
+   "tile": [
+    9,
+    8,
+    56,
+    56
+   ]
+  },
+  "toast720": {
+   "size": [
+    260,
+    60
+   ],
+   "slot": [
+    510,
+    90,
+    260,
+    60
+   ],
+   "slot_was_in_hud_spec": [
+    510,
+    90,
+    260,
+    44
+   ],
+   "note": "Anh approved 260x60. See brief-v2.md \u00a70 HUD spec delta.",
+   "tile": [
+    6,
+    8,
+    44,
+    44
+   ]
+  }
+ },
+ "frames": "frames/<rarity>-<full|small|toast1080|toast720>.png (overlay, interior transparent) + -mask.png (1-bit silhouette)",
+ "tokens": "tokens-cards-arena.css \u2014 --k-sig is champagne metallic #9C864C (highlight #B09C68, shade #6A5A34, panel #1C1812). Never objective gold #F2C14E (\u0394E \u2265 20). Retired bone #B0A482 is in options/signature-bone/.",
+ "cards": [
+  {
+   "id": "clear-speed",
+   "name": "Clear Speed",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "lead",
+   "role": "Jungle",
+   "when": "Holder collects 3 orbs before 1:30",
+   "then": "Holder +80 XP and +5% move speed for 45 s",
+   "toast": "Holder +80 XP and +5% move speed for 45 s.",
+   "toast720": "Holder +80 XP, +5% move speed for 45 s.",
+   "scope": [
+    "Holder"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/clear-speed.png",
+    "face2x": "faces/clear-speed@2x.png",
+    "small": "small/clear-speed.png",
+    "small2x": "small/clear-speed@2x.png",
+    "art32": "art/clear-speed.png",
+    "toast1080": "toast/clear-speed-1080.png",
+    "toast720": "toast/clear-speed-720.png"
+   }
+  },
+  {
+   "id": "spoils-of-war",
+   "name": "Spoils of War",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "lead",
+   "when": "We win our first teamfight (3+ per side)",
+   "then": "Team +8% damage for 45 s",
+   "toast": "Team +8% damage for 45 s.",
+   "toast720": "Team +8% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/spoils-of-war.png",
+    "face2x": "faces/spoils-of-war@2x.png",
+    "small": "small/spoils-of-war.png",
+    "small2x": "small/spoils-of-war@2x.png",
+    "art32": "art/spoils-of-war.png",
+    "toast1080": "toast/spoils-of-war-1080.png",
+    "toast720": "toast/spoils-of-war-720.png"
+   }
+  },
+  {
+   "id": "first-claim",
+   "name": "First Claim",
+   "old": "Shrine Blessing",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "lead",
+   "when": "We take the first zone capture or first claim tick",
+   "then": "Team +10% damage for 45 s",
+   "toast": "Team +10% damage for 45 s.",
+   "toast720": "Team +10% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/first-claim.png",
+    "face2x": "faces/first-claim@2x.png",
+    "small": "small/first-claim.png",
+    "small2x": "small/first-claim@2x.png",
+    "art32": "art/first-claim.png",
+    "toast1080": "toast/first-claim-1080.png",
+    "toast720": "toast/first-claim-720.png"
+   }
+  },
+  {
+   "id": "triple-threat",
+   "name": "Triple Threat",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "lead",
+   "role": "Top / Jng / Mid / ADC",
+   "when": "Holder reaches 3 kills before 3:00",
+   "then": "Holder +12% damage for 45 s",
+   "toast": "Holder +12% damage for 45 s.",
+   "toast720": "Holder +12% damage for 45 s.",
+   "scope": [
+    "Holder"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/triple-threat.png",
+    "face2x": "faces/triple-threat@2x.png",
+    "small": "small/triple-threat.png",
+    "small2x": "small/triple-threat@2x.png",
+    "art32": "art/triple-threat.png",
+    "toast1080": "toast/triple-threat-1080.png",
+    "toast720": "toast/triple-threat-720.png"
+   }
+  },
+  {
+   "id": "unclaimed-ground",
+   "name": "Unclaimed Ground",
+   "old": "Ward the River",
+   "alias": "ward-the-river",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "neutral",
+   "when": "No zone capture by either team by 1:30",
+   "then": "Team +8% move speed for 45 s and +40 XP each",
+   "toast": "Team +8% move speed for 45 s and +40 XP each.",
+   "toast720": "Team +8% move speed, +40 XP each, for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/unclaimed-ground.png",
+    "face2x": "faces/unclaimed-ground@2x.png",
+    "small": "small/unclaimed-ground.png",
+    "small2x": "small/unclaimed-ground@2x.png",
+    "art32": "art/unclaimed-ground.png",
+    "toast1080": "toast/unclaimed-ground-1080.png",
+    "toast720": "toast/unclaimed-ground-720.png"
+   }
+  },
+  {
+   "id": "blood-in-the-water",
+   "name": "Blood in the Water",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "neutral",
+   "when": "8+ total takedowns by 2:00, either side",
+   "then": "Team takes 9% less damage for 45 s",
+   "toast": "Team takes 9% less damage for 45 s.",
+   "toast720": "Team takes 9% less damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/blood-in-the-water.png",
+    "face2x": "faces/blood-in-the-water@2x.png",
+    "small": "small/blood-in-the-water.png",
+    "small2x": "small/blood-in-the-water@2x.png",
+    "art32": "art/blood-in-the-water.png",
+    "toast1080": "toast/blood-in-the-water-1080.png",
+    "toast720": "toast/blood-in-the-water-720.png"
+   }
+  },
+  {
+   "id": "press-the-claim",
+   "name": "Press the Claim",
+   "old": "Sack the Ruins",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "neutral",
+   "when": "A fight ends with 4+ deaths",
+   "then": "Team +15% damage and +30% claim-window success for 45 s",
+   "toast": "Team +15% damage and +30% claim-window success for 45 s.",
+   "toast720": "Team +15% damage, +30% claim success, for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/press-the-claim.png",
+    "face2x": "faces/press-the-claim@2x.png",
+    "small": "small/press-the-claim.png",
+    "small2x": "small/press-the-claim@2x.png",
+    "art32": "art/press-the-claim.png",
+    "toast1080": "toast/press-the-claim-1080.png",
+    "toast720": "toast/press-the-claim-720.png"
+   }
+  },
+  {
+   "id": "shake-it-off",
+   "name": "Shake It Off",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "comeback",
+   "when": "The enemy draws First Blood",
+   "then": "Team +8% damage for 45 s",
+   "toast": "Team +8% damage for 45 s.",
+   "toast720": "Team +8% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/shake-it-off.png",
+    "face2x": "faces/shake-it-off@2x.png",
+    "small": "small/shake-it-off.png",
+    "small2x": "small/shake-it-off@2x.png",
+    "art32": "art/shake-it-off.png",
+    "toast1080": "toast/shake-it-off-1080.png",
+    "toast720": "toast/shake-it-off-720.png"
+   }
+  },
+  {
+   "id": "hold-the-line",
+   "name": "Hold the Line",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "comeback",
+   "when": "We lose the first zone capture",
+   "then": "Team takes 8% less damage for 45 s",
+   "toast": "Team takes 8% less damage for 45 s.",
+   "toast720": "Team takes 8% less damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/hold-the-line.png",
+    "face2x": "faces/hold-the-line@2x.png",
+    "small": "small/hold-the-line.png",
+    "small2x": "small/hold-the-line@2x.png",
+    "art32": "art/hold-the-line.png",
+    "toast1080": "toast/hold-the-line-1080.png",
+    "toast720": "toast/hold-the-line-720.png"
+   }
+  },
+  {
+   "id": "stubborn",
+   "name": "Stubborn",
+   "rarity": "Common",
+   "cost": 1,
+   "kind": "comeback",
+   "role": "Top / Jng / Sup",
+   "when": "Holder has died 3 times before 3:00",
+   "then": "Holder takes 35% less damage for 60 s",
+   "toast": "Holder takes 35% less damage for 60 s.",
+   "toast720": "Holder takes 35% less damage for 60 s.",
+   "scope": [
+    "Holder"
+   ],
+   "batch": 2,
+   "files": {
+    "face": "faces/stubborn.png",
+    "face2x": "faces/stubborn@2x.png",
+    "small": "small/stubborn.png",
+    "small2x": "small/stubborn@2x.png",
+    "art32": "art/stubborn.png",
+    "toast1080": "toast/stubborn-1080.png",
+    "toast720": "toast/stubborn-720.png"
+   }
+  },
+  {
+   "id": "called-shot",
+   "name": "Called Shot",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "lead",
+   "when": "We take the first zone capture",
+   "then": "Mark the enemy with the most champion damage for 60 s (whole team deals +40% to them)",
+   "toast": "Mark the enemy with the most champion damage for 60 s (whole team deals +40% to them).",
+   "toast720": "Marks top champion-damage enemy: +40% from the team, 60 s.",
+   "scope": [
+    "Enemy"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/called-shot.png",
+    "face2x": "faces/called-shot@2x.png",
+    "small": "small/called-shot.png",
+    "small2x": "small/called-shot@2x.png",
+    "art32": "art/called-shot.png",
+    "toast1080": "toast/called-shot-1080.png",
+    "toast720": "toast/called-shot-720.png"
+   }
+  },
+  {
+   "id": "first-flank",
+   "name": "First Flank",
+   "old": "Titan's Reach",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "lead",
+   "when": "We take the first Arena buff",
+   "then": "That buff lasts +15 s. Team +10% damage for 45 s",
+   "toast": "That buff lasts +15 s. Team +10% damage for 45 s.",
+   "toast720": "Buff lasts +15 s. Team +10% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/first-flank.png",
+    "face2x": "faces/first-flank@2x.png",
+    "small": "small/first-flank.png",
+    "small2x": "small/first-flank@2x.png",
+    "art32": "art/first-flank.png",
+    "toast1080": "toast/first-flank-1080.png",
+    "toast720": "toast/first-flank-720.png"
+   }
+  },
+  {
+   "id": "long-night",
+   "name": "Long Night",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "neutral",
+   "when": "A fight within 6 tiles of a buff spot ends with 4+ deaths",
+   "then": "Team +12% damage for 45 s",
+   "toast": "Team +12% damage for 45 s.",
+   "toast720": "Team +12% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/long-night.png",
+    "face2x": "faces/long-night@2x.png",
+    "small": "small/long-night.png",
+    "small2x": "small/long-night@2x.png",
+    "art32": "art/long-night.png",
+    "toast1080": "toast/long-night-1080.png",
+    "toast720": "toast/long-night-720.png"
+   }
+  },
+  {
+   "id": "dead-heat",
+   "name": "Dead Heat",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "neutral",
+   "when": "Even at 2:00 (within 1 takedown and 1 zone tick)",
+   "then": "Team +20% damage for 60 s",
+   "toast": "Team +20% damage for 60 s.",
+   "toast720": "Team +20% damage for 60 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/dead-heat.png",
+    "face2x": "faces/dead-heat@2x.png",
+    "small": "small/dead-heat.png",
+    "small2x": "small/dead-heat@2x.png",
+    "art32": "art/dead-heat.png",
+    "toast1080": "toast/dead-heat-1080.png",
+    "toast720": "toast/dead-heat-720.png"
+   }
+  },
+  {
+   "id": "war-of-attrition",
+   "name": "War of Attrition",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "neutral",
+   "when": "The 4th teamfight begins before 2:00",
+   "then": "Enemy respawn +4 s for 45 s",
+   "toast": "Enemy respawn +4 s for 45 s.",
+   "toast720": "Enemy respawn +4 s for 45 s.",
+   "scope": [
+    "Enemy"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/war-of-attrition.png",
+    "face2x": "faces/war-of-attrition@2x.png",
+    "small": "small/war-of-attrition.png",
+    "small2x": "small/war-of-attrition@2x.png",
+    "art32": "art/war-of-attrition.png",
+    "toast1080": "toast/war-of-attrition-1080.png",
+    "toast720": "toast/war-of-attrition-720.png"
+   }
+  },
+  {
+   "id": "last-orders",
+   "name": "Last Orders",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "comeback",
+   "when": "We trail by 2+ score at 2:00",
+   "then": "Team takes 8% less damage and deals 10% more for 60 s",
+   "toast": "Team takes 8% less damage and deals 10% more for 60 s.",
+   "toast720": "Team takes 8% less, deals 10% more for 60 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/last-orders.png",
+    "face2x": "faces/last-orders@2x.png",
+    "small": "small/last-orders.png",
+    "small2x": "small/last-orders@2x.png",
+    "art32": "art/last-orders.png",
+    "toast1080": "toast/last-orders-1080.png",
+    "toast720": "toast/last-orders-720.png"
+   }
+  },
+  {
+   "id": "not-today",
+   "name": "Not Today",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "comeback",
+   "when": "Enemy takes the first Arena buff (or first capture, if none)",
+   "then": "Team +16% damage for 45 s",
+   "toast": "Team +16% damage for 45 s.",
+   "toast720": "Team +16% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/not-today.png",
+    "face2x": "faces/not-today@2x.png",
+    "small": "small/not-today.png",
+    "small2x": "small/not-today@2x.png",
+    "art32": "art/not-today.png",
+    "toast1080": "toast/not-today-1080.png",
+    "toast720": "toast/not-today-720.png"
+   }
+  },
+  {
+   "id": "regroup",
+   "name": "Regroup",
+   "rarity": "Rare",
+   "cost": 2,
+   "kind": "comeback",
+   "when": "We lose a fight with 4+ of ours dead",
+   "then": "Enemy deals 20% less. Team takes 8% less. Both 45 s",
+   "toast": "Enemy deals 20% less. Team takes 8% less. Both 45 s.",
+   "toast720": "Enemy deals 20% less, team takes 8% less, both 45 s.",
+   "scope": [
+    "Team",
+    "Enemy"
+   ],
+   "batch": 3,
+   "files": {
+    "face": "faces/regroup.png",
+    "face2x": "faces/regroup@2x.png",
+    "small": "small/regroup.png",
+    "small2x": "small/regroup@2x.png",
+    "art32": "art/regroup.png",
+    "toast1080": "toast/regroup-1080.png",
+    "toast720": "toast/regroup-720.png"
+   }
+  },
+  {
+   "id": "bounty-hunter",
+   "name": "Bounty Hunter",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "lead",
+   "when": "Enemy primary carry has died twice by 2:30",
+   "then": "Team +8% damage and enemy respawn +4 s, both 45 s",
+   "toast": "Team +8% damage and enemy respawn +4 s, both 45 s.",
+   "toast720": "Team +8% damage, enemy respawn +4 s, both 45 s.",
+   "scope": [
+    "Team",
+    "Enemy"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/bounty-hunter.png",
+    "face2x": "faces/bounty-hunter@2x.png",
+    "small": "small/bounty-hunter.png",
+    "small2x": "small/bounty-hunter@2x.png",
+    "art32": "art/bounty-hunter.png",
+    "toast1080": "toast/bounty-hunter-1080.png",
+    "toast720": "toast/bounty-hunter-720.png"
+   }
+  },
+  {
+   "id": "closing-argument",
+   "name": "Closing Argument",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "lead",
+   "when": "We score 4 takedowns in a row (no deaths between)",
+   "then": "Team +8% damage for 45 s",
+   "toast": "Team +8% damage for 45 s.",
+   "toast720": "Team +8% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "files": {
+    "face": "faces/closing-argument.png",
+    "face2x": "faces/closing-argument@2x.png",
+    "small": "small/closing-argument.png",
+    "small2x": "small/closing-argument@2x.png",
+    "art32": "art/closing-argument.png",
+    "toast1080": "toast/closing-argument-1080.png",
+    "toast720": "toast/closing-argument-720.png"
+   }
+  },
+  {
+   "id": "huntress-specialist",
+   "name": "Huntress Specialist",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "neutral",
+   "role": "ADC \u00b7 Huntress",
+   "when": "Holder plays Huntress and joins a teamfight after 1:30",
+   "then": "Holder +40% damage for 60 s, team +5% damage for 45 s",
+   "toast": "Holder +40% damage for 60 s, team +5% damage for 45 s.",
+   "toast720": "Holder +40% damage 60 s; team +5% damage 45 s.",
+   "scope": [
+    "Holder",
+    "Team"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/huntress-specialist.png",
+    "face2x": "faces/huntress-specialist@2x.png",
+    "small": "small/huntress-specialist.png",
+    "small2x": "small/huntress-specialist@2x.png",
+    "art32": "art/huntress-specialist.png",
+    "toast1080": "toast/huntress-specialist-1080.png",
+    "toast720": "toast/huntress-specialist-720.png"
+   }
+  },
+  {
+   "id": "contest-fury",
+   "name": "Contest Fury",
+   "old": "Pit Fury",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "neutral",
+   "when": "A contested-zone fight ends with 4+ deaths",
+   "then": "Team +12% damage and +25% tick rate for 45 s",
+   "toast": "Team +12% damage and +25% tick rate for 45 s.",
+   "toast720": "Team +12% damage and +25% tick rate for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "files": {
+    "face": "faces/contest-fury.png",
+    "face2x": "faces/contest-fury@2x.png",
+    "small": "small/contest-fury.png",
+    "small2x": "small/contest-fury@2x.png",
+    "art32": "art/contest-fury.png",
+    "toast1080": "toast/contest-fury-1080.png",
+    "toast720": "toast/contest-fury-720.png"
+   }
+  },
+  {
+   "id": "never-say-die",
+   "name": "Never Say Die",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "comeback",
+   "when": "We trail by 3+ score before 2:30",
+   "then": "Team takes 12% less damage and deals 8% more for 60 s",
+   "toast": "Team takes 12% less damage and deals 8% more for 60 s.",
+   "toast720": "Team takes 12% less, deals 8% more for 60 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 1,
+   "files": {
+    "face": "faces/never-say-die.png",
+    "face2x": "faces/never-say-die@2x.png",
+    "small": "small/never-say-die.png",
+    "small2x": "small/never-say-die@2x.png",
+    "art32": "art/never-say-die.png",
+    "toast1080": "toast/never-say-die-1080.png",
+    "toast720": "toast/never-say-die-720.png"
+   }
+  },
+  {
+   "id": "last-stand",
+   "name": "Last Stand",
+   "rarity": "Epic",
+   "cost": 3,
+   "kind": "comeback",
+   "when": "We have lost zone ownership twice, or we trail by 4+ score, by 3:00",
+   "then": "Team takes 20% less and deals 12% more for 60 s",
+   "toast": "Team takes 20% less and deals 12% more for 60 s.",
+   "toast720": "Team takes 20% less, deals 12% more for 60 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "files": {
+    "face": "faces/last-stand.png",
+    "face2x": "faces/last-stand@2x.png",
+    "small": "small/last-stand.png",
+    "small2x": "small/last-stand@2x.png",
+    "art32": "art/last-stand.png",
+    "toast1080": "toast/last-stand-1080.png",
+    "toast720": "toast/last-stand-720.png"
+   }
+  },
+  {
+   "id": "pillar-of-the-split",
+   "name": "Pillar of the Split",
+   "rarity": "Signature",
+   "cost": 3,
+   "kind": "neutral",
+   "when": "Holder joins the first teamfight that starts after 1:30",
+   "then": "Holder +40% damage and takes 15% less damage, team +5% damage, all for 45 s",
+   "toast": "Holder +40% damage and takes 15% less damage, team +5% damage, all for 45 s.",
+   "toast720": "Holder +40% damage, takes 15% less; team +5% damage; all 45 s.",
+   "scope": [
+    "Holder",
+    "Team"
+   ],
+   "batch": 4,
+   "award": "Awarded for Split MVP.",
+   "files": {
+    "face": "faces/pillar-of-the-split.png",
+    "face2x": "faces/pillar-of-the-split@2x.png",
+    "small": "small/pillar-of-the-split.png",
+    "small2x": "small/pillar-of-the-split@2x.png",
+    "art32": "art/pillar-of-the-split.png",
+    "toast1080": "toast/pillar-of-the-split-1080.png",
+    "toast720": "toast/pillar-of-the-split-720.png"
+   }
+  },
+  {
+   "id": "finals-poise",
+   "name": "Finals Poise",
+   "rarity": "Signature",
+   "cost": 3,
+   "kind": "comeback",
+   "when": "We lose the first zone capture",
+   "then": "Team +16% damage for 45 s",
+   "toast": "Team +16% damage for 45 s.",
+   "toast720": "Team +16% damage for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "award": "Awarded for Finals MVP.",
+   "files": {
+    "face": "faces/finals-poise.png",
+    "face2x": "faces/finals-poise@2x.png",
+    "small": "small/finals-poise.png",
+    "small2x": "small/finals-poise@2x.png",
+    "art32": "art/finals-poise.png",
+    "toast1080": "toast/finals-poise-1080.png",
+    "toast720": "toast/finals-poise-720.png"
+   }
+  },
+  {
+   "id": "crown-of-the-split",
+   "name": "Crown of the Split",
+   "rarity": "Signature",
+   "cost": 3,
+   "kind": "lead",
+   "when": "We take the first zone capture",
+   "then": "Team +12% damage for 45 s, and our next claim window that starts within those 45 s cannot be denied: at the 8 s resolve, the zone flips to us and the claim tick scores even if enemies stand in the zone. Lapses if no claim window starts in 45 s",
+   "toast": "Team +12% damage for 45 s. Next claim window in that time cannot be denied.",
+   "toast720": "Team +12% damage 45 s; next claim in 45 s cannot be denied.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "award": "Awarded for a Split or Vernal Invitational win.",
+   "files": {
+    "face": "faces/crown-of-the-split.png",
+    "face2x": "faces/crown-of-the-split@2x.png",
+    "small": "small/crown-of-the-split.png",
+    "small2x": "small/crown-of-the-split@2x.png",
+    "art32": "art/crown-of-the-split.png",
+    "toast1080": "toast/crown-of-the-split-1080.png",
+    "toast720": "toast/crown-of-the-split-720.png"
+   }
+  },
+  {
+   "id": "convergence-crown",
+   "name": "Convergence Crown",
+   "rarity": "Signature",
+   "cost": 3,
+   "kind": "neutral",
+   "when": "Even at 2:00 (within 1 takedown and 1 tick)",
+   "then": "Team +10% damage and enemy respawn +4 s for 45 s",
+   "toast": "Team +10% damage and enemy respawn +4 s for 45 s.",
+   "toast720": "Team +10% damage and enemy respawn +4 s for 45 s.",
+   "scope": [
+    "Team"
+   ],
+   "batch": 4,
+   "award": "Awarded to starters who win the Grand Convergence.",
+   "files": {
+    "face": "faces/convergence-crown.png",
+    "face2x": "faces/convergence-crown@2x.png",
+    "small": "small/convergence-crown.png",
+    "small2x": "small/convergence-crown@2x.png",
+    "art32": "art/convergence-crown.png",
+    "toast1080": "toast/convergence-crown-1080.png",
+    "toast720": "toast/convergence-crown-720.png"
+   }
+  }
+ ]
+}

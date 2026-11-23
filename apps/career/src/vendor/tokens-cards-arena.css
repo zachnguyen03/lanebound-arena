@@ -1,0 +1,9 @@
+/* Arena card set v2: only values that differ from mockups/site/tokens.css. Everything else (panel, line, text, dim, faint, Barlow) is reused as is. */
+:root{
+  --k-common:#8E97A7; --k-rare:#5FD3BF; --k-epic:#B03FC2;      /* unchanged from B2 */
+  --k-sig:#9C864C; --k-sig-shade:#6A5A34; --k-sig-hi:#B09C68; /* champagne metallic; was bone #B0A482, was ivory #F4E9CF */
+  --k-sig-deep:#483C22; --k-sig-panel:#1C1812; --k-sig-panel2:#241E16;
+  --k-marker:#A1ACBF;                                           /* = --c-dim, one ink for lead / comeback / neutral */
+  --k-chamfer:8px; --k-chamfer-s:6px; --k-scoop:4px; --k-scoop-s:3px;
+}
+/* Signature is champagne metallic on a warm dark panel, never objective gold #F2C14E (ΔE ≥ 20 in normal + CVD). */

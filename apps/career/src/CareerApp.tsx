@@ -1,5 +1,8 @@
 import { SLOTS } from "@lanebound/match-contract";
 import {
+  advanceSeason,
+  arenaCard,
+  chooseSignature,
   loadSave,
   parseSession,
   selectStarters,
@@ -10,10 +13,11 @@ import {
   type Club,
 } from "@lanebound/career";
 import { useEffect, useState } from "react";
+import { MatchDeck } from "./match";
 import { readSave, writeSave } from "./save";
 import { Button } from "./ui/button";
 
-type Screen = "menu" | "pick" | "home" | "players" | "lineup" | "contracts" | "league" | "bracket" | "fixtures";
+type Screen = "menu" | "pick" | "home" | "players" | "lineup" | "contracts" | "league" | "bracket" | "fixtures" | "prep" | "recap" | "cards" | "tactics" | "draft" | "awards";
 
 type View =
   | { kind: "session"; session: CareerSession }
@@ -96,6 +100,7 @@ export function CareerApp() {
   const players = view?.kind === "session" ? view.session.players : view?.save.players ?? [];
   const contracts = view?.kind === "session" ? view.session.contracts : view?.save.contracts ?? [];
   const mine = clubs.find((club) => club.id === playerId);
+  const session = view?.kind === "session" ? view.session : null;
 
   if (!ready) {
     return (
@@ -123,20 +128,20 @@ export function CareerApp() {
               Squad
             </button>
             <button
-              className={screen === "league" || screen === "bracket" || screen === "fixtures" ? "tab on" : "tab"}
+              className={screen === "league" || screen === "bracket" || screen === "fixtures" || screen === "awards" ? "tab on" : "tab"}
               onClick={() => setScreen("league")}
             >
               Competitions
             </button>
           </div>
           <div className="sp" />
-          <button className="icon-btn" aria-label="Settings" onClick={() => setSettings(true)}>
+          <button className="icon-btn word" aria-label="Settings" onClick={() => setSettings(true)}>
             Settings
           </button>
           <div className="date">
             Matchday 1 · <b>Bound Circuit</b>
           </div>
-          <Button variant="primary" onClick={() => setScreen("fixtures")}>
+          <Button variant="primary" onClick={() => setScreen("prep")}>
             Continue ▸
           </Button>
         </header>
@@ -176,6 +181,15 @@ export function CareerApp() {
               : clubs.map((club) => <ClubCard key={club.id} club={club} onPick={() => start(club.id)} />)}
           </div>
         </main>
+      ) : null}
+
+      {session && (screen === "prep" || screen === "recap" || screen === "cards" || screen === "tactics" || screen === "draft") ? (
+        <MatchDeck
+          session={session}
+          mode={screen === "recap" ? "recap" : "prep"}
+          onSession={(next) => setView({ kind: "session", session: next })}
+          onMode={setScreen}
+        />
       ) : null}
 
       {screen === "home" && mine ? (
