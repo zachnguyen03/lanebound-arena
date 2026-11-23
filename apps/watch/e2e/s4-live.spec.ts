@@ -80,9 +80,7 @@ test.describe("S4 live evenOvr match", () => {
       const death = page.locator('[data-event-type="death"]').first();
       await expect(death).toBeVisible();
       await death.click();
-      const strip = page.getByTestId("decision-strip");
-      await strip.scrollIntoViewIfNeeded();
-      await expect(strip).toBeVisible();
+      await expect(page.getByTestId("decision-strip")).toBeVisible();
 
       await page.getByTestId("btn-export-config").click();
       await expect(page.getByTestId("exported-config")).toContainText(

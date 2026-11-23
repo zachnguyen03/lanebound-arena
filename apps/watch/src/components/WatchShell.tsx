@@ -499,6 +499,20 @@ export function WatchShell() {
 
               <CardToastSlot rect={layout.card_toast_slot} />
 
+              {deathEvent ? (
+                <div
+                  data-testid="decision-strip-slot"
+                  style={decisionStripBox(layout)}
+                  className="z-30"
+                >
+                  <DecisionStrip
+                    events={engine.events}
+                    death={deathEvent}
+                    onClose={() => setDeathEvent(null)}
+                  />
+                </div>
+              ) : null}
+
               <DockPanels
                 state={state}
                 zone={layout.dock_panels.zone}
@@ -569,13 +583,6 @@ export function WatchShell() {
                   {configError}
                 </p>
               ) : null}
-              {deathEvent && engine ? (
-                <DecisionStrip
-                  events={engine.events}
-                  death={deathEvent}
-                  onClose={() => setDeathEvent(null)}
-                />
-              ) : null}
               {missingAssets.length > 0 ? (
                 <MissingArtList paths={missingAssets} />
               ) : null}
@@ -635,6 +642,24 @@ export function WatchShell() {
       ) : null}
     </div>
   );
+}
+
+function decisionStripBox(layout: {
+  dock: readonly [number, number, number, number];
+  playfield_region: readonly [number, number, number, number];
+}) {
+  const height = 148;
+  const play = layout.playfield_region;
+  const width = Math.min(720, play[2] - 16);
+  const left = play[0] + Math.floor((play[2] - width) / 2);
+  const top = layout.dock[1] - height - 4;
+  return {
+    position: "absolute" as const,
+    left,
+    top,
+    width,
+    height,
+  };
 }
 
 function MissingArtList({ paths }: { paths: string[] }) {

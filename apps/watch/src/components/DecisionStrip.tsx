@@ -24,7 +24,7 @@ export function DecisionStrip({ events, death, onClose }: Props) {
   return (
     <div
       data-testid="decision-strip"
-      className="border border-line bg-panel p-2 text-xs"
+      className="flex h-full min-h-0 flex-col overflow-hidden border border-line bg-panel p-2 text-xs"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="font-condensed text-sm tracking-wide">
@@ -48,7 +48,7 @@ export function DecisionStrip({ events, death, onClose }: Props) {
           className="border border-line-2 bg-field px-1 py-0.5 text-paper"
         />
       </label>
-      <div className="mt-2 grid gap-2 md:grid-cols-2">
+      <div className="mt-2 grid min-h-0 flex-1 gap-2 md:grid-cols-2">
         <StripCol title={`Killer ${strip.killerId ?? "—"}`} rows={killer} />
         <StripCol title={`Victim ${strip.victimId ?? "—"}`} rows={victim} />
       </div>
@@ -58,9 +58,9 @@ export function DecisionStrip({ events, death, onClose }: Props) {
 
 function StripCol({ title, rows }: { title: string; rows: SimEvent[] }) {
   return (
-    <div data-testid="decision-col">
+    <div data-testid="decision-col" className="flex min-h-0 flex-col">
       <div className="text-dim">{title}</div>
-      <ul className="mt-1 max-h-40 overflow-auto">
+      <ul className="mt-1 min-h-0 flex-1 overflow-auto">
         {rows.length === 0 ? (
           <li className="text-faint">No decisions in this window.</li>
         ) : (
