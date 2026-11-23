@@ -58,6 +58,30 @@ describe("C2 glicko, points, awards, contracts", () => {
     expect(() => glickoUpdate(initialGlicko(), [])).toThrow(/unchanged/);
   });
 
+  it("orders series MVP by mean rating, then maps, then mean z, then lower player id", () => {
+    const line = (player_id: string, rating: number, z: number) => ({ player_id, rating, z });
+    // Each pair disagrees on two adjacent keys, so promoting the later key picks the other player.
+    const ratingOverMaps = [
+      { players: [line("rater", 9, 0), line("volume", 4, 1)] },
+      { players: [line("volume", 4, 1)] },
+    ];
+    const mapsOverZ = [
+      { players: [line("volume", 6, 0), line("spike", 6, 2)] },
+      { players: [line("volume", 6, 0)] },
+    ];
+    const zOverId = [{ players: [line("m-b", 7, 0.4), line("m-a", 7, 0.1)] }];
+    for (const stage of ["regular", "semi", "final"] as const) {
+      const mvp = (games: typeof ratingOverMaps) => {
+        const series = { stage, games, mvp_player_id: seriesMvp(games as unknown as SeriesResult["games"]) };
+        expect(series.stage).toBe(stage);
+        return series.mvp_player_id;
+      };
+      expect(mvp(ratingOverMaps)).toBe("rater");
+      expect(mvp(mapsOverZ)).toBe("volume");
+      expect(mvp(zOverId)).toBe("m-b");
+    }
+  });
+
   it("grants Pillar, then Crown, then Finals Poise, and no signature for the other awards", () => {
     const row = (playerId: string, rating: number, extra: { dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }) => ({
       player_id: playerId,
