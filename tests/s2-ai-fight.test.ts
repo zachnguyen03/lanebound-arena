@@ -87,6 +87,7 @@ function bare(partial: Partial<UnitState> & Pick<UnitState, "id" | "team" | "slo
     ai_retreat_suppress_until: 0,
     walk_from_pad_until: 0,
     ai_first_auto_done: false,
+    zone_aura_res: 0,
   };
   Object.assign(u, partial);
   return u;

@@ -7,7 +7,12 @@ import {
   recordAssistCredit,
   type AutoMissile,
 } from "./combat.js";
-import { LAB_SCRIPTED_ARRIVE_R, mergeConstants, type Constants } from "./constants.js";
+import {
+  DEFAULT_CONSTANTS,
+  LAB_SCRIPTED_ARRIVE_R,
+  mergeConstants,
+  type Constants,
+} from "./constants.js";
 import {
   applyPendingHealsShields,
   applyPendingStatuses,
@@ -34,6 +39,16 @@ import {
 } from "./status.js";
 import { statsAtLevel } from "./stats.js";
 import { createAiRuntime, tickAi } from "./ai/tick.js";
+import {
+  auraActiveFor,
+  catchupEligible,
+  createArenaRuntime,
+  openClaim,
+  publicZone,
+  snapshotLevels,
+  tickArenaPhase11,
+  type ArenaRuntime,
+} from "./arena.js";
 import { cancelRetreatWindupIfMoving } from "./retreat_combat.js";
 import type {
   MatchConfig,
@@ -207,6 +222,7 @@ function makeUnit(
     ai_retreat_suppress_until: 0,
     walk_from_pad_until: 0,
     ai_first_auto_done: false,
+    zone_aura_res: 0,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -255,6 +271,7 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       if (o.auto_next_start_t !== undefined) u.auto_next_start_t = o.auto_next_start_t;
       if (o.range !== undefined) u.stats.range = o.range;
       if (o.as !== undefined) u.stats.as = o.as;
+      if (o.ms !== undefined) u.stats.ms = o.ms;
     }
   }
   return units;
@@ -446,17 +463,49 @@ export function simulate(config: MatchConfig): SimulateResult {
     }
   }
 
-  const maxTick = Math.round(c.MATCH_T / c.DT);
+  // Short lab fixtures set MATCH_T via T and leave SUDDEN_DEATH_T at the §15
+  // default (270): stop at MATCH_T. Real §5.8 / Bo1 fixtures override SUDDEN.
+  const labShort =
+    !state.forced_clock_end &&
+    c.MATCH_T < 240 - 1e-9 &&
+    Math.abs(c.SUDDEN_DEATH_T - DEFAULT_CONSTANTS.SUDDEN_DEATH_T) < 1e-9;
+  const endT =
+    state.forced_clock_end || labShort ? c.MATCH_T : c.SUDDEN_DEATH_T + c.BO1_EXTRA_S;
+  const maxTick = Math.round(endT / c.DT);
   const ai = config.ai_enabled === true ? createAiRuntime() : null;
+  const arena: ArenaRuntime = createArenaRuntime(c);
   let deathThisTick = false;
+  /** Fight kill tallies for production claim opens: fight_id → team → kills. */
+  const fightKills: Partial<Record<string, { blue: number; red: number }>> = {};
+  let scoredThisTick = false;
+
+  // Publish initial S3 public state (unowned zone, pads down until spawn).
+  publishArena(state, arena, rng);
 
   for (let tick = 1; tick <= maxTick; tick++) {
     if (state.ended) break;
     state.tick = tick;
     state.t = tOf(tick);
-    const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T;
+    scoredThisTick = false;
+    snapshotLevels(state.units, arena);
+    // Phase label
+    if (!state.forced_clock_end) {
+      if (state.t > c.SUDDEN_DEATH_T + 1e-12) arena.phase = "extra_15";
+      else if (state.t > c.MATCH_T + 1e-12) arena.phase = "sudden_death";
+      else arena.phase = "play";
+    }
+    const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T - 1e-12;
     const deathsForAi = deathThisTick;
     deathThisTick = false;
+
+    // S3 arena / scoring only when real §5.8 is on (forced_clock_end: false).
+    // Keeps S1 digests / brawl gold bit-identical under the default clock-end path.
+    const s3Live = !state.forced_clock_end;
+
+    // Aura resists for this tick from previous phase-11 commit (S3-R5-7).
+    for (const u of state.units) {
+      u.zone_aura_res = s3Live && auraActiveFor(arena, u) ? c.ZONE_AURA_RES : 0;
+    }
 
     // Respawn at own slot (L214): no occupancy check — G6 soft separation.
     for (const u of state.units) {
@@ -816,6 +865,22 @@ export function simulate(config: MatchConfig): SimulateResult {
             const asst = state.units.find((x) => x.id === aid);
             if (asst && asst.alive) grantXp(asst, c.ASSIST_XP, "assist", emit);
           }
+          if (s3Live) {
+            // Team takedown score +1 (S3); log before phase-11 score events.
+            if (killer.team === "blue") state.score_blue += 1;
+            else state.score_red += 1;
+            scoredThisTick = true;
+            emit("takedown_score", {
+              team: killer.team,
+              victim_id: u.id,
+              score_after: killer.team === "blue" ? state.score_blue : state.score_red,
+            });
+            if (ai?.fight_id) {
+              const fk = fightKills[ai.fight_id] ?? { blue: 0, red: 0 };
+              fk[killer.team] += 1;
+              fightKills[ai.fight_id] = fk;
+            }
+          }
         }
       }
 
@@ -827,30 +892,56 @@ export function simulate(config: MatchConfig): SimulateResult {
       });
     }
 
-    const timeXp = c.TIME_XP_PER_S * c.DT;
+    const timeXpBase = c.TIME_XP_PER_S * c.DT;
     for (const u of state.units) {
       if (!u.alive) continue;
-      grantXp(u, timeXp, "time", emit);
+      const amt =
+        s3Live && catchupEligible(u, state.units, arena, c)
+          ? timeXpBase * (1 + c.CATCHUP_BONUS)
+          : timeXpBase;
+      grantXp(u, amt, "time", emit);
     }
 
     applyLevelUps(state, c, emit);
 
+    if (s3Live) {
+      // Aura heal (S3-R5-7): 1.5 HP/tick; time-stopped keeps resists, no regen.
+      for (const u of state.units) {
+        if (!u.alive) continue;
+        if (!auraActiveFor(arena, u)) continue;
+        if (isTimeStopped(u.status)) continue;
+        u.hp = Math.min(u.max_hp, u.hp + c.ZONE_AURA_HPS * c.DT);
+      }
+
+      const ar = tickArenaPhase11(state, arena, c, config, emit);
+      if (ar.scored) scoredThisTick = true;
+      applyLevelUps(state, c, emit);
+
+      if (ai && ai.prev_geom_fight === false) {
+        for (const fid of Object.keys(fightKills)) {
+          const fk = fightKills[fid];
+          if (!fk) continue;
+          if (fk.blue !== fk.red) {
+            const team: Team = fk.blue > fk.red ? "blue" : "red";
+            openClaim(arena, team, state.t + c.CLAIM_DELAY_S, fid, emit);
+          }
+          delete fightKills[fid];
+        }
+      }
+    }
+
+    publishArena(state, arena, rng);
+
     if (clockEndFlag) {
-      let winner: "blue" | "red" | "draw" = "draw";
-      if (state.score_blue > state.score_red) winner = "blue";
-      else if (state.score_red > state.score_blue) winner = "red";
-      state.ended = true;
-      state.winner = winner;
-      state.end_reason = "clock";
-      emit("match_end", {
-        winner,
-        reason: "clock",
-        score_blue: state.score_blue,
-        score_red: state.score_red,
-        t: state.t,
-      });
+      endMatch(state, emit, "clock");
+    } else if (s3Live) {
+      decideMatchEnd(state, arena, c, rng, emit, scoredThisTick);
     }
   }
+
+  publishArena(state, arena, rng);
+  if (state.ended) arena.phase = "ended";
+  state.phase = arena.phase;
 
   const ai_stats = ai
     ? {
@@ -860,6 +951,12 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     : undefined;
 
+  const player_stats = state.units.map((u) => ({
+    unit_id: u.id,
+    claim_denies: arena.claim_denies[u.id] ?? 0,
+    zone_seconds: Math.round(((arena.zone.zone_ticks[u.id] ?? 0) / 10) * 1e4) / 1e4,
+  }));
+
   return {
     state,
     events,
@@ -867,6 +964,129 @@ export function simulate(config: MatchConfig): SimulateResult {
     constants_hash: chash,
     data_hash: dhash,
     tick_count: state.tick,
+    player_stats,
     ...(ai_stats ? { ai_stats } : {}),
   };
+}
+
+function publishArena(
+  state: MatchState,
+  arena: ArenaRuntime,
+  rng: RngBank,
+): void {
+  state.zone = publicZone(arena.zone);
+  state.claim = arena.claim
+    ? { team: arena.claim.team, resolve_at: arena.claim.resolve_at, fight_id: arena.claim.fight_id }
+    : null;
+  state.orbs = arena.orbs.map((o) => ({
+    orb_id: o.orb_id,
+    x: o.x,
+    y: o.y,
+    up: o.up,
+    respawn_at: o.respawn_at,
+  }));
+  state.buffs = arena.buffs.map((b) => ({
+    buff_id: b.buff_id,
+    x: b.x,
+    y: b.y,
+    up: b.up,
+    respawn_at: b.respawn_at,
+    holders: b.holders.slice(),
+  }));
+  state.phase = arena.phase;
+  state.rng_counters = rng.getCounters();
+}
+
+function endMatch(
+  state: MatchState,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+  reason: string,
+  winner?: "blue" | "red" | "draw",
+): void {
+  if (state.ended) return;
+  let w: "blue" | "red" | "draw" = winner ?? "draw";
+  if (winner === undefined) {
+    if (state.score_blue > state.score_red) w = "blue";
+    else if (state.score_red > state.score_blue) w = "red";
+    else w = "draw";
+  }
+  state.ended = true;
+  state.winner = w;
+  state.end_reason = reason;
+  emit("match_end", {
+    winner: w,
+    reason,
+    score_blue: state.score_blue,
+    score_red: state.score_red,
+    t: state.t,
+  });
+}
+
+/** Phase 14 precedence: first_to_10 → clock/ladder → sudden_death (S3-R5-2). */
+function decideMatchEnd(
+  state: MatchState,
+  arena: ArenaRuntime,
+  c: Constants,
+  rng: RngBank,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+  scoredThisTick: boolean,
+): void {
+  if (state.ended) return;
+  const sb = state.score_blue;
+  const sr = state.score_red;
+  const lead = sb !== sr;
+  const ahead: "blue" | "red" | null = sb > sr ? "blue" : sr > sb ? "red" : null;
+
+  // (1) first_to_10 — strictly ahead and ≥ SCORE_TO_WIN (S3-R5-10)
+  if (
+    ahead &&
+    ((ahead === "blue" && sb >= c.SCORE_TO_WIN) || (ahead === "red" && sr >= c.SCORE_TO_WIN))
+  ) {
+    endMatch(state, emit, "first_to_10", ahead);
+    return;
+  }
+
+  // (2) 4:00 clock and 4:30 ladder
+  if (Math.abs(state.t - c.MATCH_T) <= 1e-12) {
+    if (ahead) {
+      endMatch(state, emit, "clock", ahead);
+      return;
+    }
+    // tie → sudden death continues (no end)
+  }
+
+  if (Math.abs(state.t - c.SUDDEN_DEATH_T) <= 1e-12) {
+    // Ladder once at 270.0: zone_time then takedowns
+    const zb = arena.zone.control_time_ticks.blue;
+    const zr = arena.zone.control_time_ticks.red;
+    if (zb !== zr) {
+      endMatch(state, emit, "zone_time", zb > zr ? "blue" : "red");
+      return;
+    }
+    // takedowns = score from kills; scores still tied here if we reached ladder
+    if (ahead) {
+      endMatch(state, emit, "takedowns", ahead);
+      return;
+    }
+    // else enter extra_15
+  }
+
+  if (Math.abs(state.t - (c.SUDDEN_DEATH_T + c.BO1_EXTRA_S)) <= 1e-12) {
+    if (ahead) {
+      endMatch(state, emit, "sudden_death", ahead);
+      return;
+    }
+    const flip = rng.next("tiebreak", 0);
+    endMatch(state, emit, "coin_flip", flip < 0.5 ? "blue" : "red");
+    return;
+  }
+
+  // (3) sudden_death / extra_15: first tick ending unequal after a score
+  if (
+    (arena.phase === "sudden_death" || arena.phase === "extra_15") &&
+    scoredThisTick &&
+    ahead
+  ) {
+    endMatch(state, emit, "sudden_death", ahead);
+  }
 }

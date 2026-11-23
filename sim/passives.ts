@@ -70,7 +70,7 @@ export function bedrockResistBonus(u: UnitState, now: number): number {
 
 export function effectiveResist(u: UnitState, physical: boolean, now: number): number {
   const base = physical ? u.stats.pres : u.stats.mres;
-  return base + bedrockResistBonus(u, now);
+  return base + bedrockResistBonus(u, now) + (u.zone_aura_res ?? 0);
 }
 
 /** Well-Fed heal raw (not skill-scaled). */

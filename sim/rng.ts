@@ -61,6 +61,19 @@ export class RngBank {
   chance(stream: StreamId, p: number, unitKey = 0): boolean {
     return this.next(stream, unitKey) < p;
   }
+
+  /** Stream read counts for MatchState.rng_counters (S3-R5-6 tiebreak). */
+  getCounters(): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const stream of Object.keys(STREAM_CODES) as StreamId[]) {
+      let n = 0;
+      for (const [k, v] of this.counters.entries()) {
+        if (k.startsWith(`${stream}:`)) n += v;
+      }
+      out[stream] = n;
+    }
+    return out;
+  }
 }
 
 export function unitKeyFromId(unitId: string): number {

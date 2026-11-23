@@ -88,6 +88,8 @@ export interface MatchConfig {
         auto_next_start_t?: number;
         /** Lab: override attack range (e.g. force melee ≤ 2). */
         range?: number;
+        /** Lab: move-speed override (tiles/s). */
+        ms?: number;
         as?: number;
       }
     >
@@ -132,6 +134,14 @@ export interface MatchConfig {
   ai_enabled?: boolean;
   /** Lab: skip Decision perception delay for peel geometry tests. */
   ai_ignore_perception?: boolean;
+  /**
+   * S3 lab: treat a net +1 fight win as occurring on this tick (§5.6 / _contract.md).
+   */
+  scripted_claim_open?: Array<{
+    tick: number;
+    team: Team;
+    fight_id?: string;
+  }>;
 }
 
 export interface ScriptedCast {
@@ -246,6 +256,8 @@ export interface UnitState {
   walk_from_pad_until: number;
   /** True after this life has fired at least one auto (first-auto pose hold). */
   ai_first_auto_done: boolean;
+  /** S3-R5-7: +ZONE_AURA_RES while previous-tick exclusive owner occupant. */
+  zone_aura_res: number;
 }
 
 export interface Displacement {
@@ -345,6 +357,27 @@ export interface MatchState {
   event_seq: number;
   config: MatchConfig;
   forced_clock_end: boolean;
+  /** S3 — public zone view (seconds). */
+  zone?: {
+    owner: Team | null;
+    progress_blue: number;
+    progress_red: number;
+    tick_timer: number;
+    occupied: UnitId[];
+    control_time: { blue: number; red: number };
+  };
+  claim?: { team: Team; resolve_at: number; fight_id?: string } | null;
+  orbs?: Array<{ orb_id: string; x: number; y: number; up: boolean; respawn_at?: number }>;
+  buffs?: Array<{
+    buff_id: string;
+    x: number;
+    y: number;
+    up: boolean;
+    respawn_at?: number;
+    holders?: UnitId[];
+  }>;
+  phase?: "play" | "sudden_death" | "extra_15" | "ended";
+  rng_counters?: Record<string, number>;
 }
 
 export type EventPayload = Record<string, unknown>;
@@ -366,4 +399,10 @@ export interface SimulateResult {
   tick_count: number;
   /** S2 peel lab counters (present when ai_enabled). */
   ai_stats?: { dive_geom: number; peel_fired: number; peel_rate: number | null };
+  /** S3 career stats (S3-R5-8 / S3-R5-9). */
+  player_stats?: Array<{
+    unit_id: UnitId;
+    claim_denies: number;
+    zone_seconds: number;
+  }>;
 }

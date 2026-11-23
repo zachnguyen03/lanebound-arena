@@ -75,6 +75,7 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     abandon_scripted_motor: false,
     ai_target_id: null,
     ai_retreat_suppress_until: 0,
+    zone_aura_res: 0,
     walk_from_pad_until: 0,
     ai_first_auto_done: false,
   };
