@@ -4,6 +4,37 @@ import tailwindcss from "@tailwindcss/vite";
 import fs from "node:fs";
 import path from "node:path";
 
+/**
+ * `::placeholder` rules and `placeholder=` attributes are real CSS/HTML.
+ * Any other `placeholder` in dist is a user-facing string that should be rewritten in source.
+ */
+function placeholderOffenders(root: string): string[] {
+  const hits: string[] = [];
+  const walk = (dir: string) => {
+    if (!fs.existsSync(dir)) return;
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        walk(p);
+        continue;
+      }
+      if (!p.endsWith(".js") && !p.endsWith(".css") && !p.endsWith(".html")) continue;
+      const text = fs.readFileSync(p, "utf8");
+      const re = /placeholder/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text))) {
+        const i = m.index;
+        if (text.slice(i - 2, i) === "::") continue;
+        if (text[i + "placeholder".length] === "=") continue;
+        const line = text.slice(0, i).split("\n").length;
+        hits.push(`${path.relative(root, p)}:${line}`);
+      }
+    }
+  };
+  walk(root);
+  return hits;
+}
+
 /** Drop design markdown and milestone ids from the shipped bundle. sim/ stays untouched. */
 function distHygiene(): Plugin {
   return {
@@ -34,20 +65,13 @@ function distHygiene(): Plugin {
         }
       };
       walk(root);
-      const scrub = (dir: string) => {
-        if (!fs.existsSync(dir)) return;
-        for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-          const p = path.join(dir, ent.name);
-          if (ent.isDirectory()) scrub(p);
-          else if (p.endsWith(".js") || p.endsWith(".css")) {
-            const text = fs.readFileSync(p, "utf8");
-            if (text.includes("placeholder")) {
-              fs.writeFileSync(p, text.replaceAll("placeholder", "fieldhint"));
-            }
-          }
-        }
-      };
-      scrub(root);
+      const offenders = placeholderOffenders(root);
+      if (offenders.length > 0) {
+        throw new Error(
+          "dist still contains placeholder outside ::placeholder and placeholder= attributes:\n" +
+            offenders.join("\n"),
+        );
+      }
     },
   };
 }

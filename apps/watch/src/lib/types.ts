@@ -33,7 +33,7 @@ export interface UnitView {
   hitStartedAt: number | null;
   /** Sim t when death anim started; null if living / pre-death. */
   deathStartedAt: number | null;
-  /** True when champ art was missing and a labelled placeholder is drawn. */
+  /** True when champ art was missing and a labelled circle is drawn. */
   fallback: boolean;
   intent: string | null;
   targetId: string | null;
