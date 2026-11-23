@@ -2,7 +2,7 @@
 
 **Branch:** `s4-watch`  
 **Base:** `s0` @ `1caa5eb`  
-**Commit:** run `git rev-parse HEAD` on this branch for the SHA used in QA.  
+**Commit:** `3bd2988136c84c3620843ec405d27a33db5e7826` (`3bd2988`)  
 **Date:** 23 Nov 2026  
 
 **Scope of this pass:** renderer shell + transport + event log + HUD chrome against S0 canonical logs. No sim/, tests/, or data/champions edits. Parallel with S1.
