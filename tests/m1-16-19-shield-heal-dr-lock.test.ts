@@ -7,6 +7,7 @@ import {
   threeStunDr,
   lockBudgetTaperDemo,
 } from "../sim/fixture.js";
+import { applyHeal } from "../sim/heal.js";
 
 describe("M1-16 shield cap 25% max HP", () => {
   it("truncates overflow to 25% max HP", () => {
@@ -22,13 +23,26 @@ describe("M1-16 shield cap 25% max HP", () => {
 
 describe("M1-17 combat heal ×0.75", () => {
   it("applies ×0.75 inside 3s combat window and ×1 outside", () => {
-    const heal = 100;
-    const inCombat = heal * DEFAULT_CONSTANTS.COMBAT_HEAL_SCALE;
-    const outCombat = heal;
-    expect(inCombat).toBe(75);
-    expect(outCombat).toBe(100);
-    // Window constant present
-    expect(DEFAULT_CONSTANTS.COMBAT_HEAL_WINDOW_S).toBe(3.0);
+    const c = DEFAULT_CONSTANTS;
+    const inside = applyHeal(100, {
+      now: 5,
+      last_damage_t: 4,
+      last_dealt_t: -Infinity,
+      combat_window_s: c.COMBAT_HEAL_WINDOW_S,
+      combat_heal_scale: c.COMBAT_HEAL_SCALE,
+    });
+    expect(inside.in_combat).toBe(true);
+    expect(inside.applied).toBe(75);
+
+    const outside = applyHeal(100, {
+      now: 10,
+      last_damage_t: 1,
+      last_dealt_t: 1,
+      combat_window_s: c.COMBAT_HEAL_WINDOW_S,
+      combat_heal_scale: c.COMBAT_HEAL_SCALE,
+    });
+    expect(outside.in_combat).toBe(false);
+    expect(outside.applied).toBe(100);
   });
 });
 
