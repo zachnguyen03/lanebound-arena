@@ -77,6 +77,8 @@ export interface AbilityDef {
   finisher?: number;
   mark_dur_s?: number;
   mark_bonus?: number;
+  /** Kind written/consumed by this ability (kit data — not champ-name literals). */
+  mark_kind?: "huntress" | "kerrig";
   needs_mark?: boolean;
   hits_allies?: boolean;
   dispel?: "basic" | "strong";
@@ -138,6 +140,7 @@ export const KITS: Record<string, ChampKit> = {
       CD_s: 8,
       cast_s: 0.33,
       mark_dur_s: 4,
+      mark_kind: "huntress",
       special: ["pierce", "mark 4 s (does not consume)", "aim roll per target"],
     },
     W: {
@@ -161,6 +164,7 @@ export const KITS: Record<string, ChampKit> = {
       CD_s: 55,
       cast_s: 0.6,
       mark_bonus: 1.35,
+      mark_kind: "huntress",
       special: ["if target is marked: +35% damage, then consume mark", "aim roll per target in circle"],
     },
   },
@@ -508,6 +512,7 @@ export const KITS: Record<string, ChampKit> = {
       cast_s: 0.28,
       cc: [{ kind: "leash", category: "Bind", duration_s: 2.8, school: "physical" }],
       mark_dur_s: 2.8,
+      mark_kind: "kerrig",
       special: ["stops at first enemy", "mark 2.8 s (required by R)", "leash range 3.5 tiles"],
     },
     W: {
@@ -533,6 +538,7 @@ export const KITS: Record<string, ChampKit> = {
       CD_s: 42,
       cast_s: 0.7,
       needs_mark: true,
+      mark_kind: "kerrig",
       finisher: 0.35,
       special: [
         "requires live mark on target (from Q)",

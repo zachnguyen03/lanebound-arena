@@ -60,12 +60,6 @@ function abilityOf(champ: string, skill: "Q" | "W" | "R"): AbilityDef {
   return kit[skill];
 }
 
-function markKindFor(champ: string): "huntress" | "kerrig" | null {
-  if (champ === "huntress") return "huntress";
-  if (champ === "kerrig") return "kerrig";
-  return null;
-}
-
 /** Shapes that use Aim-vs-Reflexes rolls (non-primary for targeted AoE). */
 function shapeRollsAim(shape: AbilityShape): boolean {
   return (
@@ -275,11 +269,9 @@ function finisherMult(ab: AbilityDef, target: UnitState): number {
   return 1 + ab.finisher * missing;
 }
 
-function markBonusMult(ab: AbilityDef, target: UnitState, champ: string, now: number): number {
-  if (ab.mark_bonus === undefined) return 1;
-  const mk = markKindFor(champ);
-  if (!mk) return 1;
-  if (!hasMark(target.marks, mk, now)) return 1;
+function markBonusMult(ab: AbilityDef, target: UnitState, now: number): number {
+  if (ab.mark_bonus === undefined || !ab.mark_kind) return 1;
+  if (!hasMark(target.marks, ab.mark_kind, now)) return 1;
   return ab.mark_bonus;
 }
 
@@ -568,7 +560,7 @@ function resolveOnTargets(
       emit("skill_fizzle", { unit_id: source.id, skill_id, reason: "no_target" });
       return;
     }
-    const mk = markKindFor(source.champ);
+    const mk = ab.mark_kind;
     if (!mk || !hasMark(t.marks, mk, state.t)) {
       emit("skill_fizzle", { unit_id: source.id, skill_id, reason: "no_mark" });
       return;
@@ -629,30 +621,26 @@ function resolveOnTargets(
     const base = abilityBaseRaw(ab, source.stats.atk, source.stats.pow);
     if (base > 0 && v.team !== source.team) {
       let fin = finisherMult(ab, v);
-      const mk = markKindFor(source.champ);
-      if (ab.mark_bonus !== undefined && mk) {
-        const bonus = markBonusMult(ab, v, source.champ, state.t);
+      if (ab.mark_bonus !== undefined && ab.mark_kind) {
+        const bonus = markBonusMult(ab, v, state.t);
         if (bonus > 1) {
           fin *= bonus;
-          consumeMark(v.marks, mk, state.t);
-          emit("mark_consume", { target_id: v.id, kind: mk, source_id: source.id });
+          consumeMark(v.marks, ab.mark_kind, state.t);
+          emit("mark_consume", { target_id: v.id, kind: ab.mark_kind, source_id: source.id });
         }
       }
       queueDamage(state, source, v, skill_id, base, physical, fin, c);
     }
 
-    // Marks (apply, do not consume) — from mark_dur_s
-    if (ab.mark_dur_s !== undefined && v.team !== source.team) {
-      const mk = markKindFor(source.champ);
-      if (mk) {
-        applyMark(v.marks, mk, source.id, state.t, ab.mark_dur_s);
-        emit("mark_apply", {
-          target_id: v.id,
-          kind: mk,
-          source_id: source.id,
-          duration: ab.mark_dur_s,
-        });
-      }
+    // Marks (apply, do not consume) — from kit mark_dur_s + mark_kind
+    if (ab.mark_dur_s !== undefined && ab.mark_kind && v.team !== source.team) {
+      applyMark(v.marks, ab.mark_kind, source.id, state.t, ab.mark_dur_s);
+      emit("mark_apply", {
+        target_id: v.id,
+        kind: ab.mark_kind,
+        source_id: source.id,
+        duration: ab.mark_dur_s,
+      });
     }
 
     // CC / slow: enemies; hits_allies shapes; or single-target (Tolle W ally-or-enemy)

@@ -43,16 +43,3 @@ export function computePacket(p: PacketInput): PacketResult {
   const mitigated = raw * src * kit * taken * m;
   return { raw, mitigated, amp: src * kit * taken };
 }
-
-/** Huntress Q L7 worked example helper. */
-export function huntressQBase(atk: number): number {
-  return 110 + 0.8 * atk;
-}
-
-export function maelisRBase(pow: number): number {
-  return 350 + 1.7 * pow;
-}
-
-export function kerrigRBase(atk: number, pow: number): number {
-  return 330 + 1.4 * atk + 0.15 * pow;
-}
