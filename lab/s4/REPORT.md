@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Tip commit:** `126d78a6d677de222776380c1d68945a887c7591` (`126d78a`); layout fix `f19344c`  
+**Tip commit:** `485ac75ad7f574b14c16a263ff6a0b2d60af3da5` (`485ac75`); layout fix `f19344c`  
 **Date:** 23 Nov 2026  
 
 Desktop-only Watch shell. Layout follows `hud-layout.json` / `hud-spec.md` (CD binding). No edits under `sim/`, `tests/`, or `data/`.
