@@ -1,0 +1,5 @@
+
+> lanebound-arena@0.0.0 purity
+> tsx apps/lab/purity.ts
+
+PURITY OK — no banned Math.random / Date / performance / sin|cos|atan2|exp|log|pow in sim/

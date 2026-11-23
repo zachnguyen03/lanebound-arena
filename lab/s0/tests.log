@@ -1,0 +1,15 @@
+
+> lanebound-arena@0.0.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /workspace
+
+ ✓ tests/s0.test.ts (11 tests) 1337ms
+   ✓ S0 M0 acceptance > 1. same config → byte-identical digest; seed+1 differs 600ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  02:59:56
+   Duration  1.59s (transform 85ms, setup 0ms, collect 102ms, tests 1.34s, environment 0ms, prepare 36ms)
+

@@ -1,0 +1,25 @@
+{
+  "layout": "B-four-pillars",
+  "source_of_truth": "layoutB-tiles.json (pillars, bounds via MAP, pads, sanctuary); build-spec §5.1 for named centres and collision rules; metrics.json B-four-pillars for walkability cross-check",
+  "tiles": [24, 16],
+  "zone": { "centre": [12.0, 8.0], "radius": 3.0 },
+  "sanctuary": {
+    "blue_x": [0, 1],
+    "red_x": [22, 23]
+  },
+  "spawn_pads": {
+    "blue": [1.0, 7.0],
+    "red": [22.0, 7.0]
+  },
+  "pillar_tiles": [
+    [5, 2], [6, 2], [5, 3], [6, 3],
+    [17, 2], [18, 2], [17, 3], [18, 3],
+    [5, 12], [6, 12], [5, 13], [6, 13],
+    [17, 12], [18, 12], [17, 13], [18, 13]
+  ],
+  "orb_pads_tile": [
+    [2, 4], [2, 11], [8, 1], [8, 14],
+    [15, 1], [15, 14], [21, 4], [21, 11]
+  ],
+  "buff_pads_tile": [[7, 7], [16, 7]]
+}
