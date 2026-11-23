@@ -1,5 +1,7 @@
 # S4 verify 5 — melee attack clip in the Watch
 
+**Code tip:** `829f769`
+
 **Preset:** S1 AI-on. Even lineup, `hold_the_pit`, AI on, `forced_clock_end: true`. The Watch builds this in `clockAiConfig` (note `Clock match`) and starts it from **Start clock AI 20261122**. The digest matches `defaultEvenConfig` with those two flags. No digest file was rewritten.
 
 **Why this preset:** starve does land melee autos (20 on seed 20261122, 22 on 20261123, all Rhedan and Tolle), but those units stand on the same tile as their target, so the swing is hidden. S1 AI-on is the readable fight. Counts are 102 and 91 melee-source `hit` events.
