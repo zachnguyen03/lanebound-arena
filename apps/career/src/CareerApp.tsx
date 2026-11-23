@@ -12,7 +12,7 @@ import {
   type CareerSession,
   type Club,
 } from "@lanebound/career";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MatchDeck } from "./match";
 import { clubPromise } from "./promises";
 import { readSave, writeSave } from "./save";
@@ -36,7 +36,38 @@ function clubTag(clubs: readonly Club[], id: string): string {
 }
 
 export function CareerApp() {
-  const [screen, setScreen] = useState<Screen>("menu");
+  const [screen, setScreenState] = useState<Screen>("menu");
+  const screenRef = useRef<Screen>("menu");
+
+  function setScreen(next: Screen) {
+    screenRef.current = next;
+    setScreenState(next);
+    const state = history.state as { app?: string; screen?: Screen; guard?: boolean } | null;
+    if (state?.app === "career" && state.screen === next && !state.guard) return;
+    history.pushState({ app: "career", screen: next }, "");
+  }
+
+  useEffect(() => {
+    const state = history.state as { app?: string; screen?: Screen; guard?: boolean } | null;
+    if (state?.app === "career" && state.screen && !state.guard) {
+      screenRef.current = state.screen;
+      setScreenState(state.screen);
+    } else if (!state || state.app !== "career") {
+      history.replaceState({ app: "career", guard: true }, "");
+      history.pushState({ app: "career", screen: screenRef.current }, "");
+    }
+    const onPop = (event: PopStateEvent) => {
+      const next = event.state as { app?: string; screen?: Screen; guard?: boolean } | null;
+      if (!next || next.app !== "career" || next.guard || !next.screen) {
+        history.pushState({ app: "career", screen: screenRef.current }, "");
+        return;
+      }
+      screenRef.current = next.screen;
+      setScreenState(next.screen);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [picked, setPicked] = useState<string | null>(null);
   const [view, setView] = useState<View | null>(null);
   const [hasSave, setHasSave] = useState(false);

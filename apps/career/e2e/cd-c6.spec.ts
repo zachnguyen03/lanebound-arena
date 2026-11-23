@@ -224,6 +224,42 @@ test("Play map stays in view with and without the coach mark", async ({ page }) 
   }
 });
 
+test("back and forward move between screens and do not replay play", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await expect(page.locator("[data-screen='home']")).toBeVisible();
+  await page.getByRole("button", { name: "Squad" }).click();
+  await page.getByRole("button", { name: "Lineup" }).click();
+  await expect(page.getByTestId("lineup")).toBeVisible();
+  await page.goBack();
+  await expect(page.locator("[data-screen='players']")).toBeVisible();
+  await page.goForward();
+  await expect(page.getByTestId("lineup")).toBeVisible();
+  await page.goBack();
+  await page.goBack();
+  await expect(page.locator("[data-screen='home']")).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByTestId("map-label")).toHaveText("Map 1 of 3");
+  await page.getByTestId("play-map").click();
+  await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
+  await page.goBack();
+  await page.goForward();
+  await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
+  await expect(page.getByTestId("recap")).toBeVisible();
+  for (let step = 0; step < 8; step++) await page.goBack();
+  expect(page.url()).toContain("127.0.0.1");
+  expect(page.url()).not.toBe("about:blank");
+  await expect(page.getByText("Lanebound").first()).toBeVisible();
+  await page.reload();
+  if (await page.locator("[data-screen='menu']").isVisible()) {
+    await page.getByRole("button", { name: "Continue" }).click();
+  }
+  if (await page.locator("[data-screen='home']").isVisible()) {
+    await page.getByRole("button", { name: "Continue" }).click();
+  }
+  await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
+});
+
 async function expectInView(page: Page, height: number) {
   const box = await page.getByTestId("play-map").boundingBox();
   expect(box).not.toBeNull();
