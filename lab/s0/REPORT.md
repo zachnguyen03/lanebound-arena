@@ -1,7 +1,7 @@
 # S0 Report — Sim core, headless + determinism
 
 **Branch:** `s0`  
-**Commit:** `b23b3fa7bd25cfd0bbf7660946b0f05475a30e7a` (`b23b3fa`)  
+**Commit:** `94f3fc6e253f69f82cc887eb24cd47b7f02eb059` (`94f3fc6`)  
 **Date:** 23 Nov 2026  
 
 ## Commands (PM re-run)
