@@ -8,6 +8,22 @@ export { seriesDuration, seriesGameScore, seriesMvp, winsTarget } from "./series
 export { assignFinish, computeStandings, mapDifferential, rankClubs, type StandingRow, type StandingSeries } from "./standings.js";
 export { pickedMastery, sideBase, STRENGTH_K, tacticEdge, teamStrength, winProbabilityBlue } from "./strength.js";
 export {
+  championshipStarters,
+  deadeyeWinner,
+  keepSignature,
+  seasonAwards,
+  shepherdWinner,
+  splitMvpWinner,
+  zonekeeperScore,
+  zonekeeperWinner,
+  type Award,
+  type SignatureGrant,
+} from "./awards.js";
+export { tickContract, tickContracts } from "./contracts.js";
+export { fromDisplay, glickoDisplay, glickoSeries, glickoUpdate, initialGlicko, GLICKO_SCALE, GLICKO_TAU, type GlickoState } from "./glicko.js";
+export { PLAYOFF_BONUS, placementPoints, REGULAR_SEASON_POINTS, seasonPointTotal } from "./points.js";
+export { loadSave, runSeason, SAVE_FORMAT, saveJson, type CareerSave, type ClubState, type RankingSnapshot } from "./season.js";
+export {
   CLUB_SEEDS,
   openingWorld,
   selectStarters,

@@ -50,7 +50,7 @@ export function playSeries(args: {
   const used: [string[], string[]] = [[], []];
   let gameIndex = 1;
   while (score[0] < target && score[1] < target) {
-    const fearless = fixture.format !== "bo1" && gameIndex <= 2;
+    const fearless = gameIndex <= 2;
     const usedNow: [string[], string[]] = fearless ? [[...used[0]], [...used[1]]] : [[], []];
     const bluePicks = selectPicks(blue, usedNow[0]);
     const redPicks = selectPicks(red, usedNow[1]);
