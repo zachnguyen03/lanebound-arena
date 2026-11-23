@@ -1,0 +1,1 @@
+PURITY OK — no banned Math.random / Date / performance / sin|cos|tan|atan|atan2|exp|log|pow / Intl / setTimeout|setInterval in sim/ (comments ignored)

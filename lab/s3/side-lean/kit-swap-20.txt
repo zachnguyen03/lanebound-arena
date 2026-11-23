@@ -1,0 +1,26 @@
+seed	default	swap	both_blue	both_red
+20261122	red 0-10@77.2	blue 10-1@74	red 1-10@79.5	red 3-10@142.5
+20261123	red 0-10@77.2	blue 10-0@77.2	blue 10-7@183.4	red 5-10@146.6
+5	red 0-10@77.2	blue 10-7@143.1	red 7-10@172	red 5-10@149.2
+10	red 0-10@77.2	red 9-10@174.5	blue 10-5@126.6	red 3-10@142.5
+18	red 0-10@77.2	blue 10-0@77.2	blue 10-1@79	red 3-10@142.5
+1	blue 10-8@182.1	blue 10-1@74.2	blue 10-5@129.7	red 3-10@142.5
+2	red 9-10@164.6	blue 10-1@72.2	red 2-10@102.9	red 7-10@178.7
+3	red 5-10@117.9	blue 10-0@77.2	blue 10-3@113.8	red 3-10@142.5
+4	blue 10-9@187.5	blue 10-1@73	red 8-10@173	red 3-10@142.5
+6	red 7-10@134.9	blue 10-2@88.2	blue 10-4@127.2	red 3-10@142.5
+7	red 4-10@105.9	blue 10-3@152.3	red 5-10@125.4	red 3-10@117
+8	red 9-10@172.2	blue 10-0@77.2	red 2-10@93.5	red 3-10@126.8
+9	red 2-10@89	blue 10-0@77.2	red 3-10@112.1	red 3-10@142.5
+11	red 4-10@109	blue 10-3@97.4	blue 10-8@133.8	red 3-10@141.6
+12	red 5-10@116	blue 10-0@77.2	red 5-8@240	red 7-10@182.5
+13	red 2-10@87.7	blue 10-4@99.8	blue 10-3@103.1	blue 10-7@152.8
+14	red 1-10@74.9	red 9-10@166.2	blue 10-1@88.1	blue 5-3@240
+15	red 5-10@106.9	blue 10-6@158.6	red 3-10@96.5	blue 10-2@109.4
+16	red 3-10@81.7	red 9-10@176.2	blue 10-5@135.7	red 4-10@130.3
+17	red 4-10@106.4	blue 10-6@181.3	blue 10-3@113.9	red 2-10@140.3
+
+default blue=2 red=18
+swapKits blue=17 red=3
+both-blue-kits blue=11 red=9
+both-red-kits blue=3 red=17

@@ -1,66 +1,43 @@
 #!/usr/bin/env node
 /**
- * npm run purity — grep sim/ for banned APIs. Exit 1 on match.
+ * npm run purity — scan sim/ for banned APIs in non-comment code. Exit 1 on match.
  */
-import { execSync } from "node:child_process";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { findBannedInSource } from "./purity-scan.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const simDir = path.join(root, "sim");
 
-// Banned in sim/: nondeterminism, wall-clock, and non-IEEE-exact Math / locale / timers.
-const pattern = [
-  "Math\\.random",
-  "Date\\.now",
-  "performance\\.now",
-  "new Date",
-  "Math\\.sin",
-  "Math\\.cos",
-  "Math\\.tan\\b",
-  "Math\\.atan\\b",
-  "Math\\.atan2",
-  "Math\\.exp",
-  "Math\\.log",
-  "Math\\.pow\\b",
-  "\\bIntl\\b",
-  "setTimeout",
-  "setInterval",
-].join("|");
+function listTsFiles(dir: string): string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    const p = path.join(dir, name);
+    const st = statSync(p);
+    if (st.isDirectory()) out.push(...listTsFiles(p));
+    else if (name.endsWith(".ts")) out.push(p);
+  }
+  return out;
+}
 
-let out = "";
-let found = false;
-try {
-  out = execSync(`rg -n "${pattern}" "${simDir}"`, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  found = out.trim().length > 0;
-} catch (e: unknown) {
-  const err = e as { status?: number; stdout?: string };
-  if (err.status === 1) {
-    found = false;
-    out = "";
-  } else {
-    try {
-      out = execSync(`grep -RInE "${pattern}" "${simDir}" || true`, {
-        encoding: "utf8",
-      });
-      found = out.trim().length > 0;
-    } catch {
-      console.error("purity: neither rg nor grep available");
-      process.exit(2);
-    }
+const files = listTsFiles(simDir);
+const report: string[] = [];
+
+for (const fp of files) {
+  const src = readFileSync(fp, "utf8");
+  for (const hit of findBannedInSource(src)) {
+    report.push(`${fp}:${hit.line}: ${hit.text}`);
   }
 }
 
-if (found) {
+if (report.length > 0) {
   console.error("PURITY FAIL — banned patterns in sim/:");
-  console.error(out.trim());
+  console.error(report.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  "PURITY OK — no banned Math.random / Date / performance / sin|cos|tan|atan|atan2|exp|log|pow / Intl / setTimeout|setInterval in sim/",
+  "PURITY OK — no banned Math.random / Date / performance / sin|cos|tan|atan|atan2|exp|log|pow / Intl / setTimeout|setInterval in sim/ (comments ignored)",
 );
 process.exit(0);

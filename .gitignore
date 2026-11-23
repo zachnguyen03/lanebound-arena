@@ -5,3 +5,5 @@ dist/
 .DS_Store
 coverage/
 .vitest/
+uploads
+lab/**/*.tmp
