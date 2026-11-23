@@ -1,7 +1,7 @@
 # S0 Report — Sim core, headless + determinism
 
 **Branch:** `s0`  
-**Commit:** `94f3fc6e253f69f82cc887eb24cd47b7f02eb059` (`94f3fc6`)  
+**Commit:** branch `s0` — run `git rev-parse HEAD` on the tip used for QA (digests below are the authority).  
 **Date:** 23 Nov 2026  
 
 ## Commands (PM re-run)
