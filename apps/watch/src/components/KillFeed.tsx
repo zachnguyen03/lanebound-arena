@@ -32,7 +32,10 @@ export function KillFeed({ events, currentTick, rect, onJump, onDeath }: Props) 
       style={absStyle(rect)}
       className="box-border flex flex-col overflow-hidden border border-line bg-panel"
     >
-      <div className="border-b border-line px-2 py-1 font-condensed text-xs tracking-wide text-dim">
+      <div
+        data-testid="dock-title"
+        className="truncate whitespace-nowrap break-normal border-b border-line px-2 py-1 font-condensed text-sm leading-none text-dim"
+      >
         TAKEDOWN LOG
       </div>
       <ul className="min-h-0 flex-1 overflow-auto text-[10px]">

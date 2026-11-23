@@ -19,7 +19,12 @@ function Panel({
       style={absStyle(rect)}
       className="box-border overflow-hidden border border-line bg-panel p-2"
     >
-      <div className="font-condensed text-sm tracking-wide text-dim">{title}</div>
+      <div
+        data-testid="dock-title"
+        className="truncate whitespace-nowrap break-normal font-condensed text-sm leading-none text-dim"
+      >
+        {title}
+      </div>
       <div className="mt-1 text-xs text-faint">{children}</div>
     </div>
   );
