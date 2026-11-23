@@ -1,0 +1,210 @@
+{
+ "1080": {
+  "canvas": [
+   1920,
+   1080
+  ],
+  "top_bar": [
+   0,
+   0,
+   1920,
+   56
+  ],
+  "left_rail": [
+   0,
+   56,
+   200,
+   856
+  ],
+  "right_rail": [
+   1720,
+   56,
+   200,
+   856
+  ],
+  "dock": [
+   0,
+   912,
+   1920,
+   168
+  ],
+  "playfield_region": [
+   200,
+   56,
+   1520,
+   856
+  ],
+  "arena_map": [
+   432,
+   194,
+   1056,
+   580
+  ],
+  "map_note": "terrain PNG blitted 1:1 at this origin (2x art); sim point (x,y) -> screen (mx + x*44, my + y*32)",
+  "team_frames": {
+   "size": [
+    200,
+    120
+   ],
+   "gap": 8,
+   "blue_x": 0,
+   "red_x": 1720,
+   "y0": 168,
+   "order": "Top, Jungle, Mid, Carry, Support (top to bottom)"
+  },
+  "banner_slot": [
+   804,
+   64,
+   312,
+   44
+  ],
+  "banner_note": "standard banners (240x40 / 312x44 pentakill / 248x40 streak), centred on x=960, y=66; one at a time",
+  "card_toast_slot": [
+   750,
+   800,
+   420,
+   72
+  ],
+  "kill_feed": [
+   1496,
+   194,
+   216,
+   136
+  ],
+  "tag_example": [
+   216,
+   64
+  ],
+  "dock_panels": {
+   "zone": [
+    16,
+    920,
+    440,
+    152
+   ],
+   "pickups": [
+    464,
+    920,
+    480,
+    152
+   ],
+   "fight_call": [
+    952,
+    920,
+    380,
+    152
+   ],
+   "watch_transport": [
+    1340,
+    920,
+    564,
+    152
+   ]
+  }
+ },
+ "720": {
+  "canvas": [
+   1280,
+   720
+  ],
+  "top_bar": [
+   0,
+   0,
+   1280,
+   44
+  ],
+  "left_rail": [
+   0,
+   44,
+   112,
+   528
+  ],
+  "right_rail": [
+   1168,
+   44,
+   112,
+   528
+  ],
+  "dock": [
+   0,
+   572,
+   1280,
+   148
+  ],
+  "playfield_region": [
+   112,
+   44,
+   1056,
+   528
+  ],
+  "arena_map": [
+   112,
+   48,
+   1056,
+   520
+  ],
+  "map_note": "terrain PNG blitted 1:1 at this origin (2x art); sim point (x,y) -> screen (mx + x*44, my + y*32)",
+  "team_frames": {
+   "size": [
+    112,
+    96
+   ],
+   "gap": 6,
+   "blue_x": 0,
+   "red_x": 1168,
+   "y0": 56,
+   "order": "Top, Jungle, Mid, Carry, Support (top to bottom)"
+  },
+  "banner_slot": [
+   544,
+   48,
+   192,
+   36
+  ],
+  "banner_note": "compact banners, centred on x=640, y=48; overlaps only the north strip of the map (above the north orb pads) for 2.5 s",
+  "card_toast_slot": [
+   510,
+   90,
+   260,
+   44
+  ],
+  "dock_panels": {
+   "zone": [
+    8,
+    578,
+    266,
+    136
+   ],
+   "pickups": [
+    282,
+    578,
+    276,
+    136
+   ],
+   "kill_feed": [
+    566,
+    578,
+    220,
+    136
+   ],
+   "fight_call": [
+    794,
+    578,
+    196,
+    136
+   ],
+   "watch_transport": [
+    998,
+    578,
+    270,
+    136
+   ]
+  },
+  "kill_feed": [
+   566,
+   578,
+   220,
+   136
+  ]
+ }
+}

@@ -1,0 +1,946 @@
+{
+ "name": "Lanebound arena world props",
+ "version": 1,
+ "layout": "B-four-pillars",
+ "sheet": "world-props.png",
+ "scale": 2,
+ "tile_px": [
+  44,
+  32
+ ],
+ "note": "Pixel art authored at 1x, shipped at 2x (integer nearest-neighbour; do not rescale again). Anchors are in 2x sheet px relative to each frame rect; blit at (world_px - anchor). For sim-placed props the world point is the GROUND point (pad centre / zone centre). Key shape = champion atlas 'later' shape: animations[name][variant] = {n, ms, fps, loop, frames:[{i, rect:[x,y,w,h], anchor:[ax,ay], hit}]} where variant replaces '{tint}-{facing}'. Static art lives in 'sprites' = same entry shape as Huntress 'vfx' {rect, anchor}. Asset ids: '<name>.<variant>' (e.g. orb.up, buff.held-blue, zone.contested).",
+ "draw_order": [
+  "terrain",
+  "sanctuary-wash-*",
+  "sanctuary-threshold-*",
+  "zone.<state>",
+  "zone-centre-mark",
+  "orb.down (always)",
+  "buff.down|up|held-*",
+  "orb.up|pickup|respawn",
+  "buff-flare (spawn|pickup)",
+  "units + shadows (y-sorted with pillars)",
+  "buff-holder-ring (under its unit)",
+  "HUD"
+ ],
+ "zone_recipe": {
+  "note": "Authored at ZONE_RADIUS=3.0. If ZONE_RADIUS changes, regenerate with gen/build_props.py zone_overlay() or port its rule:",
+  "pit_tiles": "tile (x,y) is pit if hypot(x+.5-cx, y+.5-cy) <= radius",
+  "rims": "from the pit tile mask peel 2 px bands inward: band0 white #ECF0F6, band1 gold #F2C14E (neutral/contested checker blue/red), owned: band1 team colour, band2 gold",
+  "wash": "dithered radial (r = 3.2 tiles) of gold/team colour, alpha 48 neutral / 32 contested / 36 owned, clipped to the interior"
+ },
+ "placements": {
+  "note": "terrain px = tile * (44, 32); y-down. Ground point of a pad (tile index x,y) = ((x+0.5)*44, (y+0.5)*32).",
+  "orb_pads": [
+   {
+    "tile": [
+     2,
+     4
+    ],
+    "ground_px": [
+     110,
+     144
+    ]
+   },
+   {
+    "tile": [
+     2,
+     11
+    ],
+    "ground_px": [
+     110,
+     368
+    ]
+   },
+   {
+    "tile": [
+     8,
+     1
+    ],
+    "ground_px": [
+     374,
+     48
+    ]
+   },
+   {
+    "tile": [
+     8,
+     14
+    ],
+    "ground_px": [
+     374,
+     464
+    ]
+   },
+   {
+    "tile": [
+     15,
+     1
+    ],
+    "ground_px": [
+     682,
+     48
+    ]
+   },
+   {
+    "tile": [
+     15,
+     14
+    ],
+    "ground_px": [
+     682,
+     464
+    ]
+   },
+   {
+    "tile": [
+     21,
+     4
+    ],
+    "ground_px": [
+     946,
+     144
+    ]
+   },
+   {
+    "tile": [
+     21,
+     11
+    ],
+    "ground_px": [
+     946,
+     368
+    ]
+   }
+  ],
+  "buff_pads": [
+   {
+    "tile": [
+     7,
+     7
+    ],
+    "ground_px": [
+     330,
+     240
+    ]
+   },
+   {
+    "tile": [
+     16,
+     7
+    ],
+    "ground_px": [
+     726,
+     240
+    ]
+   }
+  ],
+  "zone": {
+   "centre_px": [
+    528,
+    256
+   ],
+   "radius_tiles": 3.0
+  }
+ },
+ "sprites": {
+  "sanctuary-wash-blue": {
+   "rect": [
+    0,
+    0,
+    88,
+    512
+   ],
+   "anchor": [
+    0,
+    0
+   ],
+   "place_terrain_px": [
+    0,
+    0
+   ],
+   "note": "flat 11% team wash (alpha 28) over the two sanctuary columns; draw above terrain, below units"
+  },
+  "sanctuary-wash-red": {
+   "rect": [
+    90,
+    0,
+    88,
+    512
+   ],
+   "anchor": [
+    0,
+    0
+   ],
+   "place_terrain_px": [
+    968,
+    0
+   ],
+   "note": "flat 11% team wash (alpha 28) over the two sanctuary columns; draw above terrain, below units"
+  },
+  "sanctuary-threshold-blue": {
+   "rect": [
+    180,
+    0,
+    2,
+    512
+   ],
+   "anchor": [
+    0,
+    0
+   ],
+   "place_terrain_px": [
+    86,
+    0
+   ],
+   "note": "dotted line on the inner edge of the sanctuary (2 px wide, 4 on / 4 off); sits inside each sanctuary so the pair mirrors exactly"
+  },
+  "sanctuary-threshold-red": {
+   "rect": [
+    184,
+    0,
+    2,
+    512
+   ],
+   "anchor": [
+    0,
+    0
+   ],
+   "place_terrain_px": [
+    968,
+    0
+   ],
+   "note": "dotted line on the inner edge of the sanctuary (2 px wide, 4 on / 4 off); sits inside each sanctuary so the pair mirrors exactly"
+  },
+  "zone-neutral": {
+   "rect": [
+    200,
+    0,
+    264,
+    192
+   ],
+   "anchor": [
+    132,
+    96
+   ],
+   "anchor_1x": [
+    66.0,
+    48.0
+   ],
+   "place_terrain_px": [
+    396,
+    160
+   ],
+   "note": "zone rim + wash, neutral; blit with anchor on the zone centre (12.0,8.0) tiles"
+  },
+  "zone-blue": {
+   "rect": [
+    466,
+    0,
+    264,
+    192
+   ],
+   "anchor": [
+    132,
+    96
+   ],
+   "anchor_1x": [
+    66.0,
+    48.0
+   ],
+   "place_terrain_px": [
+    396,
+    160
+   ],
+   "note": "zone rim + wash, blue; blit with anchor on the zone centre (12.0,8.0) tiles"
+  },
+  "zone-red": {
+   "rect": [
+    732,
+    0,
+    264,
+    192
+   ],
+   "anchor": [
+    132,
+    96
+   ],
+   "anchor_1x": [
+    66.0,
+    48.0
+   ],
+   "place_terrain_px": [
+    396,
+    160
+   ],
+   "note": "zone rim + wash, red; blit with anchor on the zone centre (12.0,8.0) tiles"
+  },
+  "zone-centre-mark": {
+   "rect": [
+    732,
+    194,
+    12,
+    12
+   ],
+   "anchor": [
+    6,
+    6
+   ],
+   "anchor_1x": [
+    3,
+    3
+   ],
+   "place_terrain_px": [
+    528,
+    256
+   ],
+   "note": "12x12, centred on the exact pixel corner (528,256); draw above the rim"
+  }
+ },
+ "animations": {
+  "zone": {
+   "contested": {
+    "n": 2,
+    "ms": 400,
+    "fps": 2.5,
+    "loop": true,
+    "note": "blue/red 2x2 checker on the inner rim, swaps every 400 ms (viewer-only, not sim time)",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       200,
+       194,
+       264,
+       192
+      ],
+      "anchor": [
+       132,
+       96
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       466,
+       194,
+       264,
+       192
+      ],
+      "anchor": [
+       132,
+       96
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "neutral": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1,
+    "loop": false,
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       200,
+       0,
+       264,
+       192
+      ],
+      "anchor": [
+       132,
+       96
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1,
+    "loop": false,
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       466,
+       0,
+       264,
+       192
+      ],
+      "anchor": [
+       132,
+       96
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1,
+    "loop": false,
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       732,
+       0,
+       264,
+       192
+      ],
+      "anchor": [
+       132,
+       96
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "orb": {
+   "up": {
+    "n": 4,
+    "ms": 150,
+    "fps": 6.67,
+    "loop": true,
+    "note": "cream-ice disc hovering ~7px(1x) over the ground point; shadow is baked and shrinks as it rises. Draw above the pad.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       746,
+       194,
+       28,
+       40
+      ],
+      "anchor": [
+       14,
+       34
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       776,
+       194,
+       28,
+       40
+      ],
+      "anchor": [
+       14,
+       34
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       806,
+       194,
+       28,
+       40
+      ],
+      "anchor": [
+       14,
+       34
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       836,
+       194,
+       28,
+       40
+      ],
+      "anchor": [
+       14,
+       34
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "down": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1.0,
+    "loop": false,
+    "note": "empty pad decal. Draw ALWAYS (under the orb when up) so a collected orb never leaves a hole.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       866,
+       194,
+       40,
+       24
+      ],
+      "anchor": [
+       20,
+       12
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "pickup": {
+    "n": 4,
+    "ms": 80,
+    "fps": 12.5,
+    "loop": false,
+    "note": "play on orb_pickup, then show 'down'.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       908,
+       194,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       200,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       258,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       316,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "respawn": {
+    "n": 4,
+    "ms": 120,
+    "fps": 8.33,
+    "loop": false,
+    "note": "play on the last 0.5 s before orb_spawn (viewer-only), ends on the 'up' pose.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       374,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       432,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       490,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       548,
+       388,
+       56,
+       56
+      ],
+      "anchor": [
+       28,
+       42
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "buff": {
+   "down": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1.0,
+    "loop": false,
+    "note": "empty / cooling pad, not gold. Draw as the base for every buff state.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       606,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "up": {
+    "n": 4,
+    "ms": 160,
+    "fps": 6.25,
+    "loop": true,
+    "note": "gold plus hovering over a gold-studded pad (the 1:30 buff, +12% dmg / +10% MS). Replaces 'down' while available.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       648,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       690,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       732,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       774,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "held-blue": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1.0,
+    "loop": false,
+    "note": "pad while the buff is held / cooling after a take: studs + hollow plus in the taker's team colour. Not gold.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       816,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "held-red": {
+    "n": 1,
+    "ms": 1000,
+    "fps": 1.0,
+    "loop": false,
+    "note": "pad while the buff is held / cooling after a take: studs + hollow plus in the taker's team colour. Not gold.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       858,
+       388,
+       40,
+       64
+      ],
+      "anchor": [
+       20,
+       44
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "spawn": {
+    "n": 5,
+    "ms": 100,
+    "fps": 10.0,
+    "loop": false,
+    "note": "1:30 spawn flare (and respawn); ends on 'up'.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       900,
+       388,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       200,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       274,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       348,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       422,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "pickup": {
+    "n": 4,
+    "ms": 80,
+    "fps": 12.5,
+    "loop": false,
+    "note": "play on buff_pickup, then show held-{team}.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       496,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       570,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       644,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       718,
+       478,
+       72,
+       88
+      ],
+      "anchor": [
+       36,
+       60
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "buff-holder-ring": {
+   "gold": {
+    "n": 2,
+    "ms": 300,
+    "fps": 3.33,
+    "loop": true,
+    "note": "OPTIONAL dotted gold ring under the holder's feet for the 45 s buff. Off by default; the status plate is the primary cue.",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       792,
+       478,
+       52,
+       28
+      ],
+      "anchor": [
+       26,
+       14
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       846,
+       478,
+       52,
+       28
+      ],
+      "anchor": [
+       26,
+       14
+      ],
+      "hit": false
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,8 @@
+{
+  "seed": 20261122,
+  "digest": "07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a",
+  "constants_hash": "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
+  "tick_count": 2400,
+  "event_count": 24082,
+  "note": "Canonical S0 log (no pos). Viewer places units at S0 spawn pads + SPAWN_JITTER_Y."
+}

@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+
+@theme {
+  --color-field: #0b0e14;
+  --color-panel: #121722;
+  --color-panel-2: #1a2130;
+  --color-line: #252e40;
+  --color-line-2: #3a4660;
+  --color-paper: #eef2f8;
+  --color-dim: #a1acbf;
+  --color-faint: #8792a6;
+  --color-team-blue: #4da3ff;
+  --color-team-blue-dark: #0e1c30;
+  --color-team-red: #f5477a;
+  --color-team-red-dark: #2a101c;
+  --color-gold: #f2c14e;
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: "Barlow Condensed", "Barlow", ui-sans-serif, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--color-field);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+}
+
+.font-condensed {
+  font-family: var(--font-condensed);
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
