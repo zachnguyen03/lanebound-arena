@@ -4,7 +4,7 @@
 |---|---|---|
 | `dummy` | `arena-sandbox/dummy/` (`dummy-2x.png` + `atlas.json`) | **Resolved** — training-dummy body sheet (CD). No longer a fallback. |
 
-No open champ-id fallbacks for the bundled S0 sample (all ten units are `dummy`).
+The bundled sample and the live even match use the real lineup. Those ten slugs ship under `apps/watch/public/champions/`, so they are not fallbacks. A champ id with no atlas still draws a labelled circle.
 
 **Rule:** if an S1+ log carries real champ ids without a body sheet under `arena-sandbox/`, add each missing id here, draw the labelled placeholder, and list it in the Watch DEV panel.
 

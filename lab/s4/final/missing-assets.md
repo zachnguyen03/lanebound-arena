@@ -1,24 +1,5 @@
 # Missing champion art
 
-No champions/ tree is in this repo. Watch lists these paths and draws a labelled circle. It does not substitute the training dummy.
+The even-OVR lineup is packed under `apps/watch/public/champions/`. Watch probes `/champions/{slug}/atlas.json` and `/champions/{slug}/portrait.png` for brannoch, sedge, kerrig, huntress, ysol, rhedan, tolle, helvar, maelis, and saelo. All twenty paths resolve, so the missing-art list stays hidden.
 
-- `/champions/brannoch/atlas.json`
-- `/champions/brannoch/portrait.png`
-- `/champions/sedge/atlas.json`
-- `/champions/sedge/portrait.png`
-- `/champions/kerrig/atlas.json`
-- `/champions/kerrig/portrait.png`
-- `/champions/huntress/atlas.json`
-- `/champions/huntress/portrait.png`
-- `/champions/ysol/atlas.json`
-- `/champions/ysol/portrait.png`
-- `/champions/rhedan/atlas.json`
-- `/champions/rhedan/portrait.png`
-- `/champions/tolle/atlas.json`
-- `/champions/tolle/portrait.png`
-- `/champions/helvar/atlas.json`
-- `/champions/helvar/portrait.png`
-- `/champions/maelis/atlas.json`
-- `/champions/maelis/portrait.png`
-- `/champions/saelo/atlas.json`
-- `/champions/saelo/portrait.png`
+A slug that is actually absent is still listed in plain words. The training dummy is not substituted for a missing champion.

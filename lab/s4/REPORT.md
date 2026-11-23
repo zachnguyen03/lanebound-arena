@@ -1,93 +1,29 @@
-# S4 Report — Watch viewer shell (layout fix + dummy body)
+# S4 Report — Watch
 
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Tip commit:** `a6adba21303f132dbd1637af3cd9592d227991f0`  
-**Layout tip verified independently:** `c6de901` (HUD rects ≤1 px, scale 1.0, bbox clean)  
-**Dummy tip verified independently:** `fc1697a`  
+**sim merged from:** `origin/s3` @ `34f488b`  
+**Code tip:** `795ee10` (this note is the following commit)  
 **Date:** 23 Nov 2026  
 
-Desktop-only Watch shell. Layout follows `hud-layout.json` / `hud-spec.md` (CD binding). Training-dummy body sheet from CD swapped in for labelled placeholders. No edits under `sim/`, `tests/`, or `data/`.
+Desktop-only Watch. `sim/` is the `34f488b` tree. The bundled sample digest is the current quiet gold `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f`.
 
-## Commands (PM re-run)
+## Gates
 
-```bash
-npm ci
-npm test
-npm run watch:build
-npm run watch:preview
-npm run watch:e2e
-npm run lab:s4
-```
-
-## Results
-
-| Check | Result |
+| Command | Exit |
 |---|---|
-| `npm test` | **typecheck** (root + watch) + **32** vitest |
-| `npx tsc --noEmit` | **PASS** (root excludes `apps/watch`) |
-| `npx tsc -p apps/watch` | **PASS** |
-| Canvas scale @1920 / @1280×720 / @1280×800 | **1.0** (intrinsic CSS == buffer; see `canvas-scale.txt`) |
-| Drawer @1920 (push) | Flex column; stage reflows to 1600 px (112 rails, map 1:1, no translateX); Esc closes; rails + HUD hittable; 8× works |
-| Drawer @1280 (modal) | Centred modal over dim (rails/transport hittable); focus trap; Close / Escape |
-| Event log labels | `Level up` with word-spacing (not `Levelup`); covered at 1920 + 1280 |
-| 1280×800 utilities under HUD | **PASS** — spacer; loader below the fold |
-| Takedown log (quiet S0) | **No takedowns yet** (no level_up filler) |
-| Takedown log (handmade deaths) | `BLUE scores · 1–0` / death rows; see `watch-takedown-log-crop.png` |
-| Cold load @1280×720 | Clean console; no 404 (`cold-load-console.txt`) — was favicon.ico |
-| Sample digest | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` |
-| Determinism guard | Load + scrub leaves digest unchanged |
-| Dummy art | Byte-identical to CD `arena-sandbox-dummy.tar.gz` (sha256 `1fa95a19…`) |
+| `npx tsc --noEmit` | 0 |
+| `npm test` | 0 (1402 passed, 11 skipped) |
+| `npm run purity` | 0 |
+| `npm run watch:build` | 0 |
+| `npm run watch:e2e` | 0 (29 passed) |
 
-## Layout (this pass)
+## What changed in this pass
 
-- **1080:** stage 1920×1080; rails 200 px; map **1056×580** 1:1, frame sized to map and centred in the playfield slot; takedown feed in right map margin `[1496,194,216,136]`; dock zone / pickups / fight call / watch transport; card-toast slot reserved (no dashed outline until a toast shows).
-- **720:** stage 1280×720; rails **112 px**; map **1056×520** 1:1 (plinth crop); takedown feed in dock; same dock family.
-- **1280×800:** 720 HUD + clear under-HUD spacer; utilities (loader / DEV) fully below the fold.
-- **Below 1280×720:** desktop notice + horizontal scroll; no stacked mobile layout.
-- **Event log @1080:** flex column drawer; stage rebuilt to 1600×1080 (112 px rails, map 1:1) and centred — no transform.
-- **Event log @720:** centred **modal** over dimmed stage (dim is non-blocking so rails/transport stay hittable); focus trap; Close / Escape.
-- Event log labels are human-readable (`Level up`, `Hide XP gains`) — no snake_case in the UI.
-- Cause of “Levelup”: Barlow’s space glyph at `text-xs` is ~2px in the 320px dock; `word-spacing: 0.35em` widens it.
-- Transport speeds: **0.5 / 1 / 2 / 4 / 8**.
-- Fallback spawns at **tile centres** `(1.5,7.5)` / `(22.5,7.5)` (GD). Props at tile centres. Units follow log poses when present.
+- Production dist no longer rewrites `placeholder` to `fieldhint`. `::placeholder`, `placeholder=` attributes, and Tailwind's own placeholder tokens are allowed. Any other hit fails the build.
+- The event log hides `pos` and `move` outside dev builds.
+- Dock titles stay on one line (no letter-spacing wrap).
+- The death strip sits above the dock, fully inside the viewport.
+- Champion bodies and team-frame portraits come from `apps/watch/public/champions/`. Mid-fight frames: `lab/s4/final/shots/watch-1280x720-mid.png` and `lab/s4/final/shots/watch-1920x1080-mid.png`.
 
-## Dummy body
-
-- Atlas `animations[name][variant]`; names `idle` / `move` (`walk` alias) / `hit` / `death`; variants `blue-right` / `blue-left` / `red-right` / `red-left`.
-- 18×24 cells, anchor (9,23); 2× sheet doubles rects/anchor → (18,46). Death holds last frame.
-- Team → colour; facing from movement (held while idle); idle/move from velocity; hit on damage; death on death event.
-- Integer nearest-neighbour blit at `world_px - anchor`. `dummy` removed from fallbacks panel.
-
-## Canvas scale factors (measured)
-
-| Viewport | Intrinsic | CSS | scaleX | scaleY |
-|---|---|---|---|---|
-| 1920×1080 | 1056×580 | 1056×580 | **1** | **1** |
-| 1280×720 | 1056×520 | 1056×520 | **1** | **1** |
-| 1280×800 | 1056×520 | 1056×520 | **1** | **1** |
-
-## Screenshots
-
-- `watch-1920-t0.png`, `watch-1920-mid.png`, `watch-1920-drawer.png`
-- `watch-1280-t0.png`, `watch-1280-mid.png`
-- `watch-1280x800-mid.png`
-- Dummy: `watch-1920-mid-dummy.png`, `watch-1280-mid-dummy.png`, `watch-dummy-map-crop.png`
-- Drawer open: `watch-1920x1080-drawer.png`, `watch-1280x720-drawer.png`, `watch-1280x800-drawer.png`
-- Takedown proof: `watch-1920-takedown-proof.png`, `watch-takedown-log-crop.png`
-- Cold load: `cold-load-console.txt`
-
-## Fallbacks / TODOs
-
-See `fallbacks.md`, `unrendered.md`. No open champ-id fallbacks for the bundled S0 sample.
-
-## Inventions (flagged)
-
-| Item | Notes |
-|---|---|
-| Austere dock panels | Zone/pickups/fight call are labelled chrome until those events render; no invented VFX. |
-| Kill feed | Only `death` / `takedown_score` (killer → victim + assists; `BLUE scores · 1–0`). Empty state: “No takedowns yet”. Level-ups stay in the drawer. |
-
-## Open questions (parked)
-
-Pad centres ruled by GD (tile centre). Dummy sheet delivered. No further CD questions for this round.
+Live digests are unchanged: 20261122 `54cae20c950a238d5c06a8324076cf2febe429d8dfe8b2c2057232fdf33f6b0d`, 20261123 `74d9794affef09962673f97a0ef1aaf934cc8f58116193c044ef6cad6f21f425`.
