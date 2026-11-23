@@ -18,6 +18,8 @@ import { clubPromise } from "./promises";
 import { readSave, writeSave } from "./save";
 import { Button } from "./ui/button";
 
+let writes: Promise<unknown> = Promise.resolve();
+
 type Screen = "menu" | "pick" | "home" | "players" | "lineup" | "contracts" | "league" | "bracket" | "fixtures" | "recap" | "cards" | "tactics" | "draft" | "awards";
 
 type View =
@@ -86,7 +88,7 @@ export function CareerApp() {
   useEffect(() => {
     if (view?.kind !== "session") return;
     const json = sessionJson(view.session);
-    writeSave(json).then(() => setHasSave(true));
+    writes = writes.then(() => writeSave(json)).then(() => setHasSave(true));
   }, [view]);
 
   function acceptText(text: string) {

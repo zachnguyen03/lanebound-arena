@@ -18,11 +18,14 @@ test("coach marks run through map 5 and then stop", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await start(page, "juniper-rush");
   await page.getByRole("button", { name: "Continue" }).click();
+  const tab = ["Recap", "Recap", "Draft", "Tactics", "Recap"];
   for (let map = 0; map < 5; map++) {
     await page.getByTestId("play-map").click();
-    await expect(page.getByTestId("coach-mark")).toContainText(`Map ${map + 1}`);
+    if (tab[map] !== "Recap") await page.getByRole("button", { name: tab[map] }).click();
+    const label = await page.getByTestId("map-label").innerText();
+    await expect(page.getByTestId("coach-mark")).toContainText(label);
     await expect(page.getByTestId("coach-mark")).toContainText(COACH[map]!);
-    await page.getByRole("button", { name: "Tactics" }).click();
+    await page.getByRole("button", { name: "Got it" }).click();
   }
   await page.getByTestId("play-map").click();
   await expect(page.getByTestId("coach-mark")).toHaveCount(0);
@@ -41,6 +44,7 @@ test("a scripted season end keeps the signature and carries the contracts", asyn
     if (!(await skip.isEnabled())) break;
     await skip.click();
     if (await page.getByText("Season complete", { exact: true }).isVisible()) break;
+    if (await page.locator('[data-overlay="signature"]').isVisible()) break;
     await page.getByRole("button", { name: "Tactics" }).click();
   }
   const overlay = page.locator('[data-overlay="signature"]');
@@ -121,10 +125,13 @@ test("awards and the empty state at the three desktop widths", async ({ page }) 
   await page.getByTestId("play-map").click();
   await expect(page.getByTestId("coach-mark")).toBeVisible();
   await page.screenshot({ path: "../../lab/c6/shots/coach-mark-1440x900.png" });
-  for (let extra = 0; extra < 3; extra++) {
-    await page.getByRole("button", { name: "Got it" }).click();
-    await page.getByTestId("play-map").click();
-  }
+  await page.getByRole("button", { name: "Got it" }).click();
+  await page.getByTestId("play-map").click();
+  await page.getByRole("button", { name: "Got it" }).click();
+  await page.getByTestId("play-map").click();
+  await page.getByRole("button", { name: "Draft" }).click();
+  await page.getByRole("button", { name: "Got it" }).click();
+  await page.getByTestId("play-map").click();
   await page.getByRole("button", { name: "Tactics" }).click();
   await expect(page.getByTestId("coach-mark")).toBeVisible();
   await expect(page.locator("section[data-screen='tactics']")).toBeVisible();
@@ -145,6 +152,7 @@ test("awards and the empty state at the three desktop widths", async ({ page }) 
     if (!(await skip.isEnabled())) break;
     await skip.click();
     if (await page.getByText("Season complete", { exact: true }).isVisible()) break;
+    if (await page.locator('[data-overlay="signature"]').isVisible()) break;
     await page.getByRole("button", { name: "Tactics" }).click();
   }
   await expect(page.locator('[data-overlay="signature"]')).toBeVisible();

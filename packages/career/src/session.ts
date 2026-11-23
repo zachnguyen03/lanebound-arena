@@ -55,6 +55,7 @@ export interface CareerSession {
   open_games: MatchResult[];
   advanced: boolean;
   signature_choices: SignatureChoice[];
+  coach_dismissed: number[];
   clubs: Club[];
   players: CareerPlayer[];
   contracts: CareerContract[];
@@ -77,6 +78,7 @@ interface Decisions {
   open_games: MatchResult[];
   advanced: boolean;
   signature_choices: SignatureChoice[];
+  coach_dismissed: number[];
 }
 
 function fail(message: string): never {
@@ -105,6 +107,7 @@ export function startCareer(playerClubId: string, careerSeed = 20261123): Career
     open_games: [],
     advanced: false,
     signature_choices: [],
+    coach_dismissed: [],
   });
 }
 
@@ -123,6 +126,7 @@ export function sessionJson(session: CareerSession): string {
     open_games: session.open_games,
     advanced: session.advanced,
     signature_choices: session.signature_choices,
+    coach_dismissed: session.coach_dismissed,
     series: session.series,
   });
 }
@@ -159,6 +163,7 @@ export function parseSession(input: unknown): CareerSession {
   const advanced = input.advanced === undefined ? false : input.advanced;
   if (typeof advanced !== "boolean") fail("advanced");
   const choices = input.signature_choices === undefined ? [] : readChoices(input.signature_choices);
+  const coachDismissed = input.coach_dismissed === undefined ? [] : readCoachDismissed(input.coach_dismissed);
   return view(world, input.player_club_id, series, {
     human_preset: preset,
     loadout,
@@ -166,6 +171,15 @@ export function parseSession(input: unknown): CareerSession {
     open_games: openGames,
     advanced,
     signature_choices: choices,
+    coach_dismissed: coachDismissed,
+  });
+}
+
+function readCoachDismissed(value: unknown): number[] {
+  if (!Array.isArray(value)) fail("coach_dismissed");
+  return value.map((item) => {
+    if (typeof item !== "number" || !Number.isInteger(item) || item < 1 || item > 5) fail("coach_dismissed");
+    return item;
   });
 }
 
@@ -257,6 +271,7 @@ function view(world: OpeningWorld, playerClubId: string, series: SeriesResult[],
     open_games: decisions.open_games,
     advanced: decisions.advanced,
     signature_choices: decisions.signature_choices,
+    coach_dismissed: decisions.coach_dismissed,
     clubs: world.clubs,
     players: signed.players,
     contracts: decisions.advanced ? tickContracts(world.contracts) : world.contracts,
@@ -355,6 +370,7 @@ export function decisionsOf(session: CareerSession): Decisions {
     open_games: session.open_games,
     advanced: session.advanced,
     signature_choices: session.signature_choices,
+    coach_dismissed: session.coach_dismissed,
   };
 }
 

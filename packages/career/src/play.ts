@@ -161,6 +161,14 @@ export function skipSeries(session: CareerSession): CareerSession {
   return current;
 }
 
+export function dismissCoach(session: CareerSession, step: number): CareerSession {
+  if (session.coach_dismissed.includes(step)) return session;
+  return withDecisions(session, session.series, {
+    ...decisionsOf(session),
+    coach_dismissed: [...session.coach_dismissed, step],
+  });
+}
+
 export function chooseSignature(session: CareerSession, choice: "keep" | "replace"): CareerSession {
   const pending = session.pending_signature;
   if (!pending) throw new Error("career save rejected: no signature choice");

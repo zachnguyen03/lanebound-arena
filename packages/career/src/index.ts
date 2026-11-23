@@ -25,7 +25,7 @@ export { fromDisplay, glickoDisplay, glickoSeries, glickoUpdate, initialGlicko, 
 export { PLAYOFF_BONUS, placementPoints, REGULAR_SEASON_POINTS, seasonPointTotal } from "./points.js";
 export { loadSave, runSeason, SAVE_FORMAT, saveJson, type CareerSave, type ClubState, type RankingSnapshot } from "./season.js";
 export { ARENA_CARDS, arenaCard, loadoutReport, type ArenaCard, type LoadoutReport } from "./cards.js";
-export { advanceSeason, chooseSignature, draftPreview, latestMap, playNextMap, setLoadout, setPreset, skipSeries, type DraftSlot } from "./play.js";
+export { advanceSeason, chooseSignature, dismissCoach, draftPreview, latestMap, playNextMap, setLoadout, setPreset, skipSeries, type DraftSlot } from "./play.js";
 export {
   parseSession,
   SESSION_VERSION,
