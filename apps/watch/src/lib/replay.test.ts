@@ -54,21 +54,23 @@ describe("Watch determinism guard", () => {
     expect(src).not.toMatch(/\bsimulate\s*\(/);
   });
 
-  it("places dummy units at tile-centre spawn + jitter and levels from log", () => {
+  it("places the default lineup at tile-centre spawn + jitter and levels from log", () => {
     const events = parseJsonl(fs.readFileSync(samplePath, "utf8"));
     const engine = new ReplayEngine(events);
     const t0 = engine.stateAt(0);
     // GD: tile index (1,7) → centre (1.5, 7.5); top slotOrd 0 → yOff = -0.6
+    expect(t0.units["blue:top"]!.champ).toBe("brannoch");
     expect(t0.units["blue:top"]!.x).toBe(1.5);
     expect(t0.units["blue:top"]!.y).toBeCloseTo(7.5 + (0 - 2) * 0.3, 5);
     expect(t0.units["red:mid"]!.x).toBe(22.5);
     expect(t0.units["red:mid"]!.y).toBeCloseTo(7.5, 5);
     expect(t0.units["blue:top"]!.level).toBe(1);
-    expect(t0.units["blue:top"]!.fallback).toBe(false);
+    expect(t0.units["blue:top"]!.fallback).toBe(true);
     expect(t0.units["blue:mid"]!.facing).toBe("right");
     expect(t0.units["red:mid"]!.facing).toBe("left");
     expect(t0.fallbackChamps).not.toContain("dummy");
-    expect(t0.fallbackChamps).toEqual([]);
+    expect(t0.fallbackChamps).toContain("brannoch");
+    expect(t0.fallbackChamps).toContain("huntress");
 
     const t122 = engine.stateAt(122);
     expect(t122.units["blue:top"]!.level).toBe(2);
