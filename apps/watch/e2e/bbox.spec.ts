@@ -216,4 +216,36 @@ test.describe("Watch layout guards (desktop)", () => {
       await runPass(true);
     });
   }
+
+  test("1280x800: utilities sit fully below the 720 HUD (no peek)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await loadSample(page);
+    const stage = page.getByTestId("hud-stage");
+    const loader = page.getByTestId("log-loader").last();
+    const spacer = page.getByTestId("under-hud-spacer");
+    await expect(spacer).toBeVisible();
+    const stageBox = await stage.boundingBox();
+    const spacerBox = await spacer.boundingBox();
+    const loaderBox = await loader.boundingBox();
+    expect(stageBox).toBeTruthy();
+    expect(spacerBox).toBeTruthy();
+    expect(loaderBox).toBeTruthy();
+    // Spacer fills the under-HUD band; loader starts at/after the fold.
+    expect(spacerBox!.y).toBeGreaterThanOrEqual(stageBox!.y + stageBox!.height - 1);
+    expect(spacerBox!.height).toBeGreaterThanOrEqual(79);
+    expect(loaderBox!.y).toBeGreaterThanOrEqual(800 - 1);
+  });
+
+  test("takedown log is empty on quiet S0 sample (no level_up filler)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await loadSample(page);
+    await expect(page.getByTestId("kill-feed-empty")).toHaveText(
+      "No takedowns yet",
+    );
+    await expect(page.getByTestId("kill-feed")).not.toContainText("level_up");
+  });
 });

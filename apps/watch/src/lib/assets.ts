@@ -1,3 +1,5 @@
+import type { ChampAtlas } from "./champ-atlas";
+
 export interface PillarDef {
   id: "NW" | "NE" | "SW" | "SE";
   rect: [number, number, number, number];
@@ -23,6 +25,9 @@ export interface WorldPropsAtlas {
           rect: [number, number, number, number];
           anchor: [number, number];
         }>;
+        ms?: number;
+        n?: number;
+        loop?: boolean;
       }
     >
   >;
@@ -39,6 +44,9 @@ export interface WatchAssets {
   propsSheet: HTMLImageElement;
   pillars: PillarDef[];
   worldProps: WorldPropsAtlas;
+  /** Body sheets keyed by champ slug (2× nearest-neighbour sheet). */
+  bodySheets: Record<string, HTMLImageElement>;
+  bodyAtlases: Record<string, ChampAtlas>;
 }
 
 const BASE = "/arena-sandbox";
@@ -54,13 +62,15 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 export async function loadWatchAssets(): Promise<WatchAssets> {
-  const [terrain, pillarsSheet, propsSheet, tilesJson, propsJson] =
+  const [terrain, pillarsSheet, propsSheet, tilesJson, propsJson, dummySheet, dummyAtlas] =
     await Promise.all([
       loadImage(`${BASE}/terrain/layoutB-terrain-2x.png`),
       loadImage(`${BASE}/terrain/layoutB-pillars-2x.png`),
       loadImage(`${BASE}/props/world-props.png`),
       fetch(`${BASE}/terrain/layoutB-tiles.json`).then((r) => r.json()),
       fetch(`${BASE}/props/world-props.json`).then((r) => r.json()),
+      loadImage(`${BASE}/dummy/dummy-2x.png`),
+      fetch(`${BASE}/dummy/atlas.json`).then((r) => r.json()) as Promise<ChampAtlas>,
     ]);
 
   const rawPillars = tilesJson.pillars as Record<
@@ -84,5 +94,7 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
     propsSheet,
     pillars,
     worldProps: propsJson as WorldPropsAtlas,
+    bodySheets: { dummy: dummySheet },
+    bodyAtlases: { dummy: dummyAtlas },
   };
 }

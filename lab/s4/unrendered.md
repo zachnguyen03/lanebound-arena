@@ -1,20 +1,22 @@
 # S4 Watch — unrendered event types (TODO)
 
-The shell consumes these events in the side panel (filter + jump) but does **not** invent visuals for them yet. Do not draw fake casts, hits, CC plates, zone ownership changes, orbs-up, buffs-up, or score pops until the matching sim events and CD art hooks are wired.
+The shell consumes these events in the side panel (filter + jump) but does **not** invent overlay visuals for them yet (except body anim hooks noted below).
 
-| Event type | Planned visual | Blocked on |
+| Event type | Planned visual | Status |
 |---|---|---|
-| `cast_start` / `cast_cancel` | Telegraph / cast bar | S1 kits + telegraphs hook |
-| `projectile_spawn` | Missile sprite | S1 combat log |
-| `hit` / `heal` / `shield_apply` | Floating numbers / shield plate | S1 combat log |
-| `status_apply` / `status_expire` / `sleep_break` / `dispel` | Status plates from `status/` | Status duration stream |
-| `orb_spawn` / `orb_pickup` | `orb.up` / pickup burst | S3 orb events |
-| `buff_spawn` / `buff_pickup` | `buff.up` / held tint (gold only on up/spawn/pickup) | S3 buff events |
-| `zone_capture` / `zone_tick` | `zone.blue` / `zone.red` / contested | S3 zone events |
-| `claim_open` / `claim_award` / `claim_deny` | Dock claim chip | S3 claims |
-| `takedown_score` | Kill feed / banners | Death + score events |
-| `fight_call` / `peel_start` | Fight Call dock + overlays | S2 AI stream |
+| `cast_start` / `cast_cancel` | Telegraph / cast bar | TODO — S1 kits + telegraphs |
+| `projectile_spawn` | Missile sprite | TODO — S1 combat log |
+| `hit` | Floating numbers / shield plate | **Body `hit` anim plays** on damage; floaters still TODO |
+| `heal` / `shield_apply` | Floating numbers / shield plate | TODO |
+| `status_apply` / `status_expire` / `sleep_break` / `dispel` | Status plates from `status/` | TODO |
+| `orb_spawn` / `orb_pickup` | `orb.up` / pickup burst | TODO — S3 |
+| `buff_spawn` / `buff_pickup` | `buff.up` / held tint (gold only on up/spawn/pickup) | TODO — S3 |
+| `zone_capture` / `zone_tick` | `zone.blue` / `zone.red` / contested | TODO — S3 |
+| `claim_open` / `claim_award` / `claim_deny` | Dock claim chip | TODO — S3 |
+| `takedown_score` | Kill feed banners | Log row when present; banner art TODO |
+| `fight_call` / `peel_start` | Fight Call dock + overlays | TODO — S2 |
+| `death` | — | **Body `death` anim plays** (last frame holds); banners TODO |
 
-**Currently drawn from the log:** `match_start`, `match_end`, `xp_gain`, `level_up`, `pos`/`move` (when present), `death`/`respawn`/`hit` HP fields (when present), score fields on end/takedown/zone/claim.
+**Currently drawn from the log:** `match_start`, `match_end`, `xp_gain`, `level_up`, `pos`/`move` (when present), `death`/`respawn`/`hit` (HP + body anim), score fields on end/takedown/zone/claim.
 
-**Always drawn from CD art (static / empty states):** terrain, sanctuary wash/threshold, zone neutral + centre mark, `orb.down` pads, `buff.down` pads, pillars with y-sort.
+**Always drawn from CD art:** terrain, sanctuary wash/threshold, zone neutral + centre mark, `orb.down` / `buff.down` pads, pillars with y-sort, **training-dummy body** (`idle`/`move`/`hit`/`death` × team × facing).

@@ -26,7 +26,7 @@ export function DevPanel({ state, digest, sourceName }: Props) {
           )}
         </div>
         <div className="text-faint">
-          No CD dummy body sheet in arena-sandbox P0; labelled placeholders used.
+          Body art: dummy sheet under arena-sandbox/dummy/ (CD training dummy).
         </div>
       </div>
     </div>

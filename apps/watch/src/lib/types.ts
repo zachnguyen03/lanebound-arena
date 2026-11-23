@@ -10,6 +10,8 @@ export interface SimEvent {
   [key: string]: unknown;
 }
 
+export type Facing = "left" | "right";
+
 export interface UnitView {
   id: UnitId;
   team: Team;
@@ -17,15 +19,26 @@ export interface UnitView {
   champ: string;
   x: number;
   y: number;
+  vx: number;
+  vy: number;
   hp: number;
   maxHp: number;
   xp: number;
   level: number;
   alive: boolean;
   respawnAt: number | null;
+  /** Last movement / aim facing; held while idle. */
+  facing: Facing;
+  /** Sim t when the current one-shot hit anim started; null if none. */
+  hitStartedAt: number | null;
+  /** Sim t when death anim started; null if living / pre-death. */
+  deathStartedAt: number | null;
   /** True when champ art was missing and a labelled placeholder is drawn. */
   fallback: boolean;
 }
+
+/** Champ ids with a body sheet shipped under arena-sandbox/. */
+export const CHAMP_ART: ReadonlySet<string> = new Set(["dummy"]);
 
 export interface MatchViewState {
   tick: number;

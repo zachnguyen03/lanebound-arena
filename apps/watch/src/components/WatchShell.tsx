@@ -320,18 +320,37 @@ export function WatchShell() {
           ) : null}
         </div>
 
-        {/* Below-stage utilities (loader / dev) — outside the fixed HUD chrome */}
+        {/* Below-stage utilities — outside the fixed HUD chrome.
+            At viewports taller than the stage (e.g. 1280×800 under a 720 HUD),
+            reserve the under-stage band so LOAD EVENT LOG never peeks into it. */}
         {engine ? (
-          <div className="grid gap-3 p-3" style={{ width: stageW }}>
-            <LogLoader
-              onLoadText={loadText}
-              onLoadSample={() => void loadSample()}
-            />
-            <DevPanel
-              state={state}
-              digest={engine.digest}
-              sourceName={sourceName}
-            />
+          <div
+            data-testid="below-stage-utilities"
+            style={{ width: stageW }}
+            className="border-t border-line bg-field"
+          >
+            {vp.h > stageH ? (
+              <div
+                data-testid="under-hud-spacer"
+                aria-hidden
+                className="border-b border-line bg-field"
+                style={{ height: vp.h - stageH }}
+              />
+            ) : null}
+            <div className="px-3 pt-2 font-condensed text-xs tracking-wide text-dim">
+              UTILITIES
+            </div>
+            <div className="grid gap-3 p-3 pt-2">
+              <LogLoader
+                onLoadText={loadText}
+                onLoadSample={() => void loadSample()}
+              />
+              <DevPanel
+                state={state}
+                digest={engine.digest}
+                sourceName={sourceName}
+              />
+            </div>
           </div>
         ) : null}
       </div>

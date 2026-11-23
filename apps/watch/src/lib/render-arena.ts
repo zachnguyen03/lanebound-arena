@@ -1,8 +1,16 @@
 import type { WatchAssets } from "./assets";
+import {
+  frameIndexAt,
+  resolveAnimName,
+  scaleFrame2x,
+  variantKey,
+  type BodyAnim,
+} from "./champ-atlas";
 import { sortDrawItems } from "./draw-order";
+import { ARENA_INTRINSIC } from "./hud-layout";
 import { padGroundPx } from "./spawn";
 import type { MatchViewState, UnitView } from "./types";
-import { ARENA_INTRINSIC } from "./hud-layout";
+import { CHAMP_ART } from "./types";
 
 const TILE_W = 44;
 const TILE_H = 32;
@@ -10,6 +18,7 @@ const BODY_W = 36;
 const BODY_H = 48;
 const ANCHOR_X = 18;
 const ANCHOR_Y = 46;
+const MOVE_EPS = 1e-4;
 
 /** Integer nearest-neighbour blit. */
 export function blitNearest(
@@ -165,12 +174,38 @@ export function renderArena(
       if (dy >= H) continue;
       blitNearest(ctx, assets.pillarsSheet, sx, sy, sw, sh, dx, dy);
     } else {
-      drawUnit(ctx, item.unit);
+      drawUnit(ctx, assets, state, item.unit);
     }
   }
 }
 
-function drawUnit(ctx: CanvasRenderingContext2D, unit: UnitView): void {
+function pickBodyAnim(
+  unit: UnitView,
+  now: number,
+  hitDurS: number,
+): { anim: BodyAnim; startedAt: number } {
+  if (!unit.alive && unit.deathStartedAt != null) {
+    return { anim: "death", startedAt: unit.deathStartedAt };
+  }
+  if (
+    unit.alive &&
+    unit.hitStartedAt != null &&
+    now - unit.hitStartedAt < hitDurS
+  ) {
+    return { anim: "hit", startedAt: unit.hitStartedAt };
+  }
+  const moving =
+    Math.abs(unit.vx) > MOVE_EPS || Math.abs(unit.vy) > MOVE_EPS;
+  if (moving) return { anim: "move", startedAt: 0 };
+  return { anim: "idle", startedAt: 0 };
+}
+
+function drawUnit(
+  ctx: CanvasRenderingContext2D,
+  assets: WatchAssets,
+  state: MatchViewState,
+  unit: UnitView,
+): void {
   const px = unit.x * TILE_W;
   const py = unit.y * TILE_H;
   const teamColor = unit.team === "blue" ? "#4DA3FF" : "#F5477A";
@@ -186,30 +221,60 @@ function drawUnit(ctx: CanvasRenderingContext2D, unit: UnitView): void {
   ctx.ellipse(px, py, 16, 7, 0, 0, Math.PI * 2);
   ctx.stroke();
 
-  const left = Math.round(px - ANCHOR_X);
-  const top = Math.round(py - ANCHOR_Y);
-  ctx.fillStyle = unit.alive ? "#1A2130" : "#2A303C";
-  ctx.fillRect(left, top, BODY_W, BODY_H);
-  ctx.strokeStyle = teamColor;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(left + 1, top + 1, BODY_W - 2, BODY_H - 2);
-
-  ctx.fillStyle = "#EEF2F8";
-  ctx.font = "bold 9px Barlow, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const label =
-    unit.champ === "dummy" ? "DUMMY" : unit.champ.slice(0, 6).toUpperCase();
-  ctx.fillText(label, px, top + BODY_H / 2 - 4);
-  ctx.fillStyle = "#A1ACBF";
-  ctx.font = "8px Barlow, sans-serif";
-  ctx.fillText(`L${unit.level}`, px, top + BODY_H / 2 + 8);
+  const atlas = assets.bodyAtlases[unit.champ];
+  const sheet = assets.bodySheets[unit.champ];
+  if (atlas && sheet && CHAMP_ART.has(unit.champ) && !unit.fallback) {
+    const variant = variantKey(unit.team, unit.facing);
+    const hitClip = atlas.animations.hit?.[variant];
+    const hitDurS = hitClip ? (hitClip.n * hitClip.ms) / 1000 : 0.25;
+    const { anim, startedAt } = pickBodyAnim(unit, state.t, hitDurS);
+    const name = resolveAnimName(anim);
+    const clip =
+      atlas.animations[name]?.[variant] ??
+      atlas.animations.move?.[variant] ??
+      atlas.animations.idle?.[variant];
+    if (clip && clip.frames.length > 0) {
+      const fi = frameIndexAt(clip, startedAt, state.t);
+      const frame1x = clip.frames[fi] ?? clip.frames[clip.frames.length - 1]!;
+      // Atlas rects are 1×; we blit from the 2× sheet.
+      const frame = scaleFrame2x(frame1x);
+      const [sx, sy, sw, sh] = frame.rect;
+      const [ax, ay] = frame.anchor;
+      blitNearest(
+        ctx,
+        sheet,
+        sx,
+        sy,
+        sw,
+        sh,
+        Math.round(px) - ax,
+        Math.round(py) - ay,
+      );
+    }
+  } else {
+    // Labelled placeholder for missing champ art.
+    const left = Math.round(px - ANCHOR_X);
+    const top = Math.round(py - ANCHOR_Y);
+    ctx.fillStyle = unit.alive ? "#1A2130" : "#2A303C";
+    ctx.fillRect(left, top, BODY_W, BODY_H);
+    ctx.strokeStyle = teamColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(left + 1, top + 1, BODY_W - 2, BODY_H - 2);
+    ctx.fillStyle = "#EEF2F8";
+    ctx.font = "bold 9px Barlow, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(unit.champ.slice(0, 6).toUpperCase(), px, top + BODY_H / 2 - 4);
+    ctx.fillStyle = "#A1ACBF";
+    ctx.font = "8px Barlow, sans-serif";
+    ctx.fillText(`L${unit.level}`, px, top + BODY_H / 2 + 8);
+  }
 
   if (unit.alive) {
     const barW = 28;
     const barH = 3;
     const bx = Math.round(px - barW / 2);
-    const by = top - 6;
+    const by = Math.round(py - ANCHOR_Y - 6);
     ctx.fillStyle = "#0B0E14";
     ctx.fillRect(bx, by, barW, barH);
     const frac = Math.max(0, Math.min(1, unit.hp / unit.maxHp));

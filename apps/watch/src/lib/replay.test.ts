@@ -64,10 +64,15 @@ describe("Watch determinism guard", () => {
     expect(t0.units["red:mid"]!.x).toBe(22.5);
     expect(t0.units["red:mid"]!.y).toBeCloseTo(7.5, 5);
     expect(t0.units["blue:top"]!.level).toBe(1);
-    expect(t0.fallbackChamps).toContain("dummy");
+    expect(t0.units["blue:top"]!.fallback).toBe(false);
+    expect(t0.units["blue:mid"]!.facing).toBe("right");
+    expect(t0.units["red:mid"]!.facing).toBe("left");
+    expect(t0.fallbackChamps).not.toContain("dummy");
+    expect(t0.fallbackChamps).toEqual([]);
 
     const t122 = engine.stateAt(122);
     expect(t122.units["blue:top"]!.level).toBe(2);
   });
 });
+
 

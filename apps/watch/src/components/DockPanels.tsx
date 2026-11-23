@@ -52,14 +52,27 @@ export function DockPanels({ state, zone, pickups, fightCall }: Props) {
   );
 }
 
-export function CardToastSlot({ rect }: { rect: Rect }) {
+/** Reserves the hud-layout card-toast rect; no outline until a toast is shown. */
+export function CardToastSlot({
+  rect,
+  visible = false,
+}: {
+  rect: Rect;
+  /** When true, draw the toast chrome; v1 never shows one. */
+  visible?: boolean;
+}) {
   return (
     <div
       data-testid="card-toast-slot"
+      data-toast-visible={visible ? "true" : "false"}
       style={absStyle(rect)}
-      className="box-border border border-dashed border-line-2 bg-transparent"
-      aria-hidden
-      title="Card toast slot (empty in v1)"
+      className={
+        visible
+          ? "box-border border border-line bg-panel"
+          : "box-border border border-transparent bg-transparent"
+      }
+      aria-hidden={!visible}
+      title={visible ? "Card toast" : undefined}
     />
   );
 }

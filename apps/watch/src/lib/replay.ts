@@ -9,7 +9,7 @@ import type {
   UnitId,
   UnitView,
 } from "./types";
-import { SLOTS } from "./types";
+import { CHAMP_ART, SLOTS } from "./types";
 
 /**
  * Pure replay: derive MatchViewState at tick T from the event log only.
@@ -115,12 +115,17 @@ function emptyState(): MatchViewState {
         champ: "unknown",
         x: pose.x,
         y: pose.y,
+        vx: 0,
+        vy: 0,
         hp: DUMMY_MAX_HP,
         maxHp: DUMMY_MAX_HP,
         xp: 0,
         level: 1,
         alive: true,
         respawnAt: null,
+        facing: team === "blue" ? "right" : "left",
+        hitStartedAt: null,
+        deathStartedAt: null,
         fallback: true,
       };
     }
@@ -164,6 +169,12 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       if (!u) break;
       if (typeof ev.x === "number") u.x = ev.x;
       if (typeof ev.y === "number") u.y = ev.y;
+      if (typeof ev.vx === "number") u.vx = ev.vx;
+      if (typeof ev.vy === "number") u.vy = ev.vy;
+      // Facing from movement; hold last while idle.
+      if (typeof ev.vx === "number" && Math.abs(ev.vx) > 1e-6) {
+        u.facing = ev.vx > 0 ? "right" : "left";
+      }
       break;
     }
     case "xp_gain": {
@@ -182,6 +193,7 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       const u = getUnit(state, ev.target_id);
       if (!u) break;
       if (typeof ev.hp_after === "number") u.hp = ev.hp_after;
+      if (u.alive) u.hitStartedAt = ev.t;
       break;
     }
     case "death": {
@@ -189,7 +201,11 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       if (!u) break;
       u.alive = false;
       u.hp = 0;
+      u.vx = 0;
+      u.vy = 0;
       u.respawnAt = typeof ev.respawn_at === "number" ? ev.respawn_at : null;
+      u.deathStartedAt = ev.t;
+      u.hitStartedAt = null;
       break;
     }
     case "respawn": {
@@ -198,6 +214,10 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       u.alive = true;
       u.hp = u.maxHp;
       u.respawnAt = null;
+      u.hitStartedAt = null;
+      u.deathStartedAt = null;
+      u.vx = 0;
+      u.vy = 0;
       if (typeof ev.x === "number") u.x = ev.x;
       if (typeof ev.y === "number") u.y = ev.y;
       break;
@@ -245,18 +265,23 @@ function applyLineup(state: MatchViewState, team: Team, lineup: string[]): void 
     const id = unitId(team, slot);
     const u = state.units[id]!;
     u.champ = champ;
-    // No champion body art in CD P0 arena pack for "dummy" — labelled placeholder.
-    const hasArt = false;
+    const hasArt = CHAMP_ART.has(champ);
     u.fallback = !hasArt;
     if (u.fallback) fallbacks.add(champ);
+    else fallbacks.delete(champ);
     const pose = spawnPose(team, slot);
     u.x = pose.x;
     u.y = pose.y;
+    u.vx = 0;
+    u.vy = 0;
     u.hp = DUMMY_MAX_HP;
     u.maxHp = DUMMY_MAX_HP;
     u.level = 1;
     u.xp = 0;
     u.alive = true;
+    u.facing = team === "blue" ? "right" : "left";
+    u.hitStartedAt = null;
+    u.deathStartedAt = null;
   }
   state.fallbackChamps = [...fallbacks].sort();
 }
