@@ -119,8 +119,11 @@ export interface Constants {
   SEPARATION_RADIUS: number;
   /** Soft ally separation push at dist=0 (tiles/s). GD-accepted Appendix R #2. */
   SEPARATION_STRENGTH: number;
-  /** Invention INV-SPAWN-JITTER: ±y when two units would overlap on pad. */
-  SPAWN_JITTER_Y: number;
+  /**
+   * L214 spawn-slot y spacing (tiles). Slot multipliers Top−2 … Support+2;
+   * y = pad_centre_y + mult × SPAWN_SLOT_SPACING. Tunable 0.8–1.2.
+   */
+  SPAWN_SLOT_SPACING: number;
 }
 
 export const DEFAULT_CONSTANTS: Constants = {
@@ -217,7 +220,7 @@ export const DEFAULT_CONSTANTS: Constants = {
   LAB_SEED: 20261122,
   SEPARATION_RADIUS: 0.6,
   SEPARATION_STRENGTH: 2.0,
-  SPAWN_JITTER_Y: 0.3,
+  SPAWN_SLOT_SPACING: 1.0,
 };
 
 export function mergeConstants(overrides?: Partial<Record<string, unknown>>): Constants {

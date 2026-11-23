@@ -48,6 +48,21 @@ import type {
 
 const SLOTS: Slot[] = ["top", "jungle", "mid", "adc", "support"];
 
+/**
+ * L214 spawn pose: pad centre + slot × SPAWN_SLOT_SPACING on y.
+ * Multipliers: Top −2, Jungle −1, Mid 0, ADC +1, Support +2.
+ * Red mirrors blue (same y; x from RED_SPAWN). No occupancy check (G6).
+ */
+export function spawnPose(
+  team: Team,
+  slot: Slot,
+  c: Constants,
+): { x: number; y: number } {
+  const pad = team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
+  const mult = SLOTS.indexOf(slot) - 2;
+  return { x: pad[0]!, y: pad[1]! + mult * c.SPAWN_SLOT_SPACING };
+}
+
 /** Stable S1 default lineups — real champions, role-appropriate. */
 const DEFAULT_BLUE_PICKS = ["brannoch", "sedge", "kerrig", "huntress", "ysol"];
 const DEFAULT_RED_PICKS = ["rhedan", "tolle", "helvar", "maelis", "saelo"];
@@ -114,23 +129,20 @@ function makeUnit(
   team: Team,
   slot: Slot,
   index: number,
-  spawn: [number, number],
-  jitterY: number,
   c: Constants,
   champ: string,
   attrs: PlayerAttrs,
 ): UnitState {
   const id = `${team}:${slot}` as UnitId;
-  const slotOrd = SLOTS.indexOf(slot);
-  const yOff = (slotOrd - 2) * jitterY;
+  const pose = spawnPose(team, slot, c);
   const u: UnitState = {
     id,
     team,
     slot,
     index,
     champ,
-    x: spawn[0],
-    y: spawn[1] + yOff,
+    x: pose.x,
+    y: pose.y,
     vx: 0,
     vy: 0,
     hp: 900,
@@ -138,6 +150,7 @@ function makeUnit(
     xp: 0,
     level: 1,
     alive: true,
+    respawn_at: Infinity,
     spawn_shield_until: c.SPAWN_SHIELD_S,
     auto_cd: 0,
     auto_windup_left: 0,
@@ -173,8 +186,8 @@ function makeUnit(
     cast_left: 0,
     cast_skill: null,
     cast_target: null,
-    cast_aim_x: spawn[0],
-    cast_aim_y: spawn[1] + yOff,
+    cast_aim_x: pose.x,
+    cast_aim_y: pose.y,
     cast_force_hit: false,
     cast_seq: 0,
     cast_snapshot_ids: null,
@@ -193,12 +206,11 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
   let index = 0;
   for (const team of ["blue", "red"] as Team[]) {
     const side = team === "blue" ? cfg.blue : cfg.red;
-    const spawn = team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
     for (let si = 0; si < SLOTS.length; si++) {
       const slot = SLOTS[si]!;
       const champ = side.picks[si] ?? "dummy";
       const attrs = side.players[si]?.attrs ?? DEFAULT_ATTRS;
-      units.push(makeUnit(team, slot, index, spawn, c.SPAWN_JITTER_Y, c, champ, attrs));
+      units.push(makeUnit(team, slot, index, c, champ, attrs));
       index += 1;
     }
   }
@@ -427,6 +439,37 @@ export function simulate(config: MatchConfig): SimulateResult {
     state.tick = tick;
     state.t = tOf(tick);
     const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T;
+
+    // Respawn at own slot (L214): no occupancy check — G6 soft separation.
+    for (const u of state.units) {
+      if (u.alive || !(state.t + 1e-12 >= u.respawn_at)) continue;
+      const pose = spawnPose(u.team, u.slot, c);
+      u.alive = true;
+      u.hp = u.max_hp;
+      u.x = pose.x;
+      u.y = pose.y;
+      u.vx = 0;
+      u.vy = 0;
+      u.waypoint = null;
+      u.intent = "Idle";
+      u.respawn_at = Infinity;
+      u.spawn_shield_until = state.t + c.SPAWN_SHIELD_S;
+      u.status = emptyStatus(u.spawn_shield_until);
+      u.auto_windup_left = 0;
+      u.auto_windup_target = null;
+      u.auto_cd = 0;
+      u.cast_left = 0;
+      u.cast_skill = null;
+      u.cast_target = null;
+      u.cast_snapshot_ids = null;
+      u.marks = [];
+      u.damage_log = [];
+      u.assist_log = [];
+      u.last_hit_by = null;
+      u.attack_reset_pending = false;
+      u.abandon_scripted_motor = false;
+      emit("respawn", { unit_id: u.id, x: pose.x, y: pose.y, slot: u.slot });
+    }
 
     updateScriptedMotor(state, config, c, emit);
 
@@ -691,6 +734,8 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.waypoint = null;
       u.auto_windup_left = 0;
       u.auto_windup_target = null;
+      const respawnAt = state.t + c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level;
+      u.respawn_at = respawnAt;
 
       const killerId = u.last_hit_by;
       const assists: UnitId[] = [];
@@ -738,7 +783,7 @@ export function simulate(config: MatchConfig): SimulateResult {
         unit_id: u.id,
         killer_id: killerId,
         assists,
-        respawn_at: state.t + c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level,
+        respawn_at: respawnAt,
       });
     }
 

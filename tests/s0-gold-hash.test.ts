@@ -7,13 +7,13 @@ import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate
  */
 export const GOLD = {
   seed_20261122: {
-    digest: "5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6",
-    constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
+    digest: "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
+    constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   seed_20261123: {
-    digest: "2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a",
-    constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
+    digest: "f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0",
+    constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   /** Historical S0 tip (integer spawn/buff pads) — retained for before/after. */

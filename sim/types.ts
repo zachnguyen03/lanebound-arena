@@ -165,6 +165,8 @@ export interface UnitState {
   xp: number;
   level: number;
   alive: boolean;
+  /** Sim t at which a dead unit respawns at its own slot (Infinity while alive). */
+  respawn_at: number;
   spawn_shield_until: number;
   auto_cd: number;
   /** Remaining windup time (s); 0 = not winding up. */

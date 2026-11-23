@@ -1,7 +1,7 @@
 # S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** `276ca2544d658bb91d59674746535e11759ddb8b`  
+**Commit:** `099ba9132715efa32ea4ce96cebbf4f944db31f2`  
 **Date:** 23 Nov 2026  
 **Regenerate:** `npm run lab:s1` (set `LANEBOUND_COMMIT` in git-archive extracts)
 
@@ -29,24 +29,24 @@ npx tsx apps/lab/mutation-s1.ts
 
 ```
 seed=20261122
-constants_hash=c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364
+constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
 data_hash=af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2
-digest=5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6
+digest=7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f
 
 seed=20261123
-constants_hash=c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364
+constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
 data_hash=af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2
-digest=2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a
+digest=f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0
 ```
 
 ### Digest / hashes before → after
 
 | | before (S0 `1caa5eb` / prior S1 dummy) | after (this tip — real champions) |
 |---|---|---|
-| constants_hash | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` | `c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364` |
+| constants_hash | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` | `69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1` |
 | data_hash | *(absent)* | `af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2` **NEW** |
-| digest 20261122 | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` | `5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6` |
-| digest 20261123 | `be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3` | `2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a` |
+| digest 20261122 | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` | `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f` |
+| digest 20261123 | `be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3` | `f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0` |
 
 **Reason:** Real champions + `data_hash`; Appendix R tile-centre moves spawn/buff pads to centres → `constants_hash` changes; digests follow.
 
