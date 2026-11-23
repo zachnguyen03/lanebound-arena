@@ -3,7 +3,8 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
     "strict": true,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
@@ -23,5 +24,6 @@
       "@lanebound/career": ["packages/career/src/index.ts"]
     }
   },
-  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*", "packages/**/*"]
+  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*", "packages/**/*"],
+  "exclude": ["apps/career/e2e", "apps/career/playwright.config.ts", "apps/career/vite.config.ts", "apps/career/dist"]
 }

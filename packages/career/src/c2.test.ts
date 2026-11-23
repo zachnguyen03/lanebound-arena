@@ -277,7 +277,15 @@ describe("C2 glicko, points, awards, contracts", () => {
     for (const contract of save.contracts) expect(contract.wage).toBe(wages.get(contract.player_id));
     const reloaded = loadSave(json + "");
     expect(reloaded.save_format).toBe(1);
+    expect(saveJson(reloaded)).toBe(json);
     expect(() => loadSave(JSON.stringify({ ...JSON.parse(json), extra: true, save_format: 1, contract_version: "career-match/1" }))).not.toThrow();
+    const tampered = JSON.parse(json) as { standings: Array<{ finish: number }> };
+    tampered.standings[0]!.finish = tampered.standings[0]!.finish === 1 ? 2 : 1;
+    expect(() => loadSave(JSON.stringify(tampered))).toThrow(/career save rejected/);
+    const mixed = JSON.parse(json) as { series: Array<{ games: Array<{ source: string; digest: string }> }> };
+    mixed.series[0]!.games[0]!.source = "sim";
+    mixed.series[0]!.games[0]!.digest = "simdigest";
+    expect(() => loadSave(JSON.stringify(mixed))).toThrow(/career save rejected/);
     expect(sha256Hex(json)).toBe(sha256Hex(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" }))));
   });
 

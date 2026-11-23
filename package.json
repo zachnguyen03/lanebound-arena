@@ -5,7 +5,8 @@
   "type": "module",
   "workspaces": [
     "packages/match-contract",
-    "packages/career"
+    "packages/career",
+    "apps/career"
   ],
   "description": "Lanebound Arena sandbox — deterministic headless sim",
   "scripts": {

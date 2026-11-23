@@ -23,6 +23,7 @@ export { tickContract, tickContracts } from "./contracts.js";
 export { fromDisplay, glickoDisplay, glickoSeries, glickoUpdate, initialGlicko, GLICKO_SCALE, GLICKO_TAU, type GlickoState } from "./glicko.js";
 export { PLAYOFF_BONUS, placementPoints, REGULAR_SEASON_POINTS, seasonPointTotal } from "./points.js";
 export { loadSave, runSeason, SAVE_FORMAT, saveJson, type CareerSave, type ClubState, type RankingSnapshot } from "./season.js";
+export { parseSession, SESSION_VERSION, sessionJson, startCareer, type CareerSession } from "./session.js";
 export {
   CLUB_SEEDS,
   OPENING_WORLD_SHA256,
