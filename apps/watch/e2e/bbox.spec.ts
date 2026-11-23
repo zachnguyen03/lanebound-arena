@@ -127,6 +127,24 @@ test.describe("Watch layout guards (desktop)", () => {
     }
   });
 
+  test("1280 top-bar clock stays ≥2px inside the 44px bar", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await loadSample(page);
+    const bar = page.getByTestId("top-bar");
+    const clock = page.getByTestId("top-bar-clock");
+    const barBox = await bar.boundingBox();
+    const clockBox = await clock.boundingBox();
+    expect(barBox).toBeTruthy();
+    expect(clockBox).toBeTruthy();
+    expect(barBox!.height).toBe(44);
+    expect(clockBox!.y).toBeGreaterThanOrEqual(barBox!.y + 2 - 0.5);
+    expect(clockBox!.y + clockBox!.height).toBeLessThanOrEqual(
+      barBox!.y + barBox!.height - 2 + 0.5,
+    );
+  });
+
   test("1280x800: utilities sit fully below the 720 HUD (no peek)", async ({
     page,
   }) => {

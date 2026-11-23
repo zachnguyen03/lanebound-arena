@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Lanebound Arena sandbox — deterministic headless sim",
   "scripts": {
-    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc -p apps/watch/tsconfig.json --noEmit",
+    "test": "npm run typecheck && vitest run",
     "test:watch-app": "vitest run --config apps/watch/vitest.config.ts",
     "digest": "tsx apps/lab/digest.ts",
     "purity": "tsx apps/lab/purity.ts",

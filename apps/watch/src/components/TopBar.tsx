@@ -46,34 +46,44 @@ export function TopBar({
     <header
       data-testid="top-bar"
       style={absStyle(rect)}
-      className="flex items-center justify-between gap-3 border-b border-line bg-panel px-3"
+      className={
+        compact
+          ? "flex items-center justify-between gap-3 border-b border-line bg-panel px-3 py-0.5"
+          : "flex items-center justify-between gap-3 border-b border-line bg-panel px-3"
+      }
     >
       <div className="min-w-0">
         <div
-          className={`font-condensed tracking-wide text-team-blue ${compact ? "text-base" : "text-xl"}`}
+          className={`font-condensed tracking-wide text-team-blue ${compact ? "text-base leading-none" : "text-xl"}`}
         >
           LANEBOUND
         </div>
-        <div className="truncate text-[10px] text-dim">Arena Watch · sandbox</div>
+        <div
+          className={`truncate text-[10px] text-dim ${compact ? "leading-none" : ""}`}
+        >
+          Arena Watch · sandbox
+        </div>
       </div>
       <div className="flex items-center gap-4">
         <div
-          className={`font-condensed tabular-nums text-team-blue ${compact ? "text-2xl" : "text-3xl"}`}
+          className={`font-condensed tabular-nums text-team-blue ${compact ? "text-2xl leading-none" : "text-3xl"}`}
         >
           {state?.scoreBlue ?? 0}
         </div>
-        <div className="text-center">
+        <div data-testid="top-bar-clock" className="text-center">
           <div
-            className={`font-condensed tabular-nums tracking-wider ${compact ? "text-2xl" : "text-3xl"}`}
+            className={`font-condensed tabular-nums tracking-wider ${compact ? "text-2xl leading-none" : "text-3xl"}`}
           >
             {formatClock(t)}
           </div>
-          <div className="text-[10px] uppercase tracking-widest text-dim">
+          <div
+            className={`text-[10px] uppercase tracking-widest text-dim ${compact ? "leading-none" : ""}`}
+          >
             {clockCaption(state)}
           </div>
         </div>
         <div
-          className={`font-condensed tabular-nums text-team-red ${compact ? "text-2xl" : "text-3xl"}`}
+          className={`font-condensed tabular-nums text-team-red ${compact ? "text-2xl leading-none" : "text-3xl"}`}
         >
           {state?.scoreRed ?? 0}
         </div>
@@ -81,11 +91,15 @@ export function TopBar({
       <div className="flex shrink-0 items-center gap-2">
         <div className="min-w-0 text-right">
           <div
-            className={`font-condensed tracking-wide text-team-red ${compact ? "text-base" : "text-xl"}`}
+            className={`font-condensed tracking-wide text-team-red ${compact ? "text-base leading-none" : "text-xl"}`}
           >
             ARENA
           </div>
-          <div className="truncate text-[10px] text-dim">{statusLine(state)}</div>
+          <div
+            className={`truncate text-[10px] text-dim ${compact ? "leading-none" : ""}`}
+          >
+            {statusLine(state)}
+          </div>
         </div>
         {onToggleDrawer ? (
           <Button
