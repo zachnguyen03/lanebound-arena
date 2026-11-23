@@ -1,0 +1,25 @@
+# S2 acceptance v6 sha256 parity
+
+All files under `tests/acceptance/s2/**` match official S2 acceptance v6.
+
+`35c46ba801a72e618363cdfc119d1500ed8f2f5fede09cad268b56675ef57b89`  `01-fight-call.test.ts`
+`1ce1766b6469f87d73a3a26e4f9de303508ca164a8e19f84d4117ee771bf6ffb`  `02-chase-stops.test.ts`
+`258e9a9bc88e56a71374a1b5117cdedd5ed49a24e410d25e5cd069a503db231d`  `03-auto-peel.test.ts`
+`687c96481555a32ffe229612ee98243c872a8a2b4df979f46e5b7022c51e584d`  `04-digest-ai.test.ts`
+`280dc6c9410b4c6c464d2f3e0c0982be90cea4340e7961292b89577ad5da08fc`  `05-attribute-hooks.test.ts`
+`2e95c0e3314929f56c49e0f8185079b2b02657bae5c4ff12e6d173018ffd91e8`  `06-unit-brain.test.ts`
+`cfeefaa037625c7295bc572fd893c68093db1b6ae530e5002b754152fb10a740`  `07-targeting-ward.test.ts`
+`34d1131b69d48e5c4878d2a64accaf1d2bfef20285aa33f7dd84ef95e90ac2b1`  `08-deferred-s3.test.ts`
+`58111a39205d00a86229af84a73b4b7305a6573425d6f693a1440fd832a72ca5`  `09-gd-rulings-r3.test.ts`
+`24509f2177ac056a1dfddd8d22e35df5b92e89aec99613c91016f855f8e01a6d`  `10-gd-rulings-r4.test.ts`
+`75607b11d741a6086b2a3d2c222a862caeed830b80338e82905ad5d3db92472c`  `11-probe-gaps.test.ts`
+`f474f530c2f7c78c31a279ba0f06e680dfe85890f5b70486e1d01fed12b53f4a`  `12-survivor-gaps.test.ts`
+`b2dd9e0a88a70aae5f8b0084f617d242bbb71fc48086ebe3a4f8b281246fb8a6`  `13-anti-tuning.test.ts`
+`d50ddadabab454c60e3392cd0406c04c46e75c097efadf23b5e7c51cb5375460`  `CHANGELOG.md`
+`8f0e2452b34bee9e4ccf0e84ebc3ae07dedd2ef62fc793ac3b15a9a4d06f9a8c`  `CHANGES.md`
+`52557931b7dd322c5e76bbf4b4a87fb40a5f7138a6378ca61fd5b7d45550840c`  `DEFERRED.md`
+`7560f94590e6235ce20acb7e79f8a7e802ef3f348a418385801c1a057984ee2f`  `OPEN-QUESTIONS.md`
+`11819d94fcd5876ce55d7698a2a0dc75935f7b3f43002a3ac0b9bf64d9b7d381`  `README.md`
+`dd5f5aa352d96ee83a09b676036a0379412af1e47d1226b79dcf5c8e51ae7d35`  `_harness.ts`
+
+**20 files — all match.**

@@ -9,7 +9,7 @@ These four labs stay in the suite as `it.skip` with the reason string `deferred 
 
 | Test | File | What it checks |
 |---|---|---|
-| M2 400-seed peel preview lab | `03-auto-peel.test.ts` | `peel_start` fires in ≥ 70% of `dive` events with `peeler_perceived === true`, over 400 seeds; the denominator is recorded and must be > 0 (L1160, L1735, R #3 S2-4). Unperceived dives are still logged and counted separately. On tip `7685c53`, the even-OVR 400-seed lab measured **0 of 1200** dives with `peeler_perceived === true` (constructed preview rates are not a measurement). |
+| M2 400-seed peel preview lab | `03-auto-peel.test.ts` | `peel_start` fires in ≥ 70% of `dive` events with `peeler_perceived === true`, over 400 seeds; the denominator is recorded and must be > 0 (L1160, L1735, R #3 S2-4). Unperceived dives are still logged and counted separately. |
 | Focus-slot `focus_id` (unconditional) | `09-gd-rulings-r3.test.ts` | When the coach flags a Focus slot, `fight_call.focus_id` is that slot (§12 L1352). Pending rewrite to S2-R4-4 L1930 (option a): `focus_id` is the targeting-score winner after the ×1.25 bump, not a hard assignment. |
 | hold_R vs auto contrast | `11-probe-gaps.test.ts` | Same fixture: auto casts R at the first legal moment; `hold_R` holds it while `A_true < 0.55` and the Focus stays above 40% HP (§12 L1359, §8.4 L1007). |
 | Focus scored from the actual shotcaller | `13-anti-tuning.test.ts` | Two identical-kit bodies: the one closer to the shotcaller is `focus_id`, including when the shotcaller is at the pad (§9.1 L1101). |

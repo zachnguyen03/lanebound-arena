@@ -240,7 +240,7 @@ export function landMissiles(
   return keep;
 }
 
-export function pickAutoTarget(state: MatchState, atk: UnitState, c: Constants): UnitState | null {
+function pickAutoTarget(state: MatchState, atk: UnitState, c: Constants): UnitState | null {
   // S2-R4-5: mobile retreat — no freestyle (or any) new auto target.
   if (retreatSuppressesCombat(atk, state, c)) return null;
   if (isTaunted(atk.status)) {
