@@ -29,7 +29,7 @@ button.tab { background: transparent; color: inherit; border: 0; font: inherit; 
 .board tr.cut td { box-shadow: inset 0 2px 0 var(--c-line-2); }
 .board tr.me td:first-child { box-shadow: inset 3px 0 var(--c-action); }
 .board tr.cut.me td:first-child { box-shadow: inset 3px 0 var(--c-action), inset 0 2px 0 var(--c-line-2); }
-button:disabled { opacity: 0.45; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
 .board td, .board th { padding-top: 5px; padding-bottom: 5px; }
 .rolecol { width: 90px; }
 .wrap.pick { gap: 8px; }
