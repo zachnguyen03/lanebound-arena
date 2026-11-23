@@ -4,10 +4,11 @@ import {
   type MatchResult,
   type SeriesContext,
   type SeriesResult,
+  type TacticPreset,
 } from "@lanebound/match-contract";
 import { finalFixture, matchdayPlayOrder, regularSeasonFixtures, seedRankMap, semiFixtures, type Fixture } from "./calendar.js";
 import { generateFakeMatch } from "./fake.js";
-import { aiTactics, selectPicks, standinLoadout, toContractPlayer } from "./lineup.js";
+import { selectPicks, standinLoadout, tacticsFor, toContractPlayer } from "./lineup.js";
 import { gameSeed, seriesSeed } from "./rng.js";
 import { seriesDuration, seriesGameScore, seriesMvp, winsTarget } from "./series.js";
 import { assignFinish, computeStandings, rankClubs, type StandingRow } from "./standings.js";
@@ -35,12 +36,18 @@ export function playSeries(args: {
   fixture: Fixture;
   world: OpeningWorld;
   starters: Map<string, CareerPlayer[]>;
+  humanClubId: string;
+  humanPreset?: TacticPreset;
 }): SeriesResult {
   const { fixture, world } = args;
   const blue = args.starters.get(fixture.team_ids[0]);
   const red = args.starters.get(fixture.team_ids[1]);
   if (!blue || !red) throw new Error(`missing starters for ${fixture.id}`);
-  const tactics = aiTactics();
+  const blueClub = world.clubs.find((club) => club.id === fixture.team_ids[0]);
+  const redClub = world.clubs.find((club) => club.id === fixture.team_ids[1]);
+  if (!blueClub || !redClub) throw new Error(`missing club for ${fixture.id}`);
+  const blueTactics = tacticsFor(blueClub, args.humanClubId, args.humanPreset);
+  const redTactics = tacticsFor(redClub, args.humanClubId, args.humanPreset);
   const blueCards = standinLoadout(blue);
   const redCards = standinLoadout(red);
   const seed = seriesSeed(args.careerSeed, fixture.ordinal);
@@ -76,14 +83,14 @@ export function playSeries(args: {
       blue: {
         players: blue.map(toContractPlayer),
         picks: bluePicks,
-        tactics,
+        tactics: blueTactics,
         card_loadout: blueCards,
         club_id: fixture.team_ids[0],
       },
       red: {
         players: red.map(toContractPlayer),
         picks: redPicks,
-        tactics,
+        tactics: redTactics,
         card_loadout: redCards,
         club_id: fixture.team_ids[1],
       },
@@ -116,7 +123,7 @@ export function playSeries(args: {
   return validateSeriesResult(result);
 }
 
-export function simulateCircuit(opts: { careerSeed: number; playerClubId: string; world?: OpeningWorld }): CircuitResult {
+export function simulateCircuit(opts: { careerSeed: number; playerClubId: string; world?: OpeningWorld; humanPreset?: TacticPreset }): CircuitResult {
   const world = opts.world ?? openingWorld();
   if (!world.clubs.some((club) => club.id === opts.playerClubId)) {
     throw new Error(`unknown club ${opts.playerClubId}`);
@@ -127,7 +134,7 @@ export function simulateCircuit(opts: { careerSeed: number; playerClubId: string
   for (let day = 1; day <= 7; day++) {
     const dayFixtures = regular.filter((fixture) => fixture.matchday === day);
     for (const fixture of matchdayPlayOrder(dayFixtures, opts.playerClubId)) {
-      series.push(playSeries({ careerSeed: opts.careerSeed, fixture, world, starters }));
+      series.push(playSeries({ careerSeed: opts.careerSeed, fixture, world, starters, humanClubId: opts.playerClubId, humanPreset: opts.humanPreset }));
     }
   }
   const clubs = world.clubs.map((club) => ({ club_id: club.id, opening_index: club.opening_index }));
@@ -140,7 +147,7 @@ export function simulateCircuit(opts: { careerSeed: number; playerClubId: string
   const semiOrder = matchdayPlayOrder(semis, opts.playerClubId);
   const semiResults: SeriesResult[] = [];
   for (const fixture of semiOrder) {
-    const played = playSeries({ careerSeed: opts.careerSeed, fixture, world, starters });
+    const played = playSeries({ careerSeed: opts.careerSeed, fixture, world, starters, humanClubId: opts.playerClubId, humanPreset: opts.humanPreset });
     semiResults.push(played);
     series.push(played);
   }
@@ -149,7 +156,7 @@ export function simulateCircuit(opts: { careerSeed: number; playerClubId: string
   const semiTwo = byId.get("md8-semi-2v3");
   if (!semiOne || !semiTwo) throw new Error("missing semi");
   const finalFx = finalFixture(semiOne.winner_team_id, semiTwo.winner_team_id, seedRankMap(frozen));
-  series.push(playSeries({ careerSeed: opts.careerSeed, fixture: finalFx, world, starters }));
+  series.push(playSeries({ careerSeed: opts.careerSeed, fixture: finalFx, world, starters, humanClubId: opts.playerClubId, humanPreset: opts.humanPreset }));
   return {
     world,
     career_seed: opts.careerSeed,

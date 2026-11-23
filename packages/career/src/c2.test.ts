@@ -10,7 +10,7 @@ import { loadSave, runSeason, saveJson } from "./season.js";
 import { openingWorld } from "./world.js";
 
 /** Canonical save for career seed 20261123, club juniper-rush. Moves when the world, sudden-death table, or tactics change. */
-const JUNIPER_SEASON_SHA256 = "e293fe3ec6e00bc377f189fdaf72d9eda7221f02c84604133fb78892d6069e46";
+const JUNIPER_SEASON_SHA256 = "b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c";
 
 function maps(playerId: string, count: number, stats: { rating?: number; dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }): SeriesResult[] {
   const out: SeriesResult[] = [];
@@ -100,9 +100,8 @@ describe("C2 glicko, points, awards, contracts", () => {
     expect(sha256Hex(saveJson(save))).toBe(JUNIPER_SEASON_SHA256);
     const neon = save.standings.find((row) => row.club_id === "neon-tide");
     const sable = save.standings.find((row) => row.club_id === "sable-comets");
-    expect(neon).toMatchObject({ series_wins: 2, map_diff: -3, maps_won: 7 });
-    expect(sable).toMatchObject({ series_wins: 2, map_diff: -4, maps_won: 8 });
-    expect(neon!.finish).toBeLessThan(sable!.finish);
+    expect(neon).toMatchObject({ series_wins: 3, map_diff: 0, maps_won: 9, finish: 5 });
+    expect(sable).toMatchObject({ series_wins: 2, map_diff: -3, maps_won: 8, finish: 6 });
     expect(save.club_state.reduce((sum, club) => sum + club.points, 0)).toBe(seasonPointTotal());
     expect(seasonPointTotal()).toBe(73);
     const pairs = new Set(

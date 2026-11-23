@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { finalFixture, matchdayPlayOrder, regularSeasonFixtures, seedRankMap, semiFixtures } from "./calendar.js";
+import { AI_PRESETS, aiPreset, tacticsFor } from "./lineup.js";
 import { simulateCircuit } from "./runner.js";
 import { assignFinish, computeStandings, mapDifferential, rankClubs, type StandingSeries } from "./standings.js";
+import { tacticEdge } from "./strength.js";
 import { CLUB_SEEDS } from "./world.js";
 
 const CLUBS = CLUB_SEEDS.map((club) => ({ club_id: club.id, opening_index: club.opening_index }));
@@ -16,6 +18,30 @@ function series(winner: string, loser: string, winMaps: number, loseMaps: number
 }
 
 describe("C1 calendar, standings, playoffs", () => {
+  it("assigns AI tactics by opening index and leaves the human default on Hold", () => {
+    expect([...AI_PRESETS]).toEqual(["hold", "hunt", "starve", "hold", "hunt", "starve", "hold", "hunt"]);
+    expect(CLUB_SEEDS.map((club) => aiPreset(club.opening_index))).toEqual(["hold", "hunt", "starve", "hold", "hunt", "starve", "hold", "hunt"]);
+    const club = (id: string) => CLUB_SEEDS.find((row) => row.id === id)!;
+    const ilo = club("iron-lotus");
+    const kst = club("kestrel-row");
+    const ntd = club("neon-tide");
+    const sbc = club("sable-comets");
+    const jnr = club("juniper-rush");
+    const vno = club("vanta-owls");
+    expect(tacticsFor(ilo, "nobody").primary).toBe("hold");
+    expect(tacticsFor(kst, "nobody").primary).toBe("hunt");
+    expect(tacticEdge("hold", "hunt")).toBe(2);
+    expect(tacticsFor(ntd, "nobody").primary).toBe("starve");
+    expect(tacticsFor(sbc, "nobody").primary).toBe("starve");
+    expect(tacticEdge("starve", "starve")).toBe(0);
+    expect(tacticsFor(jnr, jnr.id).primary).toBe("hold");
+    expect(tacticsFor(vno, jnr.id).primary).toBe("hold");
+    expect(tacticEdge("hold", "hold")).toBe(0);
+    expect(tacticsFor(jnr, jnr.id, "hunt").primary).toBe("hunt");
+    expect(tacticEdge("hunt", "hold")).toBe(-2);
+    expect(tacticsFor(ilo, "nobody")).toEqual({ primary: "hold", aggression: 0, combo_style: "auto" });
+  });
+
   it("matches the published circle and plays every pair once", () => {
     const fixtures = regularSeasonFixtures();
     expect(fixtures).toHaveLength(28);
