@@ -72,6 +72,8 @@ Documented because they exist; kit swap already shows they are secondary under d
 
 Blue-favoring tie-breaks make the residual **identical-red-kits → 17 red** more surprising (not explained by index alone). Likely kit-skill / RNG interaction with “who acts first,” not a scoring bug. **Not fixed here.**
 
+**Follow-up measurement:** `TICK-ORDER.md` (n≥40 mirrored + temporary tick-order reverse). Residual lean **did not flip** under reversed AI tick order. Anh deferred the sim fix — measurement only.
+
 ## Not done
 
-No sim changes. No kit rebalance. Investigation only, as requested.
+No committed sim tick-order change. No kit rebalance. Investigation / measurement only (Anh deferred the SIM FIX). Skipped gate: `tests/s3-side-neutral.test.ts`.
