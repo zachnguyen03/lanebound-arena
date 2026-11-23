@@ -202,6 +202,35 @@ test("squad tables do not use the me row", async ({ page }) => {
   await expect(page.locator("main table tr.me")).toHaveCount(0);
 });
 
+test("Play map stays in view with and without the coach mark", async ({ page }) => {
+  for (const [width, height] of [
+    [1280, 720],
+    [1280, 800],
+    [1920, 1080],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    await page.evaluate(() => indexedDB.deleteDatabase("lanebound-career"));
+    await page.reload();
+    await start(page);
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByTestId("coach-mark")).toHaveCount(0);
+    await expectInView(page, height);
+    await page.getByRole("button", { name: "Cards" }).click();
+    await expectInView(page, height);
+    await page.getByTestId("play-map").click();
+    await expect(page.getByTestId("coach-mark")).toBeVisible();
+    await expectInView(page, height);
+  }
+});
+
+async function expectInView(page: Page, height: number) {
+  const box = await page.getByTestId("play-map").boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(height);
+}
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
