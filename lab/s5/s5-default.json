@@ -1,0 +1,6 @@
+{
+  "name": "s5-default",
+  "parent": "default",
+  "overrides": {},
+  "created_note": "Empty overrides — §15 defaults. Round-trip proof for S5 T3/T4."
+}

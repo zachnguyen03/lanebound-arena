@@ -6,6 +6,8 @@ export default defineConfig({
     alias: {
       "@sim": path.resolve(__dirname, "sim"),
       "@data": path.resolve(__dirname, "data"),
+      "@lab": path.resolve(__dirname, "apps/lab/lib"),
+      "@watch": path.resolve(__dirname, "apps/watch/src"),
     },
   },
   test: {

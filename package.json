@@ -18,7 +18,10 @@
     "watch:build": "vite build --config apps/watch/vite.config.ts",
     "watch:preview": "vite preview --config apps/watch/vite.config.ts --host 127.0.0.1 --port 4173",
     "watch:e2e": "playwright test --config apps/watch/playwright.config.ts",
-    "lab:s4": "tsx apps/lab/lab-s4.ts"
+    "lab:s4": "tsx apps/lab/lab-s4.ts",
+    "batch": "tsx apps/lab/batch.ts",
+    "isolation": "tsx apps/lab/isolation-cli.ts",
+    "lab:s5": "tsx apps/lab/lab-s5.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

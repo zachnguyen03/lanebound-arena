@@ -1,0 +1,24 @@
+
+> lanebound-arena@0.0.0 batch
+> tsx apps/lab/batch.ts --n 100 --seed 20261122 --cancel-after 20 --out lab/s5/cancel
+
+batch 1/100  2.86 games/s  ETA 35s
+batch 4/100  4.28 games/s  ETA 22s
+batch 8/100  5.34 games/s  ETA 17s
+batch 11/100  5.42 games/s  ETA 16s
+batch 16/100  5.76 games/s  ETA 15s
+batch 20/100  6.01 games/s  ETA 13s
+{
+  "cancelled": true,
+  "n_requested": 100,
+  "n_finished": 20,
+  "config_hash": "bfaddabebb1a4c2cc8f968a4de41c1fe0b206677c2b05a43de558283ae127b4a",
+  "out": {
+    "jsonPath": "lab/s5/cancel/batch-results.json",
+    "csvPath": "lab/s5/cancel/batch-summaries.csv",
+    "dashPath": "lab/s5/cancel/batch-dashboard.csv"
+  },
+  "length_median_s": 82.69999999999999,
+  "peel_rate": 0.9565217391304348,
+  "sanctuary": 0
+}

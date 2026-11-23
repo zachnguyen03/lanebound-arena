@@ -83,6 +83,7 @@ export default defineConfig({
     alias: {
       "@sim": path.resolve(__dirname, "../../sim"),
       "@watch": path.resolve(__dirname, "src"),
+      "@lab": path.resolve(__dirname, "../lab/lib"),
     },
   },
   server: {

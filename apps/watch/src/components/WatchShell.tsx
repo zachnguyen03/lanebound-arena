@@ -66,7 +66,18 @@ function useViewport() {
   return size;
 }
 
-export function WatchShell() {
+interface WatchShellProps {
+  /** Staged §15 overrides from the Lab tuning panel — applied on next run only. */
+  stagedConstants?: Record<string, unknown>;
+  onOpenLab?: () => void;
+  dirty?: boolean;
+}
+
+export function WatchShell({
+  stagedConstants = {},
+  onOpenLab,
+  dirty = false,
+}: WatchShellProps = {}) {
   const vp = useViewport();
   const mode: HudMode = pickHudMode(vp.w);
   const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
@@ -146,7 +157,9 @@ export function WatchShell() {
       setPlaying(false);
       try {
         const { config, result, digest } =
-          preset === "clock_ai" ? runClockAiMatch(seed) : runWatchMatch(seed);
+          preset === "clock_ai"
+            ? runClockAiMatch(seed, stagedConstants)
+            : runWatchMatch(seed, stagedConstants);
         const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
         setLiveDigest(digest);
@@ -167,7 +180,7 @@ export function WatchShell() {
         setPhase("empty");
       }
     },
-    [assets],
+    [assets, stagedConstants],
   );
 
   const importConfig = useCallback((text: string) => {
@@ -438,6 +451,8 @@ export function WatchShell() {
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onImportText={importConfig}
+                onOpenLab={onOpenLab}
+                dirty={dirty}
               />
               {configError ? (
                 <p
@@ -586,6 +601,8 @@ export function WatchShell() {
                 }}
                 onImportText={importConfig}
                 canExport={!!liveConfig}
+                onOpenLab={onOpenLab}
+                dirty={dirty}
               />
               {exportedJson ? (
                 <pre

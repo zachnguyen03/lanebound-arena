@@ -1,0 +1,8 @@
+label=20261122-even-hold
+seed=20261122
+ai=true
+digest=54cae20c950a238d5c06a8324076cf2febe429d8dfe8b2c2057232fdf33f6b0d
+constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
+winner=red
+reason=first_to_10
+duration_s=77.2

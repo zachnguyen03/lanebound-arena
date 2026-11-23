@@ -7,6 +7,8 @@ interface Props {
   onExport?: () => void;
   onImportText?: (text: string) => void;
   canExport?: boolean;
+  onOpenLab?: () => void;
+  dirty?: boolean;
 }
 
 /** Start a live even-OVR match or round-trip a MatchConfig JSON. */
@@ -17,6 +19,8 @@ export function MatchSetup({
   onExport,
   onImportText,
   canExport,
+  onOpenLab,
+  dirty,
 }: Props) {
   return (
     <div data-testid="match-setup" className="border border-line bg-panel p-3">
@@ -64,6 +68,21 @@ export function MatchSetup({
           >
             Export config
           </Button>
+        ) : null}
+        {onOpenLab ? (
+          <Button
+            data-testid="btn-open-lab"
+            size="sm"
+            variant="outline"
+            onClick={onOpenLab}
+          >
+            Lab
+          </Button>
+        ) : null}
+        {dirty ? (
+          <span data-testid="preset-dirty" className="self-center text-xs text-gold">
+            preset dirty — applies on next run
+          </span>
         ) : null}
         {onImportText ? (
           <label className="text-xs text-dim">

@@ -1,0 +1,5551 @@
+{
+  "batch_id": "batch-20261122-50-isolation",
+  "started_at": "2026-11-23T23:00:15.285Z",
+  "config_hash": "8c9af5fe07abb4f355b8ba15cd49c8e45c37c7081c9011f07abcd5dcded0cd6f",
+  "n_requested": 50,
+  "n_finished": 50,
+  "summaries": [
+    {
+      "seed": 20261122,
+      "digest": "4a69e419d12283d96e3a4e102975ab56f78ea50ad42d03d967f7d204db557858",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 85,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1341.23
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1954.3499999999992
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1997.14
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 2660.1500000000005
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1499.2300000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261123,
+      "digest": "aa3447260117ef640bef2e9467ac07443ad00115717d92c4327a02ebfe655a7b",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 80.8,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 4,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1345.9599999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 2,
+          "a": 0,
+          "dmg": 2180.88
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 1,
+          "dmg": 1086.0400000000004
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 3,
+          "dmg": 2052.91
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 3,
+          "dmg": 2933.799999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1421.7199999999998
+        }
+      ]
+    },
+    {
+      "seed": 20261124,
+      "digest": "c6329f6630fff9f618d9c5ef0953078aaca035a0ead252c4d845e960abe20fc0",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.5,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1394.64
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1931.76
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 787.7300000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1935.08
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2790.9500000000003
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1420.3800000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261125,
+      "digest": "d652c74f0e41eec7e7beeae5b2e9c1fe968820f8b65539f7e50f7c7aa3559b92",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76.9,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1647.0699999999993
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1358.9799999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 780.3299999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1853.7299999999989
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 2575.89
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1638.1299999999997
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "digest": "0295e7910676c5686ab8be4821e5a2fc7492dc8f270724f9ef97d70a20d30cf0",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.8,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1368.1999999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1685.2199999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1957.8800000000003
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2769.1800000000003
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1427.4000000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "digest": "cfff0dbf608e5f9de5584d0c01fc56d7c6381e0f1808dd6f8858c54a7186bdd0",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.6,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1345.6399999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1907.9099999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1906.1200000000001
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 1,
+          "dmg": 2818.51
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1413.2700000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261128,
+      "digest": "72bda9c583b770c816743a2f9bf32436d69ffb09ffbc3b4de1c0bdf7615e85a8",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1307.9999999999995
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1815.4700000000003
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 2512.5899999999997
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 1620.3600000000001
+        }
+      ]
+    },
+    {
+      "seed": 20261129,
+      "digest": "97b39a98309c8b592dc0d13299b090748979d7394c4f23ae25e7ad944480d13b",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1686.109999999999
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1277.58
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1851.5999999999988
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2005.0000000000005
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1668.0399999999993
+        }
+      ]
+    },
+    {
+      "seed": 20261130,
+      "digest": "2212dc586df7811aeaa5f230618fc920809e5ecf0d0b2ff4529b24d238a57637",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 74.3,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1355.5099999999998
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 704.84
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 780.0199999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1789.8299999999995
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 1,
+          "dmg": 2771.8799999999997
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1529.3400000000001
+        }
+      ]
+    },
+    {
+      "seed": 20261131,
+      "digest": "a4d9896f45cbf5404ef31a04c75d86a250ebbf4615974bb4ffeeecc243bf2f44",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 85.1,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1398
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1910.7600000000002
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1940.7300000000002
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2787.7100000000005
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1449.0400000000004
+        }
+      ]
+    },
+    {
+      "seed": 20261132,
+      "digest": "8cb8d8f1ea8b5c0e82e109a59a56ab94ccc59038bc11bbc114d769ec03e005e7",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76.7,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1272.3799999999997
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 706.9200000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 803.4999999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1796.2199999999991
+        },
+        {
+          "k": 5,
+          "d": 0,
+          "a": 0,
+          "dmg": 2846.069999999999
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1585.2100000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261133,
+      "digest": "421e89999a2b4c3a34d62909fc07892cae6fae3c4d9c5115a3dc3a77ff7a8b93",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 75.9,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1420.4699999999996
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1217.3
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 754.3700000000001
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 5,
+          "dmg": 1836.1499999999987
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 1,
+          "dmg": 2658.019999999999
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1145.6499999999999
+        }
+      ]
+    },
+    {
+      "seed": 20261134,
+      "digest": "7997092aecac6f8bc89c55fd84766993f4e5c9ebba33159cb60f572f113d63f1",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.7,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1314.8199999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1766.43
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1968.1500000000003
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2801.9400000000005
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1401.9600000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261135,
+      "digest": "652ee9285144e9d084c898c71758681176174e0d0d527cccc801c7d057fac6e9",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 103.2,
+      "score_blue": 5,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 5,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 7,
+          "ticks": 3,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 2,
+      "peel_eligible": 2,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 3,
+          "dmg": 724.24
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 3,
+          "dmg": 2153.2099999999996
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 2,
+          "dmg": 1037.92
+        },
+        {
+          "k": 3,
+          "d": 1,
+          "a": 2,
+          "dmg": 4598.689999999999
+        },
+        {
+          "k": 2,
+          "d": 2,
+          "a": 2,
+          "dmg": 1655.1699999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 579.9100000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 532.8399999999999
+        },
+        {
+          "k": 3,
+          "d": 1,
+          "a": 4,
+          "dmg": 2059.0899999999992
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 4,
+          "dmg": 3944.7300000000023
+        },
+        {
+          "k": 1,
+          "d": 2,
+          "a": 3,
+          "dmg": 1176.6499999999999
+        }
+      ]
+    },
+    {
+      "seed": 20261136,
+      "digest": "1cf6579c5fcc9774da4f2b5f557467641266a71482f3e12341f0e77c6d74a1d9",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1298.4599999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.5399999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1818.6100000000001
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 2505.47
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1586.7300000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261137,
+      "digest": "2e220469b4c909143981494e434aace86439e20238b68575f44dfe3ea22b118a",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1272.0199999999995
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 779.6999999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1768.0600000000002
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 2551.02
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1560.6800000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261138,
+      "digest": "3e9bd7985714437baf22dde1dc283ff51732a9ffc1c92269fe91df409781467c",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 65.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 1,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1299.0699999999997
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 750.47
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.5399999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 5,
+          "dmg": 1531.5699999999997
+        },
+        {
+          "k": 5,
+          "d": 0,
+          "a": 0,
+          "dmg": 2273.19
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 5,
+          "dmg": 1395.8700000000001
+        }
+      ]
+    },
+    {
+      "seed": 20261139,
+      "digest": "77dee231d87b273b8a351b5cca62642c28b0400228ec9f2e1c7a93b849731b99",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1307.9999999999995
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1786.6000000000001
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 2546.8699999999994
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 1665.7900000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261140,
+      "digest": "f7ffcdca7669be9883cbf408f559753cf0f20514d7c4f59986e787fbcedf4f78",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1296.4399999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 749.3000000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 724.4999999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1827.5700000000002
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 2638.0399999999995
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1524.5500000000006
+        }
+      ]
+    },
+    {
+      "seed": 20261141,
+      "digest": "52ba2ddf41a01f0e20dbf5518461ef03d03f7cf27e109d7ad15eed4504c4bd24",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 83.5,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1367.83
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1600.0900000000004
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 730.0500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1967.1300000000003
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2699.78
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1479.1700000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261142,
+      "digest": "ffad0dd07cd87df264f851d3005d026771f998e31fba45362734435d22be784a",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1338.4399999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 781.5399999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1768.0600000000002
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 2583.78
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1593.5100000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261143,
+      "digest": "c051c8387f8a2c7746996153e156e34a2c1370582284142ebbee1c071ea11a85",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 75.8,
+      "score_blue": 2,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 2,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 4,
+          "claims": 1
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 2,
+      "peel_eligible": 2,
+      "sanctuary_violations": 0,
+      "claim_opened": 1,
+      "claim_denied": 0,
+      "claim_paid": 1,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 1,
+          "dmg": 79.03
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 1445.9899999999993
+        },
+        {
+          "k": 1,
+          "d": 2,
+          "a": 1,
+          "dmg": 1100.57
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 1,
+          "dmg": 2551.599999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 839.7200000000001
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 1,
+          "dmg": 231.19
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 487.8399999999999
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 1633.989999999999
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 2308.06
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 2,
+          "dmg": 919.9100000000001
+        }
+      ]
+    },
+    {
+      "seed": 20261144,
+      "digest": "eda5d87e22ba77ee93b6cb2b28ee951d29da7880473621d353e10fd54eb9c0d4",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.6,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1401.04
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1662.0900000000004
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1878.1700000000003
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2842.0299999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1435.0400000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261145,
+      "digest": "4a12db1cb7555b3f92f7717b9b25452e2cb08e73b0788bbea10eeeecf37213c0",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 120.1,
+      "score_blue": 3,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 3,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 7,
+          "ticks": 3,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 1413.8199999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 2,
+          "a": 1,
+          "dmg": 2913.3100000000013
+        },
+        {
+          "k": 2,
+          "d": 3,
+          "a": 1,
+          "dmg": 1943.0900000000008
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 4,
+          "dmg": 2543.989999999999
+        },
+        {
+          "k": 3,
+          "d": 1,
+          "a": 3,
+          "dmg": 4117.6799999999985
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1470.3599999999994
+        }
+      ]
+    },
+    {
+      "seed": 20261146,
+      "digest": "e743a653abd6402fa7a0f50b3bb1c8af1e3219f2429e1b5d7dfa09648b4bb582",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1298.7099999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1191.6399999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 780.0199999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1787.8700000000001
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 2544.12
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1604.9200000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261147,
+      "digest": "f680da241b58050d308f2a5a7c3071ea3498a131870e0c3d8f19c0ccc2fff447",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1319.81
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 608.0300000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 745.8200000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 1,
+          "dmg": 1872.7
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 2510.5299999999993
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1548.2400000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261148,
+      "digest": "c794ddb4db0077be4df29df13fd4d4ba9240332dec76ae756c041357ff9d01db",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.6,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1345.6399999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1909.42
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 2020.4500000000005
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2801.2000000000003
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1419.6300000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261149,
+      "digest": "6a39c97eb99d2281b2f3548b43c9ae6a85f0d380052322bd18d226ca753bee13",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1308.3599999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1791.4399999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1769.45
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2502.6499999999996
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1644.9700000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261150,
+      "digest": "62c5b04b2a5b68d7705fd6a184a76919a0c9915dc18ad55dc318e528e0bbc9db",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1272.3799999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1748.109999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.5399999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1768.0600000000002
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 0,
+          "dmg": 2623.6299999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1559.2900000000004
+        }
+      ]
+    },
+    {
+      "seed": 20261151,
+      "digest": "bad5e8e4f150cfaf70d1df33588e1cb95b6d6b66915e379e368bc808f3e43500",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1325.7499999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1885.4599999999991
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 779.6999999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1768.0600000000002
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 0,
+          "dmg": 2627.79
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1559.2900000000004
+        }
+      ]
+    },
+    {
+      "seed": 20261152,
+      "digest": "d0fc2c80571a9fb5f7b92536c16380e3773eb6e7dbc673ad68a72f928a3a5001",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.6,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1372.09
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 2001.979999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1933.8000000000002
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 1,
+          "dmg": 2830.82
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1444.9000000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261153,
+      "digest": "e76387702a244e82d017980d0504f4b86a82900de10898fe1e16f964565df4ae",
+      "winner": "red",
+      "reason": "clock",
+      "duration_s": 240,
+      "score_blue": 8,
+      "score_red": 9,
+      "score_parts": {
+        "blue": {
+          "kills": 5,
+          "ticks": 3,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 2,
+          "claims": 1
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 3,
+      "peel_eligible": 3,
+      "sanctuary_violations": 0,
+      "claim_opened": 1,
+      "claim_denied": 0,
+      "claim_paid": 1,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 3,
+          "dmg": 2596.49
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 1,
+          "dmg": 451.84000000000003
+        },
+        {
+          "k": 3,
+          "d": 2,
+          "a": 1,
+          "dmg": 4119.979999999998
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 1,
+          "dmg": 1732.3499999999985
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 2,
+          "dmg": 727.5599999999998
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1539.4999999999995
+        },
+        {
+          "k": 2,
+          "d": 2,
+          "a": 4,
+          "dmg": 2789.4100000000003
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1426.5800000000006
+        }
+      ]
+    },
+    {
+      "seed": 20261154,
+      "digest": "d4142951d8a984a0884adf102c1b12a1ce331e341db0ce6b987cd92f75139557",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1271.6999999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1608.8799999999994
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1769.45
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2585.24
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1560.6800000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261155,
+      "digest": "a6f8ff13cf7472fe5a410e0962f82252053936e2301ff25fc00185baed6a464c",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 83.1,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1274.87
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1645.4800000000002
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 730.0500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 1939.0800000000002
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2806.85
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1394.6700000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261156,
+      "digest": "70b31adeda62b9c8596534a6f8e3f96c3aa439c6502304bea99995105b0dbefc",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1269.8199999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 747.22
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 724.8099999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1816.0900000000004
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2533.39
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1628.0700000000004
+        }
+      ]
+    },
+    {
+      "seed": 20261157,
+      "digest": "bd580e80e75f6728d3b4bacb7f76da7c7f73edf75dfa73de1e1b404fe093394a",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 95,
+      "score_blue": 2,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 2,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 4,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 2,
+      "peel_eligible": 2,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 317.78000000000003
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 2,
+          "dmg": 1727.5799999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 553.74
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 0,
+          "dmg": 2538.319999999998
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 2,
+          "dmg": 1306.4
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 1,
+          "dmg": 437.70000000000005
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 375.16
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 2102.579999999998
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 2,
+          "dmg": 3345.7699999999977
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1477.51
+        }
+      ]
+    },
+    {
+      "seed": 20261158,
+      "digest": "4d5e2828e753c8b27378fd8151f9dfbe440700f3ba3457f4071128bd39289b35",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1299.6099999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 706.9200000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 779.6999999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1823.3599999999992
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 0,
+          "dmg": 2807.349999999999
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 4,
+          "dmg": 1610.0800000000006
+        }
+      ]
+    },
+    {
+      "seed": 20261159,
+      "digest": "d5cdd0bfb6a00b387fbd1c4725c6f4b6e9956860db0c9ce801005812e7c1a5a9",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1298.1099999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1563.2399999999993
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1769.45
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2558.19
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1560.6800000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261160,
+      "digest": "a52bc81da376db095e0fcf57ca95c770c550eaf272188b978396ffa2372ef31f",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.8,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1410.78
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 1948.5499999999993
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 2019.8700000000001
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2784.23
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1427.7500000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261161,
+      "digest": "3c267164c643b6779a4391dc969538eeeb5665dcf5bfccc0955266247acd52fb",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 84.6,
+      "score_blue": 1,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 1,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1346.2199999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 0,
+          "dmg": 2008.1399999999999
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 764.2500000000002
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1940.4700000000003
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2798.7400000000002
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1444.3000000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261162,
+      "digest": "f481769cc7e94711d1155499680a54b107e6e87ddd98a0230c3e4a022c92f82b",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76.7,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 1,
+      "peel_eligible": 1,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1728.2499999999986
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 455.44
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1230.21
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 754.3700000000001
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 1,
+          "dmg": 219.72
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1166.31
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 2794.900000000001
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 1093.8
+        }
+      ]
+    },
+    {
+      "seed": 20261163,
+      "digest": "1b19998666e600b12c25e21fe512747c252e683aae271faf6606c6ec3a0d40cd",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 65.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 1,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1337.0799999999995
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 748.39
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.5399999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 5,
+          "dmg": 1560.2799999999997
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 1,
+          "dmg": 2265.1600000000003
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1404.79
+        }
+      ]
+    },
+    {
+      "seed": 20261164,
+      "digest": "74b2d3b2336b0a39224003f238e2e900a4683692f89d32f7123062bca15075f9",
+      "winner": "blue",
+      "reason": "first_to_10",
+      "duration_s": 120.1,
+      "score_blue": 10,
+      "score_red": 8,
+      "score_parts": {
+        "blue": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 2,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 3,
+      "peel_eligible": 3,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 4,
+          "dmg": 2652.890000000001
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 1,
+          "dmg": 451.84000000000003
+        },
+        {
+          "k": 4,
+          "d": 2,
+          "a": 0,
+          "dmg": 4331.429999999997
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 1,
+          "dmg": 1748.0199999999988
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 1,
+          "dmg": 739.1699999999997
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1872.34
+        },
+        {
+          "k": 2,
+          "d": 2,
+          "a": 4,
+          "dmg": 2775.5200000000004
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 1401.6700000000005
+        }
+      ]
+    },
+    {
+      "seed": 20261165,
+      "digest": "89615f2ce138f15a0b68ad7c083813d3511e9a6135fdf1df456f964e1dea002f",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 103.9,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 7,
+          "ticks": 3,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 5,
+      "peel_eligible": 5,
+      "sanctuary_violations": 0,
+      "claim_opened": 2,
+      "claim_denied": 2,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 1636.5400000000002
+        },
+        {
+          "k": 0,
+          "d": 3,
+          "a": 0,
+          "dmg": 234.98999999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1522.5499999999997
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 995.9399999999997
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 1,
+          "dmg": 727.7500000000001
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 2,
+          "dmg": 262.59000000000003
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 6,
+          "dmg": 1974.2699999999998
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 3,
+          "dmg": 2964.880000000001
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 6,
+          "dmg": 1747.9
+        }
+      ]
+    },
+    {
+      "seed": 20261166,
+      "digest": "1a1fd00a5a2fad1a26fe028e71bd1ccf8fb475e56854f0aebad263d09fb1080a",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1270.1799999999996
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 708.09
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 724.8099999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1792.91
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2656.3199999999997
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1573.1700000000003
+        }
+      ]
+    },
+    {
+      "seed": 20261167,
+      "digest": "06444a179e3a61866a016db03437d8b8d447f3db14d3b75b0662f2ff045af9aa",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 141.5,
+      "score_blue": 3,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 3,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 4,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 1,
+      "peel_eligible": 1,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 1,
+          "dmg": 1444.0800000000004
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 3,
+          "dmg": 1211.2399999999998
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 1,
+          "dmg": 2662.2799999999984
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 754.07
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 399.25
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1605.8299999999992
+        },
+        {
+          "k": 4,
+          "d": 0,
+          "a": 2,
+          "dmg": 4609.219999999992
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 3,
+          "dmg": 1122.7500000000002
+        }
+      ]
+    },
+    {
+      "seed": 20261168,
+      "digest": "f91afde83d598e7252b62284fed81ae874365f93988306b61631b438b9b12d1c",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 77.2,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 4,
+          "ticks": 6,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1298.5799999999995
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 664.5400000000001
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 724.8099999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1759.1200000000001
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 2,
+          "dmg": 2620.1599999999994
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 3,
+          "dmg": 1620.3400000000004
+        }
+      ]
+    },
+    {
+      "seed": 20261169,
+      "digest": "63e4bef687cc12fbc967a6027f2eec48c7cb9d4eed6c5b4fc1d3f04c82abcac2",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76.9,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1892.8999999999992
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1118.03
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 756.8499999999997
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 2,
+          "d": 0,
+          "a": 3,
+          "dmg": 1853.329999999999
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 1933.7700000000004
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 5,
+          "dmg": 1662.0699999999995
+        }
+      ]
+    },
+    {
+      "seed": 20261170,
+      "digest": "6664d1e119db0d3ef710c2f646ee76a99d535c6513c593197b6ec8c16b0e49ff",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 93.2,
+      "score_blue": 2,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 2,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 6,
+          "ticks": 4,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 2,
+      "peel_eligible": 2,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 295.14000000000004
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 2,
+          "dmg": 1598.9699999999993
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 1,
+          "dmg": 560.1600000000001
+        },
+        {
+          "k": 2,
+          "d": 1,
+          "a": 0,
+          "dmg": 2472.699999999999
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 2,
+          "dmg": 1351.4700000000003
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 1,
+          "dmg": 425.71000000000004
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 295.78000000000003
+        },
+        {
+          "k": 1,
+          "d": 1,
+          "a": 4,
+          "dmg": 2110.4899999999984
+        },
+        {
+          "k": 5,
+          "d": 0,
+          "a": 1,
+          "dmg": 3397.569999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 5,
+          "dmg": 1497.15
+        }
+      ]
+    },
+    {
+      "seed": 20261171,
+      "digest": "feaae73c08c9de195ee9d712960a1dff8aceb34f728683a9cf550c7e1148037b",
+      "winner": "red",
+      "reason": "first_to_10",
+      "duration_s": 76,
+      "score_blue": 0,
+      "score_red": 10,
+      "score_parts": {
+        "blue": {
+          "kills": 0,
+          "ticks": 0,
+          "claims": 0
+        },
+        "red": {
+          "kills": 5,
+          "ticks": 5,
+          "claims": 0
+        }
+      },
+      "archetypes": {
+        "blue": "Dive",
+        "red": "Poke"
+      },
+      "champ_ids": [
+        "brannoch",
+        "sedge",
+        "kerrig",
+        "huntress",
+        "ysol",
+        "rhedan",
+        "tolle",
+        "helvar",
+        "maelis",
+        "saelo"
+      ],
+      "peel_fired": 0,
+      "peel_eligible": 0,
+      "sanctuary_violations": 0,
+      "claim_opened": 0,
+      "claim_denied": 0,
+      "claim_paid": 0,
+      "t_first_R": null,
+      "t_L7": null,
+      "kda": [
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1742.519999999999
+        },
+        {
+          "k": 0,
+          "d": 2,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 1323.2199999999998
+        },
+        {
+          "k": 0,
+          "d": 1,
+          "a": 0,
+          "dmg": 780.8799999999998
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 0,
+          "d": 0,
+          "a": 0,
+          "dmg": 0
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1853.199999999999
+        },
+        {
+          "k": 3,
+          "d": 0,
+          "a": 2,
+          "dmg": 2005.6000000000004
+        },
+        {
+          "k": 1,
+          "d": 0,
+          "a": 4,
+          "dmg": 1646.5699999999995
+        }
+      ]
+    }
+  ],
+  "dashboard": {
+    "rows": [
+      {
+        "id": "match_length",
+        "metric": "Match length (median / p10 / p90)",
+        "target": "Median 3:30–4:30 (210–270 s)",
+        "value": "median 1:17.2 (77.2s); p10 1:16.0; p90 1:43.3",
+        "sample_size": 50,
+        "mark": "under-powered",
+        "notes": "Ends: {\"first_to_10\":0.98,\"clock\":0.02}"
+      },
+      {
+        "id": "zone_share",
+        "metric": "Zone share of winner's score",
+        "target": "30–40% (ticks+claims)",
+        "value": "51.1%",
+        "sample_size": 50,
+        "mark": "under-powered"
+      },
+      {
+        "id": "per_champion",
+        "metric": "Per-champion win / pick / KDA",
+        "target": "Win rate 45–55%, min 200 games / champ (random-draft even)",
+        "value": "brannoch:2%(n=50), helvar:98%(n=50), huntress:2%(n=50), kerrig:2%(n=50), maelis:98%(n=50), rhedan:98%(n=50), saelo:98%(n=50), sedge:2%(n=50)…",
+        "sample_size": 50,
+        "mark": "under-powered",
+        "notes": "min picks among champs=50"
+      },
+      {
+        "id": "archetype_matrix",
+        "metric": "Comp archetype matrix",
+        "target": "No archetype >55% vs field; triangle edges 55–65% (min 80/200)",
+        "value": "Dive 2%(n=50); Peel 0%(n=0); Poke 98%(n=50); Balanced 0%(n=0)",
+        "sample_size": 50,
+        "mark": "under-powered",
+        "notes": "Peel_vs_Dive: —%(n=0); Dive_vs_Poke: 2%(n=50); Poke_vs_Peel: —%(n=0)"
+      },
+      {
+        "id": "attribute_isolation",
+        "metric": "Attribute isolation (+30 one attr)",
+        "target": "+3 to +6 pp team win%, min 400/arm; no delta >2× another",
+        "value": "aim +0.0pp (n=50); reflexes +0.0pp (n=50); execution +0.0pp (n=50); decision +0.0pp (n=50); positioning +2.0pp (n=50); teamwork +0.0pp (n=50)",
+        "sample_size": 50,
+        "mark": "under-powered",
+        "notes": "mastery 50→90 on all players: +42.0pp (n=50); expect smaller than raw +30 attr"
+      },
+      {
+        "id": "auto_peel",
+        "metric": "Auto-peel fire rate",
+        "target": "≥ 70% of perceived, reachable dives",
+        "value": "100.0% (fired=21, eligible=21)",
+        "sample_size": 21,
+        "mark": "pass",
+        "notes": "Denominator = dive_geom (perceived geometric dives)"
+      },
+      {
+        "id": "sanctuary",
+        "metric": "Spawn-pad entries (illegal enemy-sanctuary centres)",
+        "target": "0",
+        "value": "0",
+        "sample_size": 50,
+        "mark": "pass"
+      },
+      {
+        "id": "claim_deny",
+        "metric": "Claim deny rate",
+        "target": "Reported (opened / denied / paid); warn if 0% or 100%",
+        "value": "opened=6, denied=2, paid=2, rate=33.3%",
+        "sample_size": 6,
+        "mark": "report",
+        "notes": "ok"
+      },
+      {
+        "id": "level_timings",
+        "metric": "Level timings (first R / L7)",
+        "target": "Flavour R ~1:20, L7 ~2:40 (report misses; XP table is P)",
+        "value": "R median — (n=0); L7 median — (n=0)",
+        "sample_size": 0,
+        "mark": "report"
+      }
+    ],
+    "aggregates": {
+      "n": 50,
+      "length_median_s": 77.2,
+      "length_p10_s": 75.99000000000001,
+      "length_p90_s": 103.27,
+      "zone_share_winner": 0.5106666666666667,
+      "peel_fired": 21,
+      "peel_eligible": 21,
+      "peel_rate": 1,
+      "sanctuary_violations": 0,
+      "claim_opened": 6,
+      "claim_denied": 2,
+      "claim_paid": 2,
+      "t_first_R_median": null,
+      "t_L7_median": null,
+      "end_reasons": {
+        "first_to_10": 0.98,
+        "clock": 0.02
+      },
+      "champions": {
+        "brannoch": {
+          "picks": 50,
+          "wins": 1,
+          "win_rate": 0.02
+        },
+        "helvar": {
+          "picks": 50,
+          "wins": 49,
+          "win_rate": 0.98
+        },
+        "huntress": {
+          "picks": 50,
+          "wins": 1,
+          "win_rate": 0.02
+        },
+        "kerrig": {
+          "picks": 50,
+          "wins": 1,
+          "win_rate": 0.02
+        },
+        "maelis": {
+          "picks": 50,
+          "wins": 49,
+          "win_rate": 0.98
+        },
+        "rhedan": {
+          "picks": 50,
+          "wins": 49,
+          "win_rate": 0.98
+        },
+        "saelo": {
+          "picks": 50,
+          "wins": 49,
+          "win_rate": 0.98
+        },
+        "sedge": {
+          "picks": 50,
+          "wins": 1,
+          "win_rate": 0.02
+        },
+        "tolle": {
+          "picks": 50,
+          "wins": 49,
+          "win_rate": 0.98
+        },
+        "ysol": {
+          "picks": 50,
+          "wins": 1,
+          "win_rate": 0.02
+        }
+      },
+      "archetypes_vs_field": {
+        "Dive": {
+          "w": 1,
+          "n": 50
+        },
+        "Peel": {
+          "w": 0,
+          "n": 0
+        },
+        "Poke": {
+          "w": 49,
+          "n": 50
+        },
+        "Balanced": {
+          "w": 0,
+          "n": 0
+        }
+      },
+      "archetype_edges": {
+        "Peel_vs_Dive": {
+          "fav": "Peel",
+          "w": 0,
+          "n": 0
+        },
+        "Dive_vs_Poke": {
+          "fav": "Dive",
+          "w": 1,
+          "n": 50
+        },
+        "Poke_vs_Peel": {
+          "fav": "Poke",
+          "w": 0,
+          "n": 0
+        }
+      }
+    }
+  },
+  "cancelled": false,
+  "scheme": "isolation",
+  "seed_start": 20261122
+}

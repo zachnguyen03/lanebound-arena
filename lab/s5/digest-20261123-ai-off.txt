@@ -1,0 +1,8 @@
+label=20261123-ai-off
+seed=20261123
+ai=false
+digest=f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0
+constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
+winner=draw
+reason=clock
+duration_s=240
