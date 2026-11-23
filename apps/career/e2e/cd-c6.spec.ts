@@ -62,6 +62,25 @@ test("the match footer stays on screen and Play map is the only gold button", as
   await expect(page.locator("button.btn-primary:not([disabled])")).toHaveCount(1);
 });
 
+test("the coach mark floats and leaves its target where it was", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  const target = page.locator("[data-coach-target='recap']");
+  const before = await target.boundingBox();
+  await page.getByTestId("play-map").click();
+  const mark = page.getByTestId("coach-mark");
+  await expect(mark).toBeVisible();
+  const after = await target.boundingBox();
+  expect(before).not.toBeNull();
+  expect(after).toEqual(before);
+  const place = await mark.evaluate((el) => getComputedStyle(el).position);
+  expect(place === "fixed" || place === "absolute").toBe(true);
+  await expect(mark.locator(".coachcaret")).toBeVisible();
+  const width = await mark.evaluate((el) => el.getBoundingClientRect().width);
+  expect(width).toBeLessThanOrEqual(320);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);

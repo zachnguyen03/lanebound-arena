@@ -1,5 +1,5 @@
 import { arenaCard, draftPreview, latestMap, loadoutReport, playNextMap, setLoadout, setPreset, skipSeries, ARENA_CARDS, type CareerSession } from "@lanebound/career";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Button } from "./ui/button";
 
 const TACTIC = [
@@ -43,7 +43,10 @@ export function MatchDeck({
   const draft = draftPreview(session);
   const club = session.clubs.find((item) => item.id === session.player_club_id);
   const map = latestMap(session);
-  const mark = session.maps_played >= 1 && session.maps_played <= 5 ? COACH[session.maps_played - 1] : null;
+  const [hiddenMark, setHiddenMark] = useState<number | null>(null);
+  const markIndex = session.maps_played;
+  const mark = markIndex >= 1 && markIndex <= 5 && hiddenMark !== markIndex ? COACH[markIndex - 1] : null;
+  const coachTarget = markIndex <= 2 ? "recap" : markIndex === 3 ? "draft" : markIndex === 4 ? "tactics" : "play";
 
   return (
     <main className="wrap matchdeck" data-screen="match">
@@ -52,18 +55,9 @@ export function MatchDeck({
         <h2 className="disp">{club?.name}</h2>
         <span className="meta">{draft.fixture_id ? `Game ${draft.game_index}` : "Season complete"}</span>
       </div>
-      {mark ? (
-        <section className="card" data-composed="coach-mark" data-testid="coach-mark">
-          <div className="ch">
-            <h3>Map {session.maps_played}</h3>
-            <span className="meta">Coach mark</span>
-          </div>
-          <p className="note">{mark}</p>
-        </section>
-      ) : null}
       <div className="subtabs" data-testid="match-tabs">
         {PANES.map(([id, label]) => (
-          <button key={id} type="button" className={mode === id ? "on" : ""} onClick={() => onMode(id)}>
+          <button key={id} type="button" className={mode === id ? "on" : ""} data-coach-target={id} onClick={() => onMode(id)}>
             {label}
           </button>
         ))}
@@ -150,6 +144,7 @@ export function MatchDeck({
             <Button
               variant="primary"
               data-testid="play-map"
+              data-coach-target="play"
               disabled={!draft.fixture_id}
               onClick={() => {
                 onSession(playNextMap(session));
@@ -170,7 +165,30 @@ export function MatchDeck({
               Skip series
             </Button>
       </div>
+      {mark ? <CoachMark text={`Map ${markIndex}. ${mark}`} target={coachTarget} onClose={() => setHiddenMark(markIndex)} /> : null}
     </main>
+  );
+}
+
+function CoachMark({ text, target, onClose }: { text: string; target: string; onClose: () => void }) {
+  const [place, setPlace] = useState({ top: 72, left: 24 });
+  useLayoutEffect(() => {
+    const el = document.querySelector(`[data-coach-target="${target}"]`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const width = 320;
+    const left = Math.min(Math.max(16, rect.left), window.innerWidth - width - 16);
+    const top = Math.min(rect.bottom + 12, window.innerHeight - 220);
+    setPlace({ top, left });
+  }, [target, text]);
+  return (
+    <aside className="coach" data-composed="coach-mark" data-testid="coach-mark" style={{ top: place.top, left: place.left }}>
+      <span className="coachcaret" aria-hidden="true" />
+      <p>{text}</p>
+      <Button variant="secondary" onClick={onClose}>
+        Got it
+      </Button>
+    </aside>
   );
 }
 
