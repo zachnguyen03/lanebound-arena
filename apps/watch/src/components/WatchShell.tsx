@@ -18,7 +18,7 @@ import {
 } from "@watch/lib/hud-layout";
 import { parseJsonl } from "@watch/lib/parse-log";
 import { ReplayEngine } from "@watch/lib/replay";
-import type { Speed } from "@watch/lib/types";
+import { CHAMP_ART, type Speed } from "@watch/lib/types";
 import { ArenaCanvas } from "./ArenaCanvas";
 import {
   championAssetMissing,
@@ -76,6 +76,7 @@ export function WatchShell() {
   const [liveConfig, setLiveConfig] = useState<MatchConfig | null>(null);
   const [deathEvent, setDeathEvent] = useState<SimEvent | null>(null);
   const [missingAssets, setMissingAssets] = useState<string[]>([]);
+  const [artChecked, setArtChecked] = useState(false);
   const [exportedJson, setExportedJson] = useState<string | null>(null);
   const [liveDigest, setLiveDigest] = useState<string | null>(null);
   const pushOpen = drawerOpen && drawerMode === "push";
@@ -123,7 +124,7 @@ export function WatchShell() {
     try {
       const events = parseJsonl(text);
       if (events.length === 0) throw new Error("Log is empty");
-      const eng = new ReplayEngine(events);
+      const eng = new ReplayEngine(events, artReady(assets));
       setEngine(eng);
       setLiveDigest(eng.digest);
       setSourceName(name);
@@ -134,7 +135,7 @@ export function WatchShell() {
       setError(e instanceof Error ? e.message : "Failed to parse log");
       setPhase("empty");
     }
-  }, []);
+  }, [assets]);
 
   const startLive = useCallback(
     (seed: number) => {
@@ -144,7 +145,7 @@ export function WatchShell() {
       setPlaying(false);
       try {
         const { config, result, digest } = runWatchMatch(seed);
-        const eng = new ReplayEngine(result.events);
+        const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
         setLiveDigest(digest);
         setLiveConfig(config);
@@ -164,7 +165,7 @@ export function WatchShell() {
         setPhase("empty");
       }
     },
-    [],
+    [assets],
   );
 
   const importConfig = useCallback((text: string) => {
@@ -173,7 +174,7 @@ export function WatchShell() {
     try {
       const config = importConfigJson(text);
       const { result, digest, config: canonical } = runFromConfig(config);
-      const eng = new ReplayEngine(result.events);
+      const eng = new ReplayEngine(result.events, artReady(assets));
       setEngine(eng);
       setLiveDigest(digest);
       setLiveConfig(canonical);
@@ -196,7 +197,7 @@ export function WatchShell() {
       }
       setPhase("empty");
     }
-  }, []);
+  }, [assets]);
 
   const loadSample = useCallback(async () => {
     setPhase("loading");
@@ -223,7 +224,10 @@ export function WatchShell() {
           if (await championAssetMissing(path)) missing.push(path);
         }
       }
-      if (!cancelled) setMissingAssets(missing);
+      if (!cancelled) {
+        setMissingAssets(missing);
+        setArtChecked(true);
+      }
     })();
     return () => {
       cancelled = true;
@@ -352,6 +356,7 @@ export function WatchShell() {
           | undefined) ?? ""
       }
       data-digest={liveDigest ?? engine?.digest ?? ""}
+      data-art-checked={artChecked ? "true" : "false"}
     >
       <div
         className={
@@ -464,8 +469,18 @@ export function WatchShell() {
 
           {engine && state ? (
             <>
-              <TeamRail side="blue" state={state} layout={layout} />
-              <TeamRail side="red" state={state} layout={layout} />
+              <TeamRail
+                side="blue"
+                state={state}
+                layout={layout}
+                portraits={assets?.portraits}
+              />
+              <TeamRail
+                side="red"
+                state={state}
+                layout={layout}
+                portraits={assets?.portraits}
+              />
 
               <div
                 data-testid="arena-map-slot"
@@ -642,6 +657,13 @@ export function WatchShell() {
       ) : null}
     </div>
   );
+}
+
+function artReady(assets: WatchAssets | null): Set<string> {
+  const set = new Set<string>(CHAMP_ART);
+  if (!assets) return set;
+  for (const slug of Object.keys(assets.bodyAtlases)) set.add(slug);
+  return set;
 }
 
 function decisionStripBox(layout: {

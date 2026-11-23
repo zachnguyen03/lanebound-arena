@@ -23,7 +23,11 @@ export class ReplayEngine {
   readonly eventsByTick: ReadonlyMap<number, readonly SimEvent[]>;
   readonly indexBySeq: ReadonlyMap<number, number>;
 
-  constructor(events: SimEvent[]) {
+  /** Slugs that have a body sheet. Everyone else stays a labelled circle. */
+  readonly knownArt: ReadonlySet<string>;
+
+  constructor(events: SimEvent[], knownArt: ReadonlySet<string> = CHAMP_ART) {
+    this.knownArt = knownArt;
     this.events = Object.freeze(events.slice());
     this.digest = digestEvents(this.events as CoreSimEvent[]);
     let maxTick = 0;
@@ -69,7 +73,7 @@ export class ReplayEngine {
     while (cursor < this.events.length) {
       const ev = this.events[cursor]!;
       if (ev.tick > t) break;
-      applyEvent(state, ev);
+      applyEvent(state, ev, this.knownArt);
       cursor += 1;
     }
     state.tick = t;
@@ -130,6 +134,10 @@ function emptyState(): MatchViewState {
         respawnAt: null,
         facing: team === "blue" ? "right" : "left",
         hitStartedAt: null,
+        attackStartedAt: null,
+        castStartedAt: null,
+        castDur: 0,
+        castSkill: null,
         deathStartedAt: null,
         fallback: true,
         intent: null,
@@ -159,7 +167,11 @@ function emptyState(): MatchViewState {
   };
 }
 
-function applyEvent(state: MatchViewState, ev: SimEvent): void {
+function applyEvent(
+  state: MatchViewState,
+  ev: SimEvent,
+  knownArt: ReadonlySet<string>,
+): void {
   switch (ev.type) {
     case "match_start": {
       state.seed = typeof ev.seed === "number" ? ev.seed : null;
@@ -171,8 +183,8 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       const red = Array.isArray(ev.red_lineup) ? (ev.red_lineup as string[]) : [];
       state.blueLineup = blue;
       state.redLineup = red;
-      applyLineup(state, "blue", blue);
-      applyLineup(state, "red", red);
+      applyLineup(state, "blue", blue, knownArt);
+      applyLineup(state, "red", red, knownArt);
       break;
     }
     case "pos":
@@ -213,9 +225,30 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
     }
     case "hit": {
       const u = getUnit(state, ev.target_id);
+      if (u) {
+        if (typeof ev.hp_after === "number") u.hp = ev.hp_after;
+        if (u.alive) u.hitStartedAt = ev.t;
+      }
+      const src = getUnit(state, ev.source_id);
+      if (src?.alive && (ev.skill_id === "auto" || ev.skill_id === "attack")) {
+        src.attackStartedAt = ev.t;
+      }
+      break;
+    }
+    case "cast_start": {
+      const u = getUnit(state, ev.unit_id);
       if (!u) break;
-      if (typeof ev.hp_after === "number") u.hp = ev.hp_after;
-      if (u.alive) u.hitStartedAt = ev.t;
+      u.castStartedAt = ev.t;
+      u.castSkill = typeof ev.skill_id === "string" ? ev.skill_id : "";
+      u.castDur = typeof ev.cast_time === "number" ? ev.cast_time : 0.4;
+      break;
+    }
+    case "cast_cancel": {
+      const u = getUnit(state, ev.unit_id);
+      if (!u) break;
+      u.castStartedAt = null;
+      u.castSkill = null;
+      u.castDur = 0;
       break;
     }
     case "death": {
@@ -237,6 +270,10 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       u.hp = u.maxHp;
       u.respawnAt = null;
       u.hitStartedAt = null;
+      u.attackStartedAt = null;
+      u.castStartedAt = null;
+      u.castSkill = null;
+      u.castDur = 0;
       u.deathStartedAt = null;
       u.vx = 0;
       u.vy = 0;
@@ -340,7 +377,12 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
   }
 }
 
-function applyLineup(state: MatchViewState, team: Team, lineup: string[]): void {
+function applyLineup(
+  state: MatchViewState,
+  team: Team,
+  lineup: string[],
+  knownArt: ReadonlySet<string>,
+): void {
   const fallbacks = new Set(state.fallbackChamps);
   for (let i = 0; i < SLOTS.length; i++) {
     const slot = SLOTS[i]!;
@@ -348,7 +390,11 @@ function applyLineup(state: MatchViewState, team: Team, lineup: string[]): void 
     const id = unitId(team, slot);
     const u = state.units[id]!;
     u.champ = champ;
-    const hasArt = CHAMP_ART.has(champ);
+    u.attackStartedAt = null;
+    u.castStartedAt = null;
+    u.castSkill = null;
+    u.castDur = 0;
+    const hasArt = knownArt.has(champ);
     u.fallback = !hasArt;
     try {
       const s = statsAtLevel(champ, 1);

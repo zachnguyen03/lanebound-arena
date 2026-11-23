@@ -1,0 +1,5078 @@
+{
+  "champion": "Tolle, the Wellwarden",
+  "slug": "tolle",
+  "role": "Jungle",
+  "class": "Tank",
+  "faction": "Deepwell",
+  "lean": "Utility",
+  "slot": 11,
+  "hud_tag": "W",
+  "source": "GDD gdd/lanebound-champions-v4.0-notion.md (Lanebound v4.0, L7 kit); look from champions/portraits/painted/tolle/tolle-1024.png (CD-7)",
+  "cell": [
+    18,
+    24
+  ],
+  "anchor": [
+    9,
+    23
+  ],
+  "outline": "#0E1018",
+  "sheet": "sheets/tolle.png",
+  "note": "Blue faces right and red faces left. Blit at (round(sx)-9, round(sy)-23). Team tint only on the harness clasp. The slicker is a grey slate, far from team blue #4DA3FF; coral tag is a 2 px accent, not team red. Every hit is the bucket on its chain: the chain is drawn as world-space links from the hand to the bail.",
+  "palette": {
+    "base": {
+      "skin": "#B28C64",
+      "skin_d": "#8A684A",
+      "eye": "#1E1C1E",
+      "hair": "#B0B0AA",
+      "hair_d": "#7C7C78",
+      "slick": "#52627C",
+      "slick_l": "#74849A",
+      "slick_d": "#364256",
+      "rope": "#E2D4AE",
+      "rope_d": "#B0A07C",
+      "coral": "#EC7A5C",
+      "oak": "#CEB282",
+      "oak_l": "#E8D2A8",
+      "oak_d": "#9E805A",
+      "hoop": "#3A3A40",
+      "chain": "#96969E",
+      "lid": "#AA8C64",
+      "lid_d": "#7A6246",
+      "pants": "#3C3A3E",
+      "boot": "#2C2826",
+      "water": "#96C8D4",
+      "water_l": "#E2F4F6",
+      "water_d": "#406E7E"
+    },
+    "team": {
+      "blue": {
+        "mid": "#4DA3FF",
+        "dk": "#245CB4",
+        "lt": "#A0CCFF"
+      },
+      "red": {
+        "mid": "#F5477A",
+        "dk": "#A8204A",
+        "lt": "#FF96B0"
+      }
+    }
+  },
+  "timing": {
+    "idle": {
+      "n": 4,
+      "ms": 140,
+      "fps": 7,
+      "loop": true,
+      "note": "breath; bucket sways on its chain, lid on the back"
+    },
+    "walk": {
+      "n": 6,
+      "ms": 110,
+      "fps": 9,
+      "loop": true,
+      "note": "long stride; bucket swings"
+    },
+    "attack": {
+      "n": 6,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "hit": 3,
+      "spawn": 3,
+      "hitstop": 2,
+      "delivery": "melee",
+      "frame_ms": [
+        80,
+        90,
+        70,
+        50,
+        50,
+        100
+      ],
+      "note": "bucket swing (melee 1.5): back, over, bucket lands on 3"
+    },
+    "cast": {
+      "n": 6,
+      "ms": 90,
+      "fps": 11,
+      "loop": false,
+      "note": "generic cast: bucket lifted to the chest, water drips"
+    },
+    "wellfed": {
+      "n": 6,
+      "ms": 110,
+      "fps": 9,
+      "loop": false,
+      "note": "Passive Well-Fed: after a Lock/Bind lands, water drops arc into the bucket and she heals 25 + 2% max HP"
+    },
+    "slam": {
+      "n": 11,
+      "ms": 80,
+      "fps": 12,
+      "loop": false,
+      "hit": 4,
+      "hitstop": 3,
+      "delivery": "melee",
+      "frame_ms": [
+        60,
+        90,
+        65,
+        65,
+        50,
+        50,
+        50,
+        90,
+        100,
+        100,
+        100
+      ],
+      "note": "Q Bucket Slam: swing back (1), over the top (2), out on the chain (3); bucket lands 2.2 tiles out on 4 (0.28 s cast); hit-stop 4-6; r 1.6 stun 0.9 s; chain reels in 7-9"
+    },
+    "drawdown": {
+      "n": 10,
+      "ms": 80,
+      "fps": 12,
+      "loop": false,
+      "spawn": 3,
+      "delivery": "thrown",
+      "frame_ms": [
+        60,
+        70,
+        70,
+        80,
+        80,
+        80,
+        90,
+        100,
+        100,
+        100
+      ],
+      "note": "W Draw Down: swing (1-2), hurl the bucket on the chain on 3 (0.20 s cast), chain taut 4-6, yank 7, bucket back 8; target (ally or enemy) drops into a well mouth: banish 1.8 s"
+    },
+    "upwelling": {
+      "n": 12,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "hit": 4,
+      "hitstop": 3,
+      "delivery": "melee",
+      "frame_ms": [
+        60,
+        110,
+        110,
+        120,
+        50,
+        50,
+        50,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "note": "R Upwelling: bucket hauled overhead (1), upended (2), driven mouth-down into the ground at her feet on 4 (0.40 s cast); a water crack runs to the r 3.4 ring at up to 7 tiles; erupts 0.8 s after the cast: knockup 1.1 s"
+    },
+    "hit": {
+      "n": 3,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "recoil flash"
+    },
+    "death": {
+      "n": 8,
+      "ms": 125,
+      "fps": 8,
+      "loop": false,
+      "note": "bucket drops, kneel, fall; last frame holds"
+    }
+  },
+  "skills": {
+    "q": {
+      "anim": "slam",
+      "key": "Q",
+      "name": "Bucket Slam",
+      "shape": "circle",
+      "file": "q-bucket-slam"
+    },
+    "w": {
+      "anim": "drawdown",
+      "key": "W",
+      "name": "Draw Down",
+      "shape": "target",
+      "file": "w-draw-down"
+    },
+    "r": {
+      "anim": "upwelling",
+      "key": "R",
+      "name": "Upwelling",
+      "shape": "circle",
+      "file": "r-upwelling"
+    },
+    "p": {
+      "anim": "wellfed",
+      "key": "P",
+      "name": "Well-Fed",
+      "file": "p-well-fed",
+      "shape": "passive"
+    }
+  },
+  "status": {
+    "stun": {
+      "n": 2,
+      "ms": 200,
+      "fps": 5,
+      "loop": true,
+      "duration_ms": 900,
+      "note": "Q: stun 0.9 s, shared stun plate"
+    },
+    "banish": {
+      "n": 18,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "duration_ms": 1800,
+      "note": "W: banish 1.8 s: unit sinks into a well mouth, NEW banish plate floats over the mouth; a water spout returns it"
+    },
+    "knockup": {
+      "n": 11,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "duration_ms": 1100,
+      "note": "R: knockup 1.1 s on a geyser, stun plate"
+    }
+  },
+  "animations": {
+    "idle": {
+      "blue-right": {
+        "n": 4,
+        "ms": 140,
+        "fps": 7,
+        "loop": true,
+        "note": "breath; bucket sways on its chain, lid on the back",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 4,
+        "ms": 140,
+        "fps": 7,
+        "loop": true,
+        "note": "breath; bucket sways on its chain, lid on the back",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 4,
+        "ms": 140,
+        "fps": 7,
+        "loop": true,
+        "note": "breath; bucket sways on its chain, lid on the back",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 4,
+        "ms": 140,
+        "fps": 7,
+        "loop": true,
+        "note": "breath; bucket sways on its chain, lid on the back",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "walk": {
+      "blue-right": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": true,
+        "note": "long stride; bucket swings",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": true,
+        "note": "long stride; bucket swings",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": true,
+        "note": "long stride; bucket swings",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": true,
+        "note": "long stride; bucket swings",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "attack": {
+      "blue-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "bucket swing (melee 1.5): back, over, bucket lands on 3",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "projectile_spawn": {
+              "offset": [
+                5,
+                -4
+              ]
+            },
+            "hit_stop": true
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "bucket swing (melee 1.5): back, over, bucket lands on 3",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "projectile_spawn": {
+              "offset": [
+                -5,
+                -4
+              ]
+            },
+            "hit_stop": true
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "bucket swing (melee 1.5): back, over, bucket lands on 3",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "projectile_spawn": {
+              "offset": [
+                5,
+                -4
+              ]
+            },
+            "hit_stop": true
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "bucket swing (melee 1.5): back, over, bucket lands on 3",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "projectile_spawn": {
+              "offset": [
+                -5,
+                -4
+              ]
+            },
+            "hit_stop": true
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              801,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      }
+    },
+    "cast": {
+      "blue-right": {
+        "n": 6,
+        "ms": 90,
+        "fps": 11,
+        "loop": false,
+        "note": "generic cast: bucket lifted to the chest, water drips",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 90,
+        "fps": 11,
+        "loop": false,
+        "note": "generic cast: bucket lifted to the chest, water drips",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 90,
+        "fps": 11,
+        "loop": false,
+        "note": "generic cast: bucket lifted to the chest, water drips",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 90,
+        "fps": 11,
+        "loop": false,
+        "note": "generic cast: bucket lifted to the chest, water drips",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              826,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "wellfed": {
+      "blue-right": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": false,
+        "note": "Passive Well-Fed: after a Lock/Bind lands, water drops arc into the bucket and she heals 25 + 2% max HP",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": false,
+        "note": "Passive Well-Fed: after a Lock/Bind lands, water drops arc into the bucket and she heals 25 + 2% max HP",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": false,
+        "note": "Passive Well-Fed: after a Lock/Bind lands, water drops arc into the bucket and she heals 25 + 2% max HP",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 110,
+        "fps": 9,
+        "loop": false,
+        "note": "Passive Well-Fed: after a Lock/Bind lands, water drops arc into the bucket and she heals 25 + 2% max HP",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              851,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "slam": {
+      "blue-right": {
+        "n": 11,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Bucket Slam: swing back (1), over the top (2), out on the chain (3); bucket lands 2.2 tiles out on 4 (0.28 s cast); hit-stop 4-6; r 1.6 stun 0.9 s; chain reels in 7-9",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 11,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Bucket Slam: swing back (1), over the top (2), out on the chain (3); bucket lands 2.2 tiles out on 4 (0.28 s cast); hit-stop 4-6; r 1.6 stun 0.9 s; chain reels in 7-9",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 11,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Bucket Slam: swing back (1), over the top (2), out on the chain (3); bucket lands 2.2 tiles out on 4 (0.28 s cast); hit-stop 4-6; r 1.6 stun 0.9 s; chain reels in 7-9",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 11,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Bucket Slam: swing back (1), over the top (2), out on the chain (3); bucket lands 2.2 tiles out on 4 (0.28 s cast); hit-stop 4-6; r 1.6 stun 0.9 s; chain reels in 7-9",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 65,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              876,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      }
+    },
+    "drawdown": {
+      "blue-right": {
+        "n": 10,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "W Draw Down: swing (1-2), hurl the bucket on the chain on 3 (0.20 s cast), chain taut 4-6, yank 7, bucket back 8; target (ally or enemy) drops into a well mouth: banish 1.8 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -15
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 10,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "W Draw Down: swing (1-2), hurl the bucket on the chain on 3 (0.20 s cast), chain taut 4-6, yank 7, bucket back 8; target (ally or enemy) drops into a well mouth: banish 1.8 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -15
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          }
+        ]
+      },
+      "red-right": {
+        "n": 10,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "W Draw Down: swing (1-2), hurl the bucket on the chain on 3 (0.20 s cast), chain taut 4-6, yank 7, bucket back 8; target (ally or enemy) drops into a well mouth: banish 1.8 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -15
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          }
+        ]
+      },
+      "red-left": {
+        "n": 10,
+        "ms": 80,
+        "fps": 12,
+        "loop": false,
+        "note": "W Draw Down: swing (1-2), hurl the bucket on the chain on 3 (0.20 s cast), chain taut 4-6, yank 7, bucket back 8; target (ally or enemy) drops into a well mouth: banish 1.8 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 70
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -15
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 80
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 90
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              901,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100
+          }
+        ]
+      }
+    },
+    "upwelling": {
+      "blue-right": {
+        "n": 12,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Upwelling: bucket hauled overhead (1), upended (2), driven mouth-down into the ground at her feet on 4 (0.40 s cast); a water crack runs to the r 3.4 ring at up to 7 tiles; erupts 0.8 s after the cast: knockup 1.1 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 120,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 11,
+            "rect": [
+              210,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 12,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Upwelling: bucket hauled overhead (1), upended (2), driven mouth-down into the ground at her feet on 4 (0.40 s cast); a water crack runs to the r 3.4 ring at up to 7 tiles; erupts 0.8 s after the cast: knockup 1.1 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 120,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 11,
+            "rect": [
+              210,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 12,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Upwelling: bucket hauled overhead (1), upended (2), driven mouth-down into the ground at her feet on 4 (0.40 s cast); a water crack runs to the r 3.4 ring at up to 7 tiles; erupts 0.8 s after the cast: knockup 1.1 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 120,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 11,
+            "rect": [
+              210,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 12,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Upwelling: bucket hauled overhead (1), upended (2), driven mouth-down into the ground at her feet on 4 (0.40 s cast); a water crack runs to the r 3.4 ring at up to 7 tiles; erupts 0.8 s after the cast: knockup 1.1 s",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 60,
+            "hit_stop": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 110,
+            "hit_stop": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 120,
+            "hit_stop": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 50,
+            "hit_stop": true
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 10,
+            "rect": [
+              191,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          },
+          {
+            "i": 11,
+            "rect": [
+              210,
+              926,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "ms": 100,
+            "hit_stop": false
+          }
+        ]
+      }
+    },
+    "hit": {
+      "blue-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              951,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              951,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              951,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "death": {
+      "blue-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "bucket drops, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "bucket drops, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "bucket drops, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "bucket drops, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              976,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    }
+  },
+  "vfx": {
+    "bucket": {
+      "files": [
+        "vfx/bucket.png",
+        "vfx/bucket-upended.png"
+      ],
+      "note": "the bucket when it leaves the cell (Q/W): chain = dotted iron/pewter links from the hand, sag 1-3 px"
+    },
+    "well-mouth": {
+      "procedural": "status_fx3.well_mouth(im, x, y, r=9, phase, i)",
+      "note": "W banish: the unit sinks 26 px over 0.24 s (status_fx3.clip_below), plate floats over the mouth, a water spout returns it"
+    },
+    "upwelling": {
+      "procedural": "tolle._sc_r",
+      "note": "R: water crack from the bucket to the ring; solid water ring for the 0.8 s delay; 8 geysers on eruption"
+    },
+    "stun-plate": {
+      "file": "vfx/stun-plate.png"
+    },
+    "banish-plate": {
+      "file": "vfx/banish-plate.png"
+    }
+  },
+  "portrait": {
+    "file": "portrait/portrait.png",
+    "size": [
+      64,
+      64
+    ],
+    "tints": [
+      "blue",
+      "red"
+    ],
+    "painted": true,
+    "sizes": {
+      "64": "portrait/portrait.png",
+      "44": "portrait/portrait-44.png",
+      "24": "portrait/portrait-24.png"
+    }
+  },
+  "icons": {
+    "q": {
+      "file": "icons/q-bucket-slam.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Bucket Slam",
+      "shape": "circle"
+    },
+    "w": {
+      "file": "icons/w-draw-down.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Draw Down",
+      "shape": "target"
+    },
+    "r": {
+      "file": "icons/r-upwelling.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Upwelling",
+      "shape": "circle"
+    },
+    "p": {
+      "file": "icons/p-well-fed.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Well-Fed",
+      "shape": "passive"
+    }
+  },
+  "stage_previews": {
+    "p": "previews/p-well-fed-stage-1x.gif",
+    "q": "previews/q-bucket-slam-stage-1x.gif",
+    "w": "previews/w-draw-down-stage-1x.gif",
+    "r": "previews/r-upwelling-stage-1x.gif"
+  },
+  "animations_order": [
+    "idle",
+    "walk",
+    "attack",
+    "cast",
+    "wellfed",
+    "slam",
+    "drawdown",
+    "upwelling",
+    "hit",
+    "death"
+  ]
+}

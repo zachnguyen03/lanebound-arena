@@ -31,6 +31,12 @@ export interface UnitView {
   facing: Facing;
   /** Sim t when the current one-shot hit anim started; null if none. */
   hitStartedAt: number | null;
+  /** Sim t when this unit's attack anim started; null if none. */
+  attackStartedAt: number | null;
+  /** Sim t when a cast anim started; null if none. */
+  castStartedAt: number | null;
+  castDur: number;
+  castSkill: string | null;
   /** Sim t when death anim started; null if living / pre-death. */
   deathStartedAt: number | null;
   /** True when champ art was missing and a labelled circle is drawn. */

@@ -1,24 +1,21 @@
 import type { WatchAssets } from "./assets";
 import {
   frameIndexAt,
-  resolveAnimName,
-  scaleFrame2x,
   variantKey,
-  type BodyAnim,
+  type BodyAnimClip,
+  type BodyFrame,
 } from "./champ-atlas";
 import { sortDrawItems } from "./draw-order";
 import { ARENA_INTRINSIC } from "./hud-layout";
 import { padGroundPx } from "./spawn";
 import type { MatchViewState, UnitView } from "./types";
-import { CHAMP_ART } from "./types";
 
 const TILE_W = 44;
 const TILE_H = 32;
-const BODY_W = 36;
-const BODY_H = 48;
-const ANCHOR_X = 18;
 const ANCHOR_Y = 46;
 const MOVE_EPS = 1e-4;
+/** Terrain is 2×. Authored 18×24 cells blit at 36×48, an integer factor. */
+const PLAY_SCALE = 2;
 
 /** Integer nearest-neighbour blit. */
 export function blitNearest(
@@ -214,25 +211,97 @@ export function renderArena(
   }
 }
 
+function clipDuration(clip: BodyAnimClip | undefined, fallback: number): number {
+  if (!clip || clip.n <= 0) return fallback;
+  return (clip.n * clip.ms) / 1000;
+}
+
+function findClip(
+  animations: Record<string, Record<string, BodyAnimClip>>,
+  name: string,
+  variant: string,
+): BodyAnimClip | undefined {
+  const aliases: Record<string, string[]> = {
+    move: ["move", "walk"],
+    walk: ["walk", "move"],
+    cast: ["cast", "skill"],
+    skill: ["skill", "cast"],
+    dash: ["dash", "skill", "cast"],
+    attack: ["attack"],
+  };
+  const names = aliases[name] ?? [name];
+  for (const n of names) {
+    const clip = animations[n]?.[variant];
+    if (clip && clip.frames.length > 0) return clip;
+  }
+  return undefined;
+}
+
 function pickBodyAnim(
   unit: UnitView,
   now: number,
+  attackDurS: number,
   hitDurS: number,
-): { anim: BodyAnim; startedAt: number } {
+): { name: string; startedAt: number } {
   if (!unit.alive && unit.deathStartedAt != null) {
-    return { anim: "death", startedAt: unit.deathStartedAt };
+    return { name: "death", startedAt: unit.deathStartedAt };
+  }
+  if (
+    unit.alive &&
+    unit.castStartedAt != null &&
+    now - unit.castStartedAt < Math.max(unit.castDur, 0.2)
+  ) {
+    const skill = (unit.castSkill ?? "").toLowerCase();
+    if (skill.includes("dash")) {
+      return { name: "dash", startedAt: unit.castStartedAt };
+    }
+    if (skill === "auto" || skill === "attack") {
+      return { name: "attack", startedAt: unit.castStartedAt };
+    }
+    return { name: "cast", startedAt: unit.castStartedAt };
+  }
+  if (
+    unit.alive &&
+    unit.attackStartedAt != null &&
+    now - unit.attackStartedAt < attackDurS
+  ) {
+    return { name: "attack", startedAt: unit.attackStartedAt };
   }
   if (
     unit.alive &&
     unit.hitStartedAt != null &&
     now - unit.hitStartedAt < hitDurS
   ) {
-    return { anim: "hit", startedAt: unit.hitStartedAt };
+    return { name: "hit", startedAt: unit.hitStartedAt };
   }
   const moving =
     Math.abs(unit.vx) > MOVE_EPS || Math.abs(unit.vy) > MOVE_EPS;
-  if (moving) return { anim: "move", startedAt: 0 };
-  return { anim: "idle", startedAt: 0 };
+  if (moving) return { name: "move", startedAt: 0 };
+  return { name: "idle", startedAt: 0 };
+}
+
+function drawBodyFrame(
+  ctx: CanvasRenderingContext2D,
+  sheet: HTMLImageElement,
+  frame: BodyFrame,
+  footX: number,
+  footY: number,
+  sourceScale: number,
+): void {
+  const [x, y, w, h] = frame.rect;
+  const [ax, ay] = frame.anchor;
+  blitNearest(
+    ctx,
+    sheet,
+    x * sourceScale,
+    y * sourceScale,
+    w * sourceScale,
+    h * sourceScale,
+    Math.round(footX - ax * PLAY_SCALE),
+    Math.round(footY - ay * PLAY_SCALE),
+    w * PLAY_SCALE,
+    h * PLAY_SCALE,
+  );
 }
 
 function drawUnit(
@@ -258,32 +327,58 @@ function drawUnit(
 
   const atlas = assets.bodyAtlases[unit.champ];
   const sheet = assets.bodySheets[unit.champ];
-  if (atlas && sheet && CHAMP_ART.has(unit.champ) && !unit.fallback) {
+  const sourceScale = assets.sheetScale[unit.champ] ?? 1;
+  if (atlas && sheet) {
     const variant = variantKey(unit.team, unit.facing);
-    const hitClip = atlas.animations.hit?.[variant];
-    const hitDurS = hitClip ? (hitClip.n * hitClip.ms) / 1000 : 0.25;
-    const { anim, startedAt } = pickBodyAnim(unit, state.t, hitDurS);
-    const name = resolveAnimName(anim);
+    const attackClip = findClip(atlas.animations, "attack", variant);
+    const hitClip = findClip(atlas.animations, "hit", variant);
+    const { name, startedAt } = pickBodyAnim(
+      unit,
+      state.t,
+      clipDuration(attackClip, 0.5),
+      clipDuration(hitClip, 0.25),
+    );
     const clip =
-      atlas.animations[name]?.[variant] ??
-      atlas.animations.move?.[variant] ??
-      atlas.animations.idle?.[variant];
+      findClip(atlas.animations, name, variant) ??
+      findClip(atlas.animations, "idle", variant);
+    if (name === "dash") {
+      const after =
+        assets.artImages[
+          `${unit.champ}/sheets/dash-afterimage-${unit.team}.png`
+        ];
+      if (after) {
+        ctx.globalAlpha = 0.4;
+        drawBodyFrame(
+          ctx,
+          after,
+          { i: 0, rect: [1, 1, 18, 24], anchor: [9, 23], hit: false },
+          px - 8,
+          py,
+          1,
+        );
+        ctx.globalAlpha = 1;
+      }
+    }
     if (clip && clip.frames.length > 0) {
       const fi = frameIndexAt(clip, startedAt, state.t);
-      const frame1x = clip.frames[fi] ?? clip.frames[clip.frames.length - 1]!;
-      // Atlas rects are 1×; we blit from the 2× sheet.
-      const frame = scaleFrame2x(frame1x);
-      const [sx, sy, sw, sh] = frame.rect;
-      const [ax, ay] = frame.anchor;
-      blitNearest(
+      const frame = clip.frames[fi] ?? clip.frames[clip.frames.length - 1]!;
+      drawBodyFrame(ctx, sheet, frame, px, py, sourceScale);
+    }
+    const falcon = assets.artImages[`${unit.champ}/sheets/falcon.png`];
+    if (falcon && unit.alive) {
+      const fi = Math.floor(state.t * 8) % 3;
+      drawBodyFrame(
         ctx,
-        sheet,
-        sx,
-        sy,
-        sw,
-        sh,
-        Math.round(px) - ax,
-        Math.round(py) - ay,
+        falcon,
+        {
+          i: fi,
+          rect: [1 + fi * 11, 1, 10, 8],
+          anchor: [5, 6],
+          hit: false,
+        },
+        px + (fi - 1) * 8,
+        py - 28,
+        1,
       );
     }
   } else {

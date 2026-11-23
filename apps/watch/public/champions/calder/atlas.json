@@ -1,0 +1,3608 @@
+{
+  "champion": "Calder, Ash-Lung",
+  "slug": "calder",
+  "role": "Mid",
+  "class": "Mage",
+  "faction": "Cinderwell",
+  "lean": "Hybrid",
+  "slot": 6,
+  "source": "Notion Lanebound \u2014 GDD / Champions v3.0; look from champions/portraits/painted/calder/calder-1024.png",
+  "cell": [
+    18,
+    24
+  ],
+  "anchor": [
+    9,
+    23
+  ],
+  "outline": "#0E1018",
+  "sheet": "sheets/calder.png",
+  "note": "Blue faces right and red faces left. Blit at (round(sx)-9, round(sy)-23). Team tint only on the throat clasp. Ember is red-orange, never #F2C14E. Fear uses its own flee-chevron glyph (silence band).",
+  "palette": {
+    "base": {
+      "mask": "#3A3838",
+      "mask_l": "#5A5654",
+      "mask_d": "#202022",
+      "rust": "#6E4E3A",
+      "eye": "#EC5624",
+      "eye_l": "#FF9650",
+      "cloak": "#404044",
+      "cloak_d": "#28282C",
+      "cloak_l": "#606064",
+      "iron": "#302E2E",
+      "coal": "#1C1816",
+      "ember": "#DC4E24",
+      "ember_l": "#FF8C50",
+      "ember_w": "#FFC896",
+      "smoke": "#A0A4A8",
+      "smoke_d": "#6E7276",
+      "boot": "#1E1C1C"
+    },
+    "team": {
+      "blue": {
+        "mid": "#4DA3FF",
+        "dk": "#245CB4",
+        "lt": "#A0CCFF"
+      },
+      "red": {
+        "mid": "#F5477A",
+        "dk": "#A8204A",
+        "lt": "#FF96B0"
+      }
+    },
+    "note": "Team tint only on the throat clasp. Ember is red-orange, never #F2C14E. Fear uses its own flee-chevron glyph (silence band)."
+  },
+  "timing": {
+    "idle": {
+      "n": 4,
+      "ms": 125,
+      "fps": 8,
+      "loop": true,
+      "note": "eye glow + smoke lifts from both braziers"
+    },
+    "walk": {
+      "n": 6,
+      "ms": 100,
+      "fps": 10,
+      "loop": true,
+      "note": "6-step, braziers bob, smoke trails"
+    },
+    "attack": {
+      "n": 6,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "cinder spit from the grate",
+      "hit": 2,
+      "spawn": 2
+    },
+    "skill": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "Q Ashbreath: lean, a 60\u00b0 ash cone",
+      "hit": 4,
+      "spawn": 3
+    },
+    "drink": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "W Smoke Drink: inhale, self-heal motes, no CC",
+      "hit": 4,
+      "spawn": 4
+    },
+    "ult": {
+      "n": 10,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "note": "R Ash Panic: both braziers flare, fear lands on frame 4 (0.45 s)",
+      "hit": 4,
+      "spawn": 4
+    },
+    "hit": {
+      "n": 3,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "recoil flash"
+    },
+    "death": {
+      "n": 8,
+      "ms": 125,
+      "fps": 8,
+      "loop": false,
+      "note": "braziers spill, kneel, slump; last frame holds"
+    }
+  },
+  "skills": {
+    "q": {
+      "anim": "skill",
+      "key": "Q",
+      "name": "Ashbreath",
+      "shape": "cone",
+      "file": "q-ashbreath"
+    },
+    "w": {
+      "anim": "drink",
+      "key": "W",
+      "name": "Smoke Drink",
+      "shape": "self",
+      "file": "w-smoke-drink"
+    },
+    "r": {
+      "anim": "ult",
+      "key": "R",
+      "name": "Ash Panic",
+      "shape": "circle",
+      "file": "r-ash-panic"
+    }
+  },
+  "status": {
+    "fear": {
+      "n": 4,
+      "ms": 150,
+      "fps": 7,
+      "loop": true,
+      "duration_ms": 1600,
+      "note": "R Ash Panic fear 1.60 s: flee-chevron plate at the head (own glyph, silence band)"
+    }
+  },
+  "animations": {
+    "idle": {
+      "blue-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "eye glow + smoke lifts from both braziers",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "eye glow + smoke lifts from both braziers",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "eye glow + smoke lifts from both braziers",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "eye glow + smoke lifts from both braziers",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "walk": {
+      "blue-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step, braziers bob, smoke trails",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step, braziers bob, smoke trails",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step, braziers bob, smoke trails",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step, braziers bob, smoke trails",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "attack": {
+      "blue-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "cinder spit from the grate",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "cinder spit from the grate",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "cinder spit from the grate",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "cinder spit from the grate",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "skill": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Ashbreath: lean, a 60\u00b0 ash cone",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Ashbreath: lean, a 60\u00b0 ash cone",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Ashbreath: lean, a 60\u00b0 ash cone",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Ashbreath: lean, a 60\u00b0 ash cone",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -14
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "drink": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Smoke Drink: inhale, self-heal motes, no CC",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Smoke Drink: inhale, self-heal motes, no CC",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Smoke Drink: inhale, self-heal motes, no CC",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Smoke Drink: inhale, self-heal motes, no CC",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "ult": {
+      "blue-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Ash Panic: both braziers flare, fear lands on frame 4 (0.45 s)",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Ash Panic: both braziers flare, fear lands on frame 4 (0.45 s)",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Ash Panic: both braziers flare, fear lands on frame 4 (0.45 s)",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Ash Panic: both braziers flare, fear lands on frame 4 (0.45 s)",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                0,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "hit": {
+      "blue-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "death": {
+      "blue-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "braziers spill, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "braziers spill, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "braziers spill, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "braziers spill, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    }
+  },
+  "vfx": {
+    "cinder": {
+      "files": [
+        "vfx/cinder-blue-right.png",
+        "vfx/cinder-blue-left.png",
+        "vfx/cinder-red-right.png",
+        "vfx/cinder-red-left.png"
+      ]
+    },
+    "ashbreath": {
+      "procedural": "calder.ash_cone"
+    },
+    "ash-panic": {
+      "procedural": "calder.panic_ring"
+    },
+    "heal-motes": {
+      "files": [
+        "vfx/heal-motes-0.png",
+        "vfx/heal-motes-1.png",
+        "vfx/heal-motes-2.png",
+        "vfx/heal-motes-3.png"
+      ]
+    },
+    "fear-plate": {
+      "file": "vfx/fear-plate.png",
+      "note": "own glyph, silence priority band"
+    }
+  },
+  "portrait": {
+    "file": "portrait/portrait.png",
+    "size": [
+      64,
+      64
+    ],
+    "tints": [
+      "blue",
+      "red"
+    ],
+    "painted": true,
+    "sizes": {
+      "64": "portrait/portrait.png",
+      "44": "portrait/portrait-44.png",
+      "24": "portrait/portrait-24.png"
+    }
+  },
+  "icons": {
+    "q": {
+      "file": "icons/q-ashbreath.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Ashbreath",
+      "shape": "cone"
+    },
+    "w": {
+      "file": "icons/w-smoke-drink.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Smoke Drink",
+      "shape": "self"
+    },
+    "r": {
+      "file": "icons/r-ash-panic.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Ash Panic",
+      "shape": "circle"
+    }
+  },
+  "animations_order": [
+    "idle",
+    "walk",
+    "attack",
+    "skill",
+    "drink",
+    "ult",
+    "hit",
+    "death"
+  ]
+}

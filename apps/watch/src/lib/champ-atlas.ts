@@ -7,7 +7,16 @@
  */
 
 export type Facing = "left" | "right";
-export type BodyAnim = "idle" | "move" | "hit" | "death";
+export type BodyAnim =
+  | "idle"
+  | "move"
+  | "walk"
+  | "hit"
+  | "death"
+  | "attack"
+  | "cast"
+  | "skill"
+  | "dash";
 
 export interface BodyFrame {
   i: number;
@@ -63,12 +72,67 @@ export function frameIndexAt(
   return Math.min(raw, clip.n - 1);
 }
 
-function isClip(v: unknown): v is BodyAnimClip {
-  return (
-    !!v &&
-    typeof v === "object" &&
-    Array.isArray((v as BodyAnimClip).frames)
-  );
+function asClip(raw: unknown): BodyAnimClip | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v = raw as Record<string, unknown>;
+  if (!Array.isArray(v.frames)) return null;
+  const frames: BodyFrame[] = v.frames.map((item, index) => {
+    const fr = item as Record<string, unknown>;
+    const rect = fr.rect as [number, number, number, number];
+    const anchor = (
+      Array.isArray(fr.anchor) ? fr.anchor : [9, 23]
+    ) as [number, number];
+    const i =
+      typeof fr.i === "number"
+        ? fr.i
+        : typeof fr.index === "number"
+          ? fr.index
+          : index;
+    return { i, rect, anchor, hit: fr.hit === true };
+  });
+  const fps = typeof v.fps === "number" && v.fps > 0 ? v.fps : 8;
+  const ms =
+    typeof v.ms === "number" && v.ms > 0 ? v.ms : Math.round(1000 / fps);
+  const n = typeof v.n === "number" && v.n > 0 ? v.n : frames.length;
+  return { n, ms, fps, loop: v.loop === true, frames };
+}
+
+/**
+ * Atlas `file` / `sheet` strings. Maelis `status.slow.file` is a note, not a path.
+ */
+export function resolveAtlasFile(slug: string, file: string): string | null {
+  const trimmed = file.trim();
+  if (
+    slug === "maelis" &&
+    trimmed.includes("slow.png") &&
+    /[\s()]/.test(trimmed)
+  ) {
+    return "vfx/slow.png";
+  }
+  if (/[\s()]/.test(trimmed)) return null;
+  return trimmed.replace(/^\.\//, "");
+}
+
+/** Relative sheet paths referenced by an atlas, with the Maelis note resolved. */
+export function collectAtlasFiles(slug: string, raw: unknown): string[] {
+  const out: string[] = [];
+  const walk = (node: unknown) => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+    for (const [key, val] of Object.entries(node as Record<string, unknown>)) {
+      if ((key === "file" || key === "sheet") && typeof val === "string") {
+        const rel = resolveAtlasFile(slug, val);
+        if (rel) out.push(rel);
+      } else {
+        walk(val);
+      }
+    }
+  };
+  walk(raw);
+  return [...new Set(out)];
 }
 
 /** Flatten either atlas key shape onto `animations[name]["team-facing"]`. */
@@ -80,13 +144,15 @@ export function normalizeChampAtlas(raw: unknown, slug: string): ChampAtlas {
     const flat: Record<string, BodyAnimClip> = {};
     if (!variants || typeof variants !== "object") continue;
     for (const [key, val] of Object.entries(variants as Record<string, unknown>)) {
-      if (isClip(val)) {
-        flat[key] = val;
+      const direct = asClip(val);
+      if (direct) {
+        flat[key] = direct;
         continue;
       }
       if (val && typeof val === "object") {
         for (const [facing, clip] of Object.entries(val as Record<string, unknown>)) {
-          if (isClip(clip)) flat[`${key}-${facing}`] = clip;
+          const nested = asClip(clip);
+          if (nested) flat[`${key}-${facing}`] = nested;
         }
       }
     }

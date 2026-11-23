@@ -7,6 +7,7 @@ const outDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../lab/s4/final",
 );
+const shotDir = path.join(outDir, "shots");
 
 async function hit(page: Page, testId: string) {
   const box = await page.getByTestId(testId).boundingBox();
@@ -67,10 +68,22 @@ test.describe("S4 live evenOvr match", () => {
       }
 
       fs.mkdirSync(outDir, { recursive: true });
+      fs.mkdirSync(shotDir, { recursive: true });
       await page.getByTestId("scrubber").fill("200");
+      await expect(page.getByTestId("portrait-blue:adc")).toBeVisible();
+      await expect(page.getByTestId("portrait-red:top")).toBeVisible();
+      const portrait = page.getByTestId("portrait-blue:adc");
+      const portraitBox = await portrait.boundingBox();
+      expect(portraitBox?.width).toBe(vp.width >= 1920 ? 64 : 24);
+      expect(portraitBox?.height).toBe(portraitBox?.width);
       await page.screenshot({
         path: path.join(outDir, `watch-${vp.name}-mid.png`),
       });
+      if (vp.name === "1280x720" || vp.name === "1920x1080") {
+        await page.screenshot({
+          path: path.join(shotDir, `watch-${vp.name}-mid.png`),
+        });
+      }
       const max = await page.getByTestId("scrubber").getAttribute("max");
       await page.getByTestId("scrubber").fill(max ?? "200");
       await page.screenshot({

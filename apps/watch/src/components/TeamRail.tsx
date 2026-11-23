@@ -1,4 +1,5 @@
 import { cn } from "@watch/lib/cn";
+import type { TeamPortraits } from "@watch/lib/assets";
 import type { HudLayout } from "@watch/lib/hud-layout";
 import type { MatchViewState, Slot, Team } from "@watch/lib/types";
 import { SLOT_LABEL, SLOTS } from "@watch/lib/types";
@@ -7,9 +8,10 @@ interface Props {
   side: Team;
   state: MatchViewState;
   layout: HudLayout;
+  portraits?: Record<string, TeamPortraits>;
 }
 
-export function TeamRail({ side, state, layout }: Props) {
+export function TeamRail({ side, state, layout, portraits }: Props) {
   const rail = side === "blue" ? layout.left_rail : layout.right_rail;
   const tf = layout.team_frames;
   const [fw, fh] = tf.size;
@@ -32,6 +34,11 @@ export function TeamRail({ side, state, layout }: Props) {
         const frac = u.alive ? Math.max(0, Math.min(1, u.hp / u.maxHp)) : 0;
         const y = tf.y0 - rail[1] + i * (fh + tf.gap);
         const compact = fw <= 112;
+        const pack = portraits?.[u.champ];
+        const portrait = compact
+          ? (pack?.compact ?? pack?.[side])
+          : pack?.[side];
+        const portraitPx = compact ? 24 : 64;
         return (
           <div
             key={slot}
@@ -53,15 +60,40 @@ export function TeamRail({ side, state, layout }: Props) {
             <div className="flex h-full items-start gap-1.5">
               <div
                 className={cn(
-                  "flex shrink-0 items-center justify-center border border-line-2 font-bold",
-                  compact ? "h-7 w-7 text-[8px]" : "h-10 w-10 text-[9px]",
+                  "flex shrink-0 items-center justify-center overflow-hidden border border-line-2 font-bold",
+                  portrait
+                    ? ""
+                    : compact
+                      ? "h-7 w-7 text-[8px]"
+                      : "h-10 w-10 text-[9px]",
                   u.alive ? "bg-field" : "bg-line text-faint",
                 )}
+                style={
+                  portrait
+                    ? { width: portraitPx, height: portraitPx }
+                    : undefined
+                }
                 title={
                   u.fallback ? `Missing body art (${u.champ})` : u.champ
                 }
               >
-                {u.champ.slice(0, 3).toUpperCase()}
+                {portrait ? (
+                  <img
+                    src={portrait.src}
+                    alt=""
+                    width={portraitPx}
+                    height={portraitPx}
+                    data-testid={`portrait-${u.id}`}
+                    className="pixelated"
+                    style={{
+                      width: portraitPx,
+                      height: portraitPx,
+                      imageRendering: "pixelated",
+                    }}
+                  />
+                ) : (
+                  u.champ.slice(0, 3).toUpperCase()
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between gap-1">
