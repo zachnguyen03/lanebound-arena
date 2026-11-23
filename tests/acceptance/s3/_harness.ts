@@ -276,6 +276,7 @@ export function configOf(sc: S3Scenario): S3MatchConfig {
     debug_pos: sc.pos ?? false,
     forced_clock_end: sc.forced_clock_end ?? false,
     assert_sanctuary: sc.assert_sanctuary,
+    sim_until: sc.T,
   };
 
   const uo: NonNullable<MatchConfig["unit_overrides"]> = {};

@@ -142,6 +142,11 @@ export interface MatchConfig {
     team: Team;
     fight_id?: string;
   }>;
+  /**
+   * Lab: stop the sim at this time (seconds). Harness sets it from scenario T so
+   * short fixtures can observe MATCH_T without running the full Bo1 ladder.
+   */
+  sim_until?: number;
 }
 
 export interface ScriptedCast {
@@ -203,6 +208,8 @@ export interface UnitState {
   auto_next_start_t: number;
   stats: DummyStats;
   attrs: PlayerAttrs;
+  /** Flank buff expiry sim t (0 if none). +12% dmg / +10% MS while active. */
+  flank_buff_until: number;
   /** Mastery 0–100 for the current champion (default 50 when unset). */
   mastery: number;
   intent: string;
@@ -345,6 +352,9 @@ export interface MatchState {
   data_hash: string;
   score_blue: number;
   score_red: number;
+  /** Kill counts for the §5.8 takedowns ladder (not assists, not claims/ticks). */
+  takedowns_blue: number;
+  takedowns_red: number;
   ended: boolean;
   end_reason: string | null;
   winner: "blue" | "red" | "draw" | null;

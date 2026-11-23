@@ -99,6 +99,7 @@ function bareForGates(partial: Partial<UnitState> = {}): UnitState {
     ai_retreat_suppress_until: 0,
     zone_aura_res: 0,
     walk_from_pad_until: 0,
+    flank_buff_until: 0,
     ai_first_auto_done: false,
   };
   Object.assign(u, partial);

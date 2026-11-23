@@ -38,6 +38,7 @@ import {
   tickStatuses,
 } from "./status.js";
 import { statsAtLevel } from "./stats.js";
+import { evaluateFight } from "./ai/fight.js";
 import { createAiRuntime, tickAi } from "./ai/tick.js";
 import {
   auraActiveFor,
@@ -191,6 +192,7 @@ function makeUnit(
       ms: 3.3,
     },
     attrs: { ...attrs },
+    flank_buff_until: 0,
     mastery,
     intent: "Idle",
     waypoint: null,
@@ -415,6 +417,8 @@ export function simulate(config: MatchConfig): SimulateResult {
     data_hash: dhash,
     score_blue: 0,
     score_red: 0,
+    takedowns_blue: 0,
+    takedowns_red: 0,
     ended: false,
     end_reason: null,
     winner: null,
@@ -464,19 +468,37 @@ export function simulate(config: MatchConfig): SimulateResult {
   }
 
   // Short lab fixtures set MATCH_T via T and leave SUDDEN_DEATH_T at the §15
-  // default (270): stop at MATCH_T. Real §5.8 / Bo1 fixtures override SUDDEN.
+  // default (270): stop at MATCH_T without the clock/ladder (MATCH_T is just the
+  // sim window). Real §5.8 / Bo1 fixtures override SUDDEN. Harness sim_until caps
+  // the run so a T=5 sudden-death probe does not roll into coin_flip.
   const labShort =
     !state.forced_clock_end &&
-    c.MATCH_T < 240 - 1e-9 &&
+    c.MATCH_T < DEFAULT_CONSTANTS.MATCH_T - 1e-9 &&
     Math.abs(c.SUDDEN_DEATH_T - DEFAULT_CONSTANTS.SUDDEN_DEATH_T) < 1e-9;
-  const endT =
-    state.forced_clock_end || labShort ? c.MATCH_T : c.SUDDEN_DEATH_T + c.BO1_EXTRA_S;
+  const ladderEnd = c.SUDDEN_DEATH_T + c.BO1_EXTRA_S;
+  // Scenario T (sim_until) is the run cap when T >= MATCH_T. When T < MATCH_T the
+  // suite is using T as a label and the clocks own the length (e.g. kill@149 with T:8).
+  let endT: number;
+  if (state.forced_clock_end || labShort) {
+    endT = c.MATCH_T;
+  } else if (config.sim_until !== undefined && config.sim_until + 1e-9 >= c.MATCH_T) {
+    endT = Math.min(config.sim_until, ladderEnd);
+  } else {
+    endT = ladderEnd;
+  }
   const maxTick = Math.round(endT / c.DT);
   const ai = config.ai_enabled === true ? createAiRuntime() : null;
   const arena: ArenaRuntime = createArenaRuntime(c);
   let deathThisTick = false;
   /** Fight kill tallies for production claim opens: fight_id → team → kills. */
   const fightKills: Partial<Record<string, { blue: number; red: number }>> = {};
+  /** AI-off S3: track fight geometry for §5.6 claim opens. */
+  const claimFight = {
+    fight_id: null as string | null,
+    fight_seq: 0,
+    prev_geom: false,
+    last_geom_t: -Infinity,
+  };
   let scoredThisTick = false;
 
   // Publish initial S3 public state (unowned zone, pads down until spawn).
@@ -488,10 +510,13 @@ export function simulate(config: MatchConfig): SimulateResult {
     state.t = tOf(tick);
     scoredThisTick = false;
     snapshotLevels(state.units, arena);
-    // Phase label
+    for (const u of state.units) {
+      u.flank_buff_until = arena.buff_until[u.id] ?? 0;
+    }
+    // Phase label — tied at MATCH_T enters sudden_death on that tick (§5.8 L313).
     if (!state.forced_clock_end) {
       if (state.t > c.SUDDEN_DEATH_T + 1e-12) arena.phase = "extra_15";
-      else if (state.t > c.MATCH_T + 1e-12) arena.phase = "sudden_death";
+      else if (state.t + 1e-12 >= c.MATCH_T) arena.phase = "sudden_death";
       else arena.phase = "play";
     }
     const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T - 1e-12;
@@ -544,6 +569,22 @@ export function simulate(config: MatchConfig): SimulateResult {
     // Phase 2: AI decide (Fight Call / peel / Unit Brain). Scripted motor wins per-unit.
     if (ai) {
       tickAi(state, config, c, rng, ai, emit, deathsForAi);
+    } else if (s3Live) {
+      // Lightweight G9 fight track for claim opens when AI is off.
+      const snap = evaluateFight(state.units, c, claimFight.fight_id);
+      if (snap.exists) {
+        claimFight.last_geom_t = state.t;
+        if (!claimFight.fight_id) {
+          claimFight.fight_seq += 1;
+          claimFight.fight_id = `cf${claimFight.fight_seq}`;
+        }
+      } else if (
+        claimFight.fight_id &&
+        state.t - claimFight.last_geom_t >= c.FIGHT_END_GRACE_S - 1e-9
+      ) {
+        claimFight.fight_id = null;
+      }
+      claimFight.prev_geom = snap.exists;
     }
 
     updateScriptedMotor(state, config, c, emit);
@@ -660,6 +701,97 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
+    // 4. Cast — advance in-flight casts first, then start new scripted casts
+    // (so cast_s is full duration; begin tick does not also consume DT).
+    tickCasts(state, pendingLands, c, rng, emit);
+    processScriptedCasts(state, config.scripted_casts, c, emit);
+    pendingLands = landPendingSkills(state, pendingLands, c, rng, emit);
+
+    if (config.scripted_skillshots) {
+      for (const ss of config.scripted_skillshots) {
+        if (ss.tick !== tick) continue;
+        runScriptedSkillshots(state, rng, c, ss, emit);
+      }
+    }
+
+    tickAutos(state, c, rng, missiles, (type, payload) => emit(type, payload));
+    missiles = landMissiles(state, missiles);
+
+    if (config.scripted_damage) {
+      for (const sd of config.scripted_damage) {
+        if (sd.tick !== tick) continue;
+        state.pending_damage.push({
+          seq: state.event_seq,
+          source_id: sd.source_id,
+          target_id: sd.target_id,
+          skill_id: "scripted",
+          raw: sd.raw,
+          physical: true,
+          crit: false,
+        });
+      }
+    }
+
+    if (config.scripted_heals) {
+      for (const h of config.scripted_heals) {
+        if (h.tick !== tick) continue;
+        const tgt = state.units.find((u) => u.id === h.target_id);
+        const src = state.units.find((u) => u.id === h.source_id);
+        if (!tgt || !tgt.alive || !src) continue;
+        tgt.hp = Math.min(tgt.max_hp, tgt.hp + h.amount);
+        recordAssistCredit(tgt, src.id, state.t, "heal");
+        emit("heal", {
+          source_id: src.id,
+          target_id: tgt.id,
+          skill_id: "scripted",
+          raw: h.amount,
+          applied: h.amount,
+          combat_scaled: false,
+        });
+      }
+    }
+
+    // Regen for the elapsed DT lands before this tick's damage (so
+    // post-hit regen spans MATCH_T - hit_t, not an extra DT).
+    // Lab: scripted timestop on this tick also suppresses regen (phase-9 order).
+    const scriptedStop = new Set<UnitId>();
+    if (config.scripted_cc) {
+      for (const sc of config.scripted_cc) {
+        if (sc.tick === tick && sc.kind === "timestop") scriptedStop.add(sc.target_id);
+      }
+    }
+    for (const u of state.units) {
+      if (!u.alive) continue;
+      if (!isTimeStopped(u.status) && !scriptedStop.has(u.id)) {
+        u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
+      }
+    }
+
+    // 5 / phase 8: Damage then heals/shields
+    resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
+    applyPendingHealsShields(state, c, emit);
+
+    // phase 9: new CC that landed this tick
+    applyPendingStatuses(state, c, emit);
+
+    // 6. Status — CC tick (paused under time-stop; timestop itself still ticks)
+    for (const u of state.units) {
+      if (!u.alive) continue;
+      pruneMarks(u.marks, state.t);
+      const paused = isTimeStopped(u.status);
+      const expired = tickStatuses(u.status, c.DT, paused);
+      for (const kind of expired) {
+        emit("status_expire", { target_id: u.id, kind });
+        // Fear walks the unit out of AA range; with autos on, drop the lab
+        // scripted path and chase back so 04-cc "autos resume" can connect.
+        if (kind === "fear" && u.auto_next_start_t < c.MATCH_T - 1e-9) {
+          u.abandon_scripted_motor = true;
+        }
+      }
+    }
+
+    // Lab scripted_cc after duration tick-down so the apply tick is not shortened
+    // (matches §4.3 "tick existing"; production CC still applies in phase 9 above).
     if (config.scripted_cc) {
       for (const sc of config.scripted_cc) {
         if (sc.tick !== tick) continue;
@@ -719,8 +851,6 @@ export function simulate(config: MatchConfig): SimulateResult {
             dr_factor: r.dr_factor,
             lock_taper: r.lock_taper,
           });
-          // Lock / silence / disarm cancel an in-progress auto windup.
-          // Time-stop pauses windups instead (L448) — do not cancel.
           if (
             sc.kind === "silence" ||
             sc.kind === "disarm" ||
@@ -728,88 +858,6 @@ export function simulate(config: MatchConfig): SimulateResult {
           ) {
             cancelAutoWindup(u);
           }
-        }
-      }
-    }
-
-    // 4. Cast — advance in-flight casts first, then start new scripted casts
-    // (so cast_s is full duration; begin tick does not also consume DT).
-    tickCasts(state, pendingLands, c, rng, emit);
-    processScriptedCasts(state, config.scripted_casts, c, emit);
-    pendingLands = landPendingSkills(state, pendingLands, c, rng, emit);
-
-    if (config.scripted_skillshots) {
-      for (const ss of config.scripted_skillshots) {
-        if (ss.tick !== tick) continue;
-        runScriptedSkillshots(state, rng, c, ss, emit);
-      }
-    }
-
-    tickAutos(state, c, rng, missiles, (type, payload) => emit(type, payload));
-    missiles = landMissiles(state, missiles);
-
-    if (config.scripted_damage) {
-      for (const sd of config.scripted_damage) {
-        if (sd.tick !== tick) continue;
-        state.pending_damage.push({
-          seq: state.event_seq,
-          source_id: sd.source_id,
-          target_id: sd.target_id,
-          skill_id: "scripted",
-          raw: sd.raw,
-          physical: true,
-          crit: false,
-        });
-      }
-    }
-
-    if (config.scripted_heals) {
-      for (const h of config.scripted_heals) {
-        if (h.tick !== tick) continue;
-        const tgt = state.units.find((u) => u.id === h.target_id);
-        const src = state.units.find((u) => u.id === h.source_id);
-        if (!tgt || !tgt.alive || !src) continue;
-        tgt.hp = Math.min(tgt.max_hp, tgt.hp + h.amount);
-        recordAssistCredit(tgt, src.id, state.t, "heal");
-        emit("heal", {
-          source_id: src.id,
-          target_id: tgt.id,
-          skill_id: "scripted",
-          raw: h.amount,
-          applied: h.amount,
-          combat_scaled: false,
-        });
-      }
-    }
-
-    // Regen for the elapsed DT lands before this tick's damage (so
-    // post-hit regen spans MATCH_T - hit_t, not an extra DT).
-    for (const u of state.units) {
-      if (!u.alive) continue;
-      if (!isTimeStopped(u.status)) {
-        u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
-      }
-    }
-
-    // 5 / phase 8: Damage then heals/shields
-    resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
-    applyPendingHealsShields(state, c, emit);
-
-    // phase 9: new CC that landed this tick
-    applyPendingStatuses(state, c, emit);
-
-    // 6. Status — CC tick (paused under time-stop; timestop itself still ticks)
-    for (const u of state.units) {
-      if (!u.alive) continue;
-      pruneMarks(u.marks, state.t);
-      const paused = isTimeStopped(u.status);
-      const expired = tickStatuses(u.status, c.DT, paused);
-      for (const kind of expired) {
-        emit("status_expire", { target_id: u.id, kind });
-        // Fear walks the unit out of AA range; with autos on, drop the lab
-        // scripted path and chase back so 04-cc "autos resume" can connect.
-        if (kind === "fear" && u.auto_next_start_t < c.MATCH_T - 1e-9) {
-          u.abandon_scripted_motor = true;
         }
       }
     }
@@ -867,18 +915,25 @@ export function simulate(config: MatchConfig): SimulateResult {
           }
           if (s3Live) {
             // Team takedown score +1 (S3); log before phase-11 score events.
-            if (killer.team === "blue") state.score_blue += 1;
-            else state.score_red += 1;
+            if (killer.team === "blue") {
+              state.score_blue += 1;
+              state.takedowns_blue += 1;
+            } else {
+              state.score_red += 1;
+              state.takedowns_red += 1;
+            }
             scoredThisTick = true;
             emit("takedown_score", {
               team: killer.team,
               victim_id: u.id,
+              killer_id: killer.id,
               score_after: killer.team === "blue" ? state.score_blue : state.score_red,
             });
-            if (ai?.fight_id) {
-              const fk = fightKills[ai.fight_id] ?? { blue: 0, red: 0 };
+            const fid = ai?.fight_id ?? claimFight.fight_id;
+            if (fid) {
+              const fk = fightKills[fid] ?? { blue: 0, red: 0 };
               fk[killer.team] += 1;
-              fightKills[ai.fight_id] = fk;
+              fightKills[fid] = fk;
             }
           }
         }
@@ -917,7 +972,8 @@ export function simulate(config: MatchConfig): SimulateResult {
       if (ar.scored) scoredThisTick = true;
       applyLevelUps(state, c, emit);
 
-      if (ai && ai.prev_geom_fight === false) {
+      const inFight = ai ? ai.prev_geom_fight : claimFight.prev_geom;
+      if (!inFight) {
         for (const fid of Object.keys(fightKills)) {
           const fk = fightKills[fid];
           if (!fk) continue;
@@ -935,7 +991,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     if (clockEndFlag) {
       endMatch(state, emit, "clock");
     } else if (s3Live) {
-      decideMatchEnd(state, arena, c, rng, emit, scoredThisTick);
+      decideMatchEnd(state, arena, c, rng, emit, scoredThisTick, labShort);
     }
   }
 
@@ -1030,11 +1086,11 @@ function decideMatchEnd(
   rng: RngBank,
   emit: (type: string, payload: Record<string, unknown>) => void,
   scoredThisTick: boolean,
+  labShort: boolean,
 ): void {
   if (state.ended) return;
   const sb = state.score_blue;
   const sr = state.score_red;
-  const lead = sb !== sr;
   const ahead: "blue" | "red" | null = sb > sr ? "blue" : sr > sb ? "red" : null;
 
   // (1) first_to_10 — strictly ahead and ≥ SCORE_TO_WIN (S3-R5-10)
@@ -1046,6 +1102,9 @@ function decideMatchEnd(
     return;
   }
 
+  // Lab short windows use MATCH_T as a stop time only — no clock/ladder/coin.
+  if (labShort) return;
+
   // (2) 4:00 clock and 4:30 ladder
   if (Math.abs(state.t - c.MATCH_T) <= 1e-12) {
     if (ahead) {
@@ -1056,16 +1115,17 @@ function decideMatchEnd(
   }
 
   if (Math.abs(state.t - c.SUDDEN_DEATH_T) <= 1e-12) {
-    // Ladder once at 270.0: zone_time then takedowns
+    // Ladder once at 270.0: zone_time then takedowns (kills, not score)
     const zb = arena.zone.control_time_ticks.blue;
     const zr = arena.zone.control_time_ticks.red;
     if (zb !== zr) {
       endMatch(state, emit, "zone_time", zb > zr ? "blue" : "red");
       return;
     }
-    // takedowns = score from kills; scores still tied here if we reached ladder
-    if (ahead) {
-      endMatch(state, emit, "takedowns", ahead);
+    const tb = state.takedowns_blue;
+    const tr = state.takedowns_red;
+    if (tb !== tr) {
+      endMatch(state, emit, "takedowns", tb > tr ? "blue" : "red");
       return;
     }
     // else enter extra_15
