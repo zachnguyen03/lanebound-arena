@@ -2,7 +2,7 @@
 
 **Branch:** `s5`  
 **Base:** `cursor/s4-watch-f8c1` @ `e427530ed56e8a8d53939922460168332f28c562`  
-**Tip:** see `git rev-parse HEAD` on branch `s5` (implementation landed in `44c9174`; this file may trail by a docs commit).  
+**Tip:** `08accd6374d07e26d3b2021e555c2662b5683ffd` (`08accd6`)  
 
 **Date:** 23 Nov 2026  
 
