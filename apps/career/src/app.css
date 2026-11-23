@@ -6,8 +6,9 @@ button.tab { background: transparent; color: inherit; border: 0; font: inherit; 
 .wrap { padding: 20px 24px; display: grid; gap: 16px; height: calc(100vh - 56px); overflow: auto; align-content: start; }
 .wrap > .card { min-height: auto; }
 .wrap h2, .wrap h3, .wrap p { margin: 0; }
-.top .word { width: auto; padding: 0 12px; }
-.hero { position: relative; min-height: 180px; background: var(--c-panel); border: 1px solid var(--c-line); display: grid; grid-template-columns: 1fr 280px 1fr; }
+.hero { position: relative; min-height: 120px; background: var(--c-panel); border: 1px solid var(--c-line); display: grid; grid-template-columns: 1fr 280px 1fr; }
+.hero .side { padding: 16px 24px; }
+.hero .crest { width: 56px; height: 56px; font-size: 16px; }
 .side { display: flex; align-items: center; gap: 20px; padding: 24px 36px; }
 .side.r { flex-direction: row-reverse; text-align: right; }
 .tname { font-size: 36px; line-height: 1; }
@@ -20,9 +21,30 @@ button.tab { background: transparent; color: inherit; border: 0; font: inherit; 
 .clubpick.on { outline: 2px solid var(--c-action); }
 .menu { height: 100vh; display: grid; place-items: center; }
 .menu .card { width: 420px; padding: 28px; display: grid; gap: 12px; }
-.crest { width: 72px; height: 72px; display: grid; place-items: center; background: var(--c-blue); color: var(--c-field); font-family: var(--f-display); font-weight: 700; font-size: 22px; }
+.crest { width: 72px; height: 72px; display: grid; place-items: center; background: var(--c-panel-2); color: var(--c-text); border: 1px solid var(--c-line-2); font-family: var(--f-display); font-weight: 700; font-size: 22px; }
 .crest.sm { width: 28px; height: 28px; font-size: 11px; }
-.cut td { border-top: 1px dashed var(--c-line-2); }
+.crest.xs { width: 18px; height: 18px; font-size: 9px; }
+.crest.blue { background: var(--c-blue); color: var(--c-on-blue); border-color: transparent; }
+.crest.red { background: var(--c-red); color: var(--c-field); border-color: transparent; }
+.board tr.cut td { box-shadow: inset 0 2px 0 var(--c-line-2); }
+.board tr.me td:first-child { box-shadow: inset 3px 0 var(--c-action); }
+.board tr.cut.me td:first-child { box-shadow: inset 3px 0 var(--c-action), inset 0 2px 0 var(--c-line-2); }
+button:disabled { opacity: 0.45; }
+.board td, .board th { padding-top: 5px; padding-bottom: 5px; }
+.rolecol { width: 90px; }
+.wrap.pick { gap: 8px; }
+.pickbar { display: flex; justify-content: flex-end; }
+.clubpick.rec { outline: 2px solid var(--c-line-2); }
+.clubpick.on { outline: 2px solid var(--c-action); }
+.next3 { display: grid; align-content: center; gap: 8px; padding: 16px 24px; }
+.subtabs button { background: transparent; color: var(--c-dim); border: 0; font: inherit; cursor: pointer; padding: 0; height: 100%; display: flex; align-items: center; position: relative; }
+.subtabs button.on { color: var(--c-text); }
+.subtabs button.on:after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--c-action); }
+.bracket { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 12px; align-items: stretch; }
+.semis { display: grid; gap: 16px; align-content: center; }
+.bridge { border-top: 1px solid var(--c-line-2); border-bottom: 1px solid var(--c-line-2); border-right: 1px solid var(--c-line-2); margin: 28px 0; }
+.card.now { border-color: var(--c-line-2); }
+.days { display: grid; gap: 12px; }
 .overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--c-field) 72%, transparent); display: grid; place-items: center; z-index: 20; }
 .overlay .card { width: min(520px, calc(100vw - 48px)); padding: 24px; display: grid; gap: 12px; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -33,7 +55,6 @@ button.tab { background: transparent; color: inherit; border: 0; font: inherit; 
 .faces img { width: 100%; height: auto; display: block; }
 .sub { display: flex; gap: 8px; }
 .sub button.on { background: var(--c-panel-2); }
-.bracket { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .match { border: 1px solid var(--c-line); padding: 12px; display: grid; gap: 6px; }
 .warn { color: var(--c-warn); }
 .good { color: var(--c-good); }

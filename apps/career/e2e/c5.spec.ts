@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "playwright/test";
+import { expectHeaderFits } from "./header";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -10,6 +11,7 @@ test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a rep
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Start career" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Hunt", exact: true })).toBeVisible();
@@ -85,14 +87,10 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
 test("overlays leave their controls on top", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await enter(page);
-  const date = page.locator(".date");
-  const dateBox = await date.boundingBox();
-  expect(dateBox).not.toBeNull();
-  const dateHit = await page.evaluate(({ x, y }) => {
-    const el = document.elementFromPoint(x, y);
-    return el ? el.closest(".date") !== null : false;
-  }, { x: dateBox!.x + dateBox!.width / 2, y: dateBox!.y + dateBox!.height / 2 });
-  expect(dateHit).toBe(true);
+  await expectHeaderFits(page);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expectHeaderFits(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByRole("button", { name: "Settings" }).click();
   await expect(page.locator('[data-overlay="settings"]')).toBeVisible();
   await expectNoOverlap(page, "settings");
@@ -110,6 +108,7 @@ test("overlays leave their controls on top", async ({ page }) => {
 async function enter(page: Page) {
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Start career" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeVisible();
 }

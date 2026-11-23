@@ -14,6 +14,7 @@ import {
 } from "@lanebound/career";
 import { useEffect, useState } from "react";
 import { MatchDeck } from "./match";
+import { clubPromise } from "./promises";
 import { readSave, writeSave } from "./save";
 import { Button } from "./ui/button";
 
@@ -23,7 +24,7 @@ type View =
   | { kind: "session"; session: CareerSession }
   | { kind: "season"; save: CareerSave };
 
-const DIFFICULTY = { favourite: "Favourite", mid: "Mid-table", underdog: "Underdog" } as const;
+const DIFFICULTY = { favourite: "Favourite", mid: "Mid", underdog: "Underdog" } as const;
 const ROLE = { top: "Top", jungle: "Jungle", mid: "Mid", adc: "ADC", support: "Support" } as const;
 
 function clubName(clubs: readonly Club[], id: string): string {
@@ -36,6 +37,7 @@ function clubTag(clubs: readonly Club[], id: string): string {
 
 export function CareerApp() {
   const [screen, setScreen] = useState<Screen>("menu");
+  const [picked, setPicked] = useState<string | null>(null);
   const [view, setView] = useState<View | null>(null);
   const [hasSave, setHasSave] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -101,6 +103,14 @@ export function CareerApp() {
   const contracts = view?.kind === "session" ? view.session.contracts : view?.save.contracts ?? [];
   const mine = clubs.find((club) => club.id === playerId);
   const session = view?.kind === "session" ? view.session : null;
+  const played = new Set(
+    (session ? session.series : view?.kind === "season" ? view.save.series : []).map((item) => item.fixture_id).filter((id): id is string => typeof id === "string"),
+  );
+  const nextFixture = session
+    ? session.schedule.find((fixture) => fixture.id === session.open_fixture_id) ?? session.schedule.find((fixture) => !played.has(fixture.id))
+    : undefined;
+  const dayLabel = nextFixture ? `Matchday ${nextFixture.matchday}` : view ? "Season complete" : "Matchday 1";
+  const saveSummary = mine && view ? `${mine.name} · ${dayLabel}` : null;
 
   if (!ready) {
     return (
@@ -135,11 +145,14 @@ export function CareerApp() {
             </button>
           </div>
           <div className="sp" />
-          <button className="icon-btn word" aria-label="Settings" onClick={() => setSettings(true)}>
-            Settings
+          <button className="icon-btn" aria-label="Settings" onClick={() => setSettings(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" />
+            </svg>
           </button>
           <div className="date">
-            Matchday 1 · <b>Bound Circuit</b>
+            {dayLabel} · <b>Bound Circuit</b>
           </div>
           <Button variant="primary" onClick={() => setScreen("prep")}>
             Continue ▸
@@ -151,10 +164,11 @@ export function CareerApp() {
         <main className="menu" data-screen="menu">
           <div className="card">
             <div className="disp tname">Lanebound</div>
-            <p className="note">Bound Circuit. One club. This machine.</p>
+            <p className="note">Bound Circuit</p>
             <Button variant="primary" disabled={!hasSave} onClick={() => hasSave && setScreen("home")}>
               Continue ▸
             </Button>
+            {hasSave && saveSummary ? <p className="note">{saveSummary}</p> : null}
             <Button
               variant="secondary"
               onClick={() => {
@@ -168,17 +182,20 @@ export function CareerApp() {
       ) : null}
 
       {screen === "pick" ? (
-        <main className="wrap" data-screen="pick">
+        <main className="wrap pick" data-screen="pick">
           <div className="ch">
             <h2 className="disp">Choose a club</h2>
             <span className="meta">Eight clubs. Juniper Rush is the recommended first save.</span>
           </div>
           <div className="clubs">
-            {clubs.length === 0
-              ? startCareer("juniper-rush").clubs.map((club) => (
-                  <ClubCard key={club.id} club={club} onPick={() => start(club.id)} />
-                ))
-              : clubs.map((club) => <ClubCard key={club.id} club={club} onPick={() => start(club.id)} />)}
+            {(clubs.length === 0 ? startCareer("juniper-rush").clubs : clubs).map((club) => (
+              <ClubCard key={club.id} club={club} selected={picked === club.id} onPick={() => setPicked(club.id)} />
+            ))}
+          </div>
+          <div className="pickbar">
+            <Button variant="primary" disabled={!picked} onClick={() => picked && start(picked)}>
+              Start career
+            </Button>
           </div>
         </main>
       ) : null}
@@ -194,45 +211,68 @@ export function CareerApp() {
 
       {screen === "home" && mine ? (
         <main className="wrap" data-screen="home">
-          <Home clubs={clubs} mine={mine} fixtures={fixtures} standings={standings} players={players} />
+          <Home clubs={clubs} mine={mine} fixtures={fixtures} standings={standings} players={players} played={played} />
         </main>
       ) : null}
 
       {screen === "players" || screen === "lineup" || screen === "contracts" ? (
         <main className="wrap" data-screen={screen}>
-          <div className="sub">
-            <Button variant="ghost" className={screen === "players" ? "on" : ""} onClick={() => setScreen("players")}>
-              Players
-            </Button>
-            <Button variant="ghost" className={screen === "lineup" ? "on" : ""} onClick={() => setScreen("lineup")}>
-              Lineup
-            </Button>
-            <Button variant="ghost" className={screen === "contracts" ? "on" : ""} onClick={() => setScreen("contracts")}>
-              Contracts
-            </Button>
-          </div>
+          <SubTabs
+            current={screen}
+            onPick={setScreen}
+            tabs={[
+              { id: "players", label: "Players" },
+              { id: "lineup", label: "Lineup" },
+              { id: "contracts", label: "Contracts" },
+            ]}
+          />
           {screen === "players" ? <Players clubs={clubs} players={players} clubId={playerId} /> : null}
           {screen === "lineup" ? <Lineup players={players} clubId={playerId} /> : null}
-          {screen === "contracts" ? <Contracts players={players} contracts={contracts} clubId={playerId} /> : null}
+          {screen === "contracts" ? (
+            <Contracts players={players} contracts={contracts} clubId={playerId} seasonIndex={session ? (session.advanced ? 2 : 1) : 2} />
+          ) : null}
         </main>
       ) : null}
 
-      {screen === "league" || screen === "bracket" || screen === "fixtures" ? (
+      {screen === "league" || screen === "bracket" || screen === "fixtures" || screen === "awards" ? (
         <main className="wrap" data-screen={screen}>
-          <div className="sub">
-            <Button variant="ghost" className={screen === "league" ? "on" : ""} onClick={() => setScreen("league")}>
-              League
-            </Button>
-            <Button variant="ghost" className={screen === "bracket" ? "on" : ""} onClick={() => setScreen("bracket")}>
-              Bracket
-            </Button>
-            <Button variant="ghost" className={screen === "fixtures" ? "on" : ""} onClick={() => setScreen("fixtures")}>
-              Fixtures
-            </Button>
-          </div>
-          {screen === "league" ? <League clubs={clubs} standings={standings} mine={playerId} /> : null}
+          <SubTabs
+            current={screen}
+            onPick={setScreen}
+            tabs={[
+              { id: "league", label: "League" },
+              { id: "bracket", label: "Bracket" },
+              { id: "fixtures", label: "Fixtures" },
+              { id: "awards", label: "Awards" },
+            ]}
+          />
+          {screen === "league" ? (
+            <section className="card">
+              <div className="ch">
+                <h3>Bound Circuit</h3>
+                <span className="meta">Top 4 to the bracket</span>
+              </div>
+              <League clubs={clubs} standings={standings} mine={playerId} />
+            </section>
+          ) : null}
           {screen === "bracket" ? <Bracket clubs={clubs} playoff={playoff} /> : null}
-          {screen === "fixtures" ? <Fixtures clubs={clubs} fixtures={fixtures} playoff={playoff} /> : null}
+          {screen === "fixtures" ? (
+            <Fixtures clubs={clubs} fixtures={fixtures} playoff={playoff} mine={playerId} played={played} />
+          ) : null}
+          {screen === "awards" ? (
+            <Awards
+              awards={session ? session.awards : view?.kind === "season" ? view.save.awards : []}
+              players={players}
+              clubs={clubs}
+              series={session ? session.series : view?.kind === "season" ? view.save.series : []}
+              advanced={session?.advanced ?? true}
+              canAdvance={Boolean(session && session.awards.length > 0 && !session.pending_signature && !session.advanced)}
+              onAdvance={() => {
+                if (!session) return;
+                setView({ kind: "session", session: advanceSeason(session) });
+              }}
+            />
+          ) : null}
         </main>
       ) : null}
 
@@ -285,6 +325,27 @@ export function CareerApp() {
         </div>
       ) : null}
 
+      {session?.pending_signature ? (
+        <div className="overlay" data-overlay="signature" data-composed="signature-choice">
+          <div className="card">
+            <h2 className="disp">Signature</h2>
+            <p>
+              {players.find((player) => player.id === session.pending_signature?.player_id)?.name} holds{" "}
+              <b data-testid="held-signature">{arenaCard(session.pending_signature.held)?.name}</b>.{" "}
+              {arenaCard(session.pending_signature.incoming)?.name} is offered.
+            </p>
+            <div className="row">
+              <Button variant="primary" onClick={() => setView({ kind: "session", session: chooseSignature(session, "keep") })}>
+                Keep
+              </Button>
+              <Button variant="secondary" onClick={() => setView({ kind: "session", session: chooseSignature(session, "replace") })}>
+                Replace
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {rejected !== null ? (
         <div className="overlay" data-screen="state-error-save" data-overlay="error">
           <div className="card">
@@ -325,18 +386,40 @@ export function CareerApp() {
   );
 }
 
-function ClubCard({ club, onPick }: { club: Club; onPick: () => void }) {
+function ClubCard({ club, selected, onPick }: { club: Club; selected: boolean; onPick: () => void }) {
+  const promise = clubPromise(club.id);
   return (
     <button
-      className={club.recommended_first_save ? "card clubpick on" : "card clubpick"}
+      className={`card clubpick${club.recommended_first_save ? " rec" : ""}${selected ? " on" : ""}`}
       data-testid={`club-${club.id}`}
       onClick={onPick}
     >
       <div className="crest sm">{club.tag}</div>
       <div className="pn">{club.name}</div>
-      <div className="note">{DIFFICULTY[club.difficulty]}</div>
+      <div className="pill">{DIFFICULTY[club.difficulty]}</div>
+      {promise ? <div className="note">{promise}</div> : null}
       {club.recommended_first_save ? <div className="caps">Recommended</div> : null}
     </button>
+  );
+}
+
+function SubTabs({
+  tabs,
+  current,
+  onPick,
+}: {
+  tabs: readonly { id: Screen; label: string }[];
+  current: Screen;
+  onPick: (id: Screen) => void;
+}) {
+  return (
+    <div className="subtabs">
+      {tabs.map((tab) => (
+        <button key={tab.id} type="button" className={current === tab.id ? "on" : ""} onClick={() => onPick(tab.id)}>
+          {tab.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -346,34 +429,50 @@ function Home({
   fixtures,
   standings,
   players,
+  played,
 }: {
   clubs: readonly Club[];
   mine: Club;
   fixtures: CareerSession["fixtures"];
   standings: CareerSession["standings"];
   players: CareerSession["players"];
+  played: Set<string>;
 }) {
-  const next = fixtures.find((fixture) => fixture.team_ids.includes(mine.id));
-  const opponent = next?.team_ids.find((id) => id !== mine.id);
+  const upcoming = fixtures.filter((fixture) => fixture.team_ids.includes(mine.id) && !played.has(fixture.id)).slice(0, 3);
+  const next = upcoming[0];
+  const side = next && next.team_ids[0] === mine.id ? "Blue" : "Red";
   const starters = selectStarters(players, mine.id);
   return (
     <>
       <section className="hero">
         <div className="side">
-          <div className="crest">{mine.tag}</div>
+          <div className={next ? `crest ${side === "Blue" ? "blue" : "red"}` : "crest"}>{mine.tag}</div>
           <div>
             <div className="disp tname">{mine.name}</div>
             <div className="note">{DIFFICULTY[mine.difficulty]}</div>
           </div>
         </div>
         <div className="mid">
-          <div className="kick">{next ? `Matchday ${next.matchday} · Best of 3` : "Bound Circuit"}</div>
+          <div className="kick">{next ? "Best of 3" : "Bound Circuit"}</div>
           <div className="disp vs">VS</div>
-          <div className="note">{opponent ? clubName(clubs, opponent) : "Fixture pending"}</div>
+          <div className="note">{next ? `Matchday ${next.matchday} · ${side} side` : "Fixture pending"}</div>
         </div>
-        <div className="side r">
-          <div className="crest">{opponent ? clubTag(clubs, opponent) : "—"}</div>
-          <div className="disp tname">{opponent ? clubName(clubs, opponent) : ""}</div>
+        <div className="next3">
+          <div className="caps">Next fixtures</div>
+          {upcoming.map((fixture) => {
+            const opponent = fixture.team_ids.find((id) => id !== mine.id) ?? fixture.team_ids[1];
+            const ours = fixture.team_ids[0] === mine.id ? "blue" : "red";
+            const theirs = ours === "blue" ? "red" : "blue";
+            return (
+              <div className="tm" key={fixture.id}>
+                <span className="dim">MD {fixture.matchday}</span>
+                <span className={`crest xs ${ours}`}>{mine.tag}</span>
+                <span className="dim">vs</span>
+                <span className={`crest xs ${theirs}`}>{clubTag(clubs, opponent)}</span>
+                <span>{clubTag(clubs, opponent)}</span>
+              </div>
+            );
+          })}
         </div>
       </section>
       <div className="grid3">
@@ -413,20 +512,19 @@ function League({
 }) {
   const rows = [...standings].sort((a, b) => a.finish - b.finish);
   return (
-    <table data-testid="league-table">
+    <table className="board" data-testid="league-table">
       <tbody>
         <tr>
-          <th>#</th>
           <th>Team</th>
           <th className="n">W–L</th>
           <th className="n">Diff</th>
         </tr>
         {rows.map((row) => (
-          <tr key={row.club_id} className={row.finish === 5 ? "cut" : row.club_id === mine ? "me" : ""}>
-            <td className="n">{row.finish}</td>
+          <tr key={row.club_id} className={[row.finish === 5 ? "cut" : "", row.club_id === mine ? "me" : ""].filter(Boolean).join(" ")}>
             <td>
               <span className="tm">
-                <span className="crest sm">{clubTag(clubs, row.club_id)}</span>
+                <span className="mono">{row.finish}</span>
+                <span className="crest xs">{clubTag(clubs, row.club_id)}</span>
                 {clubName(clubs, row.club_id)}
               </span>
             </td>
@@ -447,25 +545,34 @@ function Bracket({ clubs, playoff }: { clubs: readonly Club[]; playoff: CareerSe
     ["Seed 2", "Seed 3"],
   ];
   return (
-    <div className="bracket" data-testid="bracket">
-      {slots.map((pair, index) => {
-        const fixture = playoff[index];
-        const left = fixture ? clubName(clubs, fixture.team_ids[0]) : pair[0];
-        const right = fixture ? clubName(clubs, fixture.team_ids[1]) : pair[1];
-        return (
-          <div className="match" key={pair.join()}>
-            <div className="caps">{index === 0 ? "Semifinal · 1 vs 4" : "Semifinal · 2 vs 3"}</div>
-            <div>{left}</div>
-            <div className="dim">vs</div>
-            <div>{right}</div>
+    <div data-testid="bracket">
+      <div className="bracket">
+        <div className="semis">
+          {slots.map((pair, index) => {
+            const fixture = playoff[index];
+            const left = fixture ? clubName(clubs, fixture.team_ids[0]) : pair[0];
+            const right = fixture ? clubName(clubs, fixture.team_ids[1]) : pair[1];
+            return (
+              <div className="match" key={pair.join()}>
+                <div className="caps">
+                  {index === 0 ? "Semifinal · 1 vs 4" : "Semifinal · 2 vs 3"} <span className="pill">Bo5</span>
+                </div>
+                <div>{left}</div>
+                <div className="dim">vs</div>
+                <div>{right}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="bridge" />
+        <div className="match">
+          <div className="caps">
+            Final <span className="pill">Bo5</span>
           </div>
-        );
-      })}
-      <div className="match">
-        <div className="caps">Final</div>
-        <div>{playoff[2] ? clubName(clubs, playoff[2].team_ids[0]) : "Winner of 1 vs 4"}</div>
-        <div className="dim">vs</div>
-        <div>{playoff[2] ? clubName(clubs, playoff[2].team_ids[1]) : "Winner of 2 vs 3"}</div>
+          <div>{playoff[2] ? clubName(clubs, playoff[2].team_ids[0]) : "Winner of 1 vs 4"}</div>
+          <div className="dim">vs</div>
+          <div>{playoff[2] ? clubName(clubs, playoff[2].team_ids[1]) : "Winner of 2 vs 3"}</div>
+        </div>
       </div>
       {playoff.length === 0 ? <p className="note">Clubs are named after matchday 7.</p> : null}
     </div>
@@ -476,29 +583,44 @@ function Fixtures({
   clubs,
   fixtures,
   playoff,
+  mine,
+  played,
 }: {
   clubs: readonly Club[];
   fixtures: CareerSession["fixtures"];
   playoff: CareerSession["playoff"];
+  mine: string;
+  played: Set<string>;
 }) {
   const days = [1, 2, 3, 4, 5, 6, 7];
+  const current = fixtures.find((fixture) => !played.has(fixture.id))?.matchday ?? 1;
   return (
-    <div data-testid="fixtures">
+    <div className="days" data-testid="fixtures">
       {days.map((day) => (
-        <section className="card" key={day} style={{ marginBottom: 12 }}>
+        <section className={day === current ? "card now" : "card"} key={day}>
           <div className="ch">
             <h3>Matchday {day}</h3>
-            <span className="meta">Best of 3</span>
+            {day === current ? <span className="pill">Next</span> : <span className="meta">Best of 3</span>}
           </div>
-          {fixtures
-            .filter((fixture) => fixture.matchday === day)
-            .map((fixture) => (
-              <div className="dec" key={fixture.id}>
-                <b>
-                  {clubName(clubs, fixture.team_ids[0])} vs {clubName(clubs, fixture.team_ids[1])}
-                </b>
-              </div>
-            ))}
+          <table>
+            <tbody>
+              {fixtures
+                .filter((fixture) => fixture.matchday === day)
+                .map((fixture) => (
+                  <tr key={fixture.id} className={fixture.team_ids.includes(mine) ? "me" : ""}>
+                    <td>
+                      <span className="tm">
+                        <span className="crest xs blue">{clubTag(clubs, fixture.team_ids[0])}</span>
+                        <span>{clubTag(clubs, fixture.team_ids[0])}</span>
+                        <span className="dim">vs</span>
+                        <span className="crest xs red">{clubTag(clubs, fixture.team_ids[1])}</span>
+                        <span>{clubTag(clubs, fixture.team_ids[1])}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </section>
       ))}
       <p className="note">
@@ -531,19 +653,96 @@ function Players({
       <table>
         <tbody>
           <tr>
-            <th>Role</th>
+            <th className="rolecol">Role</th>
             <th>Player</th>
             <th className="n">OVR</th>
           </tr>
           {roster.map((player) => (
-            <tr key={player.id}>
-              <td>{ROLE[player.primary_slot]}</td>
+            <tr key={player.id} className="me">
+              <td className="rolecol">{ROLE[player.primary_slot]}</td>
               <td>{player.name}</td>
               <td className="n">{player.ovr}</td>
+              <td data-testid={`signature-${player.id}`}>{arenaCard(player.signature_archive[0] ?? "")?.name ?? ""}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <section className="card" data-composed="split-stub">
+        <div className="ch">
+          <h3>Training focus</h3>
+        </div>
+        <p className="note">Opens after the first Split</p>
+      </section>
+    </section>
+  );
+}
+
+const AWARD_NAME = {
+  split_mvp: "Split MVP",
+  finals_mvp: "Finals MVP",
+  zonekeeper: "Zonekeeper",
+  deadeye: "Deadeye",
+  shepherd: "Shepherd",
+} as const;
+
+function Awards({
+  awards,
+  players,
+  clubs,
+  series,
+  advanced,
+  canAdvance,
+  onAdvance,
+}: {
+  awards: CareerSession["awards"];
+  players: CareerSession["players"];
+  clubs: readonly Club[];
+  series: CareerSession["series"];
+  advanced: boolean;
+  canAdvance: boolean;
+  onAdvance: () => void;
+}) {
+  if (awards.length === 0) {
+    return (
+      <section className="empty" data-screen="state-empty-awards" data-testid="awards-empty">
+        <div className="caps">Not announced yet</div>
+        <p>Awards come after the final.</p>
+        <p className="note">Split MVP, Finals MVP, Zonekeeper, Deadeye, and Shepherd.</p>
+      </section>
+    );
+  }
+  const final = series.find((item) => item.stage === "final");
+  const winner = clubs.find((club) => club.id === final?.winner_team_id);
+  const blue = clubs.find((club) => club.id === final?.team_ids[0]);
+  const red = clubs.find((club) => club.id === final?.team_ids[1]);
+  return (
+    <section className="card" data-testid="awards" data-screen="awards">
+      <div className="ch">
+        <h3>Awards</h3>
+        <span className="meta">{winner ? `${winner.name} won the final` : ""}</span>
+      </div>
+      {final && blue && red ? (
+        <p className="note">
+          {blue.name} {final.series_score[0]}–{final.series_score[1]} {red.name}
+        </p>
+      ) : null}
+      {awards.map((award) => {
+        const player = players.find((item) => item.id === award.player_id);
+        return (
+          <div className="dec" key={award.kind}>
+            <b>
+              {AWARD_NAME[award.kind]} · {player?.name}
+            </b>
+            <div className="d">{clubName(clubs, player?.club_id ?? "")}</div>
+          </div>
+        );
+      })}
+      {canAdvance ? (
+        <Button variant="primary" data-testid="advance-season" onClick={onAdvance}>
+          Advance season
+        </Button>
+      ) : null}
+      {advanced ? <p className="note">Contracts carried into next season.</p> : null}
     </section>
   );
 }
@@ -580,10 +779,12 @@ function Contracts({
   players,
   contracts,
   clubId,
+  seasonIndex,
 }: {
   players: CareerSession["players"];
   contracts: CareerSession["contracts"];
   clubId: string;
+  seasonIndex: number;
 }) {
   const ids = new Set(players.filter((player) => player.club_id === clubId).map((player) => player.id));
   const rows = contracts.filter((contract) => ids.has(contract.player_id));
@@ -596,6 +797,7 @@ function Contracts({
       <table>
         <tbody>
           <tr>
+            <th className="rolecol">Role</th>
             <th>Player</th>
             <th className="n">Years left</th>
             <th>Expiry</th>
@@ -603,10 +805,11 @@ function Contracts({
           {rows.map((contract) => {
             const player = players.find((item) => item.id === contract.player_id);
             return (
-              <tr key={contract.player_id}>
+              <tr key={contract.player_id} className="me">
+                <td className="rolecol">{player ? ROLE[player.primary_slot] : ""}</td>
                 <td>{player?.name}</td>
                 <td className="n">{contract.years_left}</td>
-                <td>{contract.years_left === 1 ? "Expires after this season" : `Expires in ${contract.years_left} seasons`}</td>
+                <td>End of S{seasonIndex + contract.years_left - 1}</td>
               </tr>
             );
           })}

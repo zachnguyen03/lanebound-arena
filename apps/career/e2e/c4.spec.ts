@@ -1,4 +1,16 @@
 import { expect, test } from "playwright/test";
+import { expectHeaderFits } from "./header";
+
+const PROMISE: Record<string, string> = {
+  "iron-lotus": "Win this year, or close.",
+  "hanok-wolves": "Contend from day one, with Neon Tide in the way.",
+  "neon-tide": "A title team, if you can get past the Wolves.",
+  "vanta-owls": "Close to the top. Beat Iron Lotus and people listen.",
+  "juniper-rush": "Build toward a title in three to five seasons.",
+  "sable-comets": "A steady climb, with Juniper Rush as the yardstick.",
+  glasswing: "A long climb. Start by beating Kestrel Row.",
+  "kestrel-row": "A long climb, first title around season six or seven.",
+};
 
 const CLUBS = [
   ["iron-lotus", "Iron Lotus"],
@@ -19,6 +31,7 @@ async function enter(page: import("playwright").Page) {
   }
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Start career" }).click();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -29,10 +42,14 @@ test.beforeEach(async ({ page }) => {
 
 test("eight clubs, Juniper highlighted, table, fixtures, save and reload", async ({ page }) => {
   await page.getByRole("button", { name: "New career" }).click();
-  await expect(page.getByTestId("club-juniper-rush")).toHaveClass(/on/);
+  await expect(page.getByTestId("club-juniper-rush")).toHaveClass(/rec/);
   await expect(page.getByTestId("club-juniper-rush")).toContainText("Recommended");
+  await expect(page.getByTestId("club-juniper-rush")).toContainText("Build toward a title in three to five seasons.");
+  await expect(page.getByRole("button", { name: "Start career" })).toBeDisabled();
   for (const [id, name] of CLUBS) {
     await page.getByTestId(`club-${id}`).click();
+    await expect(page.getByTestId(`club-${id}`)).toContainText(PROMISE[id]);
+    await page.getByRole("button", { name: "Start career" }).click();
     await expect(page.getByTestId("league-table").getByRole("row")).toHaveCount(9);
     await expect(page.getByText("Top 4 to the bracket")).toBeVisible();
     await page.getByRole("button", { name: "Competitions" }).click();
@@ -61,6 +78,7 @@ test("screens at the three desktop widths", async ({ page }) => {
       open: async () => {
         await page.getByRole("button", { name: "New career" }).click();
         await page.getByTestId("club-juniper-rush").click();
+        await page.getByRole("button", { name: "Start career" }).click();
       },
     },
     {
@@ -111,6 +129,7 @@ test("screens at the three desktop widths", async ({ page }) => {
     for (const shot of shots) {
       await page.goto("/");
       await shot.open();
+      if (await page.locator("header.top").count()) await expectHeaderFits(page);
       await page.screenshot({ path: `../../lab/c4/shots/${shot.name}-${width}x${height}.png` });
     }
   }
@@ -120,6 +139,8 @@ test("overlays leave their controls on top", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Start career" }).click();
+  await expectHeaderFits(page);
   await page.getByRole("button", { name: "Settings" }).click();
   await expect(page.locator('[data-overlay="settings"]')).toBeVisible();
   await expectNoOverlap(page, "settings");
@@ -153,6 +174,7 @@ async function expectNoOverlap(page: import("playwright").Page, overlay: string)
 test("a tampered save is rejected", async ({ page }) => {
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-juniper-rush").click();
+  await page.getByRole("button", { name: "Start career" }).click();
   await page.getByRole("button", { name: "Settings" }).click();
   await page.getByTestId("import-file").setInputFiles({
     name: "bad.json",
