@@ -7,14 +7,14 @@ import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate
  */
 export const GOLD = {
   seed_20261122: {
-    digest: "dadc07b7462ff4d963357c5d7f1c1dd4966f2fb2326c02c49c96aea536b8de12",
+    digest: "5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6",
     constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
-    data_hash: "6204e101a81bce7a25cb09130740015b687407d89313cf14e32fca88cffae633",
+    data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   seed_20261123: {
-    digest: "b80189c4c69b38802de139bf0ba8a5b0c1e9135c2744e1abebfdc5aca51cf79a",
+    digest: "2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a",
     constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
-    data_hash: "6204e101a81bce7a25cb09130740015b687407d89313cf14e32fca88cffae633",
+    data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   /** Historical S0 tip (integer spawn/buff pads) — retained for before/after. */
   s0_before_tile_centre: {
