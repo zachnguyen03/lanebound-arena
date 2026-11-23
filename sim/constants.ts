@@ -1,7 +1,11 @@
 /**
- * Build-spec §15 defaults. Do not change a default without reporting in lab/s0/REPORT.md.
- * Soft-separation knobs are inventions (INV-SEP-*), flagged in REPORT.md.
+ * Build-spec §15 defaults. Do not change a default without reporting in lab REPORT.md.
+ * SEPARATION_STRENGTH is GD-accepted (Appendix R #2). SCRIPTED_ARRIVE_R is lab-only
+ * (not in this table / constants_hash).
  */
+
+/** Lab-only scripted-motor arrive radius — not a gameplay constant. */
+export const LAB_SCRIPTED_ARRIVE_R = 0.15;
 
 export const XP_TO_LEVEL: Record<number, number> = {
   1: 0,
@@ -111,14 +115,15 @@ export interface Constants {
   DENY_ANY_UNIT: boolean;
   LAB_GAMES: number;
   LAB_SEED: number;
-  /** Invention INV-SEP-RADIUS: G6 soft separation radius (tiles). */
+  /** Soft ally separation radius (tiles). */
   SEPARATION_RADIUS: number;
-  /** Invention INV-SEP-STRENGTH: push speed at dist=0 (tiles/s). */
+  /** Soft ally separation push at dist=0 (tiles/s). GD-accepted Appendix R #2. */
   SEPARATION_STRENGTH: number;
-  /** Invention INV-SPAWN-JITTER: ±y when two units would overlap on pad. */
-  SPAWN_JITTER_Y: number;
-  /** Invention INV-ARRIVE-R: default scripted-motor arrive radius. */
-  SCRIPTED_ARRIVE_R: number;
+  /**
+   * L214 spawn-slot y spacing (tiles). Slot multipliers Top−2 … Support+2;
+   * y = pad_centre_y + mult × SPAWN_SLOT_SPACING. Tunable 0.8–1.2.
+   */
+  SPAWN_SLOT_SPACING: number;
 }
 
 export const DEFAULT_CONSTANTS: Constants = {
@@ -126,8 +131,10 @@ export const DEFAULT_CONSTANTS: Constants = {
   MAP_W: 24,
   MAP_H: 16,
   BODY_RADIUS: 0.4,
-  BLUE_SPAWN: [1.0, 7.0],
-  RED_SPAWN: [22.0, 7.0],
+  // Tile-centre rule (Appendix R): tile (x,y) covers [x,x+1)×[y,y+1); placement at (x+0.5,y+0.5).
+  // Spawn tiles (1,7) / (22,7) → centres. Zone centre is a POINT on the seam, not a tile.
+  BLUE_SPAWN: [1.5, 7.5],
+  RED_SPAWN: [22.5, 7.5],
   SANCTUARY_BLUE_X: [0, 1],
   SANCTUARY_RED_X: [22, 23],
   PILLARS: PILLARS_DEFAULT,
@@ -157,9 +164,10 @@ export const DEFAULT_CONSTANTS: Constants = {
   BUFF_DURATION_S: 45.0,
   BUFF_DMG: 0.12,
   BUFF_MS: 0.1,
+  // Flank buff tiles (7,7)/(16,7) → centres (Appendix R tile-centre).
   BUFF_PADS: [
-    [7, 7],
-    [16, 7],
+    [7.5, 7.5],
+    [16.5, 7.5],
   ],
   SCORE_TO_WIN: 10,
   MATCH_T: 240.0,
@@ -212,8 +220,7 @@ export const DEFAULT_CONSTANTS: Constants = {
   LAB_SEED: 20261122,
   SEPARATION_RADIUS: 0.6,
   SEPARATION_STRENGTH: 2.0,
-  SPAWN_JITTER_Y: 0.3,
-  SCRIPTED_ARRIVE_R: 0.15,
+  SPAWN_SLOT_SPACING: 1.0,
 };
 
 export function mergeConstants(overrides?: Partial<Record<string, unknown>>): Constants {

@@ -1,0 +1,8 @@
+{"t":0,"tick":0,"seq":0,"type":"match_start","seed":42,"constants_hash":"test","blue_lineup":["dummy","dummy","dummy","dummy","dummy"],"red_lineup":["dummy","dummy","dummy","dummy","dummy"]}
+{"t":1.2,"tick":12,"seq":1,"type":"death","unit_id":"red:adc","killer_id":"blue:mid","assists":["blue:support"],"respawn_at":8.2}
+{"t":1.2,"tick":12,"seq":2,"type":"takedown_score","team":"blue","score_after":1,"score_blue":1,"score_red":0}
+{"t":3.5,"tick":35,"seq":3,"type":"death","unit_id":"blue:jungle","killer_id":"red:adc","assists":["red:mid","red:support"],"respawn_at":10.5}
+{"t":3.5,"tick":35,"seq":4,"type":"takedown_score","team":"red","score_after":1,"score_blue":1,"score_red":1}
+{"t":5.0,"tick":50,"seq":5,"type":"death","unit_id":"red:top","killer_id":"blue:top","assists":[],"respawn_at":12.0}
+{"t":5.0,"tick":50,"seq":6,"type":"takedown_score","team":"blue","score_after":2,"score_blue":2,"score_red":1}
+{"t":12.0,"tick":120,"seq":7,"type":"match_end","winner":"blue","reason":"score","score_blue":2,"score_red":1}

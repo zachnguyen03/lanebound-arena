@@ -1,7 +1,13 @@
 node_modules/
 dist/
+apps/watch/dist/
 *.tar.gz
 *.tar.gz.sha256
 .DS_Store
 coverage/
 .vitest/
+test-results/
+playwright-report/
+blob-report/
+uploads
+lab/**/*.tmp

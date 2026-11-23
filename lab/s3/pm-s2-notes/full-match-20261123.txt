@@ -1,0 +1,9 @@
+seed=20261123
+forced_clock_end=false
+preset=hold_the_pit
+score_blue=0
+score_red=10
+end_reason=first_to_10
+winner=red
+duration_s=77.2
+digest=74d9794affef09962673f97a0ef1aaf934cc8f58116193c044ef6cad6f21f425

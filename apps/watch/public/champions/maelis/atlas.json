@@ -1,0 +1,3655 @@
+{
+  "champion": "Maelis, Glass Vane",
+  "slug": "maelis",
+  "role": "ADC",
+  "class": "Marksman",
+  "faction": "Cinderglass",
+  "lean": "DPS",
+  "slot": 2,
+  "source": "Notion Lanebound - GDD / Champions v3.0 (gdd/lanebound-champions-v3.0.md); look from champions/portraits/painted/maelis/maelis-1024.png",
+  "cell": [
+    18,
+    24
+  ],
+  "anchor": [
+    9,
+    23
+  ],
+  "outline": "#0E1018",
+  "sheet": "sheets/maelis.png",
+  "note": "Blue faces right and red faces left on the live map. Anchor is the foot point; blit at (round(sx)-9, round(sy)-23). Hit frames apply damage; projectile_spawn.offset is pixels from the foot anchor. Status follows the shared language: slow = drag at the feet, silence/stun = head plate (spectator/spec.md), root = wicks at the feet, sleep = eye at the head, mark = shoulder pin.",
+  "palette": {
+    "base": {
+      "hair_d": "#22121E",
+      "hair": "#402032",
+      "hair_l": "#643850",
+      "skin": "#C88960",
+      "skin_d": "#A4684C",
+      "skin_l": "#E2AA80",
+      "eye": "#1E141E",
+      "mouth": "#964048",
+      "jacket": "#8A3E46",
+      "jacket_d": "#5C2632",
+      "jacket_l": "#B46264",
+      "under": "#221E28",
+      "trouser": "#3A3448",
+      "trouser_d": "#282434",
+      "boot": "#462E34",
+      "buckle": "#969296",
+      "glass_w": "#F6F4FF",
+      "glass_l": "#DED8F0",
+      "glass": "#B0A8CC",
+      "violet": "#8454BA",
+      "violet_d": "#54307C",
+      "violet_l": "#B084DE"
+    },
+    "team": {
+      "blue": {
+        "mid": "#4DA3FF",
+        "dk": "#245CB4",
+        "lt": "#A0CCFF"
+      },
+      "red": {
+        "mid": "#F5477A",
+        "dk": "#A8204A",
+        "lt": "#FF96B0"
+      }
+    },
+    "note": "Glass is lavender-white / violet; team tint only on the collar buckle and one cuff pixel."
+  },
+  "timing": {
+    "idle": {
+      "n": 4,
+      "ms": 125,
+      "fps": 8,
+      "loop": true,
+      "note": "breath + glint runs up the vane"
+    },
+    "walk": {
+      "n": 6,
+      "ms": 100,
+      "fps": 10,
+      "loop": true,
+      "note": "6-step cycle, 1-2 px stride, vane bobs"
+    },
+    "attack": {
+      "n": 6,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "shard flick: wind, flick, release a glass shard",
+      "hit": 2,
+      "spawn": 2
+    },
+    "skill": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "Q Prism Split: vane fans open, arm sweeps, prism line fires",
+      "hit": 4,
+      "spawn": 4
+    },
+    "veil": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "W Glass Veil: toss a shard high-forward; it shatters into a glass circle",
+      "hit": 4,
+      "spawn": 3
+    },
+    "ult": {
+      "n": 10,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "note": "R Duskburst: vane unfolds a third blade overhead, dusk gathers, burst lands on frame 5",
+      "hit": 5,
+      "spawn": 5
+    },
+    "hit": {
+      "n": 3,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "recoil flash"
+    },
+    "death": {
+      "n": 8,
+      "ms": 125,
+      "fps": 8,
+      "loop": false,
+      "note": "stagger, vane shatters, kneel, fall; last frame holds"
+    }
+  },
+  "skills": {
+    "q": {
+      "anim": "skill",
+      "key": "Q",
+      "name": "Prism Split",
+      "shape": "line",
+      "file": "q-prism-split"
+    },
+    "w": {
+      "anim": "veil",
+      "key": "W",
+      "name": "Glass Veil",
+      "shape": "circle",
+      "file": "w-glass-veil"
+    },
+    "r": {
+      "anim": "ult",
+      "key": "R",
+      "name": "Duskburst",
+      "shape": "circle",
+      "file": "r-duskburst"
+    }
+  },
+  "status": {
+    "slow": {
+      "n": 4,
+      "ms": 120,
+      "fps": 8,
+      "loop": true,
+      "duration_ms": 1100,
+      "note": "W Glass Veil 35% slow: drag chevrons at the feet, no head icon",
+      "file": "../sedge/vfx/slow.png (shared language) / vfx/slow.png",
+      "size": [
+        13,
+        6
+      ],
+      "offset_from_foot": [
+        -6,
+        1
+      ],
+      "name": "Glass Veil",
+      "amount": 0.35,
+      "head_icon": false
+    }
+  },
+  "animations": {
+    "idle": {
+      "blue-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + glint runs up the vane",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + glint runs up the vane",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + glint runs up the vane",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + glint runs up the vane",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "walk": {
+      "blue-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1-2 px stride, vane bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1-2 px stride, vane bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1-2 px stride, vane bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1-2 px stride, vane bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "attack": {
+      "blue-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "shard flick: wind, flick, release a glass shard",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "shard flick: wind, flick, release a glass shard",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "shard flick: wind, flick, release a glass shard",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "shard flick: wind, flick, release a glass shard",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "skill": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Prism Split: vane fans open, arm sweeps, prism line fires",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Prism Split: vane fans open, arm sweeps, prism line fires",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Prism Split: vane fans open, arm sweeps, prism line fires",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Prism Split: vane fans open, arm sweeps, prism line fires",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -8,
+                -11
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "veil": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Glass Veil: toss a shard high-forward; it shatters into a glass circle",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Glass Veil: toss a shard high-forward; it shatters into a glass circle",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Glass Veil: toss a shard high-forward; it shatters into a glass circle",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Glass Veil: toss a shard high-forward; it shatters into a glass circle",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "ult": {
+      "blue-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Duskburst: vane unfolds a third blade overhead, dusk gathers, burst lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                4,
+                -23
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Duskburst: vane unfolds a third blade overhead, dusk gathers, burst lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -4,
+                -23
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Duskburst: vane unfolds a third blade overhead, dusk gathers, burst lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                4,
+                -23
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Duskburst: vane unfolds a third blade overhead, dusk gathers, burst lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -4,
+                -23
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "hit": {
+      "blue-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "death": {
+      "blue-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stagger, vane shatters, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stagger, vane shatters, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stagger, vane shatters, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stagger, vane shatters, kneel, fall; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    }
+  },
+  "vfx": {
+    "shard": {
+      "files": [
+        "vfx/shard-right.png",
+        "vfx/shard-left.png"
+      ],
+      "note": "auto-attack projectile"
+    },
+    "prism": {
+      "files": [
+        "vfx/prism-right-blue.png",
+        "vfx/prism-left-blue.png",
+        "vfx/prism-right-red.png",
+        "vfx/prism-left-red.png"
+      ],
+      "frames": 2,
+      "cell": [
+        16,
+        9
+      ],
+      "note": "Q line head; team core pixel"
+    },
+    "veil-shard": {
+      "file": "vfx/veil-shard.png",
+      "frames": 2,
+      "cell": [
+        7,
+        7
+      ],
+      "note": "W in-flight shard (arc)"
+    },
+    "duskburst": {
+      "files": [
+        "vfx/duskburst-0.png",
+        "vfx/duskburst-1.png",
+        "vfx/duskburst-2.png",
+        "vfx/duskburst-3.png"
+      ],
+      "note": "R gather / flash / bloom / fade"
+    },
+    "slow": {
+      "file": "vfx/slow.png",
+      "frames": 4,
+      "cell": [
+        13,
+        6
+      ],
+      "note": "shared slow language (same pixels as sedge.slow_vfx)"
+    }
+  },
+  "portrait": {
+    "file": "portrait/portrait.png",
+    "size": [
+      64,
+      64
+    ],
+    "tints": [
+      "blue",
+      "red"
+    ],
+    "painted": true,
+    "sizes": {
+      "64": "portrait/portrait.png",
+      "44": "portrait/portrait-44.png",
+      "24": "portrait/portrait-24.png",
+      "ui-44": "portrait/portrait-ui-44.png",
+      "ui-24": "portrait/portrait-ui-24.png"
+    }
+  },
+  "icons": {
+    "q": {
+      "file": "icons/q-prism-split.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Prism Split",
+      "shape": "line"
+    },
+    "w": {
+      "file": "icons/w-glass-veil.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Glass Veil",
+      "shape": "circle"
+    },
+    "r": {
+      "file": "icons/r-duskburst.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Duskburst",
+      "shape": "circle"
+    }
+  },
+  "animations_order": [
+    "idle",
+    "walk",
+    "attack",
+    "skill",
+    "veil",
+    "ult",
+    "hit",
+    "death"
+  ],
+  "bands": [
+    "blue-right",
+    "blue-left",
+    "red-right",
+    "red-left"
+  ]
+}

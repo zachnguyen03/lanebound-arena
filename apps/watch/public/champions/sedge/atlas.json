@@ -1,0 +1,3618 @@
+{
+  "champion": "Sedge, Wickkeeper",
+  "slug": "sedge",
+  "role": "Jungle",
+  "class": "Mage",
+  "faction": "Mirefall",
+  "lean": "Utility",
+  "slot": 3,
+  "source": "Notion Lanebound \u2014 GDD / Champions v3.0",
+  "cell": [
+    18,
+    24
+  ],
+  "anchor": [
+    9,
+    23
+  ],
+  "outline": "#0E1018",
+  "sheet": "sheets/sedge.png",
+  "note": "Blue faces right and red faces left on the live map. Anchor is the foot point; blit at (round(sx)-9, round(sy)-23). Hit frames apply damage; projectile_spawn.offset is pixels from the foot anchor. Sleep status is a closed-eye + motes beside the HP bar (never a Huntress pin). Root is wick loops at the feet.",
+  "palette": {
+    "base": {
+      "skin": "#D6A884",
+      "skin_d": "#BA8264",
+      "skin_l": "#E8C4A4",
+      "hair": "#342820",
+      "peat": "#5A4630",
+      "peat_l": "#7A6242",
+      "peat_d": "#3A2C20",
+      "reed": "#967C48",
+      "reed_l": "#B09660",
+      "reed_d": "#6E5632",
+      "leather": "#58402C",
+      "leather_d": "#3E2C1E",
+      "leather_l": "#76583A",
+      "boot": "#2C221A",
+      "staff": "#56462E",
+      "staff_l": "#76623E",
+      "staff_d": "#3A2E1E",
+      "iron": "#484644",
+      "iron_d": "#2A2828",
+      "iron_l": "#6E6C68",
+      "wick": "#E4E8D0",
+      "wick_d": "#BAC4A0",
+      "flame": "#B8C878",
+      "flame_l": "#DCE8B0",
+      "flame_d": "#8A9A54",
+      "eye": "#FAFAFA",
+      "mouth": "#965A50"
+    },
+    "team": {
+      "blue": {
+        "mid": "#4DA3FF",
+        "dk": "#245CB4",
+        "lt": "#A0CCFF"
+      },
+      "red": {
+        "mid": "#F5477A",
+        "dk": "#A8204A",
+        "lt": "#FF96B0"
+      }
+    },
+    "note": "Lantern flame is peat-ivory / moss-lime, never objective gold #F2C14E. Team tint only on the lantern ring and throat clasp."
+  },
+  "timing": {
+    "idle": {
+      "n": 4,
+      "ms": 125,
+      "fps": 8,
+      "loop": true,
+      "note": "breath + lantern flicker + 1 px cloak sway"
+    },
+    "walk": {
+      "n": 6,
+      "ms": 100,
+      "fps": 10,
+      "loop": true,
+      "note": "6-step cycle, 1\u20132 px stride, lantern bobs"
+    },
+    "attack": {
+      "n": 6,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "lantern tick: lift, pulse, release mote",
+      "hit": 2,
+      "spawn": 2
+    },
+    "skill": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "Q Lantern Sweep, fan the lantern in an arc",
+      "hit": 4,
+      "spawn": 4
+    },
+    "bind": {
+      "n": 8,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "W Wickbind, point the staff, wick line",
+      "hit": 4,
+      "spawn": 4
+    },
+    "ult": {
+      "n": 10,
+      "ms": 100,
+      "fps": 10,
+      "loop": false,
+      "note": "R Mire Drowse, plant, raise, sleep lands on frame 5",
+      "hit": 5,
+      "spawn": 5
+    },
+    "hit": {
+      "n": 3,
+      "ms": 83,
+      "fps": 12,
+      "loop": false,
+      "note": "recoil flash"
+    },
+    "death": {
+      "n": 8,
+      "ms": 125,
+      "fps": 8,
+      "loop": false,
+      "note": "stumble, drop staff, kneel, slump; last frame holds"
+    }
+  },
+  "status": {
+    "sleep": {
+      "n": 4,
+      "ms": 200,
+      "fps": 5,
+      "loop": true,
+      "duration_ms": 2800,
+      "note": "crescent motes; breaks on HP damage",
+      "file": "vfx/sleep-icon.png",
+      "size": [
+        9,
+        11
+      ],
+      "offset_from_foot": [
+        12,
+        -36
+      ],
+      "name": "Mire Drowse",
+      "breaks_on_hp_damage": true
+    },
+    "root": {
+      "n": 4,
+      "ms": 120,
+      "fps": 8,
+      "loop": true,
+      "duration_ms": 850,
+      "note": "wick loops at the feet, not the head",
+      "file": "vfx/root.png",
+      "size": [
+        14,
+        7
+      ],
+      "offset_from_foot": [
+        -7,
+        0
+      ],
+      "name": "Wickbind"
+    }
+  },
+  "animations": {
+    "idle": {
+      "blue-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + lantern flicker + 1 px cloak sway",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              1,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + lantern flicker + 1 px cloak sway",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              201,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + lantern flicker + 1 px cloak sway",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              401,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 4,
+        "ms": 125,
+        "fps": 8,
+        "loop": true,
+        "note": "breath + lantern flicker + 1 px cloak sway",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              601,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "walk": {
+      "blue-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1\u20132 px stride, lantern bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              26,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1\u20132 px stride, lantern bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              226,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1\u20132 px stride, lantern bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              426,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 100,
+        "fps": 10,
+        "loop": true,
+        "note": "6-step cycle, 1\u20132 px stride, lantern bobs",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              626,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "attack": {
+      "blue-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "lantern tick: lift, pulse, release mote",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                6,
+                -17
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              51,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "lantern tick: lift, pulse, release mote",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -6,
+                -17
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              251,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "lantern tick: lift, pulse, release mote",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                6,
+                -17
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              451,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 6,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "lantern tick: lift, pulse, release mote",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -6,
+                -17
+              ]
+            }
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              651,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "skill": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Lantern Sweep, fan the lantern in an arc",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -18
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              76,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Lantern Sweep, fan the lantern in an arc",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -18
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              276,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Lantern Sweep, fan the lantern in an arc",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -18
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              476,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "Q Lantern Sweep, fan the lantern in an arc",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -18
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              676,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "bind": {
+      "blue-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Wickbind, point the staff, wick line",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -16
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              101,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Wickbind, point the staff, wick line",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -16
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              301,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Wickbind, point the staff, wick line",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                7,
+                -16
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              501,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "W Wickbind, point the staff, wick line",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -7,
+                -16
+              ]
+            }
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              701,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "ult": {
+      "blue-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Mire Drowse, plant, raise, sleep lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                6,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              126,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Mire Drowse, plant, raise, sleep lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -6,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              326,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Mire Drowse, plant, raise, sleep lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                6,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              526,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 10,
+        "ms": 100,
+        "fps": 10,
+        "loop": false,
+        "note": "R Mire Drowse, plant, raise, sleep lands on frame 5",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": true,
+            "projectile_spawn": {
+              "offset": [
+                -6,
+                -20
+              ]
+            }
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 8,
+            "rect": [
+              153,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 9,
+            "rect": [
+              172,
+              726,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "hit": {
+      "blue-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              151,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              351,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              551,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 3,
+        "ms": 83,
+        "fps": 12,
+        "loop": false,
+        "note": "recoil flash",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              751,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    },
+    "death": {
+      "blue-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stumble, drop staff, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              176,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "blue-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stumble, drop staff, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              376,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-right": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stumble, drop staff, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              576,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      },
+      "red-left": {
+        "n": 8,
+        "ms": 125,
+        "fps": 8,
+        "loop": false,
+        "note": "stumble, drop staff, kneel, slump; last frame holds",
+        "frames": [
+          {
+            "i": 0,
+            "rect": [
+              1,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 1,
+            "rect": [
+              20,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 2,
+            "rect": [
+              39,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 3,
+            "rect": [
+              58,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 4,
+            "rect": [
+              77,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 5,
+            "rect": [
+              96,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 6,
+            "rect": [
+              115,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          },
+          {
+            "i": 7,
+            "rect": [
+              134,
+              776,
+              18,
+              24
+            ],
+            "anchor": [
+              9,
+              23
+            ],
+            "hit": false
+          }
+        ]
+      }
+    }
+  },
+  "vfx": {
+    "sleep-icon": {
+      "file": "vfx/sleep-icon.png",
+      "frames": 4,
+      "cell": [
+        7,
+        9
+      ]
+    },
+    "sleep-break": {
+      "files": [
+        "vfx/sleep-break-0.png",
+        "vfx/sleep-break-1.png",
+        "vfx/sleep-break-2.png"
+      ],
+      "n": 3
+    },
+    "root": {
+      "file": "vfx/root.png",
+      "frames": 4,
+      "cell": [
+        12,
+        6
+      ]
+    },
+    "projectile-wick": {
+      "files": [
+        "vfx/projectile-wick-right.png",
+        "vfx/projectile-wick-left.png"
+      ]
+    },
+    "tick-mote": {
+      "files": [
+        "vfx/tick-mote-blue.png",
+        "vfx/tick-mote-red.png"
+      ]
+    }
+  },
+  "portrait": {
+    "file": "portrait/portrait.png",
+    "size": [
+      64,
+      64
+    ],
+    "tints": [
+      "blue",
+      "red"
+    ]
+  },
+  "icons": {
+    "q": {
+      "file": "icons/q-lantern-sweep.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Lantern Sweep",
+      "shape": "circle"
+    },
+    "w": {
+      "file": "icons/w-wickbind.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Wickbind",
+      "shape": "line"
+    },
+    "r": {
+      "file": "icons/r-mire-drowse.png",
+      "size": [
+        24,
+        24
+      ],
+      "name": "Mire Drowse",
+      "shape": "circle"
+    }
+  }
+}
