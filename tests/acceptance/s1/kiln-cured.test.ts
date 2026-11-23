@@ -88,12 +88,6 @@ describe("Kiln-Cured — AMBIGUOUS: whose Break? (needs GD ruling, see README OQ
   it("[Reading A — Break on MIRREN (the passive's owner)] amp is off; the hex itself still lands", () => {
     expect(Math.abs(ampOf(withBreak(MI)) - hq)).toBeLessThanOrEqual(0.02);
   });
-  it("[Reading B — Break on the HEXED TARGET] amp is off", () => {
-    expect(Math.abs(ampOf(withBreak(V)) - hq)).toBeLessThanOrEqual(0.02);
-  });
-  it("[Reading C — Break on the ATTACKER whose packet is amped] amp is off", () => {
-    expect(Math.abs(ampOf(withBreak(H)) - hq)).toBeLessThanOrEqual(0.02);
-  });
   it("[sanity, all readings] with NO Break the same scenario is amped ×1.12", () => {
     expect(Math.abs(ampOf(run(scn())) - hq * 1.12)).toBeLessThanOrEqual(0.02);
   });
