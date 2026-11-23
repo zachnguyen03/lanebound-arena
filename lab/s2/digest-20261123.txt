@@ -1,0 +1,7 @@
+seed=20261123
+constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
+data_hash=af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2
+digest=612148a2e910c47c0cf5793153e3cd4d7023dbebb287caeed1797f883bb89760
+tick_count=2400
+match_end=clock
+winner=draw
