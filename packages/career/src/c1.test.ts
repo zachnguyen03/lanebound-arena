@@ -48,6 +48,42 @@ describe("C1 calendar, standings, playoffs", () => {
     expect(matchdayPlayOrder(day, "missing-club").map((fixture) => fixture.id)).toEqual(day.map((fixture) => fixture.id));
   });
 
+  it("ranks a better map differential above more maps won", () => {
+    const neon = "neon-tide";
+    const sable = "sable-comets";
+    const tape: StandingSeries[] = [];
+    let foil = 0;
+    const nextFoil = () => `foil-${foil++}`;
+    const add = (winner: string, loser: string, winMaps: number, loseMaps: number) => {
+      tape.push(series(winner, loser, winMaps, loseMaps));
+    };
+    add(neon, nextFoil(), 2, 0);
+    add(neon, nextFoil(), 2, 0);
+    add(nextFoil(), neon, 2, 1);
+    add(nextFoil(), neon, 2, 1);
+    add(nextFoil(), neon, 2, 1);
+    add(nextFoil(), neon, 2, 0);
+    add(nextFoil(), neon, 2, 0);
+    add(sable, nextFoil(), 2, 0);
+    add(sable, nextFoil(), 2, 0);
+    add(nextFoil(), sable, 2, 1);
+    add(nextFoil(), sable, 2, 1);
+    add(nextFoil(), sable, 2, 1);
+    add(nextFoil(), sable, 2, 1);
+    add(nextFoil(), sable, 2, 0);
+    add(nextFoil(), sable, 2, 0);
+    const clubs = [
+      { club_id: neon, opening_index: 2 },
+      { club_id: sable, opening_index: 5 },
+      ...Array.from({ length: foil }, (_, i) => ({ club_id: `foil-${i}`, opening_index: 100 + i })),
+    ];
+    const rows = computeStandings(clubs, tape);
+    expect(rows.find((row) => row.club_id === neon)).toMatchObject({ series_wins: 2, map_diff: -3, maps_won: 7 });
+    expect(rows.find((row) => row.club_id === sable)).toMatchObject({ series_wins: 2, map_diff: -4, maps_won: 8 });
+    const order = rankClubs(rows, tape);
+    expect(order.indexOf(neon)).toBeLessThan(order.indexOf(sable));
+  });
+
   it("tie-breaks series wins, map diff, maps won, head-to-head, then lower opening index, never OVR", () => {
     const [a, b, c, d] = CLUBS;
     const four = [a!, b!, c!, d!];

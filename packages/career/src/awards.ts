@@ -1,5 +1,5 @@
 import type { SeriesResult } from "@lanebound/match-contract";
-import { seriesMvp } from "./series.js";
+import { meanMapRating, seriesMvp } from "./series.js";
 
 export type AwardKind = "split_mvp" | "deadeye" | "shepherd" | "zonekeeper" | "finals_mvp";
 
@@ -81,19 +81,16 @@ function idCmp(a: string, b: string): number {
   return 0;
 }
 
-function mean(total: number, maps: number): number {
-  return total / maps;
-}
 
 export function splitMvpWinner(series: readonly SeriesResult[]): Totals | null {
   const rows = eligible(regularTotals(series));
   rows.sort((a, b) => {
-    const ar = mean(a.rating, a.maps);
-    const br = mean(b.rating, b.maps);
+    const ar = meanMapRating(a.rating, a.maps);
+    const br = meanMapRating(b.rating, b.maps);
     if (ar !== br) return br - ar;
     if (a.maps !== b.maps) return b.maps - a.maps;
-    const az = mean(a.z, a.maps);
-    const bz = mean(b.z, b.maps);
+    const az = meanMapRating(a.z, a.maps);
+    const bz = meanMapRating(b.z, b.maps);
     if (az !== bz) return bz - az;
     return idCmp(a.player_id, b.player_id);
   });
@@ -104,8 +101,8 @@ export function deadeyeWinner(series: readonly SeriesResult[]): Totals | null {
   const rows = eligible(regularTotals(series));
   rows.sort((a, b) => {
     if (a.dmg !== b.dmg) return b.dmg - a.dmg;
-    const ar = mean(a.rating, a.maps);
-    const br = mean(b.rating, b.maps);
+    const ar = meanMapRating(a.rating, a.maps);
+    const br = meanMapRating(b.rating, b.maps);
     if (ar !== br) return br - ar;
     if (a.maps !== b.maps) return b.maps - a.maps;
     return idCmp(a.player_id, b.player_id);
@@ -117,8 +114,8 @@ export function shepherdWinner(series: readonly SeriesResult[]): Totals | null {
   const rows = eligible(regularTotals(series));
   rows.sort((a, b) => {
     if (a.peels !== b.peels) return b.peels - a.peels;
-    const ar = mean(a.rating, a.maps);
-    const br = mean(b.rating, b.maps);
+    const ar = meanMapRating(a.rating, a.maps);
+    const br = meanMapRating(b.rating, b.maps);
     if (ar !== br) return br - ar;
     if (a.maps !== b.maps) return b.maps - a.maps;
     return idCmp(a.player_id, b.player_id);
@@ -133,8 +130,8 @@ export function zonekeeperWinner(series: readonly SeriesResult[]): Totals | null
     const bs = zonekeeperScore(b.zone_seconds, b.claim_denies);
     if (as !== bs) return bs - as;
     if (a.claim_denies !== b.claim_denies) return b.claim_denies - a.claim_denies;
-    const ar = mean(a.rating, a.maps);
-    const br = mean(b.rating, b.maps);
+    const ar = meanMapRating(a.rating, a.maps);
+    const br = meanMapRating(b.rating, b.maps);
     if (ar !== br) return br - ar;
     return idCmp(a.player_id, b.player_id);
   });
@@ -173,7 +170,7 @@ export function seasonAwards(series: readonly SeriesResult[], seasonId: string):
       kind: "split_mvp",
       season_id: seasonId,
       player_id: split.player_id,
-      statistic: mean(split.rating, split.maps),
+      statistic: meanMapRating(split.rating, split.maps),
       signature: "pillar-of-the-split",
     },
     {
@@ -201,10 +198,13 @@ export function seasonAwards(series: readonly SeriesResult[], seasonId: string):
       kind: "finals_mvp",
       season_id: seasonId,
       player_id: finalsId,
-      statistic: finalSeries.games
-        .flatMap((game) => game.players)
-        .filter((player) => player.player_id === finalsId)
-        .reduce((sum, player, _i, arr) => sum + player.rating / arr.length, 0),
+      statistic: (() => {
+        const lines = finalSeries.games.flatMap((game) => game.players).filter((player) => player.player_id === finalsId);
+        return meanMapRating(
+          lines.reduce((sum, player) => sum + player.rating, 0),
+          lines.length,
+        );
+      })(),
       signature: "finals-poise",
     },
   ];

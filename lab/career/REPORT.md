@@ -1,6 +1,6 @@
 # Career engine report (C0–C2)
 
-Headless Bound Circuit engine on `career-engine`, based on `s1`. `sim/`, `tests/acceptance/`, and the existing tests were not edited.
+Headless Bound Circuit engine on `career-engine`. The branch is rebased onto `2cdcf26fedea20fc9cb4bcd848900496e588d9de` (`cursor/s1-sim-acceptance-fixes-1498`, the PM-passed S1). The `s1` branch was not moved. `sim/`, `tests/acceptance/`, and the existing tests were not edited.
 
 Sources, both hashes verified:
 
@@ -11,22 +11,22 @@ Sources, both hashes verified:
 
 | Milestone | Commit | What landed |
 |---|---|---|
-| C0 | `2dcae31bdf66d89dcca2226245b70afe320b9d4b` | `packages/match-contract` (`career-match/1`, validators, `fake:` digests, `claim_denies` missing = 0) and the fake runner plus the non-shippable stand-in world |
-| C1 | `4dac49c35a1e93aaf770240c5e676a749cf9350d` | Circle calendar, C-R-1 table, player-series-first matchdays, MD8/MD9 Bo5 bracket, fake season runner |
-| C2 | `e313899a3d1d0672594d9ec94a169c7cbb1fd265` | Glicko-2, placement points, awards, contract tick, canonical save |
+| C0 | `9051fcab768c8a60382e5cff6455ac9fcb4dc1a2` | `packages/match-contract` (`career-match/1`, validators, `fake:` digests, `claim_denies` missing = 0) and the fake runner plus the non-shippable stand-in world |
+| C1 | `38231d54730644d9303afa1d043cf32d1bc2b1aa` | Circle calendar, C-R-1 table, player-series-first matchdays, MD8/MD9 Bo5 bracket, fake season runner |
+| C2 | `26a9a8d046b97f200943aa7e5fb54541c21a2d2d` | Glicko-2, placement points, awards, contract tick, canonical save |
+| Report | `1b589b00803eaf39ff94d13ead1b1adbd8384cde` | First proof write-up, replayed onto the new base |
+| Verify | tip after this file | Rebase onto `2cdcf26`, pin the season sha, map-diff fixture, Glickman digits, shared `meanMapRating`, career purity allow-list |
 
 ## Commands
 
-Recorded on this branch after C2.
+Recorded on this branch after the rebase onto `2cdcf26`.
 
 | Command | Exit | Notes |
 |---|---:|---|
-| `npm run purity` | 0 | `PURITY OK` for `sim/` |
-| `npx vitest run packages` | 0 | 19 tests, 4 files. Includes the two-process save |
-| `npx tsc --noEmit` | 2 | 29 errors, all in `sim/`, `apps/lab/lab-s1.ts`, and existing `tests/`. None under `packages/` or `apps/lab/career-season.ts`. The same `tsc` errors are already on `s1` with these files stashed |
-| `npx vitest run` | 1 | 369 passed, 724 failed, 18 files failed. Career tests pass. The failures are the existing S1 kit/sim mismatch (`l7_formula` and `cc.effect` are read by `sim/` and the old tests, and are absent on the `s1` kits). Not introduced here |
-
-`s1` was fetched. It matches this branch's parent. Making that suite green means editing `sim/` or `data/champions/kits.ts`, which this task left alone.
+| `npm run purity` | 0 | `sim/` stays fully banned. `packages/career` and `packages/match-contract` are scanned too. Allow-list: `strength.ts` `Math.exp`; `glicko.ts` `Math.exp` / `Math.log` / `Math.sqrt` / `Math.PI`; `fake.ts` `Math.log` / `Math.cos` / `Math.sqrt` / `Math.PI` (Box–Muller); `c0.test.ts` `Math.exp` (the logistic check). An allow-list entry with no call fails the scan |
+| `npx vitest run packages` | 0 | 20 tests, 4 files. Includes the pinned season sha and the two-process save |
+| `npx tsc --noEmit` | 0 | Clean on the PM-passed S1 base |
+| `npx vitest run` | 0 | 1126 tests, 38 files |
 
 ## Season sha256
 
@@ -38,9 +38,13 @@ Two processes, `npx tsx apps/lab/career-season.ts --sha`:
 d52abbc3d6fd7894f8a440abad03eefb0d36742fc6d73a210a83ce51d15d68a9
 ```
 
+Before the rebase onto `2cdcf26` the same command printed `d52abbc3d6fd7894f8a440abad03eefb0d36742fc6d73a210a83ce51d15d68a9`. After the rebase it is the same. Career code does not import `sim/`, and the four career commits replayed with no conflict, so the canonical save did not move. `packages/career/src/c2.test.ts` pins this digest.
+
 The two stdout bytes matched. The in-process canonical save hashes to the same value. The JSON is `canonicalString` of the save (sorted keys, no trailing newline).
 
-Invariants covered by tests: 28 unique regular pairs; published MD1–MD7 blue/red table; even clubs 4 blue sides and odd clubs 3; tie-break by series wins, map diff, maps won, head-to-head, then lower opening index; playoff 1v4 and 2v3 then those winners, higher seed blue; point sum 73; Glickman 2013 example (1500/200/0.06 vs 1400, 1550, 1700, scores 1, 0, 0 → about 1464.06 / 151.52 / 0.05999); idle clubs keep mu/phi/sigma; award minimum of 4 regular series; Zonekeeper `zone_seconds + 20 * claim_denies`; lower `player_id` on a remaining tie; contract tick and renew-at-wage; no `crown-of-the-split` in the save.
+On that season, Neon Tide finishes 5th at 2 wins, map diff −3, 7 maps won, and Sable Comets finishes 6th at 2 / −4 / 8. A separate standings fixture builds those two rows without the season RNG and checks that the better map differential ranks above the extra map won.
+
+Invariants covered by tests: 28 unique regular pairs; published MD1–MD7 blue/red table; even clubs 4 blue sides and odd clubs 3; tie-break by series wins, map diff, maps won, head-to-head, then lower opening index, including the case where map diff and maps won disagree; playoff 1v4 and 2v3 then those winners, higher seed blue; point sum 73; Glickman 2013 example with the default `GLICKO_TAU` (asserted `=== 0.5`): 1500/200/0.06 vs 1400, 1550, 1700, scores 1, 0, 0 → r′ 1464.0507, RD′ 151.5165, σ′ 0.059996; idle clubs keep mu/phi/sigma; award minimum of 4 regular series; `meanMapRating` is the mean used by series MVP, the Finals MVP statistic, and the award sorts; Zonekeeper `zone_seconds + 20 * claim_denies`; lower `player_id` on a remaining tie; contract tick and renew-at-wage; no `crown-of-the-split` in the save.
 
 ## Assumptions
 
@@ -56,7 +60,8 @@ These are frozen so the runner is deterministic. They are not rulings. Detail is
 - Role weights, damage/heal/zone ranges, and `z = 0.35 * Box-Muller` are in `packages/career/src/fake.ts`. Team `claim_denied` / `claim_paid` are `u32 % 5` per side. Denies are dealt out with a top/support bias and sum to the team total. `peel_eligible` equals the sum of peels. `sanctuary_violations` is 0. `t_first_R = 0.3 * duration`, `t_L7 = 0.7 * duration`. Archetype strings are the tactic presets. Assists total `round(1.4 * kills)`.
 - Cards fire when `u < 0.5`. There is no priced catalogue, so the 6-point cap is not applied.
 - Placement points use the §7.2 row plus champion +12, runner-up +7, each semi-loser +4. The regular place is provisional until MD7 and then frozen. Sum at the end of the year is 73. Glicko and points live on `ranking_log` and `club_state`, not as new required §14 fields.
-- Glicko stores `mu`, `phi`, `sigma`. Display is `r = 173.7178 * mu + 1500`, `RD = 173.7178 * phi`. Init is `mu = 0`, `phi = 350 / 173.7178`, `sigma = 0.06`, tau `0.5`. The example test allows the paper's printed rounding (1464.06, 151.52, 0.05999). Idle clubs are not given Glickman's sit-out RD bump.
+- Glicko stores `mu`, `phi`, `sigma`. Display is `r = 173.7178 * mu + 1500`, `RD = 173.7178 * phi`. Init is `mu = 0`, `phi = 350 / 173.7178`, `sigma = 0.06`, tau `0.5` (`GLICKO_TAU`). The example test calls `glickoUpdate` with that default and checks r′ 1464.0507, RD′ 151.5165, σ′ 0.059996 (the engine's values round to those printed figures: 1464.0506705…, 151.5165241…, 0.059995984…). Idle clubs are not given Glickman's sit-out RD bump.
+- The labelled stand-in world stays. The paper model is now on disk at `/cursor/stores/bot/career-inputs/lanebound-career-model-v1.py` (sha256 `1491cd21a5a7dce0ad565484d0e51d7f5d3f429c25d571bc0638b34281ac8445`) and was not used to replace `opening_world`.
 - Award signatures, in order: Split MVP → `pillar-of-the-split`, then `convergence-crown` for the five game-1 starters on the winning side of the final, then Finals MVP → `finals-poise`. The 1-cap keeps the newer one. Deadeye, Shepherd, and Zonekeeper get no signature. *Crown of the Split* is not granted.
 - If the human club is in neither semi, MD8 plays 1v4 then 2v3.
 - `loadSave` accepts unknown keys and does not strip them on the object it returns. `saveJson` writes only the known save.

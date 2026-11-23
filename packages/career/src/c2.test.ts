@@ -4,10 +4,13 @@ import { sha256Hex } from "@lanebound/match-contract";
 import type { SeriesResult } from "@lanebound/match-contract";
 import { deadeyeWinner, keepSignature, splitMvpWinner, zonekeeperScore, zonekeeperWinner } from "./awards.js";
 import { tickContract } from "./contracts.js";
-import { fromDisplay, glickoDisplay, glickoUpdate, initialGlicko } from "./glicko.js";
+import { fromDisplay, GLICKO_TAU, glickoDisplay, glickoUpdate, initialGlicko } from "./glicko.js";
 import { seasonPointTotal } from "./points.js";
 import { loadSave, runSeason, saveJson } from "./season.js";
 import { openingWorld } from "./world.js";
+
+/** Canonical save for career seed 20261123, club juniper-rush. Unchanged by the rebase onto 2cdcf26. */
+const JUNIPER_SEASON_SHA256 = "d52abbc3d6fd7894f8a440abad03eefb0d36742fc6d73a210a83ce51d15d68a9";
 
 function maps(playerId: string, count: number, stats: { rating?: number; dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }): SeriesResult[] {
   const out: SeriesResult[] = [];
@@ -43,11 +46,12 @@ describe("C2 glicko, points, awards, contracts", () => {
       { ...fromDisplay(1550, 100, 0.06), score: 0 as const },
       { ...fromDisplay(1700, 300, 0.06), score: 0 as const },
     ];
-    const next = glickoUpdate(player, opponents, 0.5);
+    expect(GLICKO_TAU).toBe(0.5);
+    const next = glickoUpdate(player, opponents);
     const shown = glickoDisplay(next);
-    expect(shown.r).toBeCloseTo(1464.06, 1);
-    expect(shown.rd).toBeCloseTo(151.52, 1);
-    expect(next.sigma).toBeCloseTo(0.05999, 4);
+    expect(shown.r).toBeCloseTo(1464.0507, 4);
+    expect(shown.rd).toBeCloseTo(151.5165, 4);
+    expect(next.sigma).toBeCloseTo(0.059996, 6);
     expect(glickoDisplay(initialGlicko()).r).toBeCloseTo(1500, 8);
     expect(glickoDisplay(initialGlicko()).rd).toBeCloseTo(350, 6);
     expect(() => glickoUpdate(initialGlicko(), [])).toThrow(/unchanged/);
@@ -93,6 +97,12 @@ describe("C2 glicko, points, awards, contracts", () => {
   it("writes one deterministic season save with the ranking invariants", () => {
     const save = runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" });
     expect(saveJson(save)).toBe(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" })));
+    expect(sha256Hex(saveJson(save))).toBe(JUNIPER_SEASON_SHA256);
+    const neon = save.standings.find((row) => row.club_id === "neon-tide");
+    const sable = save.standings.find((row) => row.club_id === "sable-comets");
+    expect(neon).toMatchObject({ series_wins: 2, map_diff: -3, maps_won: 7 });
+    expect(sable).toMatchObject({ series_wins: 2, map_diff: -4, maps_won: 8 });
+    expect(neon!.finish).toBeLessThan(sable!.finish);
     expect(save.club_state.reduce((sum, club) => sum + club.points, 0)).toBe(seasonPointTotal());
     expect(seasonPointTotal()).toBe(73);
     const pairs = new Set(

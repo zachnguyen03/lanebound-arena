@@ -22,6 +22,12 @@ export function seriesDuration(games: readonly MatchResult[]): number {
   return total;
 }
 
+/** Mean of a per-map sum. Series MVP, Finals MVP, and the award sorts all call this. */
+export function meanMapRating(total: number, maps: number): number {
+  if (maps <= 0) throw new Error("meanMapRating requires at least one map");
+  return total / maps;
+}
+
 /**
  * Highest mean map rating, then more maps, then higher mean z, then lower
  * player id. §14.4 names the mean; C-R-6 supplies the tie-break used for
@@ -40,12 +46,12 @@ export function seriesMvp(games: readonly MatchResult[]): string {
     }
   }
   const ranked = [...acc.entries()].sort((a, b) => {
-    const am = a[1].rating / a[1].maps;
-    const bm = b[1].rating / b[1].maps;
+    const am = meanMapRating(a[1].rating, a[1].maps);
+    const bm = meanMapRating(b[1].rating, b[1].maps);
     if (am !== bm) return bm - am;
     if (a[1].maps !== b[1].maps) return b[1].maps - a[1].maps;
-    const az = a[1].z / a[1].maps;
-    const bz = b[1].z / b[1].maps;
+    const az = meanMapRating(a[1].z, a[1].maps);
+    const bz = meanMapRating(b[1].z, b[1].maps);
     if (az !== bz) return bz - az;
     if (a[0] < b[0]) return -1;
     if (a[0] > b[0]) return 1;
