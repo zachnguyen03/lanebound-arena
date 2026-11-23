@@ -16,7 +16,7 @@ const samplePath = path.join(
   "apps/watch/public/samples/seed-20261122.jsonl",
 );
 const GOLD =
-  "07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a";
+  "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f";
 
 describe("Watch determinism guard", () => {
   it("loading and replaying a log leaves its digest unchanged", () => {

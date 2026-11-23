@@ -10,29 +10,43 @@ import { defaultEvenConfig, simulate } from "../../sim/index.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const outDir = path.join(root, "apps/watch/public/samples");
-fs.mkdirSync(outDir, { recursive: true });
 
-const SEED = 20261122;
-const result = simulate(defaultEvenConfig(SEED));
-const text = result.events.map((e) => JSON.stringify(e)).join("\n") + "\n";
+export const WATCH_SAMPLE_SEED = 20261122;
+export const WATCH_SAMPLE_NOTE =
+  "Seed 20261122 event log with no position stream. Pads are integer tiles; the viewer places units and props at tile centres.";
 
-fs.writeFileSync(path.join(outDir, "seed-20261122.jsonl"), text);
-fs.writeFileSync(
-  path.join(outDir, "seed-20261122.meta.json"),
-  JSON.stringify(
-    {
-      seed: SEED,
-      digest: result.digest,
-      constants_hash: result.constants_hash,
-      tick_count: result.tick_count,
-      event_count: result.events.length,
-      note: "Canonical S0 log (no pos). Watch places units at S0 spawn + SPAWN_JITTER_Y until pos/move events appear.",
-    },
-    null,
-    2,
-  ) + "\n",
-);
+/** Same bytes `npm run gen:watch-sample` writes. */
+export function buildWatchSample(): {
+  jsonl: string;
+  meta: string;
+  digest: string;
+} {
+  const result = simulate(defaultEvenConfig(WATCH_SAMPLE_SEED));
+  const jsonl = result.events.map((e) => JSON.stringify(e)).join("\n") + "\n";
+  const meta =
+    JSON.stringify(
+      {
+        seed: WATCH_SAMPLE_SEED,
+        digest: result.digest,
+        constants_hash: result.constants_hash,
+        tick_count: result.tick_count,
+        event_count: result.events.length,
+        note: WATCH_SAMPLE_NOTE,
+      },
+      null,
+      2,
+    ) + "\n";
+  return { jsonl, meta, digest: result.digest };
+}
 
-console.log(`wrote ${outDir}/seed-20261122.jsonl`);
-console.log(`digest=${result.digest}`);
-console.log(`events=${result.events.length} ticks=${result.tick_count}`);
+const isCli = process.argv[1]?.includes("gen-watch-sample");
+if (isCli) {
+  fs.mkdirSync(outDir, { recursive: true });
+  const { jsonl, meta, digest } = buildWatchSample();
+  fs.writeFileSync(path.join(outDir, "seed-20261122.jsonl"), jsonl);
+  fs.writeFileSync(path.join(outDir, "seed-20261122.meta.json"), meta);
+  const events = jsonl.trim().split("\n").length;
+  console.log(`wrote ${outDir}/seed-20261122.jsonl`);
+  console.log(`digest=${digest}`);
+  console.log(`events=${events}`);
+}
