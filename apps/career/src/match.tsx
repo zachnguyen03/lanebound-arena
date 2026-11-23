@@ -273,14 +273,26 @@ function Recap({ session }: { session: CareerSession }) {
           </table>
         ))}
       </div>
-      {map.cards.map((card, index) => (
-        <div className="dec" key={`${card.card_id}-${index}`}>
-          <b>{arenaCard(card.card_id)?.name ?? card.card_id}</b>
-          <div className="d">
-            {card.side === "blue" ? "Blue" : "Red"} · {card.outcome === "fired" ? "Fired" : "Expired"}
-          </div>
-        </div>
-      ))}
+      <div className="inset">
+        <table data-testid="card-events">
+          <tbody>
+            <tr>
+              <th>Card</th>
+              <th>Side</th>
+              <th>Status</th>
+            </tr>
+            {map.cards.map((card, index) => (
+              <tr key={`${card.card_id}-${index}`}>
+                <td>{arenaCard(card.card_id)?.name ?? card.card_id}</td>
+                <td>
+                  <span className={`sidechip ${card.side}`}>{card.side === "blue" ? "Blue" : "Red"}</span>
+                </td>
+                <td className={card.outcome === "fired" ? "fired" : "expired"}>{card.outcome === "fired" ? "Fired" : "Expired"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

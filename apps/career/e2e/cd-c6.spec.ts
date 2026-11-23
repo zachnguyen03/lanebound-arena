@@ -162,6 +162,36 @@ test("the draft is a padded table of role, player, champion, and status", async 
   expect(pad).toBe("18px");
 });
 
+test("card events are a padded table with a side chip and status colour", async ({ page }) => {
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  const table = page.getByTestId("card-events");
+  await expect(table.locator("th")).toHaveText(["Card", "Side", "Status"]);
+  const chip = table.locator(".sidechip").first();
+  const paint = await chip.evaluate((el) => {
+    const style = getComputedStyle(el);
+    const probe = document.createElement("div");
+    probe.style.background = el.classList.contains("red") ? "var(--c-red)" : "var(--c-blue)";
+    document.body.append(probe);
+    const background = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    return { background: style.backgroundColor, expected: background };
+  });
+  expect(paint.background).toBe(paint.expected);
+  const status = table.locator("td.fired, td.expired").first();
+  const colour = await status.evaluate((el) => {
+    const style = getComputedStyle(el);
+    const probe = document.createElement("div");
+    probe.style.color = el.classList.contains("fired") ? "var(--c-text)" : "var(--c-faint)";
+    document.body.append(probe);
+    const expected = getComputedStyle(probe).color;
+    probe.remove();
+    return { color: style.color, expected };
+  });
+  expect(colour.color).toBe(colour.expected);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
