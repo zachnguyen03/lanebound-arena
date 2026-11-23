@@ -1,7 +1,7 @@
 /**
- * Lab/fixture helpers for M1 combat tests — scripted packets and status
- * without requiring full AI.
+ * Lab/fixture helpers for M1 combat tests — read kit numbers from kits.ts only.
  */
+import { KITS } from "../data/champions/kits.js";
 import { computePacket } from "./packet.js";
 import { statsAtLevel, skillScale, hitChance, effAim } from "./stats.js";
 import {
@@ -18,17 +18,33 @@ import {
 import { DEFAULT_CONSTANTS } from "./constants.js";
 import { RngBank } from "./rng.js";
 import { sha256Hex } from "./sha256.js";
+import { evalL7Base } from "./formula.js";
+import { rollSkillshotHit } from "./cast.js";
 
-export { computePacket, statsAtLevel, skillScale, hitChance, effAim, emptyStatus, applyCc, addShield, absorbDamage, breakSleepOnHpLoss, strongDispel, basicDispel };
+export {
+  computePacket,
+  statsAtLevel,
+  skillScale,
+  hitChance,
+  effAim,
+  emptyStatus,
+  applyCc,
+  addShield,
+  absorbDamage,
+  breakSleepOnHpLoss,
+  strongDispel,
+  basicDispel,
+  evalL7Base,
+  rollSkillshotHit,
+};
+
+export function kitBase(champ: string, skill: "Q" | "W" | "R", atk: number, pow: number): number {
+  return evalL7Base(KITS[champ]![skill].l7_formula, atk, pow);
+}
 
 export function huntressQPacket(level: number, atk: number, targetPres: number): { raw: number; mitigated: number } {
-  const base = 110 + 0.8 * atk;
-  return computePacket({
-    base_raw: base,
-    level,
-    resist: targetPres,
-    physical: true,
-  });
+  const base = kitBase("huntress", "Q", atk, 0);
+  return computePacket({ base_raw: base, level, resist: targetPres, physical: true });
 }
 
 export function maelisRPacket(
@@ -36,16 +52,17 @@ export function maelisRPacket(
   pow: number,
   targetMres: number,
   missingHpFrac: number,
-): { raw: number; mitigated: number } {
-  const base = 350 + 1.7 * pow;
+): { raw: number; mitigated: number; base_raw: number } {
+  const base = kitBase("maelis", "R", 0, pow);
   const fin = 1 + 0.2 * missingHpFrac;
-  return computePacket({
+  const p = computePacket({
     base_raw: base,
     level,
     finisher_mult: fin,
     resist: targetMres,
     physical: false,
   });
+  return { ...p, base_raw: base };
 }
 
 export function kerrigRPacket(
@@ -55,9 +72,9 @@ export function kerrigRPacket(
   targetPres: number,
   missingHpFrac: number,
   hasMark: boolean,
-): { raw: number; mitigated: number; fizzled: boolean } {
-  if (!hasMark) return { raw: 0, mitigated: 0, fizzled: true };
-  const base = 330 + 1.4 * atk + 0.15 * pow;
+): { raw: number; mitigated: number; fizzled: boolean; base_raw: number } {
+  if (!hasMark) return { raw: 0, mitigated: 0, fizzled: true, base_raw: 0 };
+  const base = kitBase("kerrig", "R", atk, pow);
   const fin = 1 + 0.35 * missingHpFrac;
   const p = computePacket({
     base_raw: base,
@@ -66,7 +83,7 @@ export function kerrigRPacket(
     resist: targetPres,
     physical: true,
   });
-  return { ...p, fizzled: false };
+  return { ...p, fizzled: false, base_raw: base };
 }
 
 export function huntressRPacket(
@@ -74,8 +91,8 @@ export function huntressRPacket(
   atk: number,
   targetPres: number,
   marked: boolean,
-): { raw: number; mitigated: number; consumed_mark: boolean } {
-  const base = 230 + 1.05 * atk;
+): { raw: number; mitigated: number; consumed_mark: boolean; base_raw: number } {
+  const base = kitBase("huntress", "R", atk, 0);
   const fin = marked ? 1.35 : 1;
   const p = computePacket({
     base_raw: base,
@@ -84,10 +101,9 @@ export function huntressRPacket(
     resist: targetPres,
     physical: true,
   });
-  return { ...p, consumed_mark: marked };
+  return { ...p, consumed_mark: marked, base_raw: base };
 }
 
-/** Scripted three-stun DR sequence for test 18. */
 export function threeStunDr(raw: number, now0 = 0): number[] {
   const st = emptyStatus();
   const c = DEFAULT_CONSTANTS;
@@ -110,7 +126,6 @@ export function threeStunDr(raw: number, now0 = 0): number[] {
   return out;
 }
 
-/** Apply locks until budget taper kicks in (test 19). */
 export function lockBudgetTaperDemo(rawEach: number): { before: number; after: number; tapered: boolean } {
   const st = emptyStatus();
   const c = DEFAULT_CONSTANTS;
@@ -127,7 +142,6 @@ export function lockBudgetTaperDemo(rawEach: number): { before: number; after: n
     lock_budget: c.LOCK_BUDGET_S,
     lock_taper: c.LOCK_TAPER,
   });
-  // Keep applying until taper
   for (let i = 0; i < 20; i++) {
     t += 0.1;
     const r = applyCc(st, {
@@ -155,9 +169,13 @@ export function rollAimHits(
   effAimVal: number,
   reflexes: number,
   n: number,
+  c = DEFAULT_CONSTANTS,
 ): { hits: number; rate: number; replayDigest: string; hitChance: number } {
   const rng = new RngBank(seed);
-  const p = hitChance(effAimVal, reflexes);
+  // Consume the same reserved draws simulate() does before skillshot use.
+  void rng.next("player", 0);
+  void rng.next("skillshot", 0);
+  const p = hitChance(effAimVal, reflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
   let hits = 0;
   const bits: number[] = [];
   for (let i = 0; i < n; i++) {
@@ -165,9 +183,7 @@ export function rollAimHits(
     bits.push(hit ? 1 : 0);
     if (hit) hits += 1;
   }
-  // Replay digest: SHA-256 of the hit/miss bitstring (identical seed → identical digest).
-  const payload = bits.join("");
-  return { hits, rate: hits / n, replayDigest: sha256Hex(payload), hitChance: p };
+  return { hits, rate: hits / n, replayDigest: sha256Hex(bits.join("")), hitChance: p };
 }
 
 export type { StatusState, CcKind };

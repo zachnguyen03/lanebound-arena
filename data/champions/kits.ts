@@ -497,7 +497,6 @@ export const KITS: Record<string, ChampKit> = {
       range: 6,
       radius: 0.0,
       radius_design_proposal: "0.0 selected unit only; body 0.4 if required; do not splash",
-      // TODO §7.11 Mirren W: extract field is `l7_damage` ("none (hex is the point)"), not `l7_formula`
       damage: "none (hex is the point)",
       CD_s: 15,
       cast_s: 0.25,

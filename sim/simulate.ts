@@ -1,19 +1,31 @@
 import { constantsHash, digestEvents } from "./canonical.js";
 import {
-  DUMMY_MARKSMAN,
   landMissiles,
   resolvePendingDamage,
   tickAutos,
+  recordAssistCredit,
   type AutoMissile,
 } from "./combat.js";
 import { mergeConstants, type Constants } from "./constants.js";
+import {
+  landPendingSkills,
+  processScriptedCasts,
+  runScriptedSkillshots,
+  tickCasts,
+  type PendingSkillLand,
+} from "./cast.js";
+import { dataHash } from "./data_hash.js";
+import { CHAMPIONS } from "../data/champions/defs.js";
 import { inEnemySanctuary } from "./map.js";
 import { applyDisplacement, integrateSteering } from "./motor.js";
+import { pruneMarks } from "./marks.js";
 import { RngBank } from "./rng.js";
-import { emptyStatus } from "./status.js";
+import { applyCc, emptyStatus, isTimeStopped, tickStatuses } from "./status.js";
+import { statsAtLevel } from "./stats.js";
 import type {
   MatchConfig,
   MatchState,
+  PlayerAttrs,
   SideConfig,
   SimEvent,
   SimulateResult,
@@ -25,6 +37,10 @@ import type {
 
 const SLOTS: Slot[] = ["top", "jungle", "mid", "adc", "support"];
 
+/** Stable S1 default lineups — real champions, role-appropriate. */
+const DEFAULT_BLUE_PICKS = ["brannoch", "sedge", "kerrig", "huntress", "ysol"];
+const DEFAULT_RED_PICKS = ["rhedan", "tolle", "helvar", "maelis", "saelo"];
+
 const DEFAULT_TACTICS = {
   preset: "hold_the_pit" as const,
   aggression: 0 as const,
@@ -32,17 +48,19 @@ const DEFAULT_TACTICS = {
   combo_style: "auto" as const,
 };
 
+const DEFAULT_ATTRS: PlayerAttrs = {
+  aim: 70,
+  reflexes: 70,
+  execution: 70,
+  decision: 70,
+  positioning: 70,
+  teamwork: 70,
+};
+
 function defaultPlayer(i: number): SideConfig["players"][0] {
   return {
     name: `P${i}`,
-    attrs: {
-      aim: 70,
-      reflexes: 70,
-      execution: 70,
-      decision: 70,
-      positioning: 70,
-      teamwork: 70,
-    },
+    attrs: { ...DEFAULT_ATTRS },
     mastery: {},
   };
 }
@@ -52,18 +70,33 @@ export function defaultEvenConfig(seed = 20261122): MatchConfig {
     seed,
     blue: {
       players: [0, 1, 2, 3, 4].map((i) => defaultPlayer(i)),
-      picks: ["dummy", "dummy", "dummy", "dummy", "dummy"],
+      picks: DEFAULT_BLUE_PICKS.slice(),
       tactics: { ...DEFAULT_TACTICS },
     },
     red: {
       players: [0, 1, 2, 3, 4].map((i) => defaultPlayer(i)),
-      picks: ["dummy", "dummy", "dummy", "dummy", "dummy"],
+      picks: DEFAULT_RED_PICKS.slice(),
       tactics: { ...DEFAULT_TACTICS },
     },
     draft_mode: "fixed",
     forced_clock_end: true,
-    notes: "S0 even default",
+    notes: "S1 even default — real champions",
   };
+}
+
+function applyChampStats(u: UnitState, level: number): void {
+  if (u.champ === "dummy" || !CHAMPIONS[u.champ]) {
+    // Legacy dummy = Huntress L1 numbers
+    const s = statsAtLevel("huntress", level);
+    u.stats = { ...s };
+    u.max_hp = s.hp;
+    if (u.hp > u.max_hp) u.hp = u.max_hp;
+    return;
+  }
+  const s = statsAtLevel(u.champ, level);
+  u.stats = { ...s };
+  u.max_hp = s.hp;
+  if (u.hp > u.max_hp) u.hp = u.max_hp;
 }
 
 function makeUnit(
@@ -73,22 +106,24 @@ function makeUnit(
   spawn: [number, number],
   jitterY: number,
   c: Constants,
+  champ: string,
+  attrs: PlayerAttrs,
 ): UnitState {
   const id = `${team}:${slot}` as UnitId;
   const slotOrd = SLOTS.indexOf(slot);
   const yOff = (slotOrd - 2) * jitterY;
-  return {
+  const u: UnitState = {
     id,
     team,
     slot,
     index,
-    champ: "dummy",
+    champ,
     x: spawn[0],
     y: spawn[1] + yOff,
     vx: 0,
     vy: 0,
-    hp: DUMMY_MARKSMAN.hp,
-    max_hp: DUMMY_MARKSMAN.hp,
+    hp: 900,
+    max_hp: 900,
     xp: 0,
     level: 1,
     alive: true,
@@ -97,7 +132,19 @@ function makeUnit(
     auto_windup_left: 0,
     auto_windup_target: null,
     auto_next_start_t: 0,
-    stats: { ...DUMMY_MARKSMAN },
+    stats: {
+      hp: 900,
+      regen: 4,
+      atk: 72,
+      pow: 8,
+      pres: 26,
+      mres: 24,
+      as: 0.84,
+      crit: 0.08,
+      range: 6.25,
+      ms: 3.3,
+    },
+    attrs: { ...attrs },
     intent: "Idle",
     waypoint: null,
     scripted_wp_i: 0,
@@ -108,16 +155,36 @@ function makeUnit(
     attack_reset_pending: false,
     last_damage_t: -Infinity,
     last_dealt_t: -Infinity,
+    marks: [],
+    cd_q: 0,
+    cd_w: 0,
+    cd_r: 0,
+    cast_left: 0,
+    cast_skill: null,
+    cast_target: null,
+    cast_aim_x: spawn[0],
+    cast_aim_y: spawn[1] + yOff,
+    cast_force_hit: false,
+    cast_seq: 0,
+    break_until: 0,
+    commit_until: 0,
   };
+  applyChampStats(u, 1);
+  u.hp = u.max_hp;
+  return u;
 }
 
 function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
   const units: UnitState[] = [];
   let index = 0;
   for (const team of ["blue", "red"] as Team[]) {
+    const side = team === "blue" ? cfg.blue : cfg.red;
     const spawn = team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
-    for (const slot of SLOTS) {
-      units.push(makeUnit(team, slot, index, spawn, c.SPAWN_JITTER_Y, c));
+    for (let si = 0; si < SLOTS.length; si++) {
+      const slot = SLOTS[si]!;
+      const champ = side.picks[si] ?? "dummy";
+      const attrs = side.players[si]?.attrs ?? DEFAULT_ATTRS;
+      units.push(makeUnit(team, slot, index, spawn, c.SPAWN_JITTER_Y, c, champ, attrs));
       index += 1;
     }
   }
@@ -126,12 +193,25 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
     for (const u of units) {
       const o = overs[u.id];
       if (!o) continue;
+      if (o.champ !== undefined) {
+        u.champ = o.champ;
+        applyChampStats(u, u.level);
+        u.hp = u.max_hp;
+      }
+      if (o.attrs) u.attrs = { ...u.attrs, ...o.attrs };
       if (o.x !== undefined) u.x = o.x;
       if (o.y !== undefined) u.y = o.y;
+      if (o.level !== undefined) {
+        u.level = o.level;
+        applyChampStats(u, u.level);
+        if (o.hp === undefined) u.hp = u.max_hp;
+      }
       if (o.hp !== undefined) u.hp = o.hp;
       if (o.xp !== undefined) u.xp = o.xp;
-      if (o.level !== undefined) u.level = o.level;
-      if (o.spawn_shield_until !== undefined) u.spawn_shield_until = o.spawn_shield_until;
+      if (o.spawn_shield_until !== undefined) {
+        u.spawn_shield_until = o.spawn_shield_until;
+        u.status.spawn_shield_until = o.spawn_shield_until;
+      }
       if (o.auto_next_start_t !== undefined) u.auto_next_start_t = o.auto_next_start_t;
       if (o.range !== undefined) u.stats.range = o.range;
       if (o.as !== undefined) u.stats.as = o.as;
@@ -151,13 +231,10 @@ function applyLevelUps(
       const need = c.XP_TO_LEVEL[u.level + 1];
       if (need === undefined || u.xp < need) break;
       u.level += 1;
-      const hpGain = 200 / 6;
-      u.max_hp += hpGain;
+      const prevMax = u.max_hp;
+      applyChampStats(u, u.level);
+      const hpGain = u.max_hp - prevMax;
       u.hp += hpGain;
-      u.stats.hp = u.max_hp;
-      u.stats.atk += 28 / 6;
-      u.stats.as += 0.12 / 6;
-      u.stats.crit += 0.06 / 6;
       emit("level_up", {
         unit_id: u.id,
         new_level: u.level,
@@ -194,6 +271,7 @@ function updateScriptedMotor(
   if (!scripted) return;
   for (const u of state.units) {
     if (!u.alive) continue;
+    if (isTimeStopped(u.status)) continue;
     const sm = scripted[u.id];
     if (!sm) continue;
     const arrive = sm.arrive_r ?? c.SCRIPTED_ARRIVE_R;
@@ -211,19 +289,21 @@ function updateScriptedMotor(
     if (dx * dx + dy * dy <= arrive * arrive) {
       u.scripted_wp_i += 1;
       if (u.scripted_wp_i < sm.waypoints.length) {
-        const next = sm.waypoints[u.scripted_wp_i]!;
-        u.waypoint = { ...next };
+        const nwp = sm.waypoints[u.scripted_wp_i]!;
+        u.waypoint = { ...nwp };
         emit("intent", {
           unit_id: u.id,
           intent: "Approach",
-          x: next.x,
-          y: next.y,
+          x: nwp.x,
+          y: nwp.y,
         });
-      } else if (sm.hold_at_end !== false) {
+      } else {
         u.waypoint = null;
         u.intent = "Idle";
         emit("intent", { unit_id: u.id, intent: "Idle" });
       }
+    } else {
+      u.intent = "Approach";
     }
   }
 }
@@ -231,20 +311,22 @@ function updateScriptedMotor(
 export function simulate(config: MatchConfig): SimulateResult {
   const c = mergeConstants(config.constants);
   const chash = constantsHash(c);
+  const dhash = dataHash();
   const rng = new RngBank(config.seed >>> 0);
-  // Reserve streams so later milestones do not reshape the hasher contract.
   void rng.next("player", 0);
   void rng.next("skillshot", 0);
 
   const events: SimEvent[] = [];
   let seq = 0;
   let missiles: AutoMissile[] = [];
+  let pendingLands: PendingSkillLand[] = [];
 
   const state: MatchState = {
     tick: 0,
     t: 0,
     seed: config.seed >>> 0,
     constants_hash: chash,
+    data_hash: dhash,
     score_blue: 0,
     score_red: 0,
     ended: false,
@@ -264,10 +346,10 @@ export function simulate(config: MatchConfig): SimulateResult {
     state.event_seq = seq;
   };
 
-  // Tick 0 — setup only (G3)
   emit("match_start", {
     seed: state.seed,
     constants_hash: chash,
+    data_hash: dhash,
     blue_lineup: config.blue.picks.slice(),
     red_lineup: config.red.picks.slice(),
     blue_cards: [],
@@ -292,21 +374,22 @@ export function simulate(config: MatchConfig): SimulateResult {
     }
   }
 
-  const maxTick = Math.round(c.MATCH_T / c.DT); // 2400
+  const maxTick = Math.round(c.MATCH_T / c.DT);
 
   for (let tick = 1; tick <= maxTick; tick++) {
     if (state.ended) break;
     state.tick = tick;
-
-    // 1. Clock
     state.t = tOf(tick);
     const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T;
 
-    // 2. Input / AI (S0: scripted motor)
     updateScriptedMotor(state, config, c, emit);
 
-    // 3. Movement — ordinary steering, then displacements (G12)
     for (const u of state.units) {
+      if (isTimeStopped(u.status)) {
+        u.vx = 0;
+        u.vy = 0;
+        continue;
+      }
       const r = integrateSteering(state, u, c);
       if (r.clipped && r.reason === "sanctuary") {
         emit("sanctuary_clip", {
@@ -327,7 +410,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     state.displacements = state.displacements.filter((d) => d.land_tick !== tick);
     for (const d of due) {
       const u = state.units.find((x) => x.id === d.unit_id);
-      if (!u) continue;
+      if (!u || isTimeStopped(u.status)) continue;
       const r = applyDisplacement(u, d.dx, d.dy, c);
       if (r.clipped && r.reason === "sanctuary") {
         emit("sanctuary_clip", {
@@ -338,7 +421,6 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
-    // G5 lab assertion
     if (config.assert_sanctuary) {
       for (const u of state.units) {
         if (!u.alive) continue;
@@ -364,9 +446,59 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
-    // 4. Cast — dummy autos (windup + missiles) + lab scripted damage
+    // Lab attack-reset inject
+    if (config.scripted_attack_reset) {
+      for (const ar of config.scripted_attack_reset) {
+        if (ar.tick !== tick) continue;
+        const u = state.units.find((x) => x.id === ar.unit_id);
+        if (u) u.attack_reset_pending = ar.pending;
+      }
+    }
+
+    if (config.scripted_cc) {
+      for (const sc of config.scripted_cc) {
+        if (sc.tick !== tick) continue;
+        const u = state.units.find((x) => x.id === sc.target_id);
+        if (!u) continue;
+        if (sc.kind === "break") {
+          u.status.break_until = state.t + sc.duration;
+          u.break_until = u.status.break_until;
+          continue;
+        }
+        applyCc(u.status, {
+          kind: sc.kind,
+          raw_duration: sc.duration,
+          school: "magic",
+          source_id: sc.source_id ?? "lab",
+          now: state.t,
+          dr_window: c.DR_WINDOW_S,
+          dr_factor: c.DR_FACTOR,
+          dr_floor: c.DR_FLOOR,
+          lock_budget: c.LOCK_BUDGET_S,
+          lock_taper: c.LOCK_TAPER,
+        });
+        if (sc.source_id) {
+          recordAssistCredit(u, sc.source_id, state.t, "cc");
+        }
+      }
+    }
+
+    // 4. Cast — advance in-flight casts first, then start new scripted casts
+    // (so cast_s is full duration; begin tick does not also consume DT).
+    tickCasts(state, pendingLands, c, rng, emit);
+    processScriptedCasts(state, config.scripted_casts, c, emit);
+    pendingLands = landPendingSkills(state, pendingLands, c, emit);
+
+    if (config.scripted_skillshots) {
+      for (const ss of config.scripted_skillshots) {
+        if (ss.tick !== tick) continue;
+        runScriptedSkillshots(state, rng, c, ss, emit);
+      }
+    }
+
     tickAutos(state, c, rng, missiles, (type, payload) => emit(type, payload));
     missiles = landMissiles(state, missiles);
+
     if (config.scripted_damage) {
       for (const sd of config.scripted_damage) {
         if (sd.tick !== tick) continue;
@@ -382,17 +514,33 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
+    if (config.scripted_heals) {
+      for (const h of config.scripted_heals) {
+        if (h.tick !== tick) continue;
+        const tgt = state.units.find((u) => u.id === h.target_id);
+        const src = state.units.find((u) => u.id === h.source_id);
+        if (!tgt || !tgt.alive || !src) continue;
+        tgt.hp = Math.min(tgt.max_hp, tgt.hp + h.amount);
+        recordAssistCredit(tgt, src.id, state.t, "heal");
+        emit("heal", { source_id: src.id, target_id: tgt.id, amount: h.amount });
+      }
+    }
+
     // 5. Damage
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
 
-    // 6. Status — regen
+    // 6. Status — CC tick + regen (paused under time-stop)
     for (const u of state.units) {
       if (!u.alive) continue;
-      u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
+      pruneMarks(u.marks, state.t);
+      const paused = isTimeStopped(u.status);
+      tickStatuses(u.status, c.DT, paused);
+      if (!paused) {
+        u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
+      }
     }
 
     // 10. Deaths / kill+assist XP / time XP / level-ups (G2)
-    // Order: deaths + kill/assist XP → time XP → level-ups.
     for (const u of state.units) {
       if (!(u.alive && u.hp <= 0)) continue;
       u.alive = false;
@@ -416,22 +564,18 @@ export function simulate(config: MatchConfig): SimulateResult {
             seen.add(sourceId);
             assists.push(sourceId);
           };
-          // Damage / CC on the victim (§6.10).
           for (const entry of u.assist_log) {
             if (entry.t < windowStart) continue;
             if (entry.kind === "damage" || entry.kind === "cc") consider(entry.source_id);
           }
-          // Legacy damage_log (kept in sync for S0 fixtures).
           for (const entry of u.damage_log) {
             if (entry.t < windowStart) continue;
             consider(entry.source_id);
           }
-          // Heal / shield on the killer (§6.10).
           for (const entry of killer.assist_log) {
             if (entry.t < windowStart) continue;
             if (entry.kind === "heal" || entry.kind === "shield") consider(entry.source_id);
           }
-          // Stable assist order by unit index
           assists.sort((a, b) => {
             const ai = state.units.find((x) => x.id === a)?.index ?? 0;
             const bi = state.units.find((x) => x.id === b)?.index ?? 0;
@@ -456,13 +600,12 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     const timeXp = c.TIME_XP_PER_S * c.DT;
     for (const u of state.units) {
-      if (!u.alive) continue; // dies this tick: no time XP (G2)
+      if (!u.alive) continue;
       grantXp(u, timeXp, "time", emit);
     }
 
     applyLevelUps(state, c, emit);
 
-    // 14. Match-end
     if (clockEndFlag) {
       let winner: "blue" | "red" | "draw" = "draw";
       if (state.score_blue > state.score_red) winner = "blue";
@@ -485,6 +628,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     events,
     digest: digestEvents(events),
     constants_hash: chash,
+    data_hash: dhash,
     tick_count: state.tick,
   };
 }

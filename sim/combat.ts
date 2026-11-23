@@ -3,6 +3,8 @@ import { dist } from "./math.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
 import {
+  absorbDamage,
+  breakSleepOnHpLoss,
   isBanished,
   isBlind,
   isDisarmed,
@@ -259,9 +261,11 @@ export function resolvePendingDamage(
     }
 
     const resist = p.physical ? target.stats.pres : target.stats.mres;
-    const mitigated = p.raw * mit(resist);
-    target.hp = Math.floor(target.hp - mitigated);
-    if (mitigated > 0) {
+    const mitigated = p.pre_mitigated !== undefined ? p.pre_mitigated : p.raw * mit(resist);
+    const abs = absorbDamage(target.status, mitigated, state.t);
+    target.hp = Math.floor(target.hp - abs.hpLoss);
+    if (abs.hpLoss > 0) {
+      breakSleepOnHpLoss(target.status, abs.hpLoss);
       target.last_hit_by = p.source_id;
       target.damage_log.push({ source_id: p.source_id, t: state.t });
       target.assist_log.push({ source_id: p.source_id, t: state.t, kind: "damage" });
@@ -276,7 +280,7 @@ export function resolvePendingDamage(
       mitigated,
       amp: 1,
       crit: p.crit,
-      shield_absorbed: 0,
+      shield_absorbed: abs.shieldAbsorbed,
       hp_after: target.hp,
     });
   }

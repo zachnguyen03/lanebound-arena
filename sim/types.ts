@@ -72,6 +72,8 @@ export interface MatchConfig {
         hp?: number;
         xp?: number;
         level?: number;
+        champ?: string;
+        attrs?: Partial<PlayerAttrs>;
         spawn_shield_until?: number;
         /** Lab: block autos until this sim t (windup may not start). */
         auto_next_start_t?: number;
@@ -88,6 +90,43 @@ export interface MatchConfig {
     target_id: UnitId;
     raw: number;
   }>;
+  /** Lab/test: scripted ability casts (S1; no AI). */
+  scripted_casts?: ScriptedCast[];
+  /** Lab: on a tick, fire N Aim skillshot rolls through the sim RNG (M1-19b). */
+  scripted_skillshots?: Array<{
+    tick: number;
+    source_id: UnitId;
+    target_id: UnitId;
+    count: number;
+  }>;
+  /** Lab: force attack_reset_pending on a unit at a tick. */
+  scripted_attack_reset?: Array<{ tick: number; unit_id: UnitId; pending: boolean }>;
+  /** Lab: inject a heal (for assist credit tests). */
+  scripted_heals?: Array<{
+    tick: number;
+    source_id: UnitId;
+    target_id: UnitId;
+    amount: number;
+  }>;
+  /** Lab: apply a CC kind directly (Blind / Break inject for fixtures). */
+  scripted_cc?: Array<{
+    tick: number;
+    target_id: UnitId;
+    kind: import("./status.js").CcKind;
+    duration: number;
+    source_id?: UnitId;
+  }>;
+}
+
+export interface ScriptedCast {
+  tick: number;
+  source_id: UnitId;
+  skill: "Q" | "W" | "R";
+  target_id?: UnitId;
+  aim_x?: number;
+  aim_y?: number;
+  /** Skip Aim roll (lab fixtures that pin damage/CC). */
+  force_hit?: boolean;
 }
 
 export interface ScriptedMotor {
@@ -135,6 +174,7 @@ export interface UnitState {
   /** Earliest t at which the next auto windup may start. */
   auto_next_start_t: number;
   stats: DummyStats;
+  attrs: PlayerAttrs;
   intent: string;
   waypoint: Vec2 | null;
   scripted_wp_i: number;
@@ -150,6 +190,19 @@ export interface UnitState {
   /** Last sim t damage received / dealt (combat-heal window). */
   last_damage_t: number;
   last_dealt_t: number;
+  marks: import("./marks.js").MarkInstance[];
+  cd_q: number;
+  cd_w: number;
+  cd_r: number;
+  cast_left: number;
+  cast_skill: "Q" | "W" | "R" | null;
+  cast_target: UnitId | null;
+  cast_aim_x: number;
+  cast_aim_y: number;
+  cast_force_hit: boolean;
+  cast_seq: number;
+  break_until: number;
+  commit_until: number;
 }
 
 export interface Displacement {
@@ -170,6 +223,8 @@ export interface PendingDamage {
   raw: number;
   physical: boolean;
   crit: boolean;
+  /** If set, apply this HP loss path directly (already skill_scale/amps/mit). */
+  pre_mitigated?: number;
 }
 
 export interface MatchState {
@@ -177,6 +232,7 @@ export interface MatchState {
   t: number;
   seed: number;
   constants_hash: string;
+  data_hash: string;
   score_blue: number;
   score_red: number;
   ended: boolean;
@@ -205,5 +261,6 @@ export interface SimulateResult {
   events: SimEvent[];
   digest: string;
   constants_hash: string;
+  data_hash: string;
   tick_count: number;
 }
