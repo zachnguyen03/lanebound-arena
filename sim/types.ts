@@ -75,6 +75,9 @@ export interface MatchConfig {
         spawn_shield_until?: number;
         /** Lab: block autos until this sim t (windup may not start). */
         auto_next_start_t?: number;
+        /** Lab: override attack range (e.g. force melee ≤ 2). */
+        range?: number;
+        as?: number;
       }
     >
   >;

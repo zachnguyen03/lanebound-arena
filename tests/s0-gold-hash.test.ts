@@ -7,13 +7,13 @@ import { DEFAULT_CONSTANTS, constantsHash, defaultEvenConfig, simulate } from ".
  */
 export const GOLD = {
   seed_20261122: {
-    // Updated by G2 phase-10 XP order (kill/assist → time → level-ups). See REPORT.md.
-    digest: "2202014ebe26f2667b1cc23d9bbd55fa150d592a32741d95721d733ecadabe00",
-    constants_hash: "55713b35526c584698d4f8fb2068495da98a83c4c86ea118b5498fdce8358204",
+    // Updated by AUTO_WINDUP (§15) + G2 XP order. See lab/s0/REPORT.md before/after.
+    digest: "07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a",
+    constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
   },
   seed_20261123: {
-    digest: "d9d438aade560fabebcb3cb0f1c1afa35c91e672b1279319cf83e8a787beac7f",
-    constants_hash: "55713b35526c584698d4f8fb2068495da98a83c4c86ea118b5498fdce8358204",
+    digest: "be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3",
+    constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
   },
 } as const;
 

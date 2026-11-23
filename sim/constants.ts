@@ -81,6 +81,8 @@ export interface Constants {
   LOCK_TAPER: number;
   PETRIFY_DR: number;
   MISSILE_SPEED: number;
+  /** Windup duration = AUTO_WINDUP / AS seconds (§6.8 / §15). */
+  AUTO_WINDUP: number;
   ASSIST_WINDOW_S: number;
   CHASE_LEASH: number;
   CHASE_TTK_STOP: number;
@@ -179,6 +181,7 @@ export const DEFAULT_CONSTANTS: Constants = {
   LOCK_TAPER: 0.35,
   PETRIFY_DR: 0.25,
   MISSILE_SPEED: 18.0,
+  AUTO_WINDUP: 0.25,
   ASSIST_WINDOW_S: 6.0,
   CHASE_LEASH: 10.0,
   CHASE_TTK_STOP: 2.0,

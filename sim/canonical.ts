@@ -88,6 +88,7 @@ export function constantsTable(c: Constants): Record<string, unknown> {
   return {
     ASSIST_WINDOW_S: c.ASSIST_WINDOW_S,
     ASSIST_XP: c.ASSIST_XP,
+    AUTO_WINDUP: c.AUTO_WINDUP,
     BLUE_SPAWN: c.BLUE_SPAWN,
     BODY_RADIUS: c.BODY_RADIUS,
     BO1_EXTRA_S: c.BO1_EXTRA_S,

@@ -1,5 +1,11 @@
 import { constantsHash, digestEvents } from "./canonical.js";
-import { DUMMY_MARKSMAN, resolvePendingDamage, tickAutos } from "./combat.js";
+import {
+  DUMMY_MARKSMAN,
+  landMissiles,
+  resolvePendingDamage,
+  tickAutos,
+  type AutoMissile,
+} from "./combat.js";
 import { mergeConstants, type Constants } from "./constants.js";
 import { inEnemySanctuary } from "./map.js";
 import { applyDisplacement, integrateSteering } from "./motor.js";
@@ -121,6 +127,8 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       if (o.level !== undefined) u.level = o.level;
       if (o.spawn_shield_until !== undefined) u.spawn_shield_until = o.spawn_shield_until;
       if (o.auto_next_start_t !== undefined) u.auto_next_start_t = o.auto_next_start_t;
+      if (o.range !== undefined) u.stats.range = o.range;
+      if (o.as !== undefined) u.stats.as = o.as;
     }
   }
   return units;
@@ -224,6 +232,7 @@ export function simulate(config: MatchConfig): SimulateResult {
 
   const events: SimEvent[] = [];
   let seq = 0;
+  let missiles: AutoMissile[] = [];
 
   const state: MatchState = {
     tick: 0,
@@ -349,8 +358,9 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
-    // 4. Cast — dummy autos + lab scripted damage
-    tickAutos(state, c, rng, (type, payload) => emit(type, payload));
+    // 4. Cast — dummy autos (windup + missiles) + lab scripted damage
+    tickAutos(state, c, rng, missiles, (type, payload) => emit(type, payload));
+    missiles = landMissiles(state, missiles);
     if (config.scripted_damage) {
       for (const sd of config.scripted_damage) {
         if (sd.tick !== tick) continue;
