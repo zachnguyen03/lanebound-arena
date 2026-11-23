@@ -3,7 +3,8 @@
  * Each case first requires that a chase actually started (intent Chase, or Approach
  * toward the fleeing target). A sim that never chases must not pass the stop clause.
  *
- * est_ttk > 2.0 s is not tested here — the est_ttk / dps_est formula is an open question.
+ * The third stop — est_ttk > 2.0 s — is tested after the leash case (R #3 S2-5 L1915).
+ * The test does not compute or assert an exact A_true or dummy-5s dps_est.
  */
 import { describe, expect, it } from "vitest";
 import { dist, inRedSanctuary, pathOf, runAi, type UId } from "./_harness.js";
@@ -64,6 +65,44 @@ describe("Chase stops (§9.4 L1143, §9.6 L1164, Hunt §9.2 L1109 / §12 L1349)"
       (e) => e.unit_id === CHASER && (e.t as number) >= firstChaseT + 10 / 3.0 + 0.5 && e.intent === "Chase",
     );
     // 10 tiles at ~3.3 MS is ~3 s; after that the intent must not stay Chase.
+    expect(lateChase).toHaveLength(0);
+  });
+
+  it("R #3 S2-5 L1915 / §9.4 L1143: chase begins, then stops when est_ttk > 2.0 s (dummy 5 s dps_est; no exact A_true)", () => {
+    // L1 assassin vs a full-HP L10 tank standing still, already within 8 tiles.
+    // Dummy 5 s damage of a level-1 kit (R not included: level < 5) cannot empty
+    // a L10 tank in 2 s, so est_ttk > 2. The tank never enters sanctuary and the
+    // gap is well under the 10-tile leash, so those two stops do not fire first.
+    const r = runAi({
+      T: 6.0,
+      pos: true,
+      tactics: { blue: { preset: "hunt" } },
+      units: {
+        [CHASER]: { champ: "kerrig", level: 1, x: 12, y: 4, auto: true },
+        [FLEE]: { champ: "brannoch", level: 10, x: 14, y: 4, auto: false },
+      },
+      motor: { [FLEE]: { to: [[14, 4]], arrive_r: 0.2, hold_at_end: true } },
+    });
+    const chase = r.of("intent", (e) => e.unit_id === CHASER && (e.intent === "Chase" || e.intent === "Approach"));
+    expect(chase.length).toBeGreaterThan(0);
+    const firstChaseT = chase[0]!.t as number;
+    const path = pathOf(r.events, CHASER);
+    const origin = path.find((p) => p.t >= firstChaseT - 1e-9) ?? { x: 12, y: 4, t: firstChaseT, tick: 0 };
+    const travelled = path.filter((p) => p.t >= origin.t).map((p) => dist(p, origin));
+    expect(Math.max(...travelled, 0)).toBeLessThan(8); // leash must not be the stop
+    expect(path.every((p) => !inRedSanctuary(p.x))).toBe(true);
+    const laterStopped = r.of(
+      "intent",
+      (e) =>
+        e.unit_id === CHASER &&
+        (e.t as number) >= firstChaseT + 0.5 &&
+        e.intent !== "Chase",
+    );
+    expect(laterStopped.length).toBeGreaterThan(0);
+    const lateChase = r.of(
+      "intent",
+      (e) => e.unit_id === CHASER && (e.t as number) >= firstChaseT + 2.5 && e.intent === "Chase",
+    );
     expect(lateChase).toHaveLength(0);
   });
 });

@@ -11,7 +11,8 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { defaultEvenConfig, simulate } from "../../../sim/index.js";
+import { defaultEvenConfig, digestEvents, simulate } from "../../../sim/index.js";
+import { runAi, type UId } from "./_harness.js";
 
 const SEED = 20261122;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -45,4 +46,37 @@ describe("Digest still stable with AI on (M2-24 L1737, G10 L1891)", () => {
     };
     expect(run()).toBe(run());
   }, 60_000);
+
+  it("R #3 S2-7 L1917: intent is emitted only when it changes, not every tick", () => {
+    const mid = "blue:mid" as UId;
+    const r = runAi({
+      T: 2.0,
+      pos: true,
+      motor: { [mid]: { to: [[8, 7.5]], arrive_r: 0.3, hold_at_end: true } },
+    });
+    const intents = r.of("intent", (e) => e.unit_id === mid);
+    expect(intents.length).toBeGreaterThan(0);
+    for (let i = 1; i < intents.length; i++) {
+      const a = intents[i - 1]!;
+      const b = intents[i]!;
+      const same = a.intent === b.intent && a.target_id === b.target_id;
+      expect(same, `intent repeated at t=${b.t} (only-on-change, L165 / R #3 S2-7)`).toBe(false);
+    }
+  });
+
+  it("R #3 S2-7 L1917: intent is a first-class digest event; move and pos stay out", () => {
+    const mid = "blue:mid" as UId;
+    const r = runAi({
+      T: 2.0,
+      pos: true,
+      motor: { [mid]: { to: [[8, 7.5]], arrive_r: 0.3, hold_at_end: true } },
+    });
+    const intents = r.of("intent");
+    expect(intents.length).toBeGreaterThan(0);
+    expect(digestEvents(r.events)).toBe(r.digest);
+    const withoutPosMove = r.events.filter((e) => e.type !== "pos" && e.type !== "move");
+    expect(digestEvents(withoutPosMove)).toBe(r.digest);
+    const withoutIntent = r.events.filter((e) => e.type !== "intent");
+    expect(digestEvents(withoutIntent)).not.toBe(r.digest);
+  });
 });

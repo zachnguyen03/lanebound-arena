@@ -18,6 +18,24 @@ export const SLOTS = ["top", "jungle", "mid", "adc", "support"] as const;
 export type Slot = (typeof SLOTS)[number];
 export type Team = "blue" | "red";
 
+/**
+ * S2 tactics shape (Appendix R #3 S2-6 L1916 / §12 L1344–1357).
+ * Frozen-S1 API deviation: `combo_style` is `auto` | `hold_R` (aggressive /
+ * conservative are retired), plus the Focus slot (×1.25) and an optional
+ * secondary tactic. Written against the ruling names — assigning this onto
+ * `MatchConfig` at tip `2cdcf26` is expected to type-error until S2 lands.
+ */
+export interface S2Tactics {
+  preset: TacticPreset;
+  secondary?: TacticPreset;
+  aggression: -1 | 0 | 1;
+  protect_the_carry: boolean;
+  combo_style: "auto" | "hold_R";
+  /** `auto` or an enemy slot; that slot's score is multiplied by 1.25. */
+  focus?: "auto" | Slot;
+}
+
+
 export const DT = 0.1;
 /** Lab pit — off the zone (12,8) r=3 and off the four pillars. */
 export const PIT = { x: 12, y: 4 };
@@ -48,7 +66,7 @@ export interface AiScenario {
   seed?: number;
   T: number;
   units?: Partial<Record<UId, PlaceSpec>>;
-  tactics?: { blue?: Partial<MatchConfig["blue"]["tactics"]>; red?: Partial<MatchConfig["blue"]["tactics"]> };
+  tactics?: { blue?: Partial<S2Tactics>; red?: Partial<S2Tactics> };
   cc?: Array<{ tick: number; target: UId; kind: string; duration: number; source?: UId }>;
   casts?: Array<{
     tick: number;
@@ -221,10 +239,11 @@ export function cluster(
   return units;
 }
 
-/** Positions of a unit over time from debug `pos` events (spec L165, lab-verbose, not in the digest). */
+/** Positions of a unit over time from the debug_pos stream (spec L165, lab-verbose, not in the digest).
+ * Tip `2cdcf26` emits these as `move`; the spec also names `pos`. Accept either. */
 export function pathOf(events: Ev[], id: UId): Array<{ tick: number; t: number; x: number; y: number }> {
   return events
-    .filter((e) => e.type === "pos" && (e.unit_id === id || e.id === id))
+    .filter((e) => (e.type === "pos" || e.type === "move") && (e.unit_id === id || e.id === id))
     .map((e) => ({
       tick: e.tick as number,
       t: e.t as number,

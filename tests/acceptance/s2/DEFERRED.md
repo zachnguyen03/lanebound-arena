@@ -13,7 +13,7 @@ These need S3 systems (zone, orbs, buffs, claims) or an M6 sample size. They are
 | Starve: a body walks in to pause the enemy tick timer, then out | §9.2 L1111 | Zone tick pause. |
 | Orbs only on the way / router `eta_max` Decision hook / Starve orb assignment | §8.4 L958–966, §9.2 L1117 | Orbs. |
 | Buff assignment: two up buffs → two different units | §9.2 L1115 | Buff spawns (first spawn 1:30, S3). |
-| Incoming-wave −0.08 on `A_commit` when enemy respawns arrive in the fight in < 3 s | §9.1 L1101 | See also OPEN-QUESTIONS.md OQ-S2-4 (`a_commit` is not logged). Respawn exists in S1, but the hook is unobservable without `a_commit`, and “arrive in the fight” needs the fight+respawn path in a live map. |
+| Incoming-wave −0.08 on `A_commit` when enemy respawns arrive in the fight in < 3 s | §9.1 L1101, R #3 S2-4 | `a_commit` is now a required `fight_call` field (tested in `09`). The −0.08 incoming-wave case itself still needs a live fight in which an enemy respawn will arrive in the fight in < 3 s, which this suite does not construct. |
 | Claims, any-unit deny, empty-zone award, banished-does-not-deny | §5.6 L289–292, M3-26 | S3. |
 | 0 illegal enemy-sanctuary entries in a 2,000-game lab | M3-25, §9.6 L1164 | S3 lab size. Single-chase “chaser never enters the pad” is already an S2 test. |
 
@@ -26,4 +26,4 @@ These need S3 systems (zone, orbs, buffs, claims) or an M6 sample size. They are
 
 ## Intentionally not deferred (tested in S2)
 
-Chase-stops at sanctuary and at 10 tiles; `fight_call` 2v2 / 3+; peel ≥ 70% preview; digest with AI on; WalkFromPad; the hooks in `05-attribute-hooks.test.ts`.
+Chase-stops at sanctuary, at 10 tiles, and at `est_ttk > 2`; `fight_call` 2v2 / 3+ (next-tick, with `a_commit` / `shotcaller_id`); peel ≥ 70% preview over `dive` events with `peeler_perceived`; digest with AI on, `intent` only on change; WalkFromPad; the hooks in `05-attribute-hooks.test.ts`; R #3 hysteresis, perception/reaction delays, `hold_R` / Focus, and hexed-to-pad-centre.

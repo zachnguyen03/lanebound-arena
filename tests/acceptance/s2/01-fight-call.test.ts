@@ -1,9 +1,9 @@
 /**
  * L1 Fight Call and fight declaration (M2 test 20; plan §8.4; sandbox §11 S2).
- * Geometry follows Appendix R G9 (L1890), which tightens §5.6 L281.
- * A_true is never asserted to an exact value (spec L1125–1126 allows two dps_est
- * formulas). Escalation tests use identical kits, then either even HP or a large
- * HP swing, which is enough under both formulas.
+ * Geometry follows Appendix R G9 / R #3 L1919 (G9 wins over the old §5.6 wording).
+ * dps_est is the dummy 5 s / 5 recipe (R #3 S2-5 L1915); the cheap fallback is gone.
+ * Escalation tests still use identical kits plus even HP or a large HP swing, and
+ * never assert an exact A_true.
  */
 import { describe, expect, it } from "vitest";
 import { COMMITS, PIT, Run, cluster, runAi, type UId } from "./_harness.js";
@@ -53,6 +53,10 @@ function payloadOk(e: ReturnType<Run["fightCalls"]>[number]) {
   expect(e.a_true as number).toBeGreaterThan(0);
   expect(e.a_true as number).toBeLessThan(1);
   expect(COMMITS.includes(e.commit as (typeof COMMITS)[number])).toBe(true);
+  // R #3 S2-4 L1914: a_commit and shotcaller_id are on the event.
+  expect(typeof e.a_commit).toBe("number");
+  expect(Number.isFinite(e.a_commit as number)).toBe(true);
+  expect(typeof e.shotcaller_id).toBe("string");
 }
 
 describe("Fight declaration and L1 Fight Call (G9 L1890, §5.6 L281, §9.1 L1065–1101)", () => {
@@ -61,13 +65,14 @@ describe("Fight declaration and L1 Fight Call (G9 L1890, §5.6 L281, §9.1 L1065
     expect(r.of("fight_call", (e) => e.tick === 0)).toHaveLength(0);
   });
 
-  it("M2-20 / §9.1 L1101: 3+ per side always issues a fight_call; first call is after tick 0 and by t=0.6 (see OPEN-QUESTIONS.md on same-tick vs next-tick start)", () => {
+  it("M2-20 / R #3 S2-3 L1913: 3+ per side always issues a fight_call on the tick after start is detected (tick 0 is setup, tick 1 detects, tick 2 / t=0.2 emits)", () => {
     const r = runAi({ T: 1.5, units: tight3v3() });
     const calls = r.fightCalls();
     expect(calls.length).toBeGreaterThan(0);
     const first = calls[0]!;
-    expect(first.tick).toBeGreaterThan(0);
-    expect(first.t as number).toBeLessThanOrEqual(0.6);
+    expect(first.tick).toBe(2);
+    expect(first.t as number).toBeCloseTo(0.2, 6);
+    expect(r.of("fight_call", (e) => e.tick === 1)).toHaveLength(0);
     payloadOk(first);
   });
 
@@ -94,7 +99,7 @@ describe("Fight declaration and L1 Fight Call (G9 L1890, §5.6 L281, §9.1 L1065
     expect(r.fightCalls()).toHaveLength(0);
   });
 
-  it("G9 L1890 / §9.1 L1107: an even 2v2 (identical kits, full HP) inside 6 tiles does not escalate — |A_true−0.5| is not >0.20 under either dps_est formula", () => {
+  it("G9 L1890 / §9.1 L1107: an even 2v2 (identical kits, full HP) inside 6 tiles does not escalate — |A_true−0.5| is not >0.20 when both sides share the same dummy dps_est (R #3 S2-5 L1915)", () => {
     const r = runAi({ T: 2.0, units: tight2v2() });
     expect(r.fightCalls()).toHaveLength(0);
   });
@@ -147,7 +152,7 @@ describe("Fight declaration and L1 Fight Call (G9 L1890, §5.6 L281, §9.1 L1065
     });
     // Paired: a 3v3 must have called before the banish takes the set to 1v3; then, after the
     // 1.0 s grace (L282) from the inject tick, calls must stop. A sim that never calls fails the first expect.
-    expect(r.fightCalls().some((e) => (e.t as number) < 0.6)).toBe(true);
+    expect(r.fightCalls().some((e) => e.tick === 2)).toBe(true);
     const late = r.fightCalls().filter((e) => (e.t as number) >= 2.2);
     expect(late).toHaveLength(0);
   });
