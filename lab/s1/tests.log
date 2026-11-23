@@ -1,27 +1,27 @@
 
  RUN  v2.1.9 /workspace
 
- ✓ tests/m1-gates-assist-windup.test.ts (4 tests) 34ms
- ✓ tests/m1-sim-behavior.test.ts (16 tests) 180ms
- ✓ tests/m1-10-15-kit-status.test.ts (6 tests) 4ms
+ ✓ tests/m1-gates-assist-windup.test.ts (4 tests) 22ms
+ ✓ tests/m1-sim-behavior.test.ts (16 tests) 188ms
+ ✓ tests/m1-10-15-kit-status.test.ts (6 tests) 3ms
  ✓ tests/m1-16-19-shield-heal-dr-lock.test.ts (5 tests) 3ms
- ✓ tests/s0-g2-death-xp.test.ts (1 test) 23ms
+ ✓ tests/s0-g2-death-xp.test.ts (1 test) 21ms
  ✓ tests/m1-07-08-finishers.test.ts (3 tests) 3ms
- ✓ tests/m1-19b-aim-reflexes.test.ts (6 tests) 791ms
-   ✓ M1-19b Aim vs Reflexes (sim skillshots + HIT_* constants) > info: pass rate over 100 seeds at 60vs60 within ±2 of 55% 537ms
+ ✓ tests/m1-19b-aim-reflexes.test.ts (6 tests) 778ms
+   ✓ M1-19b Aim vs Reflexes (sim skillshots + HIT_* constants) > info: pass rate over 100 seeds at 60vs60 within ±2 of 55% 541ms
+ ✓ tests/s0-gold-hash.test.ts (4 tests) 472ms
  ✓ tests/s0-auto-windup.test.ts (1 test) 24ms
- ✓ tests/s0-gold-hash.test.ts (4 tests) 528ms
- ✓ tests/m1-kits-authored.test.ts (17 tests) 5ms
- ✓ tests/m1-05-stats.test.ts (43 tests) 11ms
- ✓ tests/s0.test.ts (11 tests) 1598ms
-   ✓ S0 M0 acceptance > 1. same config → byte-identical digest; seed+1 differs 744ms
+ ✓ tests/m1-kits-authored.test.ts (17 tests) 6ms
+ ✓ tests/m1-05-stats.test.ts (43 tests) 10ms
+ ✓ tests/s0.test.ts (11 tests) 1586ms
+   ✓ S0 M0 acceptance > 1. same config → byte-identical digest; seed+1 differs 749ms
  ✓ tests/m1-09-sanctuary-clip.test.ts (2 tests) 2ms
  ✓ tests/m1-06-huntress-q.test.ts (2 tests) 2ms
- ✓ tests/s0-two-process.test.ts (1 test) 677ms
-   ✓ M0.1 two-process determinism > seed 20261122 digest matches across two separate Node processes 676ms
+ ✓ tests/s0-two-process.test.ts (1 test) 664ms
+   ✓ M0.1 two-process determinism > seed 20261122 digest matches across two separate Node processes 663ms
 
  Test Files  15 passed (15)
       Tests  122 passed (122)
-   Start at  03:53:05
-   Duration  2.58s (transform 308ms, setup 0ms, collect 747ms, tests 3.88s, environment 2ms, prepare 599ms)
+   Start at  03:53:37
+   Duration  2.57s (transform 330ms, setup 0ms, collect 756ms, tests 3.78s, environment 2ms, prepare 583ms)
 
