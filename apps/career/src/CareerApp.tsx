@@ -345,17 +345,22 @@ export function CareerApp() {
         <div className="overlay" data-overlay="signature" data-composed="signature-choice">
           <div className="card">
             <h2 className="disp">Signature</h2>
+            <div className="sigfaces">
+              <img src={`/cards/arena/small/${session.pending_signature.held}.png`} alt={arenaCard(session.pending_signature.held)?.name ?? ""} width={120} height={168} />
+              <img src={`/cards/arena/small/${session.pending_signature.incoming}.png`} alt={arenaCard(session.pending_signature.incoming)?.name ?? ""} width={120} height={168} />
+            </div>
             <p>
               {players.find((player) => player.id === session.pending_signature?.player_id)?.name} holds{" "}
               <b data-testid="held-signature">{arenaCard(session.pending_signature.held)?.name}</b>.{" "}
               {arenaCard(session.pending_signature.incoming)?.name} is offered.
             </p>
+            <p className="note">The other card leaves the archive.</p>
             <div className="row">
-              <Button variant="primary" onClick={() => setView({ kind: "session", session: chooseSignature(session, "keep") })}>
-                Keep
+              <Button variant="secondary" onClick={() => setView({ kind: "session", session: chooseSignature(session, "keep") })}>
+                Keep {arenaCard(session.pending_signature.held)?.name}
               </Button>
               <Button variant="secondary" onClick={() => setView({ kind: "session", session: chooseSignature(session, "replace") })}>
-                Replace
+                Take {arenaCard(session.pending_signature.incoming)?.name}
               </Button>
             </div>
           </div>

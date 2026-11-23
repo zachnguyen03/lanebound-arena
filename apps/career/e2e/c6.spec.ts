@@ -45,9 +45,14 @@ test("a scripted season end keeps the signature and carries the contracts", asyn
   }
   const overlay = page.locator('[data-overlay="signature"]');
   await expect(overlay).toBeVisible();
+  await expect(overlay.locator(".sigfaces img")).toHaveCount(2);
+  await expect(overlay.getByRole("button", { name: /^Keep / })).toBeVisible();
+  await expect(overlay.getByRole("button", { name: /^Take / })).toBeVisible();
+  await expect(overlay.locator("button.btn-primary")).toHaveCount(0);
+  await expect(overlay).toContainText("The other card leaves the archive.");
   await expectNoOverlap(page, "signature");
   const held = (await page.getByTestId("held-signature").textContent())?.trim() ?? "";
-  const player = ((await overlay.locator("p").innerText()).split(" holds ")[0] ?? "").trim();
+  const player = ((await overlay.locator("p").first().innerText()).split(" holds ")[0] ?? "").trim();
   expect(held.length).toBeGreaterThan(0);
   expect(player.length).toBeGreaterThan(0);
   expect(held).not.toBe("Finals Poise");

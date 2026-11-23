@@ -86,6 +86,8 @@ button.btn-primary:disabled {
 .sidechip.red { background: var(--c-red); color: var(--c-field); }
 .fired { color: var(--c-text); }
 .expired { color: var(--c-faint); }
+.sigfaces { display: flex; gap: 12px; }
+.sigfaces img { width: 120px; height: 168px; object-fit: cover; display: block; }
 .seg button { padding: 7px 12px; color: var(--c-dim); background: transparent; font: inherit; white-space: nowrap; }
 .seg button.on { background: var(--c-text); color: var(--c-field); font-weight: 600; }
 .seg button:disabled { opacity: 0.45; cursor: not-allowed; }
