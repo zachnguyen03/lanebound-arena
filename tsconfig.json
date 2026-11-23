@@ -18,8 +18,10 @@
     "baseUrl": ".",
     "paths": {
       "@sim/*": ["sim/*"],
-      "@data/*": ["data/*"]
+      "@data/*": ["data/*"],
+      "@lanebound/match-contract": ["packages/match-contract/src/index.ts"],
+      "@lanebound/career": ["packages/career/src/index.ts"]
     }
   },
-  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*"]
+  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*", "packages/**/*"]
 }

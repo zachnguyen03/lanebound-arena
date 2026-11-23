@@ -1,0 +1,299 @@
+import { spawnSync } from "node:child_process";
+import { describe, expect, it } from "vitest";
+import { sha256Hex } from "@lanebound/match-contract";
+import type { SeriesResult } from "@lanebound/match-contract";
+import { deadeyeWinner, keepSignature, seasonAwards, splitMvpWinner, zonekeeperScore, zonekeeperWinner } from "./awards.js";
+import { tickContract } from "./contracts.js";
+import { fromDisplay, GLICKO_TAU, glickoDisplay, glickoUpdate, initialGlicko } from "./glicko.js";
+import { seasonPointTotal } from "./points.js";
+import { loadSave, runSeason, saveJson } from "./season.js";
+import { seriesMvp } from "./series.js";
+import { openingWorld } from "./world.js";
+
+/** Canonical save for career seed 20261123, club juniper-rush. Moves when the world, sudden-death table, or tactics change. */
+const JUNIPER_SEASON_SHA256 = "b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c";
+
+function maps(playerId: string, count: number, stats: { rating?: number; dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }): SeriesResult[] {
+  const out: SeriesResult[] = [];
+  for (let i = 0; i < count; i++) {
+    out.push({
+      stage: "regular",
+      series_id: `${playerId}-s${i}`,
+      games: [
+        {
+          players: [
+            {
+              player_id: playerId,
+              rating: stats.rating ?? 6,
+              z: stats.z ?? 0,
+              dmg: stats.dmg ?? 0,
+              peels: stats.peels ?? 0,
+              zone_seconds: stats.zone ?? 0,
+              claim_denies: stats.denies ?? 0,
+            },
+          ],
+        },
+      ],
+    } as unknown as SeriesResult);
+  }
+  return out;
+}
+
+describe("C2 glicko, points, awards, contracts", () => {
+  it("matches Glickman's published worked example", () => {
+    const player = fromDisplay(1500, 200, 0.06);
+    const opponents = [
+      { ...fromDisplay(1400, 30, 0.06), score: 1 as const },
+      { ...fromDisplay(1550, 100, 0.06), score: 0 as const },
+      { ...fromDisplay(1700, 300, 0.06), score: 0 as const },
+    ];
+    expect(GLICKO_TAU).toBe(0.5);
+    const next = glickoUpdate(player, opponents);
+    const shown = glickoDisplay(next);
+    expect(shown.r).toBeCloseTo(1464.0507, 4);
+    expect(shown.rd).toBeCloseTo(151.5165, 4);
+    expect(next.sigma).toBeCloseTo(0.059996, 6);
+    expect(glickoDisplay(initialGlicko()).r).toBeCloseTo(1500, 8);
+    expect(glickoDisplay(initialGlicko()).rd).toBeCloseTo(350, 6);
+    expect(() => glickoUpdate(initialGlicko(), [])).toThrow(/unchanged/);
+  });
+
+  it("orders series MVP by mean rating, then maps, then mean z, then lower player id", () => {
+    const line = (player_id: string, rating: number, z: number) => ({ player_id, rating, z });
+    // Each pair disagrees on two adjacent keys, so promoting the later key picks the other player.
+    const ratingOverMaps = [
+      { players: [line("rater", 9, 0), line("volume", 4, 1)] },
+      { players: [line("volume", 4, 1)] },
+    ];
+    const mapsOverZ = [
+      { players: [line("volume", 6, 0), line("spike", 6, 2)] },
+      { players: [line("volume", 6, 0)] },
+    ];
+    const zOverId = [{ players: [line("m-b", 7, 0.4), line("m-a", 7, 0.1)] }];
+    for (const stage of ["regular", "semi", "final"] as const) {
+      const mvp = (games: typeof ratingOverMaps) => {
+        const series = { stage, games, mvp_player_id: seriesMvp(games as unknown as SeriesResult["games"]) };
+        expect(series.stage).toBe(stage);
+        return series.mvp_player_id;
+      };
+      expect(mvp(ratingOverMaps)).toBe("rater");
+      expect(mvp(mapsOverZ)).toBe("volume");
+      expect(mvp(zOverId)).toBe("m-b");
+    }
+  });
+
+  it("grants Pillar, then Crown, then Finals Poise, and no signature for the other awards", () => {
+    const row = (playerId: string, rating: number, extra: { dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }) => ({
+      player_id: playerId,
+      side: "blue" as const,
+      rating,
+      z: extra.z ?? 0,
+      dmg: extra.dmg ?? 0,
+      peels: extra.peels ?? 0,
+      zone_seconds: extra.zone ?? 0,
+      claim_denies: extra.denies ?? 0,
+    });
+    const regular = [0, 1, 2, 3].map((index) => ({
+      stage: "regular" as const,
+      series_id: `reg-${index}`,
+      games: [
+        {
+          players: [
+            row("ace", 9, { dmg: 10, peels: 1, zone: 1 }),
+            row("gun", 4, { dmg: 9000 }),
+            row("peel", 4, { peels: 20 }),
+            row("zone", 4, { zone: 80, denies: 4 }),
+          ],
+        },
+      ],
+    }));
+    const finalPlayers = [
+      row("ace", 10, { z: 0.4 }),
+      row("b", 6, {}),
+      row("c", 6, {}),
+      row("d", 6, {}),
+      row("e", 6, {}),
+    ];
+    const games = [{ winner: "blue" as const, players: finalPlayers }];
+    const mvp = seriesMvp(games as unknown as SeriesResult["games"]);
+    const finalSeries = {
+      stage: "final" as const,
+      series_id: "final",
+      team_ids: ["blue-club", "red-club"] as [string, string],
+      winner_team_id: "blue-club",
+      mvp_player_id: mvp,
+      games,
+    };
+    const { awards, grants } = seasonAwards([...regular, finalSeries] as unknown as SeriesResult[], "s1");
+    expect(mvp).toBe("ace");
+    expect(awards.find((award) => award.kind === "finals_mvp")?.player_id).toBe(finalSeries.mvp_player_id);
+    expect(awards.filter((award) => award.kind === "deadeye" || award.kind === "shepherd" || award.kind === "zonekeeper").map((award) => award.signature)).toEqual([
+      null,
+      null,
+      null,
+    ]);
+    expect(grants.some((grant) => grant.player_id === "gun" || grant.player_id === "peel" || grant.player_id === "zone")).toBe(false);
+    const ace = grants.filter((grant) => grant.player_id === "ace").map((grant) => grant.signature);
+    expect(ace).toEqual(["pillar-of-the-split", "convergence-crown", "finals-poise"]);
+    let archive: string[] = [];
+    for (const signature of ace) archive = keepSignature(archive, signature);
+    expect(archive).toEqual(["finals-poise"]);
+    expect(grants.map((grant) => grant.signature)).toEqual([
+      "pillar-of-the-split",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "finals-poise",
+    ]);
+  });
+
+  it("requires four series and breaks ties toward the lower player id", () => {
+    expect(zonekeeperScore(10, 2)).toBe(50);
+    const tape = [
+      ...maps("hot", 3, { dmg: 99999, rating: 10, peels: 99, zone: 999, denies: 99 }),
+      ...maps("steady", 4, { dmg: 10, rating: 6, peels: 1, zone: 1, denies: 0 }),
+      ...maps("m-b", 4, { rating: 8, z: 0.2, dmg: 5 }),
+      ...maps("m-a", 4, { rating: 8, z: 0.2, dmg: 5 }),
+    ];
+    expect(deadeyeWinner(tape)?.player_id).toBe("steady");
+    expect(splitMvpWinner(tape)?.player_id).toBe("m-a");
+    const zone = [
+      ...maps("z-b", 4, { zone: 100, denies: 1, rating: 9 }),
+      ...maps("z-a", 4, { zone: 80, denies: 2, rating: 6 }),
+    ];
+    expect(zonekeeperScore(80, 2)).toBe(zonekeeperScore(100, 1));
+    expect(zonekeeperWinner(zone)?.player_id).toBe("z-a");
+    expect(keepSignature([], "pillar-of-the-split")).toEqual(["pillar-of-the-split"]);
+    expect(keepSignature(["pillar-of-the-split"], "convergence-crown")).toEqual(["convergence-crown"]);
+  });
+
+  it("ticks contracts down and renews a zero at the stored wage", () => {
+    expect(tickContract({ player_id: "a", opening_years: 3, years_left: 3, wage: 41000, auto_renewed: false })).toEqual({
+      player_id: "a",
+      opening_years: 3,
+      years_left: 2,
+      wage: 41000,
+      auto_renewed: false,
+    });
+    expect(tickContract({ player_id: "b", opening_years: 1, years_left: 1, wage: 42000, auto_renewed: false })).toEqual({
+      player_id: "b",
+      opening_years: 1,
+      years_left: 1,
+      wage: 42000,
+      auto_renewed: true,
+    });
+  });
+
+  it("writes one deterministic season save with the ranking invariants", () => {
+    const save = runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" });
+    expect(saveJson(save)).toBe(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" })));
+    expect(sha256Hex(saveJson(save))).toBe(JUNIPER_SEASON_SHA256);
+    const neon = save.standings.find((row) => row.club_id === "neon-tide");
+    const sable = save.standings.find((row) => row.club_id === "sable-comets");
+    expect(neon).toMatchObject({ series_wins: 3, map_diff: 0, maps_won: 9, finish: 5 });
+    expect(sable).toMatchObject({ series_wins: 2, map_diff: -3, maps_won: 8, finish: 6 });
+    expect(save.club_state.reduce((sum, club) => sum + club.points, 0)).toBe(seasonPointTotal());
+    expect(seasonPointTotal()).toBe(73);
+    const pairs = new Set(
+      save.series.filter((item) => item.stage === "regular").map((item) => [...item.team_ids].sort().join("|")),
+    );
+    expect(pairs.size).toBe(28);
+    expect(save.frozen_seeds).toEqual(save.standings.slice().sort((a, b) => a.finish - b.finish).map((row) => row.club_id));
+    const byClub = new Map(save.club_state.map((club) => [club.club_id, club]));
+    let previous = new Map(save.clubs.map((club) => [club.id, initialGlicko()]));
+    const seen = new Set<string>();
+    for (const row of save.ranking_log) {
+      const key = row.series_id;
+      if (!seen.has(key)) {
+        const series = save.series.find((item) => item.series_id === key)!;
+        for (const club of save.clubs) {
+          const before = previous.get(club.id)!;
+          const played = series.team_ids.includes(club.id);
+          const snap = save.ranking_log.find((item) => item.series_id === key && item.club_id === club.id)!;
+          if (!played) {
+            expect(snap.mu).toBe(before.mu);
+            expect(snap.phi).toBe(before.phi);
+            expect(snap.sigma).toBe(before.sigma);
+          }
+        }
+        seen.add(key);
+        previous = new Map(
+          save.clubs.map((club) => {
+            const snap = save.ranking_log.find((item) => item.series_id === key && item.club_id === club.id)!;
+            return [club.id, { mu: snap.mu, phi: snap.phi, sigma: snap.sigma }];
+          }),
+        );
+      }
+      expect(row.competition_id).toBe("bound_circuit");
+      expect(row.season_id).toBe("s1");
+    }
+    for (const club of save.club_state) {
+      const shown = glickoDisplay(club);
+      expect(club.r).toBe(shown.r);
+      expect(club.rd).toBe(shown.rd);
+      expect(byClub.get(club.club_id)).toBe(club);
+    }
+    for (const award of save.awards) {
+      if (award.kind === "finals_mvp") continue;
+      const played = new Set(
+        save.series
+          .filter((item) => item.stage === "regular")
+          .filter((item) => item.games.some((game) => game.players.some((player) => player.player_id === award.player_id)))
+          .map((item) => item.series_id),
+      );
+      expect(played.size).toBeGreaterThanOrEqual(4);
+    }
+    expect(save.awards.map((award) => award.kind)).toEqual([
+      "split_mvp",
+      "deadeye",
+      "shepherd",
+      "zonekeeper",
+      "finals_mvp",
+    ]);
+    const json = saveJson(save);
+    expect(json.includes("crown-of-the-split")).toBe(false);
+    expect(json.includes("Crown of the Split")).toBe(false);
+    const crowns = save.signature_grants.filter((grant) => grant.signature === "convergence-crown");
+    expect(crowns).toHaveLength(5);
+    expect(save.signature_grants.some((grant) => grant.signature === "pillar-of-the-split")).toBe(true);
+    expect(save.signature_grants.some((grant) => grant.signature === "finals-poise")).toBe(true);
+    const finalSeries = save.series.find((item) => item.stage === "final");
+    const finalsAward = save.awards.find((award) => award.kind === "finals_mvp");
+    expect(finalsAward?.player_id).toBe(finalSeries?.mvp_player_id);
+    expect(finalSeries?.mvp_player_id).toBe(seriesMvp(finalSeries!.games));
+    expect(save.awards.filter((award) => award.kind === "deadeye" || award.kind === "shepherd" || award.kind === "zonekeeper").every((award) => award.signature === null)).toBe(true);
+    expect(save.signature_grants.every((grant) => grant.signature === "pillar-of-the-split" || grant.signature === "convergence-crown" || grant.signature === "finals-poise")).toBe(true);
+    for (const player of save.players) {
+      expect(player.signature_archive.length).toBeLessThanOrEqual(1);
+      expect(player.shippable).toBe(false);
+      expect(player.name).toMatch(/^P\d{4}$/);
+    }
+    const renewed = save.contracts.filter((contract) => contract.auto_renewed);
+    expect(renewed.length).toBeGreaterThan(0);
+    for (const contract of renewed) expect(contract.years_left).toBe(1);
+    const wages = new Map(openingWorld().contracts.map((contract) => [contract.player_id, contract.wage]));
+    for (const contract of save.contracts) expect(contract.wage).toBe(wages.get(contract.player_id));
+    const reloaded = loadSave(json + "");
+    expect(reloaded.save_format).toBe(1);
+    expect(() => loadSave(JSON.stringify({ ...JSON.parse(json), extra: true, save_format: 1, contract_version: "career-match/1" }))).not.toThrow();
+    expect(sha256Hex(json)).toBe(sha256Hex(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" }))));
+  });
+
+  it("is byte-identical across two processes", () => {
+    const tsx = "node_modules/.bin/tsx";
+    const run = () => {
+      const result = spawnSync(tsx, ["apps/lab/career-season.ts", "--seed", "20261123", "--club", "juniper-rush"], {
+        encoding: "utf8",
+      });
+      expect(result.status).toBe(0);
+      return result.stdout;
+    };
+    const a = run();
+    const b = run();
+    expect(a).toBe(b);
+    expect(a.length).toBeGreaterThan(1000);
+    expect(sha256Hex(a)).toBe(sha256Hex(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" }))));
+  });
+});
