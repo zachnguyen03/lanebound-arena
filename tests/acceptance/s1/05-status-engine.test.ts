@@ -78,8 +78,10 @@ describe("M1-10 Sedge R sleeps allies except the caster; Ysol W strong-dispels; 
     "blue:mid": { champ: "torun", level: 7, x: 10, y: 8 },      // ally in radius
     "blue:adc": { champ: "torun", level: 7, x: 10.8, y: 9 },    // ally in radius
     "red:mid": { champ: "torun", level: 7, x: 10, y: 7 },       // enemy in radius
-    "blue:support": { champ: "ysol", level: 7, x: 7, y: 11 },
-    "blue:top": { champ: "saelo", level: 7, x: 7, y: 5 },
+    // Healers must sit outside Sedge R's r=3.8 + body 0.4 around aim [7,8]
+    // (dist 5.83 > 4.2) but inside Ysol/Saelo W range 6.5 of blue:mid at (10,8) (dist 5.0).
+    "blue:support": { champ: "ysol", level: 7, x: 10, y: 13 },
+    "blue:top": { champ: "saelo", level: 7, x: 10, y: 3 },
   });
   const R = (extra: Partial<Scenario> = {}) => run({ T: 8, units: units(), casts: [{ tick: 5, by: "blue:jungle", key: "R", aim: [7, 8] }, ...(extra.casts ?? [])], ...(extra.cc ? { cc: extra.cc } : {}) });
   it("sleeps both allies and the enemy in r=3.8 (2.8 s, Lock) and never the caster", () => {
@@ -138,19 +140,26 @@ describe("Dispel rules (spec L498-502)", () => {
 });
 
 describe("Sleep breaks when the sleeper loses HP AFTER shields; a fully absorbed hit does not (spec L442)", () => {
-  const units = (): Scenario["units"] => ({ [V]: { champ: "torun", level: 7, x: 12, y: 8 }, "blue:jungle": { champ: "torun", level: 7, x: 11, y: 10 }, "blue:mid": { champ: "maelis", level: 7, x: 7, y: 8 }, "blue:adc": { champ: "huntress", level: 7, x: 7, y: 6.5 } });
+  // Torun W is circle_ally (L638), so the sleeper must be an ally of the shielder; damage comes from enemies.
+  const SLEEP = "blue:mid" as UId;
+  const units = (): Scenario["units"] => ({
+    [SLEEP]: { champ: "torun", level: 7, x: 12, y: 8 },
+    "blue:jungle": { champ: "torun", level: 7, x: 11, y: 10 },
+    "red:mid": { champ: "maelis", level: 7, x: 7, y: 8 },
+    "red:adc": { champ: "huntress", level: 7, x: 7, y: 6.5 },
+  });
   it("unshielded: the first damaging hit breaks sleep (sleep_break event, status ends)", () => {
-    const r = run({ T: 4, units: units(), cc: [{ tick: 2, target: V, kind: "sleep", duration: 3.0, source: "blue:support" }], casts: [{ tick: 8, by: "blue:mid", key: "Q", aim: [12, 8] }] });
-    const sb = r.of("sleep_break", (e) => e.target_id === V); expect(sb.length).toBe(1); expect(sb[0]!.source_id).toBe("blue:mid");
-    const ex = r.expires(V, "sleep")[0]!; expect(ex.t).toBeLessThan(1.6);
+    const r = run({ T: 4, units: units(), cc: [{ tick: 2, target: SLEEP, kind: "sleep", duration: 3.0, source: "blue:support" }], casts: [{ tick: 8, by: "red:mid", key: "Q", aim: [12, 8] }] });
+    const sb = r.of("sleep_break", (e) => e.target_id === SLEEP); expect(sb.length).toBe(1); expect(sb[0]!.source_id).toBe("red:mid");
+    const ex = r.expires(SLEEP, "sleep")[0]!; expect(ex.t).toBeLessThan(1.6);
   });
   it("shield 219.2 (Torun W) absorbs Maelis Q (171.0 mitigated) fully → no sleep_break; Huntress Q then exceeds the remaining shield → sleep_break", () => {
-    const r = run({ T: 4, units: units(), cc: [{ tick: 2, target: V, kind: "sleep", duration: 3.0, source: "blue:support" }],
-      casts: [{ tick: 3, by: "blue:jungle", key: "W", target: V }, { tick: 10, by: "blue:mid", key: "Q", aim: [12, 8] }, { tick: 18, by: "blue:adc", key: "Q", aim: [12, 8] }] });
-    const hits = r.skillHits(undefined, V);
-    const mq = hits.find((h) => h.source_id === "blue:mid")!, hq = hits.find((h) => h.source_id === "blue:adc")!;
+    const r = run({ T: 4, units: units(), cc: [{ tick: 2, target: SLEEP, kind: "sleep", duration: 3.0, source: "blue:support" }],
+      casts: [{ tick: 3, by: "blue:jungle", key: "W", target: SLEEP }, { tick: 10, by: "red:mid", key: "Q", aim: [12, 8] }, { tick: 18, by: "red:adc", key: "Q", aim: [12, 8] }] });
+    const hits = r.skillHits(undefined, SLEEP);
+    const mq = hits.find((h) => h.source_id === "red:mid")!, hq = hits.find((h) => h.source_id === "red:adc")!;
     expect(mq.hp_after, "first hit fully absorbed").toBeCloseTo(1720, 3); expect(mq.shield_absorbed).toBeCloseTo(mq.mitigated, 6);
-    const sb = r.of("sleep_break", (e) => e.target_id === V); expect(sb.length).toBe(1);
+    const sb = r.of("sleep_break", (e) => e.target_id === SLEEP); expect(sb.length).toBe(1);
     expect(sb[0]!.t).toBeGreaterThanOrEqual(hq.t - 1e-9);
     expect(hq.hp_after).toBeLessThan(1720);
   });

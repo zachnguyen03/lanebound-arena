@@ -12,12 +12,12 @@ import { describe, expect, it } from "vitest";
 import { mit, rawDamage, ab } from "./_oracle.js";
 import { lazy, run, skillIs, type Scenario, type UId } from "./_harness.js";
 
-const MI = "blue:mid" as UId, V = "red:mid" as UId, H = "blue:adc" as UId, MA = "blue:jungle" as UId;
+const MI = "blue:mid" as UId, V = "red:mid" as UId, H = "blue:adc" as UId, MA = "blue:jungle" as UId, MA2 = "blue:top" as UId;
 const hq = 190 * mit(66);                       // Huntress Q L7 vs Torun L7 PRes 66, no amp
 const mq = (160 + 1.35 * 84) * mit(60);         // Maelis Q L7 vs Torun L7 MRes 60, no amp
 function scn(extra: Partial<Scenario> = {}, mirrenLevel = 7, tl = 7): Scenario {
-  return { T: 7, units: { [MI]: { champ: "mirren", level: mirrenLevel, x: 6, y: 8 }, [V]: { champ: "torun", level: tl, x: 9, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9, auto: true }, [MA]: { champ: "maelis", level: 7, x: 6, y: 7 } },
-    casts: [{ tick: 3, by: MI, key: "W", target: V }, { tick: 10, by: H, key: "Q", aim: [9, 8] }, { tick: 11, by: MA, key: "Q", aim: [9, 8] }, { tick: 45, by: MA, key: "Q", aim: [9, 8] }, { tick: 60, by: H, key: "R", aim: [9, 8] }], ...extra };
+  return { T: 7, units: { [MI]: { champ: "mirren", level: mirrenLevel, x: 6, y: 8 }, [V]: { champ: "torun", level: tl, x: 9, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9, auto: true }, [MA]: { champ: "maelis", level: 7, x: 6, y: 7 }, [MA2]: { champ: "maelis", level: 7, x: 6, y: 6.2 } },
+    casts: [{ tick: 3, by: MI, key: "W", target: V }, { tick: 10, by: H, key: "Q", aim: [9, 8] }, { tick: 11, by: MA, key: "Q", aim: [9, 8] }, { tick: 45, by: MA2, key: "Q", aim: [9, 8] }, { tick: 60, by: H, key: "R", aim: [9, 8] }], ...extra };
 }
 
 describe("Kiln-Cured — unambiguous (spec L743, L397)", () => {
@@ -39,7 +39,7 @@ describe("Kiln-Cured — unambiguous (spec L743, L397)", () => {
     const pre = autos.find((h) => h.t < hex.t)!; if (pre) expect(Math.abs(pre.mitigated - 100 * mit(66))).toBeLessThanOrEqual(0.02);
   });
   it("the amp drops when the hex ends: Maelis Q at ≈4.5 s and Huntress R at ≈6 s are plain", () => { const { end, r } = HX();
-    const late = r.skillHits(MA, V).find((e) => e.t > end + 1.0)!; expect(Math.abs(late.mitigated - mq)).toBeLessThanOrEqual(0.02);
+    const late = r.skillHits(MA2, V).find((e) => e.t > end + 1.0)!; expect(Math.abs(late.mitigated - mq)).toBeLessThanOrEqual(0.02);
     const hr = r.skillHits(H, V).find((e) => e.t > end + 1.0)!; expect(Math.abs(hr.mitigated - (230 + 1.05 * 100) * mit(66))).toBeLessThanOrEqual(0.02);
   });
   it("Mirren's OWN later Q on the hexed target is amped too ('all sources')", () => {

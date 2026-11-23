@@ -129,8 +129,10 @@ describe("R is locked until level 5 (spec §5.2 L211, §7 'R (L5)')", () => {
     for (const L of [1, 4]) it(`${a.champ} R is refused at L${L}`, () => {
       const ar = abilityRun(a, L);
       expect(ar.r.casts(ar.casterId, "R").length).toBe(0);
-      expect(ar.r.skillHits(ar.casterId).length).toBe(0);
-      expect(ar.r.status(ar.foe).length).toBe(0);
+      // needsMark kits (Kerrig) script a prelude Q in abilityRun; assert the locked R
+      // itself is refused, not that the whole kit is idle (spec L211, §7 'R (L5)').
+      expect(ar.r.skillHits(ar.casterId).filter((e) => skillIs(e, a.champ, "R")).length).toBe(0);
+      expect(ar.r.status(ar.foe).filter((e) => skillIs(e, a.champ, "R")).length).toBe(0);
     });
   }
 });

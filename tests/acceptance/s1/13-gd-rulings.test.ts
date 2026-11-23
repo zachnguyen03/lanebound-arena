@@ -92,17 +92,21 @@ describe("OQ-1 (Appendix R #2 L1897): 'off under Break' is a Break on the passiv
   describe("Brannoch Bedrock (+20 PRes/MRes below 50% HP, L787)", () => {
     // Owner and packet-victim are the same unit (Brannoch). The ruling's "victim" case is N/A as a distinct person;
     // Break on Brannoch turns the passive off because he is the OWNER. Break on the shooter (attacker) does nothing.
-    const hit = (extra: Partial<Scenario> = {}) => run({ T: 3, units: { [BR]: { champ: "brannoch", level: 7, x: 9, y: 8, hp: { frac: 0.48 } }, [H]: { champ: "huntress", level: 7, x: 6, y: 8 } }, casts: [{ tick: 5, by: H, key: "Q", aim: [9, 8] }], ...extra }).skillHits(H, BR)[0]!;
-    it("Break on Brannoch (owner): +20 PRes is off, mitigation uses 68", () => expect(Math.abs(hit({ cc: [{ tick: 1, target: BR, kind: "break", duration: 10, source: H }] }).mitigated - 190 * mit(68))).toBeLessThanOrEqual(0.02));
-    it("Break on Huntress (attacker): +20 PRes still on, mitigation uses 88", () => expect(Math.abs(hit({ cc: [{ tick: 1, target: H, kind: "break", duration: 10, source: BR }] }).mitigated - 190 * mit(88))).toBeLessThanOrEqual(0.02));
+    // Shooter must be hostile: Huntress Q does not hit same-team targets.
+    const SHOOT = "red:adc" as UId;
+    const hit = (extra: Partial<Scenario> = {}) => run({ T: 3, units: { [BR]: { champ: "brannoch", level: 7, x: 9, y: 8, hp: { frac: 0.48 } }, [SHOOT]: { champ: "huntress", level: 7, x: 6, y: 8 } }, casts: [{ tick: 5, by: SHOOT, key: "Q", aim: [9, 8] }], ...extra }).skillHits(SHOOT, BR)[0]!;
+    it("Break on Brannoch (owner): +20 PRes is off, mitigation uses 68", () => expect(Math.abs(hit({ cc: [{ tick: 1, target: BR, kind: "break", duration: 10, source: SHOOT }] }).mitigated - 190 * mit(68))).toBeLessThanOrEqual(0.02));
+    it("Break on Huntress (attacker): +20 PRes still on, mitigation uses 88", () => expect(Math.abs(hit({ cc: [{ tick: 1, target: SHOOT, kind: "break", duration: 10, source: BR }] }).mitigated - 190 * mit(88))).toBeLessThanOrEqual(0.02));
     it("no Break, 48% HP: uses 88", () => expect(Math.abs(hit().mitigated - 190 * mit(88))).toBeLessThanOrEqual(0.02));
   });
 
   describe("Saelo Rewound Moment (25% max HP shield for 2.5 s when HP crosses 30%, L829)", () => {
-    const mk = (extra: Partial<Scenario> = {}) => run({ T: 4, units: { [SA]: { champ: "saelo", level: 7, x: 6, y: 8, hp: 340 }, [H]: { champ: "huntress", level: 7, x: 11, y: 8 } }, casts: [{ tick: 5, by: H, key: "Q", aim: [6, 8] }], ...extra });
+    // Shooter must be hostile so Huntress Q can cross the 30% HP threshold.
+    const SHOOT = "red:adc" as UId;
+    const mk = (extra: Partial<Scenario> = {}) => run({ T: 4, units: { [SA]: { champ: "saelo", level: 7, x: 6, y: 8, hp: 340 }, [SHOOT]: { champ: "huntress", level: 7, x: 11, y: 8 } }, casts: [{ tick: 5, by: SHOOT, key: "Q", aim: [6, 8] }], ...extra });
     it("Break on Saelo (owner) suppresses the shield; Break on Huntress (attacker) does not (shield of 270 still granted)", () => {
-      expect(mk({ cc: [{ tick: 1, target: SA, kind: "break", duration: 10, source: H }] }).shields(undefined, SA).length, "owner Break: no shield").toBe(0);
-      const s = mk({ cc: [{ tick: 1, target: H, kind: "break", duration: 10, source: SA }] }).shields(undefined, SA);
+      expect(mk({ cc: [{ tick: 1, target: SA, kind: "break", duration: 10, source: SHOOT }] }).shields(undefined, SA).length, "owner Break: no shield").toBe(0);
+      const s = mk({ cc: [{ tick: 1, target: SHOOT, kind: "break", duration: 10, source: SA }] }).shields(undefined, SA);
       expect(s.length, "attacker Break: shield still granted (pairs with the owner case so a sim that never shields cannot pass)").toBe(1);
       expect(Math.abs(s[0]!.amount - 270)).toBeLessThanOrEqual(0.02);
     });
@@ -200,10 +204,12 @@ describe("OQ-3 (Appendix R #2 L1899): Fear flees from the source at current MS a
       const t0 = hx.t + 0.3, t1 = hx.t + 1.3;
       const p0 = r.posAt(A, t0), p1 = r.posAt(A, t1);
       expect(p1.y, "walks +y toward the ally centroid at y=12").toBeGreaterThan(p0.y + 1.0);
-      expect(p1.x, "does not walk toward the pad (x=1)").toBeGreaterThan(6.5);
+      expect(p1.x, "does not walk toward the pad (x=1.5)").toBeGreaterThan(6.5);
       expect(Math.abs(meanSpeed(r, A, t0, t1) - MS_H * 0.65)).toBeLessThanOrEqual(0.25);
     });
-    it("with no living allies, walks toward the own spawn pad (1, 7)", () => {
+    it("with no living allies, walks toward the own spawn pad (1.5, 7.5)", () => {
+      // SRC (Mirren) and the ally-killer must be distinct ids; module V is also "red:mid".
+      const KILL = "red:jungle" as UId;
       const r = run({ abs: true, T: 6, pos: true, units: {
         [A]: { champ: "huntress", level: 7, x: 8, y: 10, hp: 400 },
         "blue:adc": { champ: "ysol", level: 7, x: 8, y: 4, hp: 1 },
@@ -211,19 +217,19 @@ describe("OQ-3 (Appendix R #2 L1899): Fear flees from the source at current MS a
         "blue:top": { champ: "torun", level: 7, x: 9, y: 4, hp: 1 },
         "blue:jungle": { champ: "sedge", level: 7, x: 8, y: 3, hp: 1 },
         [SRC]: { champ: "mirren", level: 7, x: 11, y: 10 },
-        [V]: { champ: "torun", level: 7, x: 11, y: 4 },
+        [KILL]: { champ: "torun", level: 7, x: 11, y: 4 },
       }, damage: [
-        { tick: 1, source: V, target: "blue:adc" as UId, raw: 9999 },
-        { tick: 1, source: V, target: "blue:support" as UId, raw: 9999 },
-        { tick: 1, source: V, target: "blue:top" as UId, raw: 9999 },
-        { tick: 1, source: V, target: "blue:jungle" as UId, raw: 9999 },
+        { tick: 1, source: KILL, target: "blue:adc" as UId, raw: 9999 },
+        { tick: 1, source: KILL, target: "blue:support" as UId, raw: 9999 },
+        { tick: 1, source: KILL, target: "blue:top" as UId, raw: 9999 },
+        { tick: 1, source: KILL, target: "blue:jungle" as UId, raw: 9999 },
       ], casts: [{ tick: 15, by: SRC, key: "W", target: A }] });
       expect(r.of("death", (e) => String(e.unit_id).startsWith("blue:") && e.unit_id !== A).length).toBe(4);
       const hx = r.status(A, "hex")[0]!; expect(hx).toBeDefined();
       const p0 = r.posAt(A, hx.t + 0.3), p1 = r.posAt(A, hx.t + 1.5);
-      // pad (1,7) from (8,10): −x, −y
-      expect(p1.x, "walks toward pad x=1").toBeLessThan(p0.x - 0.8);
-      expect(p1.y, "walks toward pad y=7").toBeLessThan(p0.y - 0.2);
+      // pad (1.5, 7.5) from (8, 10): −x, −y (Appendix R L1906 tile-centre)
+      expect(p1.x, "walks toward pad x=1.5").toBeLessThan(p0.x - 0.8);
+      expect(p1.y, "walks toward pad y=7.5").toBeLessThan(p0.y - 0.2);
     });
     it("cannot use skills or autos (L1899, L747)", () => {
       const r = run({ abs: true, T: 5, units: { [A]: { champ: "huntress", level: 7, x: 8, y: 8, auto: true }, [SRC]: { champ: "mirren", level: 7, x: 11, y: 8 }, "blue:adc": { champ: "ysol", level: 7, x: 6, y: 8 } },
