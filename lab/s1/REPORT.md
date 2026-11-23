@@ -1,7 +1,7 @@
 # S1 Report — 14 champions + combat tests (M1)
 
 **Branch:** `s1`  
-**Commit:** `37af68596d5cbcfc27f332fff77a940432745e46`  
+**Commit:** `5fbe3604c026b0d6c13b7a7de90ec61c2037064f`  
 **Date:** 23 Nov 2026  
 **Regenerate:** `npm run lab:s1`
 
