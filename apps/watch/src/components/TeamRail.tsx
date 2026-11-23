@@ -57,7 +57,9 @@ export function TeamRail({ side, state, layout }: Props) {
                   compact ? "h-7 w-7 text-[8px]" : "h-10 w-10 text-[9px]",
                   u.alive ? "bg-field" : "bg-line text-faint",
                 )}
-                title={u.fallback ? `fallback:${u.champ}` : u.champ}
+                title={
+                  u.fallback ? `Missing body art (${u.champ})` : u.champ
+                }
               >
                 {u.champ.slice(0, 3).toUpperCase()}
               </div>

@@ -1,0 +1,10 @@
+# Cold load console @1280x720
+
+## console
+(empty)
+
+## requestfailed
+(none)
+
+## http 404
+(none)

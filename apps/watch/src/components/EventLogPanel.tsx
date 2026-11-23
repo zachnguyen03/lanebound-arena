@@ -11,6 +11,20 @@ interface Props {
   onClose?: () => void;
 }
 
+/** Muted mark for events not yet drawn on the map (DEV drawer only). */
+function UndrawnMark() {
+  return (
+    <span
+      data-testid="event-undrawn-mark"
+      title="Not drawn on map yet"
+      aria-label="Not drawn on map yet"
+      className="ml-1 inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-full border border-line-2 text-[8px] text-faint"
+    >
+      ·
+    </span>
+  );
+}
+
 export function EventLogPanel({
   events,
   currentTick,
@@ -46,7 +60,6 @@ export function EventLogPanel({
   return (
     <aside
       data-testid="event-log-panel"
-      data-overlay="drawer"
       className="flex h-full min-h-0 flex-col border border-line bg-panel"
     >
       <div className="flex items-center justify-between border-b border-line px-3 py-2">
@@ -92,7 +105,7 @@ export function EventLogPanel({
         ) : (
           filtered.map((e) => {
             const active = e.tick === currentTick;
-            const unrendered = UNRENDERED_EVENT_TYPES.has(e.type);
+            const undrawn = UNRENDERED_EVENT_TYPES.has(e.type);
             return (
               <li key={e.seq} data-event-tick={e.tick}>
                 <button
@@ -109,12 +122,12 @@ export function EventLogPanel({
                   </span>
                   <span
                     className={cn(
-                      "font-medium",
-                      unrendered ? "text-dim" : "text-paper",
+                      "inline-flex items-center font-medium",
+                      undrawn ? "text-dim" : "text-paper",
                     )}
                   >
                     {e.type}
-                    {unrendered ? " · TODO" : ""}
+                    {undrawn ? <UndrawnMark /> : null}
                   </span>
                   <span className="ml-auto truncate text-faint">seq {e.seq}</span>
                 </button>

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { loadWatchAssets, type WatchAssets } from "@watch/lib/assets";
 import {
   absStyle,
@@ -21,7 +28,10 @@ import { LogLoader } from "./LogLoader";
 import { TeamRail } from "./TeamRail";
 import { TopBar } from "./TopBar";
 import { TransportBar } from "./TransportBar";
+
 type LoadPhase = "boot" | "empty" | "loading" | "ready" | "error";
+/** 1080: column push + stage shift. 720: modal over dimmed stage. */
+type DrawerMode = "push" | "modal";
 
 const SAMPLE_URL = "/samples/seed-20261122.jsonl";
 
@@ -31,7 +41,8 @@ function useViewport() {
     h: typeof window !== "undefined" ? window.innerHeight : 1080,
   }));
   useEffect(() => {
-    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    const onResize = () =>
+      setSize({ w: window.innerWidth, h: window.innerHeight });
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -43,6 +54,7 @@ export function WatchShell() {
   const mode: HudMode = pickHudMode(vp.w);
   const layout = layoutFor(mode);
   const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
+  const drawerMode: DrawerMode = mode === "1080" ? "push" : "modal";
 
   const [assets, setAssets] = useState<WatchAssets | null>(null);
   const [assetsError, setAssetsError] = useState<string | null>(null);
@@ -57,6 +69,7 @@ export function WatchShell() {
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
   const accRef = useRef(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,6 +162,39 @@ export function WatchShell() {
     };
   }, [playing, engine, speed]);
 
+  // Focus trap + Escape for modal drawer.
+  useEffect(() => {
+    if (!drawerOpen || drawerMode !== "modal") return;
+    const root = modalRef.current;
+    if (!root) return;
+    const focusables = root.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    const first = focusables[0];
+    first?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setDrawerOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || focusables.length === 0) return;
+      const list = [...focusables];
+      const i = list.indexOf(document.activeElement as HTMLElement);
+      if (e.shiftKey) {
+        if (i <= 0) {
+          e.preventDefault();
+          list[list.length - 1]?.focus();
+        }
+      } else if (i === list.length - 1) {
+        e.preventDefault();
+        list[0]?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [drawerOpen, drawerMode]);
+
   const onStep = () => {
     setPlaying(false);
     if (!engine) return;
@@ -163,7 +209,6 @@ export function WatchShell() {
   const [stageW, stageH] = layout.canvas;
 
   const mapSize = arenaDisplaySize(mode);
-  // Centre the 1056 map inside the arena_map slot when the slot is wider (1080).
   const mapSlot = layout.arena_map;
   const mapLeft = mapSlot[0] + Math.floor((mapSlot[2] - mapSize.w) / 2);
   const mapTop = mapSlot[1] + Math.floor((mapSlot[3] - mapSize.h) / 2);
@@ -173,17 +218,34 @@ export function WatchShell() {
       ? layout.dock_panels.kill_feed
       : layout.kill_feed;
 
+  const pushOpen = drawerOpen && drawerMode === "push";
+  const modalOpen = drawerOpen && drawerMode === "modal";
+  // Shift stage left so the right-hand controls stay in the remaining viewport.
+  const stageShiftX = pushOpen ? -DRAWER_W : 0;
+
+  const drawerPanel = (
+    <EventLogPanel
+      events={engine?.events ?? []}
+      currentTick={tick}
+      onJump={jump}
+      onClose={() => setDrawerOpen(false)}
+    />
+  );
+
   return (
     <div
       className="flex min-h-screen bg-field text-paper"
       data-testid="watch-root"
       data-hud-mode={mode}
       data-drawer-open={drawerOpen ? "true" : "false"}
+      data-drawer-mode={drawerMode}
     >
-      {/* Main column — shrinks when drawer pushes in; never covered. */}
       <div
         className="min-w-0 flex-1"
-        style={{ overflowX: "auto", overflowY: "auto" }}
+        style={{
+          overflowX: pushOpen ? "hidden" : "auto",
+          overflowY: "auto",
+        }}
       >
         {belowMin ? (
           <div
@@ -202,6 +264,7 @@ export function WatchShell() {
             height: stageH,
             minWidth: stageW,
             minHeight: stageH,
+            transform: stageShiftX ? `translateX(${stageShiftX}px)` : undefined,
           }}
         >
           <TopBar
@@ -268,7 +331,6 @@ export function WatchShell() {
               <TeamRail side="blue" state={state} layout={layout} />
               <TeamRail side="red" state={state} layout={layout} />
 
-              {/* Map frame sized to the canvas (centred in the slot if wider). */}
               <div
                 data-testid="arena-map-slot"
                 style={{
@@ -320,9 +382,6 @@ export function WatchShell() {
           ) : null}
         </div>
 
-        {/* Below-stage utilities — outside the fixed HUD chrome.
-            At viewports taller than the stage (e.g. 1280×800 under a 720 HUD),
-            reserve the under-stage band so LOAD EVENT LOG never peeks into it. */}
         {engine ? (
           <div
             data-testid="below-stage-utilities"
@@ -355,20 +414,46 @@ export function WatchShell() {
         ) : null}
       </div>
 
-      {/* Event log drawer — flex sibling push (never overlays controls). */}
-      {drawerOpen ? (
+      {/* 1080: full-height push column (stage shifted left above). */}
+      {pushOpen ? (
         <div
           data-testid="event-drawer"
-          data-overlay="drawer"
+          data-drawer-kind="push"
           className="flex h-screen shrink-0 flex-col border-l border-line bg-panel"
           style={{ width: DRAWER_W }}
         >
-          <EventLogPanel
-            events={engine?.events ?? []}
-            currentTick={tick}
-            onJump={jump}
-            onClose={() => setDrawerOpen(false)}
+          {drawerPanel}
+        </div>
+      ) : null}
+
+      {/* 720: modal over dimmed stage; focus trapped; Close / Escape. */}
+      {modalOpen ? (
+        <div
+          ref={modalRef}
+          data-testid="event-drawer"
+          data-drawer-kind="modal"
+          data-overlay="drawer-modal"
+          className="fixed inset-0 z-[60] flex justify-end"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Event log"
+          onKeyDown={(e: ReactKeyboardEvent) => {
+            if (e.key === "Escape") setDrawerOpen(false);
+          }}
+        >
+          <button
+            type="button"
+            data-testid="drawer-backdrop"
+            className="absolute inset-0 bg-black/55"
+            aria-label="Close event log"
+            onClick={() => setDrawerOpen(false)}
           />
+          <div
+            className="relative z-[61] flex h-full flex-col border-l border-line bg-panel shadow-lg"
+            style={{ width: DRAWER_W }}
+          >
+            {drawerPanel}
+          </div>
         </div>
       ) : null}
     </div>

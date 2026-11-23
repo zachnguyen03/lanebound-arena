@@ -2,8 +2,9 @@
 
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Tip commit:** `9e7aff4b2576e55a1c88a9b98119059751c8e3ea`  
+**Tip commit:** `6c70ca1b536270190d723cb18916b083a50406a5`  
 **Layout tip verified independently:** `c6de901` (HUD rects ≤1 px, scale 1.0, bbox clean)  
+**Dummy tip verified independently:** `fc1697a`  
 **Date:** 23 Nov 2026  
 
 Desktop-only Watch shell. Layout follows `hud-layout.json` / `hud-spec.md` (CD binding). Training-dummy body sheet from CD swapped in for labelled placeholders. No edits under `sim/`, `tests/`, or `data/`.
@@ -23,11 +24,14 @@ npm run lab:s4
 
 | Check | Result |
 |---|---|
-| `npm test` | **26 passed** |
+| `npm test` | **30 passed** |
 | Canvas scale @1920 / @1280×720 / @1280×800 | **1.0** (intrinsic CSS == buffer; see `canvas-scale.txt`) |
-| Playwright bbox @1920 / @1280 (drawer closed + open) | **PASS** — `bbox-check.txt` |
+| Drawer @1920 (push) | Stage shifts left; HUD controls hittable via `elementFromPoint` without scroll; 8× click works with drawer open |
+| Drawer @1280 (modal) | Full-height modal + dim backdrop + focus trap + Close/Escape; close then 8× |
 | 1280×800 utilities under HUD | **PASS** — spacer; loader below the fold |
 | Takedown log (quiet S0) | **No takedowns yet** (no level_up filler) |
+| Takedown log (handmade deaths) | `BLUE scores · 1–0` / death rows; see `watch-takedown-log-crop.png` |
+| Cold load @1280×720 | Clean console; no 404 (`cold-load-console.txt`) — was favicon.ico |
 | Sample digest | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` |
 | Determinism guard | Load + scrub leaves digest unchanged |
 | Dummy art | Byte-identical to CD `arena-sandbox-dummy.tar.gz` (sha256 `1fa95a19…`) |
@@ -38,7 +42,8 @@ npm run lab:s4
 - **720:** stage 1280×720; rails **112 px**; map **1056×520** 1:1 (plinth crop); takedown feed in dock; same dock family.
 - **1280×800:** 720 HUD + clear under-HUD spacer; utilities (loader / DEV) fully below the fold.
 - **Below 1280×720:** desktop notice + horizontal scroll; no stacked mobile layout.
-- **Event log:** collapsible right-edge **drawer** (closed by default); flex push so it never covers controls (bbox-proven). Drawer hosts level_up and other events.
+- **Event log @1080:** full-height **push** column; stage `translateX(-320)` so right-hand controls stay in the remaining viewport (no scroll).
+- **Event log @720:** **modal** over dimmed stage; focus trapped; Close / Escape / backdrop dismiss.
 - Transport speeds: **0.5 / 1 / 2 / 4 / 8**.
 - Fallback spawns at **tile centres** `(1.5,7.5)` / `(22.5,7.5)` (GD). Props at tile centres. Units follow log poses when present.
 
@@ -63,6 +68,9 @@ npm run lab:s4
 - `watch-1280-t0.png`, `watch-1280-mid.png`
 - `watch-1280x800-mid.png`
 - Dummy: `watch-1920-mid-dummy.png`, `watch-1280-mid-dummy.png`, `watch-dummy-map-crop.png`
+- Drawer open: `watch-1920x1080-drawer.png`, `watch-1280x720-drawer.png`, `watch-1280x800-drawer.png`
+- Takedown proof: `watch-1920-takedown-proof.png`, `watch-takedown-log-crop.png`
+- Cold load: `cold-load-console.txt`
 
 ## Fallbacks / TODOs
 
@@ -73,7 +81,7 @@ See `fallbacks.md`, `unrendered.md`. No open champ-id fallbacks for the bundled 
 | Item | Notes |
 |---|---|
 | Austere dock panels | Zone/pickups/fight call are labelled chrome until those events render; no invented VFX. |
-| Kill feed | Only `death` / `takedown_score` (killer → victim + assists). Empty state: “No takedowns yet”. Level-ups stay in the drawer. |
+| Kill feed | Only `death` / `takedown_score` (killer → victim + assists; `BLUE scores · 1–0`). Empty state: “No takedowns yet”. Level-ups stay in the drawer. |
 
 ## Open questions (parked)
 

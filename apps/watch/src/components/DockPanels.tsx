@@ -32,21 +32,23 @@ interface Props {
   fightCall: Rect;
 }
 
-/** Austere dock chrome — zone/orb/buff/fight visuals are unrendered TODOs. */
+/** Austere dock chrome — zone/orb/buff/fight visuals await log events. */
 export function DockPanels({ state, zone, pickups, fightCall }: Props) {
   return (
     <>
       <Panel testId="dock-zone" title="ZONE" rect={zone}>
-        Neutral · unrendered until zone events
+        Neutral · no zone events yet
         {state ? (
-          <div className="mt-1 text-dim">Score {state.scoreBlue}–{state.scoreRed}</div>
+          <div className="mt-1 text-dim">
+            Score {state.scoreBlue}–{state.scoreRed}
+          </div>
         ) : null}
       </Panel>
       <Panel testId="dock-pickups" title="PICKUPS" rect={pickups}>
         8 orbs · 2 flank buffs · empty pads drawn on map
       </Panel>
       <Panel testId="dock-fight-call" title="FIGHT CALL" rect={fightCall}>
-        No fight_call in log · TODO
+        No fight calls yet
       </Panel>
     </>
   );

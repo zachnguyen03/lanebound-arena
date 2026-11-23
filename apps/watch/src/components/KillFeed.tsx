@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { absStyle, type Rect } from "@watch/lib/hud-layout";
+import { formatKillFeedRow } from "@watch/lib/kill-feed-format";
 import type { SimEvent } from "@watch/lib/types";
 
 interface Props {
@@ -9,32 +10,9 @@ interface Props {
   onJump: (tick: number) => void;
 }
 
-function shortId(id: unknown): string {
-  if (typeof id !== "string" || id.length === 0) return "?";
-  // "blue:adc" → "B ADC"
-  const [team, slot] = id.split(":");
-  const t = team === "blue" ? "B" : team === "red" ? "R" : "?";
-  const s = (slot ?? "?").toUpperCase();
-  return `${t} ${s}`;
-}
-
-function formatDeathRow(e: SimEvent): string {
-  const victim = shortId(e.unit_id);
-  const killer =
-    e.killer_id == null || e.killer_id === ""
-      ? "—"
-      : shortId(e.killer_id);
-  const assists = Array.isArray(e.assists)
-    ? (e.assists as unknown[]).map(shortId).filter(Boolean)
-    : [];
-  const assistPart =
-    assists.length > 0 ? ` (+${assists.join(", ")})` : "";
-  return `${killer} → ${victim}${assistPart}`;
-}
-
 /**
- * Takedown log per hud-spec: killer, victim, assists.
- * Only death / takedown_score rows — never level_up or other noise.
+ * Takedown log per hud-spec: killer, victim, assists / score rows.
+ * Only death / takedown_score — never level_up or other noise.
  */
 export function KillFeed({ events, currentTick, rect, onJump }: Props) {
   const rows = useMemo(() => {
@@ -74,9 +52,7 @@ export function KillFeed({ events, currentTick, rect, onJump }: Props) {
                   {e.tick}
                 </span>
                 <span className="truncate text-paper">
-                  {e.type === "death"
-                    ? formatDeathRow(e)
-                    : `takedown · ${shortId(e.team)}`}
+                  {formatKillFeedRow(e)}
                 </span>
               </button>
             </li>
