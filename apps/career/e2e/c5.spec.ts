@@ -24,20 +24,20 @@ test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a rep
   await page.getByRole("button", { name: "Tactics" }).click();
 
   await playAndRecap(page);
-  await expect(page.getByText("Game 2", { exact: true })).toBeVisible();
+  await expect(page.getByText("Map 2 of 3", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Draft" }).click();
   await expect(page.locator('[data-screen="tactics"]')).toHaveCount(0);
   await expect(page.locator('[data-screen="cards"]')).toHaveCount(0);
-  await expect(page.getByText("Game 2 cannot repeat game 1.")).toBeVisible();
+  await expect(page.getByText("Map 2 cannot repeat map 1.")).toBeVisible();
   await page.getByRole("button", { name: "Cards" }).click();
   await expect(page.locator('section[data-screen="cards"] button').first()).toBeDisabled();
   await page.getByRole("button", { name: "Tactics" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeDisabled();
 
   await playAndRecap(page);
-  if (await page.getByText("Game 3", { exact: true }).isVisible()) await playAndRecap(page);
+  if (await page.getByText("Map 3 of 3", { exact: true }).isVisible()) await playAndRecap(page);
   await page.getByRole("button", { name: "Draft" }).click();
-  await expect(page.getByText("Game 1", { exact: true })).toBeVisible();
+  await expect(page.getByText("Map 1 of 3", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Cards" }).click();
   await expect(page.locator('section[data-screen="cards"] button').first()).toBeEnabled();
 });

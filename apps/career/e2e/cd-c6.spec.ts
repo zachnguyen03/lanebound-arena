@@ -133,6 +133,18 @@ test("tactics use the segment control and grey out when locked", async ({ page }
   expect(Number(faded)).toBeLessThan(1);
 });
 
+test("the match uses Map N of N and never Game or MAP", async ({ page }) => {
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByTestId("map-label")).toHaveText("Map 1 of 3");
+  await page.getByTestId("play-map").click();
+  const text = await page.locator("main").innerText();
+  expect(text).not.toMatch(/\bGame \d/);
+  expect(text).not.toMatch(/\bMAP \d/);
+  await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
+  await expect(page.getByTestId("coach-mark")).toContainText("Map 1 of 3");
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);

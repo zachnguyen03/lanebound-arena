@@ -10,7 +10,7 @@ const TACTIC = [
 
 const COACH = [
   "Watch the map. Score, zone, and a card when it fires. The three cards stay locked for this series.",
-  "Read the recap. Ratings, and which cards fired or expired. Team-fearless: this map cannot repeat the champions from game 1.",
+  "Read the recap. Ratings, and which cards fired or expired. Team-fearless: this map cannot repeat the champions from map 1.",
   "The draft is on the screen. Last map's champions stay in the recap.",
   "Hold the Pit, Hunt, or Starve. The plan stays locked until the series ends.",
   "You are the coach now. Tips turn off after this map.",
@@ -57,13 +57,14 @@ export function MatchDeck({
   const markIndex = session.maps_played;
   const mark = markIndex >= 1 && markIndex <= 5 && hiddenMark !== markIndex ? COACH[markIndex - 1] : null;
   const coachTarget = markIndex <= 2 ? "recap" : markIndex === 3 ? "draft" : markIndex === 4 ? "tactics" : "play";
+  const mapLabel = draft.fixture_id ? `Map ${draft.game_index} of ${seriesMaps(session, draft.fixture_id)}` : "Season complete";
 
   return (
     <main className="wrap matchdeck" data-screen="match">
       <div className="matchscroll">
       <div className="ch">
         <h2 className="disp">{club?.name}</h2>
-        <span className="meta">{draft.fixture_id ? `Game ${draft.game_index}` : "Season complete"}</span>
+        <span className="meta" data-testid="map-label">{mapLabel}</span>
       </div>
       <div className="subtabs" data-testid="match-tabs">
         {PANES.map(([id, label]) => (
@@ -127,7 +128,7 @@ export function MatchDeck({
               <h3>Draft</h3>
               <span className="meta">{draft.fearless ? "Team-fearless" : "Fearless reset"}</span>
             </div>
-            {draft.game_index === 2 ? <p className="note">Game 2 cannot repeat game 1.</p> : null}
+            {draft.game_index === 2 ? <p className="note">Map 2 cannot repeat map 1.</p> : null}
             {draft.blue.map((slot) => (
               <div className="dec" key={slot.player_id}>
                 <b>
@@ -165,9 +166,21 @@ export function MatchDeck({
               Skip series
             </Button>
       </div>
-      {mark ? <CoachMark text={`Map ${markIndex}. ${mark}`} target={coachTarget} onClose={() => setHiddenMark(markIndex)} /> : null}
+      {mark ? (
+        <CoachMark
+          text={`Map ${markIndex} of ${seriesMaps(session, session.open_fixture_id)}. ${mark}`}
+          target={coachTarget}
+          onClose={() => setHiddenMark(markIndex)}
+        />
+      ) : null}
     </main>
   );
+}
+
+function seriesMaps(session: CareerSession, fixtureId: string | null): number {
+  const id = fixtureId ?? session.series[session.series.length - 1]?.fixture_id ?? null;
+  const fixture = session.schedule.find((item) => item.id === id);
+  return fixture ? winsTarget(fixture.format) * 2 - 1 : 3;
 }
 
 function CoachMark({ text, target, onClose }: { text: string; target: string; onClose: () => void }) {
