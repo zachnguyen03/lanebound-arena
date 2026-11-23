@@ -25,6 +25,7 @@ const result = simulate(cfg);
 
 console.log(`seed=${seed}`);
 console.log(`constants_hash=${result.constants_hash}`);
+console.log(`data_hash=${result.data_hash}`);
 console.log(`digest=${result.digest}`);
 console.log(`tick_count=${result.tick_count}`);
 console.log(`match_end=${result.state.end_reason ?? "none"}`);
