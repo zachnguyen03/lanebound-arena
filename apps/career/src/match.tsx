@@ -78,16 +78,11 @@ export function MatchDeck({
               <h3>Tactics</h3>
               <span className="meta">{locked ? "Locked for this series" : "Choose a plan"}</span>
             </div>
-            <div className="row">
+            <div className="seg" data-testid="tactic-seg">
               {TACTIC.map(([id, label]) => (
-                <Button
-                  key={id}
-                  variant="secondary"
-                  disabled={locked}
-                  onClick={() => onSession(setPreset(session, id))}
-                >
+                <button key={id} type="button" className={session.human_preset === id ? "on" : ""} disabled={locked} onClick={() => onSession(setPreset(session, id))}>
                   {label}
-                </Button>
+                </button>
               ))}
             </div>
           </section>

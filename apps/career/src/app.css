@@ -77,6 +77,9 @@ button.btn-primary:disabled {
 .result { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--c-line); }
 .result .disp { font-size: 28px; }
 .ratecols { display: grid; grid-template-columns: 1fr 1fr; }
+.seg button { padding: 7px 12px; color: var(--c-dim); background: transparent; font: inherit; white-space: nowrap; }
+.seg button.on { background: var(--c-text); color: var(--c-field); font-weight: 600; }
+.seg button:disabled { opacity: 0.45; cursor: not-allowed; }
 .sub { display: flex; gap: 8px; }
 .sub button.on { background: var(--c-panel-2); }
 .match { border: 1px solid var(--c-line); padding: 12px; display: grid; gap: 6px; }

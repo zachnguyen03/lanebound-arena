@@ -118,6 +118,21 @@ test("picked cards sit beside the points and signatures stay out of the pool", a
   expect(pool).toBe("auto");
 });
 
+test("tactics use the segment control and grey out when locked", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  const seg = page.getByTestId("tactic-seg");
+  await expect(seg).toHaveClass(/seg/);
+  await expect(seg.getByRole("button", { name: "Hold the Pit" })).toHaveClass(/on/);
+  await expect(seg.locator("button.btn-primary")).toHaveCount(0);
+  await page.getByTestId("play-map").click();
+  await page.getByRole("button", { name: "Tactics" }).click();
+  await expect(seg.getByRole("button", { name: "Hold the Pit" })).toBeDisabled();
+  const faded = await seg.getByRole("button", { name: "Hunt", exact: true }).evaluate((el) => getComputedStyle(el).opacity);
+  expect(Number(faded)).toBeLessThan(1);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
