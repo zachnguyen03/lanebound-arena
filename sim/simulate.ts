@@ -10,6 +10,7 @@ import { mergeConstants, type Constants } from "./constants.js";
 import { inEnemySanctuary } from "./map.js";
 import { applyDisplacement, integrateSteering } from "./motor.js";
 import { RngBank } from "./rng.js";
+import { emptyStatus } from "./status.js";
 import type {
   MatchConfig,
   MatchState,
@@ -101,7 +102,12 @@ function makeUnit(
     waypoint: null,
     scripted_wp_i: 0,
     damage_log: [],
+    assist_log: [],
     last_hit_by: null,
+    status: emptyStatus(c.SPAWN_SHIELD_S),
+    attack_reset_pending: false,
+    last_damage_t: -Infinity,
+    last_dealt_t: -Infinity,
   };
 }
 
@@ -402,14 +408,28 @@ export function simulate(config: MatchConfig): SimulateResult {
         if (killer && killer.alive && killer.team !== u.team) {
           const windowStart = state.t - c.ASSIST_WINDOW_S;
           const seen = new Set<UnitId>();
+          const consider = (sourceId: UnitId) => {
+            if (sourceId === killerId) return;
+            if (seen.has(sourceId)) return;
+            const asst = state.units.find((x) => x.id === sourceId);
+            if (!asst || !asst.alive || asst.team !== killer.team) return;
+            seen.add(sourceId);
+            assists.push(sourceId);
+          };
+          // Damage / CC on the victim (§6.10).
+          for (const entry of u.assist_log) {
+            if (entry.t < windowStart) continue;
+            if (entry.kind === "damage" || entry.kind === "cc") consider(entry.source_id);
+          }
+          // Legacy damage_log (kept in sync for S0 fixtures).
           for (const entry of u.damage_log) {
             if (entry.t < windowStart) continue;
-            if (entry.source_id === killerId) continue;
-            if (seen.has(entry.source_id)) continue;
-            const asst = state.units.find((x) => x.id === entry.source_id);
-            if (!asst || !asst.alive || asst.team !== killer.team) continue;
-            seen.add(entry.source_id);
-            assists.push(entry.source_id);
+            consider(entry.source_id);
+          }
+          // Heal / shield on the killer (§6.10).
+          for (const entry of killer.assist_log) {
+            if (entry.t < windowStart) continue;
+            if (entry.kind === "heal" || entry.kind === "shield") consider(entry.source_id);
           }
           // Stable assist order by unit index
           assists.sort((a, b) => {

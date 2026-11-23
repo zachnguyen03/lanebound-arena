@@ -2,7 +2,15 @@ import type { Constants } from "./constants.js";
 import { dist } from "./math.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
-import type { MatchState, PendingDamage, UnitId, UnitState } from "./types.js";
+import {
+  isBanished,
+  isBlind,
+  isDisarmed,
+  isLocked,
+  isTimeStopped,
+  type StatusState,
+} from "./status.js";
+import type { MatchState, UnitId, UnitState } from "./types.js";
 
 /** Marksman-like dummy L1 stats (Huntress numbers from build-spec §7.1). */
 export const DUMMY_MARKSMAN = {
@@ -36,11 +44,30 @@ export interface AutoMissile {
   spawn_seq: number;
 }
 
+/** §6.9: starting a skill cancels a windup that has not yet applied. */
+export function cancelAutoWindup(u: UnitState): boolean {
+  if (u.auto_windup_left <= 0) return false;
+  u.auto_windup_left = 0;
+  u.auto_windup_target = null;
+  return true;
+}
+
+/** §6.8 gates: cannot start auto while disarmed / locked / time-stopped / attack-reset pending. */
+export function canStartAuto(u: UnitState, st: StatusState): boolean {
+  if (u.attack_reset_pending) return false;
+  if (isDisarmed(st)) return false;
+  if (isLocked(st)) return false;
+  if (isTimeStopped(st)) return false;
+  if (isBanished(st)) return false;
+  return true;
+}
+
 /**
  * §6.8 / §6.9 auto cadence:
- * - Start windup when t >= auto_next_start_t, alive, target in range.
+ * - Start windup when t >= auto_next_start_t, alive, target in range, gates clear.
  * - Windup = AUTO_WINDUP / AS.
  * - On start: auto_next_start_t = t + 1/AS (next start from windup begin).
+ * - Blind: windup completes but auto misses (raw 0).
  * - Melee (range ≤ 2): pending damage at windup end.
  * - Ranged: missile at MISSILE_SPEED; lands when t >= land_t; crit rolled at windup end.
  */
@@ -54,6 +81,8 @@ export function tickAutos(
   void emit;
   for (const atk of state.units) {
     if (!atk.alive) continue;
+    // Time-stop pauses windup countdown (§6.5).
+    if (isTimeStopped(atk.status)) continue;
 
     // Advance an in-progress windup.
     if (atk.auto_windup_left > 0) {
@@ -65,6 +94,24 @@ export function tickAutos(
       if (!tid) continue;
       const target = state.units.find((u) => u.id === tid);
       if (!target || !target.alive) continue;
+      if (isBanished(target.status)) continue;
+
+      // Blind: autos miss (§6.5 / §6.8).
+      if (isBlind(atk.status)) {
+        emit("hit", {
+          source_id: atk.id,
+          target_id: target.id,
+          skill_id: "auto",
+          raw: 0,
+          mitigated: 0,
+          amp: 1,
+          crit: false,
+          shield_absorbed: 0,
+          hp_after: target.hp,
+          miss: true,
+        });
+        continue;
+      }
 
       const critChance = Math.min(c.CRIT_CAP, atk.stats.crit);
       const isCrit = rng.chance("combat", critChance, unitKeyFromId(atk.id));
@@ -110,6 +157,7 @@ export function tickAutos(
 
     // Ready to start a new windup?
     if (state.t < atk.auto_next_start_t) continue;
+    if (!canStartAuto(atk, atk.status)) continue;
 
     const target = pickAutoTarget(state, atk);
     if (!target) continue;
@@ -142,6 +190,7 @@ export function landMissiles(
   for (const m of due) {
     const target = state.units.find((u) => u.id === m.target_id);
     if (!target || !target.alive) continue;
+    if (isBanished(target.status)) continue;
     state.pending_damage.push({
       seq: m.spawn_seq,
       source_id: m.source_id,
@@ -161,6 +210,7 @@ function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
   let bestIndex = Infinity;
   for (const u of state.units) {
     if (!u.alive || u.team === atk.team) continue;
+    if (isBanished(u.status)) continue;
     const d = dist(atk.x, atk.y, u.x, u.y);
     if (d > atk.stats.range) continue;
     if (d < bestD || (d === bestD && u.index < bestIndex)) {
@@ -191,6 +241,7 @@ export function resolvePendingDamage(
     const target = state.units.find((u) => u.id === p.target_id);
     const source = state.units.find((u) => u.id === p.source_id);
     if (!target || !target.alive || !source) continue;
+    if (isBanished(target.status)) continue;
 
     if (state.t < target.spawn_shield_until) {
       emit("hit", {
@@ -213,6 +264,9 @@ export function resolvePendingDamage(
     if (mitigated > 0) {
       target.last_hit_by = p.source_id;
       target.damage_log.push({ source_id: p.source_id, t: state.t });
+      target.assist_log.push({ source_id: p.source_id, t: state.t, kind: "damage" });
+      target.last_damage_t = state.t;
+      source.last_dealt_t = state.t;
     }
     emit("hit", {
       source_id: p.source_id,
@@ -226,4 +280,14 @@ export function resolvePendingDamage(
       hp_after: target.hp,
     });
   }
+}
+
+/** Record a CC/heal/shield assist contribution (§6.10). */
+export function recordAssistCredit(
+  targetOrKiller: UnitState,
+  sourceId: UnitId,
+  t: number,
+  kind: "cc" | "heal" | "shield",
+): void {
+  targetOrKiller.assist_log.push({ source_id: sourceId, t, kind });
 }

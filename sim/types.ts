@@ -140,7 +140,16 @@ export interface UnitState {
   scripted_wp_i: number;
   /** Recent damage contributors for assist credit: { source_id, t }. */
   damage_log: Array<{ source_id: UnitId; t: number }>;
+  /** CC / heal / shield assist contributions (§6.10). */
+  assist_log: Array<{ source_id: UnitId; t: number; kind: "damage" | "cc" | "heal" | "shield" }>;
   last_hit_by: UnitId | null;
+  /** Soft CC / status bookkeeping (S1). */
+  status: import("./status.js").StatusState;
+  /** Attack-reset pending: blocks new auto windup until cleared (§6.8). */
+  attack_reset_pending: boolean;
+  /** Last sim t damage received / dealt (combat-heal window). */
+  last_damage_t: number;
+  last_dealt_t: number;
 }
 
 export interface Displacement {
