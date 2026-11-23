@@ -10,7 +10,7 @@ Silences that were never in the v1 list, and were not fully pinned this round, s
 
 ### Remaining §9.3 factors not pinned by a comparison test
 
-Value, killability (including the Lock ×1.25), sticky 1.25 / 1.4× switch, tactic ×1.2, and ward 0.2 on a clip-to-zero projectile are in the spec (L1127–1133) but the suite only asserts the hard legality ward, the Focus slot, the ruled reach form (monotone, never 0), and the follow-call inequality. The product is not re-implemented to pin every factor.
+Value, sticky 1.25 / 1.4× switch, tactic ×1.2, and ward 0.2 on a clip-to-zero projectile are in the spec (L1127–1133) but are not each pinned by a comparison test. Killability Lock ×1.25 is tested in `11-probe-gaps.test.ts` (§9.3 L1128). The product is not re-implemented to pin every remaining factor.
 
 ### Secondary tactic — when the 1 s planner would "otherwise idle"
 
@@ -22,6 +22,6 @@ Value, killability (including the Lock ×1.25), sticky 1.25 / 1.4× switch, tact
 - L956 still says a unit waits only `perception_delay`; R #3 S2-1 is canonical (`max` for a new enemy, `reaction_delay` only for a known one).
 - The old "same 1.0 s" hysteresis wording is retired.
 
-- L1044 still says "At Teamwork 50+ this is always-follow (multiplier 1.00)". The multiplier is 1.00 at 50+, so equal-rest always follows, but a greener local can still beat `call_score`. R #4 S2-R4-2 is canonical (no always-follow / no 1.3 base threshold).
+- L1044–1045 still say "At Teamwork 50+ this is always-follow (multiplier 1.00). Below, a locally greener target can win." For the spec editor, replace that with: "At Teamwork 50+ the multiplier is 1.00, so equal-rest always follows (call 1.30 vs local 1.00). A greener local can still beat `call_score`. There is no always-follow gate and no separate 1.3 base threshold (R #4 S2-R4-2)."
 
 These are for the spec editor, not for Game Designer.

@@ -5,6 +5,9 @@
  *
  * The third stop — est_ttk > 2.0 s — is tested after the leash case (R #3 S2-5 L1915).
  * The test does not compute or assert an exact A_true or dummy-5s dps_est.
+ * After a stop, Chase, Approach, and Kite toward that target are all rejected
+ * (§9.4 L1143: revert to planner). Timing uses one planner tick (1.0 s, §9.2 L1105),
+ * not a 0.5 s acceptance grace.
  */
 import { describe, expect, it } from "vitest";
 import { dist, inRedSanctuary, pathOf, runAi, type UId } from "./_harness.js";
@@ -32,11 +35,26 @@ describe("Chase stops (§9.4 L1143, §9.6 L1164, Hunt §9.2 L1109 / §12 L1349)"
     const targetPath = pathOf(r.events, FLEE);
     const entered = targetPath.find((p) => inRedSanctuary(p.x));
     expect(entered).toBeTruthy();
-    const after = r.of(
+    const afterT = entered!.t + 0.3;
+    const toward = r.of(
       "intent",
-      (e) => e.unit_id === CHASER && (e.t as number) >= (entered!.t + 0.3) && e.intent === "Chase",
+      (e) =>
+        e.unit_id === CHASER &&
+        (e.t as number) >= afterT &&
+        (e.intent === "Chase" || e.intent === "Approach" || e.intent === "Kite") &&
+        (e.target_id == null || e.target_id === FLEE),
     );
-    expect(after).toHaveLength(0);
+    expect(toward).toHaveLength(0);
+    // Distance trend: after the target is in sanctuary, the chaser does not
+    // keep closing on them (Approach/Kite toward the pad would still fail this).
+    const afterPath = path.filter((p) => p.t >= afterT);
+    const tgtAfter = targetPath.filter((p) => p.t >= afterT);
+    if (afterPath.length >= 2 && tgtAfter.length >= 1) {
+      const d0 = dist(afterPath[0]!, tgtAfter[0]!);
+      const lastCh = afterPath[afterPath.length - 1]!;
+      const lastT = tgtAfter.find((q) => q.tick === lastCh.tick) ?? tgtAfter[tgtAfter.length - 1]!;
+      expect(dist(lastCh, lastT)).toBeGreaterThanOrEqual(d0 - 0.4);
+    }
   });
 
   it("chase begins, then stops after the chaser has travelled 10 tiles from the point chase began (§9.4 L1143)", () => {
@@ -91,18 +109,37 @@ describe("Chase stops (§9.4 L1143, §9.6 L1164, Hunt §9.2 L1109 / §12 L1349)"
     const travelled = path.filter((p) => p.t >= origin.t).map((p) => dist(p, origin));
     expect(Math.max(...travelled, 0)).toBeLessThan(8); // leash must not be the stop
     expect(path.every((p) => !inRedSanctuary(p.x))).toBe(true);
-    const laterStopped = r.of(
+    // Dummy 5 s dps_est vs a L10 tank is already est_ttk > 2 when chase begins
+    // (R #3 S2-5). Stop within one planner tick (1.0 s, §9.2 L1105) — no 0.5 s grace.
+    const deadline = firstChaseT + 1.0;
+    const towardAfter = (tMin: number) =>
+      r.of(
+        "intent",
+        (e) =>
+          e.unit_id === CHASER &&
+          (e.t as number) >= tMin &&
+          (e.intent === "Chase" || e.intent === "Approach" || e.intent === "Kite") &&
+          (e.target_id == null || e.target_id === FLEE),
+      );
+    expect(towardAfter(deadline)).toHaveLength(0);
+    const stoppedByDeadline = r.of(
       "intent",
       (e) =>
         e.unit_id === CHASER &&
-        (e.t as number) >= firstChaseT + 0.5 &&
-        e.intent !== "Chase",
+        (e.t as number) <= deadline + 1e-9 &&
+        (e.t as number) >= firstChaseT &&
+        e.intent !== "Chase" &&
+        e.intent !== "Approach" &&
+        e.intent !== "Kite",
     );
-    expect(laterStopped.length).toBeGreaterThan(0);
-    const lateChase = r.of(
-      "intent",
-      (e) => e.unit_id === CHASER && (e.t as number) >= firstChaseT + 2.5 && e.intent === "Chase",
-    );
-    expect(lateChase).toHaveLength(0);
+    expect(stoppedByDeadline.length).toBeGreaterThan(0);
+    const afterPath = path.filter((p) => p.t >= deadline);
+    const tgtPath = pathOf(r.events, FLEE).filter((p) => p.t >= deadline);
+    if (afterPath.length >= 2 && tgtPath.length >= 1) {
+      const d0 = dist(afterPath[0]!, tgtPath[0]!);
+      const lastCh = afterPath[afterPath.length - 1]!;
+      const lastT = tgtPath.find((q) => q.tick === lastCh.tick) ?? tgtPath[tgtPath.length - 1]!;
+      expect(dist(lastCh, lastT)).toBeGreaterThanOrEqual(d0 - 0.4);
+    }
   });
 });

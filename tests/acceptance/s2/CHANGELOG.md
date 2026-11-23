@@ -1,5 +1,25 @@
 # s2-acceptance changelog
 
+## v4 — probe-gap tests (23 Nov 2026)
+
+Adds the pre-R #4 probe-gap tests on top of v3. Each cites the spec / R #3 line. Tests assert observable events and positions; no test is tuned to a tip.
+
+### Tests added
+
+- `09-gd-rulings-r3.test.ts`: two-sided hysteresis at Decision 50 — a flip at 0.75 s is blocked and a flip by 0.85 s is allowed, so a stale 1.0 s window fails (R #3 S2-2 L1912). The existing death-exception flip (L1097) stays.
+- `11-probe-gaps.test.ts`: Focus is ×1.25, not a hard override (R #3 S2-6 / §12 L1357); killability Lock ×1.25 (§9.3 L1128); hold_R vs auto contrast on the same fixture, with the `A_true ≥ 0.55` / Focus-below-40% gate cited at §12 L1359 and §8.4 L1007.
+- `03-auto-peel.test.ts`: a dive that begins before the peeler has perceived the diver emits `peeler_perceived: false` (R #3 S2-4 L1916); a dive is still emitted when carry, peeler, and diver are moving.
+- `04-digest-ai.test.ts`: intent-on-change on the AI emitter in a real fight, no scripted motor (R #3 S2-7 L1917).
+
+### v3 tests changed (one-line reasons)
+
+- `02-chase-stops.test.ts`: sanctuary and `est_ttk > 2` stops reject Chase, Approach, and Kite toward the target, and assert a distance trend. The ttk stop must happen within one planner tick (1.0 s, §9.2 L1105), not after a 0.5 s or 2.5 s acceptance grace.
+- `03-auto-peel.test.ts`: the 400-seed lab still uses `peeler_perceived === true` as the M2 denominator, and also records the total dive count including `false`.
+
+### Docs
+
+- `OPEN-QUESTIONS.md`: Lock ×1.25 is no longer listed as untested. The L1044 typo note for the spec editor is spelled out as a replacement sentence.
+
 ## v3 — Appendix R #4 (23 Nov 2026)
 
 Rulings are binding. Tests assert observable events and positions; the reach formula is not re-implemented in the suite.

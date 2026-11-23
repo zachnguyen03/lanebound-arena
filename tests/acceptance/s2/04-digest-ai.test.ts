@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { defaultEvenConfig, digestEvents, simulate } from "../../../sim/index.js";
-import { runAi, type UId } from "./_harness.js";
+import { PIT, cluster, runAi, type UId } from "./_harness.js";
 
 const SEED = 20261122;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -78,5 +78,30 @@ describe("Digest still stable with AI on (M2-24 L1737, G10 L1891)", () => {
     expect(digestEvents(withoutPosMove)).toBe(r.digest);
     const withoutIntent = r.events.filter((e) => e.type !== "intent");
     expect(digestEvents(withoutIntent)).not.toBe(r.digest);
+  });
+
+  it("R #3 S2-7 L1917: in a real AI fight (no scripted motor), a unit's intent events appear only on change", () => {
+    const BM = "blue:mid" as UId;
+    const r = runAi({
+      T: 4.0,
+      tactics: { blue: { preset: "hunt" }, red: { preset: "hunt" } },
+      units: cluster(PIT, [
+        { id: "blue:mid" as UId, champ: "kerrig", auto: true },
+        { id: "blue:jungle" as UId, champ: "kerrig" },
+        { id: "blue:adc" as UId, champ: "huntress", auto: true },
+        { id: "red:mid" as UId, champ: "maelis" },
+        { id: "red:jungle" as UId, champ: "kerrig" },
+        { id: "red:adc" as UId, champ: "huntress" },
+      ]),
+    });
+    expect(r.fightCalls().length).toBeGreaterThan(0);
+    const intents = r.of("intent", (e) => e.unit_id === BM);
+    expect(intents.length).toBeGreaterThan(0);
+    for (let i = 1; i < intents.length; i++) {
+      const a = intents[i - 1]!;
+      const b = intents[i]!;
+      const same = a.intent === b.intent && a.target_id === b.target_id;
+      expect(same, `AI intent repeated at t=${b.t} (${String(a.intent)} → ${String(b.intent)}, only-on-change, L165 / R #3 S2-7)`).toBe(false);
+    }
   });
 });

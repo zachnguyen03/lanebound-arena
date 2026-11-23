@@ -120,6 +120,7 @@ describe("Auto-peel (§9.5 L1147–1160, M2-22 L1735, R #3 S2-4 L1914)", () => {
     const N = 400;
     let eligible = 0;
     let fired = 0;
+    let diveTotal = 0;
     for (let i = 0; i < N; i++) {
       const cfg = configOf({
         seed: 20261122 + i,
@@ -134,15 +135,63 @@ describe("Auto-peel (§9.5 L1147–1160, M2-22 L1735, R #3 S2-4 L1914)", () => {
         },
       });
       const r = simulate(cfg);
-      const dives = r.events.filter((e) => e.type === "dive" && e.peeler_perceived === true);
+      const allDives = r.events.filter((e) => e.type === "dive");
+      const dives = allDives.filter((e) => e.peeler_perceived === true);
       const peels = r.events.filter((e) => e.type === "peel_start").length;
+      diveTotal += allDives.length;
       eligible += dives.length;
       if (dives.length > 0 && peels > 0) fired += Math.min(peels, dives.length);
     }
-    // Bound for the report / QA: denominator recorded.
+    // Bound for the report / QA: denominator is peeler_perceived === true (R #3 S2-4);
+    // diveTotal includes peeler_perceived === false (those events must still be logged).
     // eslint-disable-next-line no-console
-    console.log(`S2 peel preview lab: peel_start=${fired} denominator=${eligible} rate=${eligible ? fired / eligible : "unmeasured"} N=${N}`);
+    console.log(`S2 peel preview lab: peel_start=${fired} denominator=${eligible} dives_including_unperceived=${diveTotal} rate=${eligible ? fired / eligible : "unmeasured"} N=${N}`);
     expect(eligible, "denominator must be recorded and > 0 — an unmeasured peel rate is a fail (sandbox §11 S2)").toBeGreaterThan(0);
+    expect(diveTotal).toBeGreaterThanOrEqual(eligible);
     expect(fired / eligible).toBeGreaterThanOrEqual(0.7);
   }, 120_000);
+
+  it("R #3 S2-4 L1916 / §9.5 L1149–1156: when the dive begins before the peeler has perceived the diver, a dive event still fires with peeler_perceived: false", () => {
+    // Decision 10 → perception_delay = 0.6 s (R #3 S2-1). The melee is already
+    // inside PEEL_DIVE_R at t=0, so condition (2) holds on the first AI tick,
+    // earlier than perception. The event must be logged, not withheld until perceived.
+    const r = diveScene(20261122, {
+      T: 2.5,
+      units: {
+        [CARRY]: { champ: "huntress", level: 7, x: 12, y: 4, auto: false, attrs: { decision: 10 } },
+        [PEELER]: { champ: "ysol", level: 7, x: 11.2, y: 4.2, auto: false, attrs: { decision: 10 } },
+        [TANK]: { champ: "brannoch", level: 7, x: 11.2, y: 3.6, auto: false, attrs: { decision: 10 } },
+        [DIVER]: { champ: "kerrig", level: 7, x: 13.5, y: 4, range: 2, auto: true, attrs: { decision: 10 } },
+        ...EXTRA_REDS,
+      },
+    });
+    const unperceived = r.of("dive", (e) => e.peeler_perceived === false);
+    expect(unperceived.length).toBeGreaterThan(0);
+    const e = unperceived[0]!;
+    expect(e.diver_id).toBe(DIVER);
+    expect(e.target_id).toBe(CARRY);
+    expect((e.t as number)).toBeLessThan(0.1 + 0.6 - 0.05); // before Decision-10 perception
+  });
+
+  it("R #3 S2-4 L1916: a dive is still emitted when the carry, peeler, and diver are moving (not a parked lab pose)", () => {
+    const r = runAi({
+      T: 5.0,
+      pos: true,
+      units: {
+        [CARRY]: { champ: "huntress", level: 7, x: 12, y: 4, auto: false },
+        [PEELER]: { champ: "ysol", level: 7, x: 10.4, y: 4.4, auto: false },
+        [TANK]: { champ: "brannoch", level: 7, x: 10.4, y: 3.4, auto: false },
+        // Starts outside PEEL_DIVE_R=3 and walks in; carry kites, peeler steps up.
+        [DIVER]: { champ: "kerrig", level: 7, x: 16.2, y: 4, range: 2, auto: true },
+        ...EXTRA_REDS,
+      },
+      motor: {
+        [DIVER]: { to: [[13.2, 4]], arrive_r: 0.2, hold_at_end: true },
+        [CARRY]: { to: [[12.8, 5.2], [11.6, 4.6]], arrive_r: 0.25, hold_at_end: false },
+        [PEELER]: { to: [[11.6, 5.0], [12.0, 4.4]], arrive_r: 0.25, hold_at_end: false },
+      },
+    });
+    const dives = r.of("dive", (e) => e.diver_id === DIVER && e.target_id === CARRY);
+    expect(dives.length).toBeGreaterThan(0);
+  });
 });

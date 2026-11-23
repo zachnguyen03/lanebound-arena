@@ -139,6 +139,23 @@ describe("R #3 S2-2 L1912 — hysteresis from the shotcaller's Decision", () => 
     expect(later.length).toBeGreaterThan(0);
   });
 
+  it("R #3 S2-2 L1912: at Decision 50 (hyst_s = 0.8) a flip at 0.75 s is blocked and a flip by 0.85 s is allowed — a stale 1.0 s window fails", () => {
+    // t0 is the first engage call. Banish (not a death) makes disengage the
+    // desired commit immediately after. A 1.0 s leftover from the retired
+    // wording would not flip until t0+1.0.
+    expect(hystS(50)).toBeCloseTo(0.8, 6);
+    const r = lopsidedSwing(50);
+    const first = r.fightCalls("blue")[0];
+    expect(first).toBeTruthy();
+    expect(first!.commit).toBe("engage");
+    const t0 = first!.t as number;
+    const flips = r.fightCalls("blue").filter((e) => e.commit === "disengage");
+    // 0.75 s is still inside hyst_s = 0.8; 0.85 s is past it. One 10 Hz tick of
+    // alignment slop on the allowed side; the bound is still below a stale 1.0 s.
+    expect(flips.some((e) => (e.t as number) <= t0 + 0.75 + 1e-9)).toBe(false);
+    expect(flips.some((e) => (e.t as number) <= t0 + 0.85 + 0.1)).toBe(true);
+  });
+
   it("the death exception allows a commit flip inside the hyst_s window (L1097)", () => {
     const units = tight3v3(undefined, 50);
     for (const id of [BJ, BM, BA]) {
