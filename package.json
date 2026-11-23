@@ -8,7 +8,8 @@
     "test": "vitest run",
     "digest": "tsx apps/lab/digest.ts",
     "purity": "tsx apps/lab/purity.ts",
-    "lab:s0": "tsx apps/lab/lab-s0.ts"
+    "lab:s0": "tsx apps/lab/lab-s0.ts",
+    "lab:s1": "tsx apps/lab/lab-s1.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
