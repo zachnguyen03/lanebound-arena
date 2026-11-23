@@ -9,9 +9,24 @@ import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const simDir = path.join(root, "sim");
 
-// Banned in sim/: Math.random, Date, performance.now, and non-IEEE-exact Math.
-const pattern =
-  "Math\\.random|Date\\.now|performance\\.now|new Date|Math\\.sin|Math\\.cos|Math\\.atan2|Math\\.exp|Math\\.log|Math\\.pow\\b";
+// Banned in sim/: nondeterminism, wall-clock, and non-IEEE-exact Math / locale / timers.
+const pattern = [
+  "Math\\.random",
+  "Date\\.now",
+  "performance\\.now",
+  "new Date",
+  "Math\\.sin",
+  "Math\\.cos",
+  "Math\\.tan\\b",
+  "Math\\.atan\\b",
+  "Math\\.atan2",
+  "Math\\.exp",
+  "Math\\.log",
+  "Math\\.pow\\b",
+  "\\bIntl\\b",
+  "setTimeout",
+  "setInterval",
+].join("|");
 
 let out = "";
 let found = false;
@@ -23,17 +38,14 @@ try {
   found = out.trim().length > 0;
 } catch (e: unknown) {
   const err = e as { status?: number; stdout?: string };
-  // rg exits 1 when no matches
   if (err.status === 1) {
     found = false;
     out = "";
   } else {
-    // Fallback without rg
     try {
-      out = execSync(
-        `grep -RInE "${pattern}" "${simDir}" || true`,
-        { encoding: "utf8" },
-      );
+      out = execSync(`grep -RInE "${pattern}" "${simDir}" || true`, {
+        encoding: "utf8",
+      });
       found = out.trim().length > 0;
     } catch {
       console.error("purity: neither rg nor grep available");
@@ -48,5 +60,7 @@ if (found) {
   process.exit(1);
 }
 
-console.log("PURITY OK — no banned Math.random / Date / performance / sin|cos|atan2|exp|log|pow in sim/");
+console.log(
+  "PURITY OK — no banned Math.random / Date / performance / sin|cos|tan|atan|atan2|exp|log|pow / Intl / setTimeout|setInterval in sim/",
+);
 process.exit(0);

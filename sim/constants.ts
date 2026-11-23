@@ -226,7 +226,10 @@ export function mergeConstants(overrides?: Partial<Record<string, unknown>>): Co
     SANCTUARY_BLUE_X: [...DEFAULT_CONSTANTS.SANCTUARY_BLUE_X],
     SANCTUARY_RED_X: [...DEFAULT_CONSTANTS.SANCTUARY_RED_X],
   };
-  for (const key of Object.keys(overrides)) {
+  // Sort keys so override application order is explicit (values are independent;
+  // order cannot affect results today, but we never rely on Object.keys order).
+  const keys = Object.keys(overrides).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  for (const key of keys) {
     const k = key as keyof Constants;
     if (k in c && overrides[key] !== undefined) {
       (c as unknown as Record<string, unknown>)[key] = overrides[key];

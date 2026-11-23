@@ -2,4 +2,4 @@
 > lanebound-arena@0.0.0 purity
 > tsx apps/lab/purity.ts
 
-PURITY OK — no banned Math.random / Date / performance / sin|cos|atan2|exp|log|pow in sim/
+PURITY OK — no banned Math.random / Date / performance / sin|cos|tan|atan|atan2|exp|log|pow / Intl / setTimeout|setInterval in sim/
