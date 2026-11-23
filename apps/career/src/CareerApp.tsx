@@ -409,7 +409,9 @@ function ClubCard({ club, selected, onPick }: { club: Club; selected: boolean; o
     >
       <div className="crest sm">{club.tag}</div>
       <div className="pn">{club.name}</div>
-      <span className="pill">{DIFFICULTY[club.difficulty]}</span>
+      <span className="pillwrap">
+        <span className="pill">{DIFFICULTY[club.difficulty]}</span>
+      </span>
       {promise ? <div className="note">{promise}</div> : null}
       {club.recommended_first_save ? <div className="caps">Recommended</div> : null}
     </button>

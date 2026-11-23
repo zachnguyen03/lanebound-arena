@@ -17,10 +17,12 @@ test("club pick, home, and unsigned players match the verify notes", async ({ pa
     const cardBox = card?.getBoundingClientRect();
     return {
       tag: el.tagName,
+      display: getComputedStyle(el).display,
       narrower: cardBox ? pillBox.width < cardBox.width - 8 : false,
     };
   });
   expect(shape.tag).toBe("SPAN");
+  expect(shape.display).toBe("inline");
   expect(shape.narrower).toBe(true);
 
   const start = page.getByRole("button", { name: "Start career" });
