@@ -7,9 +7,12 @@
     "blue_x": [0, 1],
     "red_x": [22, 23]
   },
+  "tile_centre_rule": "Appendix R: tile (x,y) covers [x,x+1)×[y,y+1); placement at (x+0.5,y+0.5). Zone centre is a point, not a tile. Sanctuary membership stays tile-based.",
   "spawn_pads": {
-    "blue": [1.0, 7.0],
-    "red": [22.0, 7.0]
+    "blue_tile": [1, 7],
+    "red_tile": [22, 7],
+    "blue": [1.5, 7.5],
+    "red": [22.5, 7.5]
   },
   "pillar_tiles": [
     [5, 2], [6, 2], [5, 3], [6, 3],
@@ -21,5 +24,10 @@
     [2, 4], [2, 11], [8, 1], [8, 14],
     [15, 1], [15, 14], [21, 4], [21, 11]
   ],
-  "buff_pads_tile": [[7, 7], [16, 7]]
+  "orb_pads": [
+    [2.5, 4.5], [2.5, 11.5], [8.5, 1.5], [8.5, 14.5],
+    [15.5, 1.5], [15.5, 14.5], [21.5, 4.5], [21.5, 11.5]
+  ],
+  "buff_pads_tile": [[7, 7], [16, 7]],
+  "buff_pads": [[7.5, 7.5], [16.5, 7.5]]
 }

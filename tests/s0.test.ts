@@ -43,8 +43,8 @@ describe("S0 M0 acceptance", () => {
       assert_sanctuary: true,
       scripted_motor: {
         "blue:adc": {
-          // Drive straight at red pad centre (22, 7) — inside enemy sanctuary tiles.
-          waypoints: [{ x: 22.0, y: 7.0 }],
+          // Drive straight at red spawn pad centre — inside enemy sanctuary tiles x∈{22,23}.
+          waypoints: [{ x: DEFAULT_CONSTANTS.RED_SPAWN[0], y: DEFAULT_CONSTANTS.RED_SPAWN[1] }],
           arrive_r: 0.05,
           hold_at_end: true,
         },
@@ -108,6 +108,39 @@ describe("S0 geometry / G12", () => {
     const b = clipMove("blue", a.x, a.y, a.x + 1.0, a.y, DEFAULT_CONSTANTS);
     expect(b.clipped).toBe(true);
     expect(inEnemySanctuary("blue", b.x, b.y, DEFAULT_CONSTANTS)).toBe(false);
+  });
+});
+
+describe("Appendix R tile-centre rule", () => {
+  /** Tile (x,y) covers [x,x+1)×[y,y+1); placement at centre (x+0.5,y+0.5). */
+  const tileCentre = (tx: number, ty: number): [number, number] => [tx + 0.5, ty + 0.5];
+  /** Tile-index mirror across MAP_W=24: tile x ↦ 23−x. */
+  const mirrorTileX = (tx: number) => 23 - tx;
+  /** Point mirror: x ↦ MAP_W − x = 24 − x. */
+  const mirrorPointX = (x: number) => DEFAULT_CONSTANTS.MAP_W - x;
+
+  it("spawn pads sit at tile centres (1,7)→(1.5,7.5) and (22,7)→(22.5,7.5)", () => {
+    expect(DEFAULT_CONSTANTS.BLUE_SPAWN).toEqual(tileCentre(1, 7));
+    expect(DEFAULT_CONSTANTS.RED_SPAWN).toEqual(tileCentre(22, 7));
+  });
+
+  it("flank buff pads sit at tile centres (7,7)/(16,7)", () => {
+    expect(DEFAULT_CONSTANTS.BUFF_PADS).toEqual([tileCentre(7, 7), tileCentre(16, 7)]);
+  });
+
+  it("zone centre is a POINT on the seam, not a tile centre", () => {
+    expect(DEFAULT_CONSTANTS.ZONE_CENTER).toEqual([12.0, 8.0]);
+  });
+
+  it("tile-index mirror 23−x equals point mirror 24−x at tile centres", () => {
+    for (const tx of [0, 1, 7, 16, 22, 23]) {
+      const [cx] = tileCentre(tx, 7);
+      const mirroredCentre = tileCentre(mirrorTileX(tx), 7)[0];
+      expect(mirroredCentre).toBeCloseTo(mirrorPointX(cx), 12);
+    }
+    // Spawn pads: blue centre mirrors to red centre.
+    expect(mirrorPointX(DEFAULT_CONSTANTS.BLUE_SPAWN[0])).toBeCloseTo(DEFAULT_CONSTANTS.RED_SPAWN[0], 12);
+    expect(DEFAULT_CONSTANTS.BLUE_SPAWN[1]).toBe(DEFAULT_CONSTANTS.RED_SPAWN[1]);
   });
 });
 
