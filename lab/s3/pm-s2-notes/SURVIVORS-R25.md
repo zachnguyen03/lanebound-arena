@@ -21,8 +21,10 @@
 
 ## `tests/s2-survivor-behaviour.test.ts`
 
+One `brainDecide` step on a hand-built world (no ticking match).
+
 | Test | Behaviour |
 |---|---|
-| `follows a much greener local shot, not the far called target (engage, Teamwork 90)` | Engage call names far Red ADC; Blue ADC (TW90) attacks adjacent low-HP Red Mid |
-| `a dead called target does not stay the attack target` | After the called Red ADC dies, Blue ADC switches to live Red Mid and never keeps the corpse |
-| `a no-damage chaser still treats a 1-HP target as killable (chase continues)` | Level-1 `as=0` chaser keeps chasing a 1-HP target (chase does not stop as unkillable) |
+| `follows a much greener local shot, not the far called target` | Engage call still names far full-HP Red ADC; Blue ADC (TW90, free) returns Red Mid (~200 HP beside her) |
+| `a dead called target does not stay the attack target` | Call still carries dead Red ADC as focus; decide returns live Red Mid beside Blue ADC |
+| `a no-damage chaser still treats a 1-HP target as killable` | Already-open chase: level-1 zero-DPS Blue Mid stays on 1-HP Red ADC (intent not Idle, chase not stopped) |
