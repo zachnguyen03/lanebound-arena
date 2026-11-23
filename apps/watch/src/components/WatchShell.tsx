@@ -20,7 +20,11 @@ import { parseJsonl } from "@watch/lib/parse-log";
 import { ReplayEngine } from "@watch/lib/replay";
 import type { Speed } from "@watch/lib/types";
 import { ArenaCanvas } from "./ArenaCanvas";
-import { championAssetPaths, WATCH_CHAMP_SLUGS } from "@watch/lib/champ-assets";
+import {
+  championAssetMissing,
+  championAssetPaths,
+  WATCH_CHAMP_SLUGS,
+} from "@watch/lib/champ-assets";
 import {
   ConfigError,
   exportConfigJson,
@@ -202,8 +206,7 @@ export function WatchShell() {
       const missing: string[] = [];
       for (const slug of slugs) {
         for (const path of championAssetPaths(slug)) {
-          const res = await fetch(path);
-          if (!res.ok) missing.push(path);
+          if (await championAssetMissing(path)) missing.push(path);
         }
       }
       if (!cancelled) setMissingAssets(missing);
@@ -429,6 +432,9 @@ export function WatchShell() {
                 onLoadText={loadText}
                 onLoadSample={() => void loadSample()}
               />
+              {missingAssets.length > 0 ? (
+                <MissingArtList paths={missingAssets} />
+              ) : null}
               {error ? (
                 <p className="mt-2 text-sm text-team-red" role="alert">
                   {error}
@@ -557,16 +563,7 @@ export function WatchShell() {
                 />
               ) : null}
               {missingAssets.length > 0 ? (
-                <div data-testid="missing-assets" className="text-xs text-dim">
-                  <div className="font-condensed text-sm text-paper">
-                    MISSING CHAMPION ART
-                  </div>
-                  <ul>
-                    {missingAssets.map((p) => (
-                      <li key={p}>{p}</li>
-                    ))}
-                  </ul>
-                </div>
+                <MissingArtList paths={missingAssets} />
               ) : null}
               <LogLoader
                 onLoadText={loadText}
@@ -621,6 +618,19 @@ export function WatchShell() {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function MissingArtList({ paths }: { paths: string[] }) {
+  return (
+    <div data-testid="missing-assets" className="mt-3 text-xs text-dim">
+      <div className="font-condensed text-sm text-paper">MISSING CHAMPION ART</div>
+      <ul>
+        {paths.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
     </div>
   );
 }
