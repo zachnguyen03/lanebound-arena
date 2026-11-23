@@ -1,12 +1,18 @@
 import type { PlayerAttrs, Slot } from "@lanebound/match-contract";
 import { SLOTS } from "@lanebound/match-contract";
 import { championsForSlot } from "./champions.js";
-import { SplitMix32 } from "./rng.js";
+import dump from "../data/opening-world-20261123.json";
 
-/** Fixed seed from C-R-4. The new-career seed does not reroll this world. */
+/** Fixed seed from C-R-4 / C-R2-3. The new-career seed does not reroll this world. */
 export const STANDIN_SEED = 20261123;
 
-export const STANDIN_LABEL = "NON-SHIPPABLE STAND-IN seed 20261123";
+export const STANDIN_LABEL = "NON-SHIPPABLE PAPER opening_world seed 20261123";
+
+/**
+ * SHA-256 of the frozen dump: compact JSON array, 80 players, pid order,
+ * ruling key order, separators (',', ':'), no trailing newline (C-R2-3).
+ */
+export const OPENING_WORLD_SHA256 = "19b3fbe89aa605b8d131d8112e2790b82d5faae3e4fb395be22fcdffae7b0088";
 
 export type Difficulty = "favourite" | "mid" | "underdog";
 
@@ -21,9 +27,11 @@ export interface CareerPlayer {
   signature_archive: string[];
   last_stack_ovr: number;
   age: number;
-  /** Authored rosters will be shippable. This stand-in is not. */
+  /** Authored rosters will be shippable. This paper-model dump is not. */
   shippable: false;
   potential: number;
+  attr_pot: PlayerAttrs;
+  focus: string;
 }
 
 export interface CareerContract {
@@ -40,10 +48,13 @@ export interface Club {
   tag: string;
   opening_index: number;
   difficulty: Difficulty;
-  /** Paper-model starter OVR target. The stand-in hits this exactly. */
+  /** Authored GD-15 target. The paper dump's starters are jittered around this. */
   starter_ovr_target: number;
-  /** Display-only stand-in. Not a trust-bearing number. */
+  /** Paper following (Iron Lotus 72 … Kestrel Row 32). Not a result input. */
   following: number;
+  following_floor: number;
+  cash: number;
+  facility: number;
   recommended_first_save: boolean;
   roster_ids: string[];
 }
@@ -70,85 +81,113 @@ interface ClubSeed {
   recommended_first_save: boolean;
 }
 
+/** Paper-model club row. Following is the paper scale, not the old 100s ladder. */
 export const CLUB_SEEDS: readonly ClubSeed[] = [
-  { id: "iron-lotus", name: "Iron Lotus", tag: "ILO", opening_index: 0, difficulty: "favourite", starter_ovr_target: 76, following: 800, recommended_first_save: false },
-  { id: "hanok-wolves", name: "Hanok Wolves", tag: "HKW", opening_index: 1, difficulty: "favourite", starter_ovr_target: 72, following: 700, recommended_first_save: false },
-  { id: "neon-tide", name: "Neon Tide", tag: "NTD", opening_index: 2, difficulty: "favourite", starter_ovr_target: 70, following: 640, recommended_first_save: false },
-  { id: "vanta-owls", name: "Vanta Owls", tag: "VNO", opening_index: 3, difficulty: "mid", starter_ovr_target: 68, following: 560, recommended_first_save: false },
-  { id: "juniper-rush", name: "Juniper Rush", tag: "JNR", opening_index: 4, difficulty: "mid", starter_ovr_target: 66, following: 520, recommended_first_save: true },
-  { id: "sable-comets", name: "Sable Comets", tag: "SBC", opening_index: 5, difficulty: "mid", starter_ovr_target: 64, following: 480, recommended_first_save: false },
-  { id: "glasswing", name: "Glasswing", tag: "GLW", opening_index: 6, difficulty: "underdog", starter_ovr_target: 62, following: 400, recommended_first_save: false },
-  { id: "kestrel-row", name: "Kestrel Row", tag: "KST", opening_index: 7, difficulty: "underdog", starter_ovr_target: 58, following: 320, recommended_first_save: false },
+  { id: "iron-lotus", name: "Iron Lotus", tag: "ILO", opening_index: 0, difficulty: "favourite", starter_ovr_target: 76, following: 72, recommended_first_save: false },
+  { id: "hanok-wolves", name: "Hanok Wolves", tag: "HKW", opening_index: 1, difficulty: "favourite", starter_ovr_target: 72, following: 64, recommended_first_save: false },
+  { id: "neon-tide", name: "Neon Tide", tag: "NTD", opening_index: 2, difficulty: "favourite", starter_ovr_target: 70, following: 60, recommended_first_save: false },
+  { id: "vanta-owls", name: "Vanta Owls", tag: "VNO", opening_index: 3, difficulty: "mid", starter_ovr_target: 68, following: 52, recommended_first_save: false },
+  { id: "juniper-rush", name: "Juniper Rush", tag: "JNR", opening_index: 4, difficulty: "mid", starter_ovr_target: 66, following: 48, recommended_first_save: true },
+  { id: "sable-comets", name: "Sable Comets", tag: "SBC", opening_index: 5, difficulty: "mid", starter_ovr_target: 64, following: 44, recommended_first_save: false },
+  { id: "glasswing", name: "Glasswing", tag: "GLW", opening_index: 6, difficulty: "underdog", starter_ovr_target: 62, following: 40, recommended_first_save: false },
+  { id: "kestrel-row", name: "Kestrel Row", tag: "KST", opening_index: 7, difficulty: "underdog", starter_ovr_target: 58, following: 32, recommended_first_save: false },
 ];
 
-function attrsFor(ovr: number): PlayerAttrs {
+/** Paper STARTING_CASH + CASH_BY_TIER_BONUS. Not drawn. */
+const OPENING_CASH = [1000, 900, 850, 800, 760, 720, 680, 640] as const;
+
+const ATTRS = ["aim", "reflexes", "execution", "decision", "positioning", "teamwork"] as const;
+
+interface DumpPlayer {
+  pid: number;
+  name: string;
+  role: Slot;
+  age: number;
+  attrs: number[];
+  ovr: number;
+  potential: number;
+  attr_pot: number[];
+  mastery_main: number;
+  contract_years: number;
+  wage: number;
+  club: number;
+  focus: string;
+}
+
+function attrsFrom(values: readonly number[]): PlayerAttrs {
+  if (values.length !== ATTRS.length) throw new Error("expected six attributes");
   return {
-    aim: ovr,
-    reflexes: ovr,
-    execution: ovr,
-    decision: ovr,
-    positioning: ovr,
-    teamwork: ovr,
+    aim: values[0]!,
+    reflexes: values[1]!,
+    execution: values[2]!,
+    decision: values[3]!,
+    positioning: values[4]!,
+    teamwork: values[5]!,
   };
 }
 
-function masteryFor(slot: Slot): Record<string, number> {
+/**
+ * C-R2-3 mastery projection. Lowest in-slot champion id gets round(mastery_main).
+ * Every other in-slot champion gets 60. No off-slot entries.
+ */
+export function projectMastery(slot: Slot, masteryMain: number): Record<string, number> {
   const champs = championsForSlot(slot);
+  if (champs.length === 0) throw new Error(`no stand-in champions for ${slot}`);
   const mastery: Record<string, number> = {};
+  const main = Math.round(masteryMain);
   for (let i = 0; i < champs.length; i++) {
-    mastery[champs[i]!] = i === 0 ? 80 : 60;
+    mastery[champs[i]!] = i === 0 ? main : 60;
   }
   return mastery;
 }
 
 /**
- * Temporary opening world. C-R-4 asks for the paper model's opening_world at
- * seed 20261123. That Python source is not in the binding inputs, so this is
- * a labelled stand-in: OVR targets are exact, names are P####, and the seed
- * only draws contract length and wage. Not shippable.
+ * Frozen paper-model opening_world at seed 20261123 (C-R2-3).
+ * Ids are standin-{pid} and names are the model's P#### placeholders.
+ * shippable is false until the authored GD-15 roster replaces this dump.
+ * Wages are the model's Marks scale and stay in the data; there is no roster UI.
  */
 export function openingWorld(): OpeningWorld {
-  const rng = new SplitMix32(STANDIN_SEED);
-  const clubs: Club[] = [];
+  const rows = dump as DumpPlayer[];
+  if (rows.length !== 80) throw new Error("opening world dump must contain 80 players");
+  const clubs: Club[] = CLUB_SEEDS.map((seed) => ({
+    ...seed,
+    following_floor: 0.55 * seed.following,
+    cash: OPENING_CASH[seed.opening_index]!,
+    facility: seed.opening_index <= 1 ? 1 : 0,
+    roster_ids: [] as string[],
+  }));
   const players: CareerPlayer[] = [];
   const contracts: CareerContract[] = [];
-  let nameN = 1;
-  for (const seed of CLUB_SEEDS) {
-    const roster: string[] = [];
-    for (const slot of SLOTS) {
-      for (let depth = 0; depth < 2; depth++) {
-        const id = `standin-${seed.tag.toLowerCase()}-${slot}-${depth}`;
-        const name = `P${String(nameN).padStart(4, "0")}`;
-        nameN += 1;
-        const ovr = seed.starter_ovr_target - depth * 3;
-        const length = 1 + (rng.nextU32() % 4);
-        const wage = 40000 + (rng.nextU32() % 20001);
-        const age = 18 + (rng.nextU32() % 10);
-        roster.push(id);
-        players.push({
-          id,
-          name,
-          club_id: seed.id,
-          primary_slot: slot,
-          attrs: attrsFor(ovr),
-          ovr,
-          mastery: masteryFor(slot),
-          signature_archive: [],
-          last_stack_ovr: ovr,
-          age,
-          shippable: false,
-          potential: ovr + 5,
-        });
-        contracts.push({
-          player_id: id,
-          opening_years: length,
-          years_left: length,
-          wage,
-          auto_renewed: false,
-        });
-      }
-    }
-    clubs.push({ ...seed, roster_ids: roster });
+  for (const row of rows) {
+    const club = clubs[row.club];
+    if (!club) throw new Error(`bad club index ${row.club}`);
+    if (!SLOTS.includes(row.role)) throw new Error(`bad role ${row.role}`);
+    const id = `standin-${row.pid}`;
+    club.roster_ids.push(id);
+    players.push({
+      id,
+      name: row.name,
+      club_id: club.id,
+      primary_slot: row.role,
+      attrs: attrsFrom(row.attrs),
+      ovr: row.ovr,
+      mastery: projectMastery(row.role, row.mastery_main),
+      signature_archive: [],
+      last_stack_ovr: row.ovr,
+      age: row.age,
+      shippable: false,
+      potential: row.potential,
+      attr_pot: attrsFrom(row.attr_pot),
+      focus: row.focus,
+    });
+    contracts.push({
+      player_id: id,
+      opening_years: row.contract_years,
+      years_left: row.contract_years,
+      wage: row.wage,
+      auto_renewed: false,
+    });
   }
   return {
     label: STANDIN_LABEL,

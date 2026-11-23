@@ -7,7 +7,7 @@ Binding inputs, both hashes checked:
 
 Nothing below was treated as a rule. Where the season still needs a number, the assumption is named in `lab/career/REPORT.md` and in the code comment next to the constant.
 
-1. **Opening world.** C-R-4 says to generate the stand-in with the paper model's `opening_world` at seed 20261123. The file is now at `/cursor/stores/bot/career-inputs/lanebound-career-model-v1.py` (sha256 `1491cd21a5a7dce0ad565484d0e51d7f5d3f429c25d571bc0638b34281ac8445`). Game Designer is ruling on it, so the checked-in world stays the labelled non-shippable stand-in. It is not claimed to be the paper model's output.
+1. **Opening world.** C-R2-3 replaces the invented stand-in with the paper model's `opening_world(random.Random(20261123))`, frozen in `packages/career/data/opening-world-20261123.json`. The dump script is `lab/career/dump-opening-world.py` and is not part of the runtime. Ids are `standin-{pid}` and names are the model's `P####` placeholders, with `shippable: false`, until GD-15. The old `P0001`–`P0080` sequence and `standin-{tag}-{slot}-{depth}` ids are gone.
 
 2. **§14.5 distributions that the GDD does not finish.** Inverse-CDF endpoints, the sudden-death "reached 10" split, tiebreak score weights other than the coin-flip 10–9 case, the score-part noise, role weights, claim totals, and the shrunk `z`. The engineering plan says to freeze a recipe in the C0 report. Those recipes are assumptions, not rulings.
 

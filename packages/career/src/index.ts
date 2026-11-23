@@ -25,7 +25,9 @@ export { PLAYOFF_BONUS, placementPoints, REGULAR_SEASON_POINTS, seasonPointTotal
 export { loadSave, runSeason, SAVE_FORMAT, saveJson, type CareerSave, type ClubState, type RankingSnapshot } from "./season.js";
 export {
   CLUB_SEEDS,
+  OPENING_WORLD_SHA256,
   openingWorld,
+  projectMastery,
   selectStarters,
   STANDIN_LABEL,
   STANDIN_SEED,
