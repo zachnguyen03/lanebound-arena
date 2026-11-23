@@ -1,9 +1,9 @@
 # S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** generated from code at `6a1dc5590ebbe16f62c9cae2d0711830c1e25bc1`  
+**Commit:** generated from code at `cbf13b7e63b01f3d7b8ae8c52e00049184bc03f9` (parent of this REPORT commit; identical code — comments/docs only may differ)  
 **Date:** 23 Nov 2026  
-**Regenerate:** `LANEBOUND_COMMIT=<tip> npm run lab:s1` (report commit itself need not match)
+**Regenerate:** `LANEBOUND_COMMIT=<code-tip> npm run lab:s1` (REPORT commit is a child of that tip; code digests match)
 
 ## Commands
 
