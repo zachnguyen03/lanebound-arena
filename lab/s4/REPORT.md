@@ -1,20 +1,19 @@
-# S4 Report — Watch viewer shell (early)
+# S4 Report — Watch viewer shell (layout fix)
 
-**Branch:** `s4-watch`  
+**Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Commit:** `3bd2988136c84c3620843ec405d27a33db5e7826` (`3bd2988`)  
+**Tip commit:** *(filled at ship — see `git rev-parse HEAD`)*  
 **Date:** 23 Nov 2026  
 
-**Scope of this pass:** renderer shell + transport + event log + HUD chrome against S0 canonical logs. No sim/, tests/, or data/champions edits. Parallel with S1.
+Desktop-only Watch shell. Layout follows `hud-layout.json` / `hud-spec.md` (CD binding). No edits under `sim/`, `tests/`, or `data/`.
 
 ## Commands (PM re-run)
 
 ```bash
 npm ci
 npm test
-npm run gen:watch-sample
 npm run watch:build
-npm run watch:preview   # or: npx vite preview --config apps/watch/vite.config.ts --host 127.0.0.1 --port 4173
+npm run watch:preview
 npm run watch:e2e
 npm run lab:s4
 ```
@@ -23,57 +22,46 @@ npm run lab:s4
 
 | Check | Result |
 |---|---|
-| `npm test` | **20 passed** (17 S0 + 3 Watch determinism/spawn) |
-| Sample digest (seed 20261122) | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` (matches S0 gold) |
-| Determinism guard | Loading + scrubbing the log leaves digest **unchanged** |
-| Replay purity | `apps/watch/src/lib/replay.ts` does not import/call `simulate` |
-| Playwright bbox @390 / @1280 | **PASS** — `lab/s4/bbox-check.txt` |
-| Screenshots | `lab/s4/watch-{1920,1280,390}.png` (+ `-viewport.png`) |
-| Art sha256 | Verified against `arena-sandbox-art.sha256s` before commit |
+| `npm test` | **26 passed** |
+| Canvas scale @1920 / @1280×720 / @1280×800 | **1.0** (intrinsic CSS == buffer; see `canvas-scale.txt`) |
+| Playwright bbox @1920 / @1280 (drawer closed + open) | **PASS** — `bbox-check.txt` |
+| Sample digest | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` |
+| Determinism guard | Load + scrub leaves digest unchanged |
 
-## What renders
+## Layout (this pass)
 
-- Layout B terrain @2× (1056×580), sanctuary wash/threshold, zone **neutral** + centre mark, `orb.down` / `buff.down` pads, pillars with y-sort (`sort_y_px` 128 / 448).
-- Units from log-derived state: spawn placement (S0 pads + jitter) or `pos`/`move` when present; labelled placeholders for missing champ art; floating HP; levels from `level_up`.
-- HUD chrome: clock, scores, team rails (HP / level), Watch transport (play / pause / step / scrub / 0.5×–4×).
-- Event log side panel: filterable, click → jump to tick.
-- Empty + loading states; file picker + drag-drop; bundled sample `apps/watch/public/samples/seed-20261122.jsonl`.
+- **1080:** stage 1920×1080; rails 200 px; map **1056×580** 1:1, frame sized to map and centred in the playfield slot; takedown feed in right map margin `[1496,194,216,136]`; dock zone / pickups / fight call / watch transport; empty card-toast slot.
+- **720:** stage 1280×720; rails **112 px**; map **1056×520** 1:1 (plinth crop); takedown feed in dock; same dock family.
+- **Below 1280×720:** desktop notice + horizontal scroll; no stacked mobile layout.
+- **Event log:** collapsible right-edge **drawer** (closed by default); flex push so it never covers controls (bbox-proven).
+- Transport speeds: **0.5 / 1 / 2 / 4 / 8**.
+- Fallback spawns at **tile centres** `(1.5,7.5)` / `(22.5,7.5)` (GD). Props at tile centres. Units follow log poses when present.
 
-## Fallbacks
+## Canvas scale factors (measured)
 
-See `lab/s4/fallbacks.md`. Champ id `dummy` → labelled placeholder (no CD dummy body in arena-sandbox P0). Also shown in the Watch DEV panel.
+| Viewport | Intrinsic | CSS | scaleX | scaleY |
+|---|---|---|---|---|
+| 1920×1080 | 1056×580 | 1056×580 | **1** | **1** |
+| 1280×720 | 1056×520 | 1056×520 | **1** | **1** |
+| 1280×800 | 1056×520 | 1056×520 | **1** | **1** |
 
-## Unrendered (TODO, no invented visuals)
+## Screenshots
 
-See `lab/s4/unrendered.md`: casts, hits, CC plates, zone ownership, orb/buff up states, scoring popups, fight call.
+- `watch-1920-t0.png`, `watch-1920-mid.png`, `watch-1920-drawer.png`
+- `watch-1280-t0.png`, `watch-1280-mid.png`
+- `watch-1280x800-mid.png`
+
+## Fallbacks / TODOs
+
+See `fallbacks.md`, `unrendered.md`.
 
 ## Inventions (flagged)
 
 | Item | Notes |
 |---|---|
-| Viewer spawn without `pos` | Quiet S0 logs omit `pos`. Watch places units at S0 spawn + `SPAWN_JITTER_Y` until `pos`/`move` appear. Does not call the sim; digest unchanged. |
-| Austere HTML HUD | CD composed HUD PNGs are shipped under `public/arena-sandbox/hud/` for reference; interactive chrome is React/Tailwind per tokens (field `#0B0E14`, Barlow). Score/clock/HP/levels are live from the log. |
-| Speed cap 4× | Shell exposes 0.5 / 1 / 2 / 4 (spec also mentions 8× later). |
+| Austere dock panels | Zone/pickups/fight call are labelled chrome until those events render; no invented VFX. |
+| Kill feed content | Shows deaths when present; otherwise recent interesting events (e.g. level_up) so the slot is not empty on quiet S0 logs. |
 
-## Open questions for Chief Designer
+## Open questions (parked)
 
-1. **Pad centres vs sim integers** — art pads at tile centre (+0.5); S0 sim spawns at `(1,7)` / `(22,7)`. Confirm which the Watch should prefer when overlaying props vs units.
-2. **720 rails at 112 px** — confirm vs original HUD C 160 px (map is 1056 wide).
-3. **Dummy body sheet** — should CD ship a generic dummy (36×48 @2×) for S0/S1 logs, or keep labelled placeholders until real champ atlases are wired?
-4. **Takedown log home** — right map margin @1080 vs dock @720.
-5. **Y axis** — Watch treats sim `y` as screen-down (G1); confirm no flip.
-
-## Artefacts
-
-```
-lab/s4/
-  REPORT.md
-  digest-20261122.txt
-  vitest.log
-  bbox-check.txt
-  fallbacks.md
-  unrendered.md
-  watch-1920.png / watch-1920-viewport.png
-  watch-1280.png / watch-1280-viewport.png
-  watch-390.png / watch-390-viewport.png
-```
+CD confirmed 112 px rails, dummy sheet later, log homes. Pad centres ruled by GD (tile centre). No further CD questions for this round.

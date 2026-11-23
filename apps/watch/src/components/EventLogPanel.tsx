@@ -1,17 +1,25 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { SimEvent } from "@watch/lib/types";
 import { UNRENDERED_EVENT_TYPES } from "@watch/lib/types";
 import { cn } from "@watch/lib/cn";
+import { Button } from "./ui/button";
 
 interface Props {
   events: readonly SimEvent[];
   currentTick: number;
   onJump: (tick: number) => void;
+  onClose?: () => void;
 }
 
-export function EventLogPanel({ events, currentTick, onJump }: Props) {
+export function EventLogPanel({
+  events,
+  currentTick,
+  onJump,
+  onClose,
+}: Props) {
   const [filter, setFilter] = useState("");
   const [hideXp, setHideXp] = useState(true);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -23,14 +31,39 @@ export function EventLogPanel({ events, currentTick, onJump }: Props) {
     });
   }, [events, filter, hideXp]);
 
+  // Auto-scroll to the current tick on scrub / step / jump.
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const active = list.querySelector<HTMLElement>(
+      `[data-event-tick="${currentTick}"]`,
+    );
+    if (active) {
+      active.scrollIntoView({ block: "nearest" });
+    }
+  }, [currentTick, filtered]);
+
   return (
     <aside
       data-testid="event-log-panel"
+      data-overlay="drawer"
       className="flex h-full min-h-0 flex-col border border-line bg-panel"
     >
-      <div className="border-b border-line px-3 py-2">
-        <h2 className="font-condensed text-lg tracking-wide">EVENT LOG</h2>
-        <p className="text-xs text-dim">Click a row to jump to its tick.</p>
+      <div className="flex items-center justify-between border-b border-line px-3 py-2">
+        <div>
+          <h2 className="font-condensed text-lg tracking-wide">EVENT LOG</h2>
+          <p className="text-xs text-dim">Dev tool · click to jump</p>
+        </div>
+        {onClose ? (
+          <Button
+            data-testid="btn-close-drawer"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+          >
+            CLOSE
+          </Button>
+        ) : null}
       </div>
       <div className="flex flex-wrap gap-2 border-b border-line p-2">
         <input
@@ -50,6 +83,7 @@ export function EventLogPanel({ events, currentTick, onJump }: Props) {
         </label>
       </div>
       <ul
+        ref={listRef}
         data-testid="event-list"
         className="min-h-0 flex-1 overflow-auto text-xs"
       >
@@ -60,7 +94,7 @@ export function EventLogPanel({ events, currentTick, onJump }: Props) {
             const active = e.tick === currentTick;
             const unrendered = UNRENDERED_EVENT_TYPES.has(e.type);
             return (
-              <li key={e.seq}>
+              <li key={e.seq} data-event-tick={e.tick}>
                 <button
                   type="button"
                   data-testid={`event-row-${e.seq}`}
@@ -82,9 +116,7 @@ export function EventLogPanel({ events, currentTick, onJump }: Props) {
                     {e.type}
                     {unrendered ? " · TODO" : ""}
                   </span>
-                  <span className="ml-auto truncate text-faint">
-                    seq {e.seq}
-                  </span>
+                  <span className="ml-auto truncate text-faint">seq {e.seq}</span>
                 </button>
               </li>
             );

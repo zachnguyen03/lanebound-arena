@@ -2,8 +2,8 @@
 
 | Champ id (from log) | Asset expected | Fallback used | Notes |
 |---|---|---|---|
-| `dummy` | CD body sheet (18×24 → 36×48 @2×) under a champion atlas | Labelled placeholder rectangle + team ring + “DUMMY” / `L{n}` text | No dummy body exists in `arena-sandbox` P0 art. Logged in the Watch DEV panel. |
+| `dummy` | CD dummy sheet later at `arena-sandbox/dummy/` (18×24 cell, anchor (9,23), blue/red) | Labelled placeholder rectangle + team ring + “DUMMY” / `L{n}` | Keep until CD delivers the sheet. Logged in the Watch DEV panel. |
 
-**Rule:** if an S1+ log carries real champ ids and those atlases are not yet wired into Watch, add each missing id here and keep drawing the labelled placeholder. Never invent kit art.
+**Rule:** missing champ ids → labelled placeholder + entry here. Never invent kit art.
 
-**Viewer spawn (when log has no `pos`/`move`):** units are placed at S0 pads `blue (1,7)` / `red (22,7)` with `SPAWN_JITTER_Y = 0.3` matching `sim/constants.ts`. This is viewer-side derivation only; it does not call the sim.
+**Viewer fallback spawn (no `pos`/`move` in log):** tile centres per GD ruling — blue `(1.5, 7.5)`, red `(22.5, 7.5)`, plus `SPAWN_JITTER_Y = 0.3`. Units still render at sim poses when the log has them. Prop pads use tile centres (`(tx+0.5)*44`, `(ty+0.5)*32`). Zone centre stays geometric `(12.0, 8.0)`.

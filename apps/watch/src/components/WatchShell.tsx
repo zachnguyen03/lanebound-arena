@@ -1,22 +1,49 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { loadWatchAssets, type WatchAssets } from "@watch/lib/assets";
-import { cn } from "@watch/lib/cn";
+import {
+  absStyle,
+  arenaDisplaySize,
+  DRAWER_W,
+  layoutFor,
+  MIN_VIEWPORT,
+  pickHudMode,
+  type HudMode,
+} from "@watch/lib/hud-layout";
 import { parseJsonl } from "@watch/lib/parse-log";
 import { ReplayEngine } from "@watch/lib/replay";
-import type { MatchViewState, Slot, Speed } from "@watch/lib/types";
-import { SLOT_LABEL, SLOTS } from "@watch/lib/types";
+import type { Speed } from "@watch/lib/types";
 import { ArenaCanvas } from "./ArenaCanvas";
+import { CardToastSlot, DockPanels } from "./DockPanels";
 import { DevPanel } from "./DevPanel";
 import { EventLogPanel } from "./EventLogPanel";
+import { KillFeed } from "./KillFeed";
 import { LogLoader } from "./LogLoader";
+import { TeamRail } from "./TeamRail";
 import { TopBar } from "./TopBar";
 import { TransportBar } from "./TransportBar";
-
 type LoadPhase = "boot" | "empty" | "loading" | "ready" | "error";
 
 const SAMPLE_URL = "/samples/seed-20261122.jsonl";
 
+function useViewport() {
+  const [size, setSize] = useState(() => ({
+    w: typeof window !== "undefined" ? window.innerWidth : 1920,
+    h: typeof window !== "undefined" ? window.innerHeight : 1080,
+  }));
+  useEffect(() => {
+    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return size;
+}
+
 export function WatchShell() {
+  const vp = useViewport();
+  const mode: HudMode = pickHudMode(vp.w);
+  const layout = layoutFor(mode);
+  const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
+
   const [assets, setAssets] = useState<WatchAssets | null>(null);
   const [assetsError, setAssetsError] = useState<string | null>(null);
   const [phase, setPhase] = useState<LoadPhase>("boot");
@@ -26,6 +53,7 @@ export function WatchShell() {
   const [tick, setTick] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
   const accRef = useRef(0);
@@ -127,16 +155,68 @@ export function WatchShell() {
     setTick((t) => Math.min(engine.maxTick, t + 1));
   };
 
-  return (
-    <div className="flex min-h-screen flex-col bg-field text-paper">
-      <TopBar state={state} />
+  const jump = (t: number) => {
+    setPlaying(false);
+    setTick(t);
+  };
 
-      <div className="mx-auto flex w-full max-w-[1920px] flex-1 flex-col gap-3 p-3 lg:flex-row">
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
+  const [stageW, stageH] = layout.canvas;
+
+  const mapSize = arenaDisplaySize(mode);
+  // Centre the 1056 map inside the arena_map slot when the slot is wider (1080).
+  const mapSlot = layout.arena_map;
+  const mapLeft = mapSlot[0] + Math.floor((mapSlot[2] - mapSize.w) / 2);
+  const mapTop = mapSlot[1] + Math.floor((mapSlot[3] - mapSize.h) / 2);
+
+  const killFeedRect =
+    mode === "720" && layout.dock_panels.kill_feed
+      ? layout.dock_panels.kill_feed
+      : layout.kill_feed;
+
+  return (
+    <div
+      className="flex min-h-screen bg-field text-paper"
+      data-testid="watch-root"
+      data-hud-mode={mode}
+      data-drawer-open={drawerOpen ? "true" : "false"}
+    >
+      {/* Main column — shrinks when drawer pushes in; never covered. */}
+      <div
+        className="min-w-0 flex-1"
+        style={{ overflowX: "auto", overflowY: "auto" }}
+      >
+        {belowMin ? (
+          <div
+            data-testid="desktop-notice"
+            className="sticky top-0 z-50 border-b border-line bg-panel px-4 py-2 text-center text-sm text-dim"
+          >
+            Best viewed on desktop (minimum 1280×720)
+          </div>
+        ) : null}
+
+        <div
+          data-testid="hud-stage"
+          className="relative bg-field"
+          style={{
+            width: stageW,
+            height: stageH,
+            minWidth: stageW,
+            minHeight: stageH,
+          }}
+        >
+          <TopBar
+            state={state}
+            rect={layout.top_bar}
+            compact={mode === "720"}
+            drawerOpen={drawerOpen}
+            onToggleDrawer={() => setDrawerOpen((o) => !o)}
+          />
+
           {phase === "boot" || phase === "loading" ? (
             <div
               data-testid="loading-state"
-              className="flex min-h-[240px] items-center justify-center border border-line bg-panel"
+              style={absStyle(layout.playfield_region)}
+              className="flex items-center justify-center bg-panel"
             >
               <div className="text-center">
                 <div className="font-condensed text-2xl">LOADING</div>
@@ -152,7 +232,8 @@ export function WatchShell() {
           {phase === "error" ? (
             <div
               data-testid="error-state"
-              className="border border-team-red bg-team-red-dark p-4"
+              style={absStyle(layout.playfield_region)}
+              className="flex items-center justify-center border border-team-red bg-team-red-dark p-4"
               role="alert"
             >
               {assetsError ?? "Failed to start Watch"}
@@ -160,17 +241,21 @@ export function WatchShell() {
           ) : null}
 
           {phase !== "boot" && phase !== "error" && !engine ? (
-            <div data-testid="empty-state" className="space-y-3">
+            <div
+              data-testid="empty-state"
+              style={absStyle(layout.playfield_region)}
+              className="overflow-auto bg-panel p-4"
+            >
               <LogLoader
                 onLoadText={loadText}
                 onLoadSample={() => void loadSample()}
               />
               {error ? (
-                <p className="text-sm text-team-red" role="alert">
+                <p className="mt-2 text-sm text-team-red" role="alert">
                   {error}
                 </p>
               ) : (
-                <p className="text-sm text-dim">
+                <p className="mt-2 text-sm text-dim">
                   No match loaded. Drop a log or load the bundled seed 20261122
                   sample.
                 </p>
@@ -179,132 +264,94 @@ export function WatchShell() {
           ) : null}
 
           {engine && state ? (
-            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(140px,200px)_minmax(0,1fr)_minmax(140px,200px)]">
-              <div className="hidden xl:block" data-testid="left-rail-wrap">
-                <TeamRail side="blue" state={state} />
+            <>
+              <TeamRail side="blue" state={state} layout={layout} />
+              <TeamRail side="red" state={state} layout={layout} />
+
+              {/* Map frame sized to the canvas (centred in the slot if wider). */}
+              <div
+                data-testid="arena-map-slot"
+                style={{
+                  position: "absolute",
+                  left: mapLeft,
+                  top: mapTop,
+                  width: mapSize.w,
+                  height: mapSize.h,
+                }}
+                className="overflow-hidden border border-line bg-field"
+              >
+                <ArenaCanvas assets={assets} state={state} mode={mode} />
               </div>
 
-              <div className="flex flex-col gap-3">
-                <div className="overflow-x-auto border border-line bg-field">
-                  <ArenaCanvas assets={assets} state={state} />
-                </div>
+              <KillFeed
+                events={engine.events}
+                currentTick={tick}
+                rect={killFeedRect}
+                onJump={jump}
+              />
 
+              <CardToastSlot rect={layout.card_toast_slot} />
+
+              <DockPanels
+                state={state}
+                zone={layout.dock_panels.zone}
+                pickups={layout.dock_panels.pickups}
+                fightCall={layout.dock_panels.fight_call}
+              />
+
+              <div
+                style={absStyle(layout.dock_panels.watch_transport)}
+                className="box-border"
+              >
                 <TransportBar
                   playing={playing}
                   tick={tick}
                   maxTick={engine.maxTick}
                   speed={speed}
                   seed={state.seed}
+                  compact={mode === "720"}
                   onPlayPause={() => setPlaying((p) => !p)}
                   onStep={onStep}
-                  onScrub={(t) => {
-                    setPlaying(false);
-                    setTick(t);
-                  }}
+                  onScrub={(t) => jump(t)}
                   onSpeed={setSpeed}
                 />
-
-                <div className="grid grid-cols-2 gap-2 xl:hidden">
-                  <TeamRail side="blue" state={state} />
-                  <TeamRail side="red" state={state} />
-                </div>
-
-                <LogLoader
-                  onLoadText={loadText}
-                  onLoadSample={() => void loadSample()}
-                />
-                <DevPanel
-                  state={state}
-                  digest={engine.digest}
-                  sourceName={sourceName}
-                />
               </div>
-
-              <div className="hidden xl:block" data-testid="right-rail-wrap">
-                <TeamRail side="red" state={state} />
-              </div>
-            </div>
+            </>
           ) : null}
         </div>
 
-        <div className="h-[360px] w-full shrink-0 lg:h-auto lg:min-h-[640px] lg:w-[300px]">
+        {/* Below-stage utilities (loader / dev) — outside the fixed HUD chrome */}
+        {engine ? (
+          <div className="grid gap-3 p-3" style={{ width: stageW }}>
+            <LogLoader
+              onLoadText={loadText}
+              onLoadSample={() => void loadSample()}
+            />
+            <DevPanel
+              state={state}
+              digest={engine.digest}
+              sourceName={sourceName}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      {/* Event log drawer — flex sibling push (never overlays controls). */}
+      {drawerOpen ? (
+        <div
+          data-testid="event-drawer"
+          data-overlay="drawer"
+          className="flex h-screen shrink-0 flex-col border-l border-line bg-panel"
+          style={{ width: DRAWER_W }}
+        >
           <EventLogPanel
             events={engine?.events ?? []}
             currentTick={tick}
-            onJump={(t) => {
-              setPlaying(false);
-              setTick(t);
-            }}
+            onJump={jump}
+            onClose={() => setDrawerOpen(false)}
           />
         </div>
-      </div>
-    </div>
-  );
-}
-
-function TeamRail({
-  side,
-  state,
-}: {
-  side: "blue" | "red";
-  state: MatchViewState;
-}) {
-  return (
-    <div data-testid={`rail-only-${side}`} className="flex flex-col gap-2">
-      <div
-        className={cn(
-          "font-condensed text-sm",
-          side === "blue" ? "text-team-blue" : "text-right text-team-red",
-        )}
-      >
-        {side.toUpperCase()}
-      </div>
-      {SLOTS.map((slot: Slot) => {
-        const u = state.units[`${side}:${slot}`]!;
-        const fill = side === "blue" ? "bg-team-blue" : "bg-team-red";
-        const frac = u.alive ? Math.max(0, Math.min(1, u.hp / u.maxHp)) : 0;
-        return (
-          <div
-            key={slot}
-            data-testid={`frame-${u.id}`}
-            className={cn(
-              "border border-line bg-panel-2 p-2",
-              side === "blue"
-                ? "border-l-2 border-l-team-blue"
-                : "border-r-2 border-r-team-red",
-            )}
-          >
-            <div className="flex items-start gap-2">
-              <div
-                className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center border border-line-2 text-[9px] font-bold",
-                  u.alive ? "bg-field" : "bg-line text-faint",
-                )}
-                title={u.fallback ? `fallback:${u.champ}` : u.champ}
-              >
-                {u.champ.slice(0, 3).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex justify-between gap-1">
-                  <span className="truncate font-condensed text-sm uppercase">
-                    {SLOT_LABEL[slot]}
-                  </span>
-                  <span className="text-xs text-dim">L{u.level}</span>
-                </div>
-                <div className="mt-1 h-1.5 w-full bg-field">
-                  <div
-                    className={cn("h-full", fill)}
-                    style={{ width: `${frac * 100}%` }}
-                  />
-                </div>
-                <div className="mt-0.5 text-[10px] tabular-nums text-dim">
-                  {u.alive ? `${Math.round(u.hp)}/${u.maxHp}` : "DEAD"}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      ) : null}
     </div>
   );
 }

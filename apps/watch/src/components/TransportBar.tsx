@@ -3,7 +3,7 @@ import { formatClock } from "@watch/lib/replay";
 import type { Speed } from "@watch/lib/types";
 import { cn } from "@watch/lib/cn";
 
-const SPEEDS: Speed[] = [0.5, 1, 2, 4];
+const SPEEDS: Speed[] = [0.5, 1, 2, 4, 8];
 
 interface Props {
   playing: boolean;
@@ -12,6 +12,7 @@ interface Props {
   speed: Speed;
   seed: number | null;
   disabled?: boolean;
+  compact?: boolean;
   onPlayPause: () => void;
   onStep: () => void;
   onScrub: (tick: number) => void;
@@ -25,6 +26,7 @@ export function TransportBar({
   speed,
   seed,
   disabled,
+  compact,
   onPlayPause,
   onStep,
   onScrub,
@@ -34,9 +36,12 @@ export function TransportBar({
   return (
     <div
       data-testid="watch-transport"
-      className="flex flex-col gap-2 rounded-none border border-line bg-panel p-3"
+      className={cn(
+        "flex h-full flex-col justify-center gap-1.5 border border-line bg-panel",
+        compact ? "p-1.5" : "p-2",
+      )}
     >
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1">
         <Button
           data-testid="btn-play-pause"
           variant="outline"
@@ -55,7 +60,7 @@ export function TransportBar({
         >
           STEP ▸
         </Button>
-        <div className="flex items-center gap-1" data-testid="speed-group">
+        <div className="flex flex-wrap items-center gap-0.5" data-testid="speed-group">
           {SPEEDS.map((s) => (
             <Button
               key={s}
@@ -64,20 +69,20 @@ export function TransportBar({
               variant={speed === s ? "active" : "outline"}
               disabled={disabled}
               onClick={() => onSpeed(s)}
-              className={cn(speed === s && "border-paper")}
+              className={cn("px-1.5", speed === s && "border-paper")}
             >
               {s}x
             </Button>
           ))}
         </div>
-        <div className="ml-auto font-condensed text-lg tabular-nums text-paper">
+        <div className="ml-auto font-condensed text-base tabular-nums">
           {formatClock(t)}
-          <span className="ml-2 text-sm text-dim">
-            tick {tick}/{maxTick}
+          <span className="ml-1 text-[10px] text-dim">
+            {tick}/{maxTick}
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <input
           data-testid="scrubber"
           type="range"
@@ -89,7 +94,7 @@ export function TransportBar({
           className="h-2 w-full cursor-pointer accent-paper"
           aria-label="Scrub timeline"
         />
-        <span className="shrink-0 text-xs text-dim tabular-nums">
+        <span className="shrink-0 text-[10px] text-dim tabular-nums">
           SEED {seed ?? "—"}
         </span>
       </div>

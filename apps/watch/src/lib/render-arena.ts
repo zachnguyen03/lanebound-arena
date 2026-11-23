@@ -1,5 +1,8 @@
 import type { WatchAssets } from "./assets";
+import { sortDrawItems } from "./draw-order";
+import { padGroundPx } from "./spawn";
 import type { MatchViewState, UnitView } from "./types";
+import { ARENA_INTRINSIC } from "./hud-layout";
 
 const TILE_W = 44;
 const TILE_H = 32;
@@ -8,7 +11,7 @@ const BODY_H = 48;
 const ANCHOR_X = 18;
 const ANCHOR_Y = 46;
 
-/** Integer nearest-neighbour blit from sheet rect to destination. */
+/** Integer nearest-neighbour blit. */
 export function blitNearest(
   ctx: CanvasRenderingContext2D,
   img: CanvasImageSource,
@@ -44,9 +47,16 @@ function blitSprite(
   worldY: number,
 ): void {
   const [sx, sy, sw, sh] = rect;
-  const dx = Math.round(worldX - anchor[0]);
-  const dy = Math.round(worldY - anchor[1]);
-  blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy);
+  blitNearest(
+    ctx,
+    sheet,
+    sx,
+    sy,
+    sw,
+    sh,
+    Math.round(worldX - anchor[0]),
+    Math.round(worldY - anchor[1]),
+  );
 }
 
 function blitPlaced(
@@ -63,27 +73,32 @@ function blitPlaced(
   blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy);
 }
 
+export interface RenderArenaOpts {
+  /** Canvas buffer height (580 full, or 520 for 720 plinth crop). */
+  height?: number;
+}
+
 /**
- * Draw Layout B terrain + static props + y-sorted pillars/units into a
- * 1056×580 canvas. Gold only via zone / buff art from the CD sheet.
+ * Draw Layout B into a canvas sized to the display (1056×580 or 1056×520).
+ * Props use tile-centre ground points; units use sim poses from the log.
  */
 export function renderArena(
   ctx: CanvasRenderingContext2D,
   assets: WatchAssets,
   state: MatchViewState,
+  opts: RenderArenaOpts = {},
 ): void {
-  const W = 1056;
-  const H = 580;
+  const W = ARENA_INTRINSIC.w;
+  const H = opts.height ?? ARENA_INTRINSIC.h;
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, W, H);
 
-  // 1. Terrain
+  // Terrain (source may be taller than crop height — blit top H rows only)
   blitNearest(ctx, assets.terrain, 0, 0, W, H, 0, 0, W, H);
 
   const sprites = assets.worldProps.sprites;
   const sheet = assets.propsSheet;
 
-  // 2. Sanctuary washes + thresholds
   for (const key of [
     "sanctuary-wash-blue",
     "sanctuary-wash-red",
@@ -94,76 +109,60 @@ export function renderArena(
     if (s) blitPlaced(ctx, sheet, s);
   }
 
-  // 3. Zone (neutral only in this shell — ownership is unrendered TODO)
   const zoneNeutral = sprites["zone-neutral"];
   if (zoneNeutral) blitPlaced(ctx, sheet, zoneNeutral);
   const zoneMark = sprites["zone-centre-mark"];
   if (zoneMark?.place_terrain_px) {
     blitPlaced(ctx, sheet, zoneMark);
   } else if (zoneMark) {
+    // Zone centre is geometric (12.0, 8.0), not a tile-index pad.
     const [cx, cy] = assets.worldProps.placements.zone.centre_px;
     blitSprite(ctx, sheet, zoneMark.rect, zoneMark.anchor, cx, cy);
   }
 
-  // 4. Orb pads (empty down) + buff pads (down — buff.up is gold @ 1:30, unrendered until events)
   const orbDown = assets.worldProps.animations.orb?.down?.frames?.[0];
   if (orbDown) {
     for (const pad of assets.worldProps.placements.orb_pads) {
-      blitSprite(
-        ctx,
-        sheet,
-        orbDown.rect,
-        orbDown.anchor,
-        pad.ground_px[0],
-        pad.ground_px[1],
-      );
+      // Prefer atlas ground_px (already tile-centre); fall back to tileCentre.
+      const g = pad.ground_px
+        ? { px: pad.ground_px[0], py: pad.ground_px[1] }
+        : padGroundPx(pad.tile[0], pad.tile[1]);
+      blitSprite(ctx, sheet, orbDown.rect, orbDown.anchor, g.px, g.py);
     }
   }
   const buffDown = assets.worldProps.animations.buff?.down?.frames?.[0];
   if (buffDown) {
     for (const pad of assets.worldProps.placements.buff_pads) {
-      blitSprite(
-        ctx,
-        sheet,
-        buffDown.rect,
-        buffDown.anchor,
-        pad.ground_px[0],
-        pad.ground_px[1],
-      );
+      const g = pad.ground_px
+        ? { px: pad.ground_px[0], py: pad.ground_px[1] }
+        : padGroundPx(pad.tile[0], pad.tile[1]);
+      blitSprite(ctx, sheet, buffDown.rect, buffDown.anchor, g.px, g.py);
     }
   }
 
-  // 5. Units + pillars y-sorted
   const units = Object.values(state.units);
-  type DrawItem =
-    | { kind: "unit"; unit: UnitView; footY: number }
-    | { kind: "pillar"; pillar: (typeof assets.pillars)[number]; footY: number };
-
-  const items: DrawItem[] = [
+  const items = sortDrawItems([
     ...units.map((unit) => ({
       kind: "unit" as const,
       unit,
       footY: unit.y * TILE_H,
+      id: unit.id,
     })),
     ...assets.pillars.map((pillar) => ({
       kind: "pillar" as const,
       pillar,
       footY: pillar.sort_y_px,
+      id: pillar.id,
     })),
-  ];
-
-  // Sort by foot Y; pillars draw after units with foot_y < sort_y (same as CD rule).
-  items.sort((a, b) => {
-    if (a.footY !== b.footY) return a.footY - b.footY;
-    if (a.kind !== b.kind) return a.kind === "unit" ? -1 : 1;
-    return 0;
-  });
+  ]);
 
   for (const item of items) {
     if (item.kind === "pillar") {
       const p = item.pillar;
       const [sx, sy, sw, sh] = p.rect;
       const [dx, dy] = p.blit_at_terrain_px;
+      // Skip pillars whose blit is entirely below the crop.
+      if (dy >= H) continue;
       blitNearest(ctx, assets.pillarsSheet, sx, sy, sw, sh, dx, dy);
     } else {
       drawUnit(ctx, item.unit);
@@ -176,20 +175,17 @@ function drawUnit(ctx: CanvasRenderingContext2D, unit: UnitView): void {
   const py = unit.y * TILE_H;
   const teamColor = unit.team === "blue" ? "#4DA3FF" : "#F5477A";
 
-  // Shadow
   ctx.fillStyle = "rgba(0,0,0,0.45)";
   ctx.beginPath();
   ctx.ellipse(px, py, 14, 6, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Team ring
   ctx.strokeStyle = teamColor;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.ellipse(px, py, 16, 7, 0, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Labelled placeholder body (no CD dummy sheet in arena-sandbox pack)
   const left = Math.round(px - ANCHOR_X);
   const top = Math.round(py - ANCHOR_Y);
   ctx.fillStyle = unit.alive ? "#1A2130" : "#2A303C";
@@ -202,13 +198,13 @@ function drawUnit(ctx: CanvasRenderingContext2D, unit: UnitView): void {
   ctx.font = "bold 9px Barlow, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  const label = unit.champ === "dummy" ? "DUMMY" : unit.champ.slice(0, 6).toUpperCase();
+  const label =
+    unit.champ === "dummy" ? "DUMMY" : unit.champ.slice(0, 6).toUpperCase();
   ctx.fillText(label, px, top + BODY_H / 2 - 4);
   ctx.fillStyle = "#A1ACBF";
   ctx.font = "8px Barlow, sans-serif";
   ctx.fillText(`L${unit.level}`, px, top + BODY_H / 2 + 8);
 
-  // Floating HP bar
   if (unit.alive) {
     const barW = 28;
     const barH = 3;
@@ -222,4 +218,4 @@ function drawUnit(ctx: CanvasRenderingContext2D, unit: UnitView): void {
   }
 }
 
-export const ARENA_SIZE = { w: 1056, h: 580 } as const;
+export const ARENA_SIZE = ARENA_INTRINSIC;

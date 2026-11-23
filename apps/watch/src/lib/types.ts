@@ -43,7 +43,7 @@ export interface MatchViewState {
   fallbackChamps: string[];
 }
 
-export type Speed = 0.5 | 1 | 2 | 4;
+export type Speed = 0.5 | 1 | 2 | 4 | 8;
 
 export const SLOTS: Slot[] = ["top", "jungle", "mid", "adc", "support"];
 export const SLOT_LABEL: Record<Slot, string> = {

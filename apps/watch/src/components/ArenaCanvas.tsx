@@ -1,32 +1,48 @@
 import { useEffect, useRef } from "react";
 import type { WatchAssets } from "@watch/lib/assets";
-import { ARENA_SIZE, renderArena } from "@watch/lib/render-arena";
+import type { HudMode } from "@watch/lib/hud-layout";
+import { arenaDisplaySize } from "@watch/lib/hud-layout";
+import { renderArena } from "@watch/lib/render-arena";
 import type { MatchViewState } from "@watch/lib/types";
 
 interface Props {
   assets: WatchAssets | null;
   state: MatchViewState | null;
-  className?: string;
+  mode: HudMode;
 }
 
-export function ArenaCanvas({ assets, state, className }: Props) {
+/**
+ * Always paints at CSS size === intrinsic buffer size (integer scale 1).
+ * Never use max-width / height:auto — that caused fractional shrink.
+ */
+export function ArenaCanvas({ assets, state, mode }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const size = arenaDisplaySize(mode);
 
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas || !assets || !state) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    renderArena(ctx, assets, state);
-  }, [assets, state]);
+    renderArena(ctx, assets, state, { height: size.h });
+  }, [assets, state, size.h]);
 
   return (
     <canvas
       ref={ref}
-      width={ARENA_SIZE.w}
-      height={ARENA_SIZE.h}
-      className={`pixelated max-w-full h-auto bg-field ${className ?? ""}`}
+      width={size.w}
+      height={size.h}
+      style={{
+        width: size.w,
+        height: size.h,
+        imageRendering: "pixelated",
+        display: "block",
+        flexShrink: 0,
+      }}
+      className="pixelated bg-field"
       data-testid="arena-canvas"
+      data-arena-w={size.w}
+      data-arena-h={size.h}
       aria-label="Arena playfield"
     />
   );

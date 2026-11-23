@@ -54,12 +54,15 @@ describe("Watch determinism guard", () => {
     expect(src).not.toMatch(/\bsimulate\s*\(/);
   });
 
-  it("places dummy units at S0 spawn jitter and levels from log", () => {
+  it("places dummy units at tile-centre spawn + jitter and levels from log", () => {
     const events = parseJsonl(fs.readFileSync(samplePath, "utf8"));
     const engine = new ReplayEngine(events);
     const t0 = engine.stateAt(0);
-    expect(t0.units["blue:top"]!.x).toBe(1);
-    expect(t0.units["blue:top"]!.y).toBeCloseTo(7 + (0 - 2) * 0.3, 5);
+    // GD: tile index (1,7) → centre (1.5, 7.5); top slotOrd 0 → yOff = -0.6
+    expect(t0.units["blue:top"]!.x).toBe(1.5);
+    expect(t0.units["blue:top"]!.y).toBeCloseTo(7.5 + (0 - 2) * 0.3, 5);
+    expect(t0.units["red:mid"]!.x).toBe(22.5);
+    expect(t0.units["red:mid"]!.y).toBeCloseTo(7.5, 5);
     expect(t0.units["blue:top"]!.level).toBe(1);
     expect(t0.fallbackChamps).toContain("dummy");
 
@@ -67,3 +70,4 @@ describe("Watch determinism guard", () => {
     expect(t122.units["blue:top"]!.level).toBe(2);
   });
 });
+
