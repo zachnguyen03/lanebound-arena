@@ -68,6 +68,23 @@ test("a scripted season end keeps the signature and carries the contracts", asyn
   for (const name of ["Split MVP", "Finals MVP", "Zonekeeper", "Deadeye", "Shepherd"]) {
     await expect(page.getByTestId("awards")).toContainText(name);
   }
+  const awardRows = page.getByTestId("awards").locator("tbody tr");
+  const awardCount = await awardRows.count();
+  let ours = 0;
+  for (let i = 0; i < awardCount; i++) {
+    const row = awardRows.nth(i);
+    if ((await row.locator("td").count()) < 3) continue;
+    const club = (await row.locator("td").nth(2).innerText()).trim();
+    if (club === "Iron Lotus") {
+      ours += 1;
+      await expect(row).toHaveClass(/\bme\b/);
+    } else if (club) {
+      await expect(row).not.toHaveClass(/\bme\b/);
+    }
+  }
+  expect(ours).toBeGreaterThan(0);
+  await expect(page.locator("header .btn-primary")).toHaveCount(0);
+  await expect(page.getByTestId("advance-season")).toHaveClass(/btn-primary/);
   await page.getByTestId("advance-season").click();
   await expect(page.getByText("Contracts carried into next season.")).toBeVisible();
   await page.getByRole("button", { name: "Squad" }).click();

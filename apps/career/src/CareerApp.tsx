@@ -155,7 +155,15 @@ export function CareerApp() {
             {dayLabel} · <b>Bound Circuit</b>
           </div>
           <Button
-            variant={screen === "tactics" || screen === "cards" || screen === "draft" || screen === "recap" ? "secondary" : "primary"}
+            variant={
+              screen === "tactics" ||
+              screen === "cards" ||
+              screen === "draft" ||
+              screen === "recap" ||
+              (screen === "awards" && Boolean(session && session.awards.length > 0 && !session.pending_signature && !session.advanced))
+                ? "secondary"
+                : "primary"
+            }
             onClick={() => setScreen("tactics")}
           >
             Continue ▸
@@ -267,6 +275,7 @@ export function CareerApp() {
               awards={session ? session.awards : view?.kind === "season" ? view.save.awards : []}
               players={players}
               clubs={clubs}
+              clubId={playerId}
               series={session ? session.series : view?.kind === "season" ? view.save.series : []}
               advanced={session?.advanced ?? true}
               canAdvance={Boolean(session && session.awards.length > 0 && !session.pending_signature && !session.advanced)}
@@ -737,6 +746,7 @@ function Awards({
   awards,
   players,
   clubs,
+  clubId,
   series,
   advanced,
   canAdvance,
@@ -745,6 +755,7 @@ function Awards({
   awards: CareerSession["awards"];
   players: CareerSession["players"];
   clubs: readonly Club[];
+  clubId: string;
   series: CareerSession["series"];
   advanced: boolean;
   canAdvance: boolean;
@@ -781,7 +792,7 @@ function Awards({
           {awards.map((award) => {
             const player = players.find((item) => item.id === award.player_id);
             return (
-              <tr key={award.kind}>
+              <tr key={award.kind} className={player?.club_id === clubId ? "me" : ""}>
                 <td>{AWARD_NAME[award.kind]}</td>
                 <td>{player?.name}</td>
                 <td>{clubName(clubs, player?.club_id ?? "")}</td>
