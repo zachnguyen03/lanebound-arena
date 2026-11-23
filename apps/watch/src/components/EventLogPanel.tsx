@@ -56,7 +56,9 @@ export function EventLogPanel({
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
+    const showTape = import.meta.env.DEV;
     return events.filter((e) => {
+      if (!showTape && (e.type === "pos" || e.type === "move")) return false;
       if (hideXp && e.type === "xp_gain") return false;
       if (!q) return true;
       const label = eventTypeLabel(e.type).toLowerCase();
