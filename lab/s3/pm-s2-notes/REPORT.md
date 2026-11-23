@@ -48,18 +48,11 @@ See `full-match-*.txt`.
 
 Test: `tests/s2-intent-dwell.test.ts` (both seeds).
 
-### 3. Mutation survivors
+### 3. Extra S2 behaviour pins
 
-Held-out suite `tests/s2-mutation-survivors.test.ts` (not part of official acceptance):
-
-| ID | Disposition |
-|---|---|
-| S2A06 | **Killing test** — `chaseShouldStop` sanctuary branch |
-| S2A05 | Equivalence — `shouldRunL1(0)` false; loop starts at DT |
-| S2A10 / S2A14 / S2R13 / S2R32 | Written equivalence (legal pool / default attrs / no fixture) |
-| S2R03 | Killing test — `hystS(5)` floor 0.4 |
-| S2R11 | Killing test — R out of `dummy5sDamage` below L5 |
-| S2R22b | Killing test — rational `reachFactor` vs linear mutant |
+See `tests/s2-mutation-survivors.test.ts`, `tests/s2-r25-follow-focus.test.ts`,
+and `tests/s2-survivor-behaviour.test.ts` (names and behaviours listed in
+`SURVIVORS-R25.md`).
 
 ### 4. Vacuous holders slice + one rim function
 

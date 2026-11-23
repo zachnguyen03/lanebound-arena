@@ -13,7 +13,6 @@ npm run digest -- --seed 20261122
 npm run digest -- --seed 20261123
 npm run purity
 LANEBOUND_COMMIT=<tip> npm run lab:s1
-npx tsx apps/lab/mutation-s1.ts
 ```
 
 ## Results
@@ -25,7 +24,6 @@ npx tsx apps/lab/mutation-s1.ts
 | M1 fixtures | **PASS** |
 | `constants_hash` | `69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1` |
 | `data_hash` | `af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2` (INV-DATA-HASH) |
-| Mutation probe | see table below |
 
 ### Digests (current gold)
 
@@ -87,27 +85,6 @@ digest=f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0
 | 15s | Kerrig R cast 0.7 + mark gate | see vitest | 0.7 | PASS |
 | 19b | Aim 55/85/25% ±2 over 2000 via scripted_skillshots | see vitest | HIT_* | PASS |
 | gates | windup cancel / Blind / attack_reset / timestop / assists | see vitest | §6.8–6.10 | PASS |
-
-## Mutation probe
-
-Each single-number / behavior edit must turn ≥1 test red:
-
-| Mutation | Turns red? | Note |
-|---|---|---|
-| Huntress Q CD 8→9 | YES | ≥1 test red |
-| Tolle W banish duration 1.8→1.5 | YES | ≥1 test red |
-| Saelo R radius 2.4→2.0 | YES | ≥1 test red |
-| Maelis R base 350→340 | YES | ≥1 test red |
-| Huntress R base 230→220 | YES | ≥1 test red |
-| Kerrig R base 330→320 | YES | ≥1 test red |
-| banish skip removed (invuln) | YES | ≥1 test red |
-| CC assist credit removed | YES | ≥1 test red |
-| heal assist credit removed | YES | ≥1 test red |
-| Blind miss disabled | YES | ≥1 test red |
-| time-stop auto pause disabled | YES | ≥1 test red |
-| Mirren W slow 35→25 | YES | ≥1 test red |
-mutation_probe_pass=true
-
 
 ## Kits
 

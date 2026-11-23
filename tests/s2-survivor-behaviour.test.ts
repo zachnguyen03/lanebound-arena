@@ -1,6 +1,5 @@
 /**
- * PM behaviour statements for remaining s3 survivors (held-out).
- * Drive the real sim/AI path via runAi — no internal-helper asserts, no sim edits.
+ * S2 AI behaviour pins via the real sim path (runAi).
  * Do not edit tests/acceptance/**.
  */
 import { describe, expect, it } from "vitest";
@@ -128,8 +127,7 @@ describe("S2 survivor behaviour — real AI path", () => {
     // Blue Mid mid-chase on Red ADC. Level 1, as=0 (auto DPS 0; R locked at L<5),
     // no ally feeding damage into the target. Red ADC starts at 1 HP, not in
     // sanctuary, under the 10-tile leash. Chase stops only when est_ttk > 2 s —
-    // with the denominator floor, 1 HP stays finite and ≤ 2 s, so chase continues
-    // (a 0-DPS → unkillable mutant would Idle off).
+    // with the denominator floor, 1 HP stays finite and ≤ 2 s, so chase continues.
     const r = runAi({
       T: 3.0,
       pos: true,

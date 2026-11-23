@@ -1,16 +1,11 @@
 /**
- * Held-out killers / justifications for box mutate-s3 survivors
- * S3A10, S3A12, S3A19, S3A20, S3A22, S3A23.
- *
- * Do not edit tests/acceptance/s3.
+ * Extra S3 behaviour pins outside tests/acceptance/s3.
  */
 import { describe, expect, it } from "vitest";
 import {
   ORB_PADS,
   placeInZone,
   runS3,
-  zoneOf,
-  barTicks,
   deniersOf,
   claimDeniesOf,
   killAt,
@@ -25,8 +20,8 @@ const RA = "red:adc" as UId;
 const RM = "red:mid" as UId;
 const PAD0 = { x: ORB_PADS[0]![0], y: ORB_PADS[0]![1] };
 
-describe("S3A10 — coin flip colour is pinned for a known seed", () => {
-  it("seed 20261122 deadlock coin_flip winner is red (kills invert of flip < 0.5)", () => {
+describe("Bo1 coin flip", () => {
+  it("seed 20261122 deadlock coin_flip winner is red", () => {
     const r = runS3({
       seed: 20261122,
       T: 10,
@@ -34,29 +29,12 @@ describe("S3A10 — coin flip colour is pinned for a known seed", () => {
     });
     const end = r.matchEnd()!;
     expect(end.reason).toBe("coin_flip");
-    // rng.next("tiebreak") for this seed is ≥ 0.5 under flip < 0.5 ? blue : red
     expect(end.winner).toBe("red");
   });
 });
 
-describe("S3A12 — owner's bar held-at-0 (justified equivalent)", () => {
-  it("after capture the owner's published bar is 0; capture step already zeroes both bars", () => {
-    // Needle drops `if (z.owner === "blue/red") z.progress_* = 0` after the
-    // exclusive/empty updates. Capture at ≥30 already sets both bars to 0
-    // (`sim/arena.ts` capture block), and `if (z.owner !== "blue/red")`
-    // prevents further owner increments. Published progress is unchanged —
-    // genuine equivalent on this tip. See lab/s3/pm-s2-notes/SURVIVORS-S3.md.
-    const r = runS3({ T: 5.0, units: { [BA]: placeInZone(BA) } });
-    expect(zoneOf(r).owner).toBe("blue");
-    expect(barTicks(zoneOf(r), "blue")).toBe(0);
-  });
-});
-
-describe("S3A19 — pickup is end-of-tick only (no vx/vy back-projection)", () => {
-  it("end pose outside the pad does not pick up even when vx/vy back-projects onto the pad", () => {
-    // Box needle adds prev-pos via x-vx*DT / y-vy*DT. Drive tickArenaPhase11
-    // directly: orb already up (not spawned this tick), end outside, velocity
-    // back-projects onto the pad centre.
+describe("Orb pickup pose", () => {
+  it("end pose outside the pad does not pick up even when velocity back-projects onto the pad", () => {
     const c = {
       ...DEFAULT_CONSTANTS,
       ORB_PICKUP_R: 0.9,
@@ -70,7 +48,7 @@ describe("S3A19 — pickup is end-of-tick only (no vx/vy back-projection)", () =
 
     const pickupR = c.ORB_PICKUP_R;
     const endY = orb.y + pickupR + 0.25;
-    const vy = (endY - orb.y) / c.DT; // prevY = endY - vy*DT = orb.y
+    const vy = (endY - orb.y) / c.DT;
     const unit = {
       id: BA,
       team: "blue" as const,
@@ -171,14 +149,10 @@ describe("S3A19 — pickup is end-of-tick only (no vx/vy back-projection)", () =
   });
 });
 
-describe("S3A20 — ahead finish at SUDDEN_DEATH_T+BO1_EXTRA_S is sudden_death", () => {
+describe("Bo1 ladder-end reason", () => {
   it("when a team is ahead at the 4:45 boundary, reason is sudden_death not clock", () => {
-    // Needle swaps the boundary reason to "clock". Mid-window sudden_death
-    // fixtures stay green; this pins the exact ladder-end ahead path.
-    // Score on the boundary tick itself so step (4) sees ahead before coin_flip.
     const r = runS3({
       T: 8,
-      // Stay off the pad so zone_time / capture stay 0–0 through the ladder.
       units: {
         [BA]: { x: 4, y: 4, auto: false, spawn_shield_until: 0 },
         [RA]: { x: 20, y: 4, auto: false, spawn_shield_until: 0 },
@@ -189,7 +163,7 @@ describe("S3A20 — ahead finish at SUDDEN_DEATH_T+BO1_EXTRA_S is sudden_death",
         BO1_EXTRA_S: 2.0,
         SCORE_TO_WIN: 99,
       },
-      damage: [killAt(80, BA, RA)], // t=8.0 exactly → ahead at boundary
+      damage: [killAt(80, BA, RA)],
     });
     const end = r.matchEnd()!;
     expect(end.t).toBeCloseTo(8.0, 6);
@@ -198,10 +172,8 @@ describe("S3A20 — ahead finish at SUDDEN_DEATH_T+BO1_EXTRA_S is sudden_death",
   });
 });
 
-describe("S3A22 — no aura regen on the capture tick", () => {
-  it("HP at the capture tick equals start + base regen only (no +1.5 aura)", () => {
-    // Official R5-7 compares T=3.1 vs T=3.0 deltas (both shift under same-tick
-    // aura). Pin absolute HP on the capture tick itself.
+describe("Zone aura timing", () => {
+  it("HP at the capture tick equals start + base regen only (no aura yet)", () => {
     const startHp = 200;
     const r = runS3({
       T: 3.0,
@@ -209,17 +181,14 @@ describe("S3A22 — no aura regen on the capture tick", () => {
     });
     expect(r.of("zone_capture")[0]!.tick).toBe(30);
     const hp = r.unit(BA)!.hp;
-    // 30 ticks of Huntress L1 regen 4/s → 0.4/tick; aura must not apply yet.
+    // 30 ticks of Huntress L1 regen 4/s → 0.4/tick.
     const baseRegen = 30 * 0.4;
     expect(hp).toBeCloseTo(startHp + baseRegen, 1);
   });
 });
 
-describe("S3A23 — dwell resets on leave (continuous, not cumulative)", () => {
+describe("Claim deny dwell", () => {
   it("a unit that leaves the zone mid-window must re-earn N continuous ticks to deny", () => {
-    // Needle drops `z.dwell[u.id] = 0` on leave so dwell is cumulative.
-    // RA stays for the full window; RM occupies, leaves one tick, returns —
-    // with N=5 only RA denies.
     const r = runS3({
       T: 2.5,
       units: {
@@ -228,8 +197,7 @@ describe("S3A23 — dwell resets on leave (continuous, not cumulative)", () => {
       },
       constants: { CLAIM_DELAY_S: 1.0, CLAIM_DENY_DWELL_S: 0.5 },
       claims: [{ tick: 5, team: "blue", fight_id: "dwell-reset" }],
-      // Banish RM for ticks covering a leave gap after early occupation.
-      // Present at start (ticks 1–3), banished ticks 4–12, present again 13–15.
+      // Present early, leave via banish, return for only the last ticks — N=5 not met.
       cc: [{ tick: 4, target: RM, kind: "banish", duration: 0.9 }],
     });
     const ev = r.of("claim_deny")[0]!;

@@ -1,6 +1,6 @@
 /**
  * M1 behavior fixtures that run through simulate() + scripted_casts.
- * Kit numbers come from kits.ts; mutations of those numbers must fail these tests.
+ * Kit numbers come from kits.ts.
  */
 import { describe, expect, it } from "vitest";
 import { KITS } from "../data/champions/kits.js";
