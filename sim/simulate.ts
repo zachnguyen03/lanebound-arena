@@ -430,13 +430,22 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     updateScriptedMotor(state, config, c, emit);
 
+    // Phase-start poses for hex centroid (L1899): all motor units see the
+    // same snapshot; recomputed every tick before anyone moves.
+    const phaseStart = state.units.map((u) => ({
+      id: u.id,
+      x: u.x,
+      y: u.y,
+      alive: u.alive,
+      team: u.team,
+    }));
     for (const u of state.units) {
       if (isTimeStopped(u.status)) {
         u.vx = 0;
         u.vy = 0;
         continue;
       }
-      const r = integrateSteering(state, u, c);
+      const r = integrateSteering(state, u, c, phaseStart);
       if (r.clipped && r.reason === "sanctuary") {
         emit("sanctuary_clip", {
           source_id: u.id,

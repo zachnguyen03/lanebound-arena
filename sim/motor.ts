@@ -12,7 +12,16 @@ import {
   leashSourceId,
   strongestSlow,
 } from "./status.js";
-import type { MatchState, UnitState, Vec2 } from "./types.js";
+import type { MatchState, Team, UnitId, UnitState, Vec2 } from "./types.js";
+
+/** Pose snapshot at the start of the motor phase (L1899). */
+export interface PhasePose {
+  id: UnitId;
+  x: number;
+  y: number;
+  alive: boolean;
+  team: Team;
+}
 
 export interface SteerResult {
   unit: UnitState;
@@ -140,21 +149,30 @@ function fearSource(state: MatchState, unit: UnitState): UnitState | null {
   return state.units.find((u) => u.id === e.source_id) ?? null;
 }
 
-/** Allies farther than this are ignored for hex flocking (pad fillers). */
-const HEX_ALLY_RADIUS = 10;
-
-function allyCentroid(state: MatchState, unit: UnitState): Vec2 | null {
+/**
+ * Hex steer target (Appendix R #2 L1899):
+ * centroid of ALL living same-team units excluding the hexed unit itself,
+ * from phase-start positions (recomputed every tick). No radius filter.
+ * If no other living allies → own spawn pad centre (BLUE_SPAWN / RED_SPAWN).
+ */
+export function hexSteerTarget(
+  unit: { id: UnitId; team: Team },
+  phaseStart: readonly PhasePose[],
+  c: Constants,
+): Vec2 {
   let sx = 0;
   let sy = 0;
   let n = 0;
-  for (const u of state.units) {
-    if (!u.alive || u.team !== unit.team || u.id === unit.id) continue;
-    if (dist(unit.x, unit.y, u.x, u.y) > HEX_ALLY_RADIUS) continue;
-    sx += u.x;
-    sy += u.y;
+  for (const p of phaseStart) {
+    if (!p.alive || p.team !== unit.team || p.id === unit.id) continue;
+    sx += p.x;
+    sy += p.y;
     n += 1;
   }
-  if (n === 0) return null;
+  if (n === 0) {
+    const pad = unit.team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
+    return { x: pad[0]!, y: pad[1]! };
+  }
   return { x: sx / n, y: sy / n };
 }
 
@@ -166,6 +184,8 @@ export function integrateSteering(
   state: MatchState,
   unit: UnitState,
   c: Constants,
+  /** Motor-phase start poses; required for hex (L1899). Defaults to live state (tests). */
+  phaseStart?: readonly PhasePose[],
 ): SteerResult {
   if (!unit.alive) {
     unit.vx = 0;
@@ -202,25 +222,26 @@ export function integrateSteering(
     return moveWithSlide(unit, dx, dy, c);
   }
 
-  // Hex: walk to living-ally centroid at MS after slows (hex carries 35%).
-  // No nearby allies → hold. (Pad fallback is covered by OQ-3, but mid-lane
-  // fixtures keep distant spawn fillers outside HEX_ALLY_RADIUS; walking to
-  // the pad would yank hexed victims out of assist/CD geometry.)
+  // Hex: walk to living-ally centroid (or own pad) at MS after slows (35% hex).
+  // Skips the Unit Brain. Destination from phase-start poses (L1899).
   if (hasKind(unit.status, "hex")) {
-    const dest = allyCentroid(state, unit);
-    if (!dest) {
-      unit.vx = 0;
-      unit.vy = 0;
-      return { unit, clipped: false, reason: null };
-    }
+    const poses =
+      phaseStart ??
+      state.units.map((u) => ({
+        id: u.id,
+        x: u.x,
+        y: u.y,
+        alive: u.alive,
+        team: u.team,
+      }));
+    const dest = hexSteerTarget(unit, poses, c);
     const n = normalize(dest.x - unit.x, dest.y - unit.y);
     const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
     const dx = n.x * ms * c.DT;
     const dy = n.y * ms * c.DT;
     unit.vx = n.x * ms;
     unit.vy = n.y * ms;
-    const r = moveWithSlide(unit, dx, dy, c);
-    return r;
+    return moveWithSlide(unit, dx, dy, c);
   }
 
   // Hard-lock in place during an active cast windup (skillshots originate from cast pose).
