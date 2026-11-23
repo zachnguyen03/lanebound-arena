@@ -283,7 +283,7 @@ export function buildDashboard(
   rows.push({
     id: "auto_peel",
     metric: "Auto-peel fire rate",
-    target: "≥ 70% of perceived, reachable dives",
+    target: "≥ 70% of geometrically reachable dives (dive_geom)",
     value:
       peelRate === null
         ? `n/a (eligible=${peelElig}, fired=${peelFired})`
@@ -295,7 +295,9 @@ export function buildDashboard(
         : peelRate !== null && peelRate >= 0.7
           ? "pass"
           : "fail",
-    notes: "Denominator = dive_geom (perceived geometric dives)",
+    // Stricter than build-spec "perceived, reachable": peeler_perceived stays false
+    // in the Hold lab (S2 deferred), so filtering on it yields 0/0. See lab/s5/REPORT.md.
+    notes: "Denominator = dive_geom (all geometrically reachable dives; not filtered on peeler_perceived)",
   });
 
   // Sanctuary

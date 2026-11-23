@@ -2,7 +2,8 @@
 
 **Branch:** `s5`  
 **Base:** `cursor/s4-watch-f8c1` @ `e427530ed56e8a8d53939922460168332f28c562`  
-**Tip:** `800df02013cc5d376f5e1209b5c669117fa9dc8f` (`800df02`)
+**Proof produced on:** `b140ab1dad358e7993d9cfeabe575adcaec8ac7b` (`b140ab1`)  
+*(A later docs-only commit on this branch may sit above that SHA; it cannot contain its own hash.)*
 
 **Date:** 23 Nov 2026  
 
@@ -49,10 +50,9 @@ npm run batch -- --n 100 --seed 20261122 --out lab/s5
 # Official 2,000-game even lab
 npm run batch -- --n 2000 --seed 20261122 --out lab/s5/lab2000
 
-# Isolation six deltas (preview N=50; claim band needs --n 400)
+# Isolation six deltas
 npm run isolation -- --n 50 --out lab/s5/isolation
-# Full claim-size command PM can run:
-# npm run isolation -- --n 400 --out lab/s5/isolation400
+npm run isolation -- --n 400 --out lab/s5/isolation400
 ```
 
 ## Official 2,000-game even lab (`evenOvrConfig`, Hold, seeds 20261122…)
@@ -61,7 +61,7 @@ npm run isolation -- --n 50 --out lab/s5/isolation
 |---|---|---|---|
 | Length median | **104.4 s** (p10 77.2, p90 177.0) | 210–270 s | **fail** |
 | Zone share of winner's score | **51.8%** | 30–40% | **fail** |
-| Auto-peel | **96.3%** (fired 3194 / eligible 3317) | ≥ 70% | **pass** |
+| Auto-peel | **96.3%** (fired 3194 / eligible 3317) | ≥ 70% of `dive_geom` | **pass** |
 | Sanctuary violations | **0** | 0 | **pass** |
 | End reasons | first_to_10 98.85%, clock 1.15% | — | report |
 | First R median | **64.0 s** (n=2000) | ~80 s flavour | report (early) |
@@ -76,24 +76,50 @@ Archetype tags on the default even picks land as Dive (blue) vs Poke (red); Peel
 1. **Match length too short (median 1:44 vs 3:30–4:30).** Matches end first-to-10 after a red snowball. Knobs in order: `SCORE_TO_WIN` (raise), then kit/side lean (design), not XP. Do not silently buff blue kits.
 2. **Zone share of winner 51.8% > 40%.** Winner score is tick-heavy after early captures. Knobs: `CLAIM_DELAY_S` (first), then `CLAIM_DENY_DWELL_S`, then `ZONE_TICK_S` (sandbox §13 / M6 order).
 3. **R / L7 early vs flavour** when a match lasts long enough — kill XP + short games. XP table is **(P)**; revise only in a design pass.
-4. **Attribute isolation (N=50/arm, under-powered):** five attrs +0.0 pp, positioning +2.0 pp on Blue ADC +30 from a 60-floor. Control blue win% is 2% (kit lean dominates). Mastery 50→90 on **all** players moved blue win 2%→44% (+42 pp) — surprising for a symmetric buff; likely kit×mastery interaction under the lean. Re-run with `--n 400` before claiming the +3–6 pp band. **No constants changed.**
+4. **Attribute isolation** — see § Isolation below (N=400 is the claim-size run). **No constants changed.**
 
 ## Isolation (six deltas)
+
+### Preview N=50 (`lab/s5/isolation/`)
 
 ```bash
 npm run isolation -- --n 50 --out lab/s5/isolation
 ```
 
+Control blue win 2%. Deltas: aim/reflexes/execution/decision/teamwork +0.0, positioning +2.0. Mastery 50→90 +42.0 pp.
+
+### Claim-size N=400 (`lab/s5/isolation400/`) — verified
+
+```bash
+npm run isolation -- --n 400 --out lab/s5/isolation400
+```
+
+Control blue win **4.5%**. Output: `lab/s5/isolation400/isolation-results.json`.
+
 | Attr | Δ pp (blue win) | N |
 |---|---:|---:|
-| aim | +0.0 | 50 |
-| reflexes | +0.0 | 50 |
-| execution | +0.0 | 50 |
-| decision | +0.0 | 50 |
-| positioning | +2.0 | 50 |
-| teamwork | +0.0 | 50 |
+| aim | **+0.0** | 400 |
+| reflexes | **+0.0** | 400 |
+| execution | **−0.75** | 400 |
+| decision | **+0.25** | 400 |
+| positioning | **+1.25** | 400 |
+| teamwork | **+0.0** | 400 |
 
-Mastery 50→90: **+42.0 pp** (n=50). Output: `lab/s5/isolation/isolation-results.json`.
+Mastery 50→90 (all players): **+28.75 pp** (n=400). Target band is +3 to +6 pp per raw +30 attr with no delta >2× another — **fail / under the claim**; reported, not retuned.
+
+#### Zero / near-zero rows — sim/lab-setup gap (reasons; knobs not applied)
+
+| Attr | Why the lab cannot move the needle | Recommended knobs (**not applied**) |
+|---|---|---|
+| **aim**, **reflexes** | Hold even lab fires almost no Aim skillshots (`cast_start` / skillshot rolls stay rare under Hold + kit lean). Aim vs Reflexes hit% therefore has nothing to act on. | Isolation arm that forces skillshot traffic (scripted casts / Hunt tactic / poke comps), or measure Aim only in a dedicated skillshot fixture — not a constant retune. |
+| **teamwork** | `callFollowSlack` is inert at Teamwork ≥ 50 (`1 + 0.01 * max(0, 50 − T)` → 1.0). Isolation floor is attrs=60, so +30 never leaves the always-follow band. | Isolation floor Teamwork at **40** (or a dedicated <50 arm) so the follow-call multiplier can move; do not change the formula defaults. |
+| **execution / decision / positioning** | Small or negative deltas under the 4.5% blue base — kit lean still dominates. Positioning is the only raw attr with a measurable +1.25 pp. | Revisit after side/kit lean is addressed; knobs stay in AI thresholds (`CHASE_*`, planner) only if a design pass asks. |
+
+## Peel denominator — flagged invention
+
+Build-spec L1162 / L1737 / L1916 (and R #3 S2-4) define the auto-peel acceptance denominator as **perceived, reachable** dives (`dive` with `peeler_perceived === true`).
+
+**This lab uses the stricter `dive_geom` count (all geometrically reachable dives), not the perceived filter.** Reason: in the even Hold lab, `peeler_perceived` stays false (S2 deferred — perception never opens the peel window on these seeds), so filtering on it yields **0/0**. Dashboard copy and `MatchSummary.peel_eligible` therefore say **geometrically reachable / `dive_geom`**, never “perceived”. Caption sources: `apps/lab/lib/dashboard.ts`, `apps/lab/lib/summary.ts`. Rate on the 2000-game lab: 3194/3317 = 96.3% under that denominator.
 
 ## Acceptance map
 
@@ -103,23 +129,24 @@ Mastery 50→90: **+42.0 pp** (n=50). Output: `lab/s5/isolation/isolation-result
 | B2 | `--n 1000` accepted by `clampBatchN`; 2000 lab ran (~5.3 min @ ~6.2 games/s). |
 | B3 | Static check: `apps/lab/**` does not import `@watch` / canvas. |
 | T1–T4 | `tests/s5-tuning.test.ts` — illegal `ZONE_TICK_S=7` rejected; staged mid-match edit keeps digest; preset round-trip; defaults == `DEFAULT_CONSTANTS` / §15. |
-| D1–D4 | Dashboard rows + CSV/JSON; isolation deltas; sanctuary fail fixture; screenshots `lab/s5/shots/dashboard-{1280x720,1920x1080}.png`. |
+| D1–D4 | Dashboard rows + CSV/JSON; isolation deltas (incl. N=400); sanctuary fail fixture; screenshots `lab/s5/shots/dashboard-{1280x720,1920x1080}.png`. |
 
 ## Known deferred (not fixed; visible in this lab)
 
 | Issue | Where it shows |
 |---|---|
 | Melee idling under a hold commit | `sim/ai/brain.ts` engage gate — Hold even lab still has melee champions with sparse auto `hit`s (S4 note). |
-| No `cast_start` telegraph | Even Hold emits 0 `cast_start` on gold seeds; Watch cannot draw skill telegraphs from that event. |
-| Side lean (kit×side) | 2000-game blue kit win ~13% / red ~87%; see `lab/s3/side-lean/REPORT.md`. Isolation control blue win 2% at attrs=60. |
+| No `cast_start` telegraph | Even Hold emits 0 `cast_start` on gold seeds; Watch cannot draw skill telegraphs from that event. Also blocks Aim/Reflexes isolation (above). |
+| Side lean (kit×side) | 2000-game blue kit win ~13% / red ~87%; see `lab/s3/side-lean/REPORT.md`. Isolation control blue win 4.5% at attrs=60 (N=400). |
+| `peeler_perceived` stays false | S2 deferred; forces the `dive_geom` peel denominator invention above. |
 
 ## Inventories / assumptions
 
 - **Batch runner = Node CLI first** (sandbox plan §3.1 / Anh). In-browser Lab UI loads CLI JSON; does not re-implement 2,000-game workers.
-- **Archetype tags** (§6.5.1 proposal): nearest class-mix neighbour; distance > 2 → Other.
+- **Archetype tags** (§6.5.1 proposal): nearest class-mix neighbour. **INVENTION:** `distance > 2 → Other` (exclude from edge math) — §6.5.1 is silent on the cutoff; implemented in `apps/lab/lib/archetypes.ts`.
 - **Quick draft** for `random_draft` scheme: lab-local xorshift shuffle (not sim RNG stream `draft`) — flagged.
 - **Tuning panel** lists every §15 key. Keys not in `sim/constants.ts` (`OVR_WEIGHTS`, `REACTION_*`, …) are shown as `sim-hardcoded` / non-editable (editing `sim/` is out of S5 scope). `CONTROL_COEF` retired. GD extras (`SEPARATION_*`, `SPAWN_SLOT_SPACING`) editable.
-- **Peel denominator** = `ai_stats.dive_geom` (perceived geometric dives), matching S2 counters.
+- **Peel denominator** = `ai_stats.dive_geom` (geometrically reachable dives; see invention above).
 - **Zone share** = (ticks + claims) / (kills + ticks + claims) of the winner.
 - Presets: `lab/presets/s5-default.json`, `lab/presets/s5-xp14.json` (also copied under `lab/s5/`).
 
@@ -132,6 +159,7 @@ lab/s5/
   cancel/…
   lab2000/…
   isolation/isolation-results.json
+  isolation400/isolation-results.json
   shots/dashboard-1280x720.png
   shots/dashboard-1920x1080.png
   s5-xp14.json / s5-default.json

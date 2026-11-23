@@ -130,6 +130,9 @@ export function summarizeMatch(
     },
     champ_ids: [...bluePicks, ...redPicks],
     peel_fired: result.ai_stats?.peel_fired ?? 0,
+    // peel_eligible = dive_geom (geometrically reachable dives). Not "perceived"
+    // dives: peeler_perceived stays false in the Hold lab (S2 deferred); filtering
+    // on it would give 0/0. Deviation from build-spec L1162 flagged in lab/s5/REPORT.md.
     peel_eligible: result.ai_stats?.dive_geom ?? 0,
     sanctuary_violations,
     claim_opened,

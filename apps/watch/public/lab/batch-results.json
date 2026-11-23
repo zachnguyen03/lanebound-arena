@@ -10747,19 +10747,19 @@
         "id": "attribute_isolation",
         "metric": "Attribute isolation (+30 one attr)",
         "target": "+3 to +6 pp team win%, min 400/arm; no delta >2× another",
-        "value": "aim +0.0pp (n=50); reflexes +0.0pp (n=50); execution +0.0pp (n=50); decision +0.0pp (n=50); positioning +2.0pp (n=50); teamwork +0.0pp (n=50)",
-        "sample_size": 50,
-        "mark": "under-powered",
-        "notes": "mastery 50→90: 42pp (n=50)"
+        "value": "aim +0.0pp (n=400); reflexes +0.0pp (n=400); execution -0.8pp (n=400); decision +0.3pp (n=400); positioning +1.3pp (n=400); teamwork +0.0pp (n=400)",
+        "sample_size": 400,
+        "mark": "fail",
+        "notes": "mastery 50→90: 28.75pp (n=400)"
       },
       {
         "id": "auto_peel",
         "metric": "Auto-peel fire rate",
-        "target": "≥ 70% of perceived, reachable dives",
+        "target": "≥ 70% of geometrically reachable dives (dive_geom)",
         "value": "97.6% (fired=160, eligible=164)",
         "sample_size": 164,
         "mark": "pass",
-        "notes": "Denominator = dive_geom (perceived geometric dives)"
+        "notes": "Denominator = dive_geom (all geometrically reachable dives; not filtered on peeler_perceived)"
       },
       {
         "id": "sanctuary",

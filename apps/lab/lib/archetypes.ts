@@ -75,7 +75,8 @@ function scoreAgainst(
 
 /**
  * Nearest neighbour; ties prefer Dive > Peel > Poke > Balanced.
- * Distance > 2 → Other (exclude from edge math).
+ * INVENTION: distance > 2 → Other (exclude from edge math). Spec §6.5.1 is
+ * silent on the cutoff; flagged in lab/s5/REPORT.md.
  */
 export function tagArchetype(picks: string[]): ArchetypeTag {
   const counts = classCounts(picks);
