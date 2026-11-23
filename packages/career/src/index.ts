@@ -1,6 +1,6 @@
 export { finalFixture, matchdayPlayOrder, regularSeasonFixtures, seedRankMap, semiFixtures, type Fixture } from "./calendar.js";
 export { championsForSlot, championSlot, CHAMPION_SLOT } from "./champions.js";
-export { generateFakeMatch, mapMvp } from "./fake.js";
+export { generateFakeMatch, mapMvp, SUDDEN_DEATH_SCORES } from "./fake.js";
 export { aiTactics, selectPicks, standinLoadout, toContractPlayer } from "./lineup.js";
 export { gameSeed, mixU32, seriesSeed, SplitMix32 } from "./rng.js";
 export { simulateCircuit, playSeries, type CircuitResult } from "./runner.js";

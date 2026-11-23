@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { sha256Hex, validateMatchResult } from "@lanebound/match-contract";
 import type { ContractPlayer, MatchConfig, SeriesContext } from "@lanebound/match-contract";
-import { generateFakeMatch } from "./fake.js";
+import { generateFakeMatch, SUDDEN_DEATH_SCORES } from "./fake.js";
 import { sideBase, tacticEdge, teamStrength, winProbabilityBlue } from "./strength.js";
 import { OPENING_WORLD_SHA256, openingWorld, selectStarters, STANDIN_LABEL } from "./world.js";
 import dump from "../data/opening-world-20261123.json";
@@ -121,6 +121,30 @@ describe("C0 fake runner and stand-in world", () => {
     expect(blue).not.toBe(baseBlue + 2 + 1.2);
     expect(winProbabilityBlue(blue, red)).toBeCloseTo(1 / (1 + Math.exp(-0.1 * (blue - red))), 12);
     expect(winProbabilityBlue(50, 50)).toBeCloseTo(0.5, 12);
+  });
+
+  it("draws every sudden death as 8-7, 9-8, or 10-9 with equal weight", () => {
+    expect(SUDDEN_DEATH_SCORES).toEqual([
+      [8, 7],
+      [9, 8],
+      [10, 9],
+    ]);
+    const counts = new Map<string, number>([
+      ["8-7", 0],
+      ["9-8", 0],
+      ["10-9", 0],
+    ]);
+    for (let seed = 1; seed <= 300; seed++) {
+      const { context, config } = pair(seed);
+      const result = generateFakeMatch(context, config);
+      if (result.reason !== "sudden_death") continue;
+      const hi = Math.max(result.score_blue, result.score_red);
+      const lo = Math.min(result.score_blue, result.score_red);
+      const key = `${hi}-${lo}`;
+      expect(counts.has(key)).toBe(true);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    expect(Object.fromEntries(counts)).toEqual({ "8-7": 10, "9-8": 15, "10-9": 16 });
   });
 
   it("loads the frozen paper opening world and pins its SHA-256", () => {

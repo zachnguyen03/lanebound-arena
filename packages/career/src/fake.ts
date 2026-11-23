@@ -23,8 +23,9 @@ import { teamStrength, winProbabilityBlue } from "./strength.js";
  * freeze them in the C0 report:
  * - first_to_10 inverse-CDF knots (0,90), (0.10,132), (0.25,165.5),
  *   (0.50,200), (0.75,220), (0.90,235), (1,239.5), piecewise linear.
- * - sudden_death "reached 10" with probability 0.5 inside that reason.
- * - non-10 sudden death and zone/takedown scores: equal weights on 8-7, 9-8, 10-9.
+ * - sudden_death scores are 8-7, 9-8, or 10-9, equal weights (C-R2-4).
+ *   The old "reached 10" coin and the first_to_10 loser table are not used.
+ * - zone/takedown scores: equal weights on 8-7, 9-8, 10-9.
  * - coin_flip is stored 10-9, reason stays coin_flip.
  * - score_parts noise: shares 0.40/0.35/0.25 times (0.85 + 0.30*u), then
  *   largest-remainder integers.
@@ -36,6 +37,13 @@ import { teamStrength, winProbabilityBlue } from "./strength.js";
  */
 
 const Z_SHRINK = 0.35;
+
+/** C-R2-4. Winner in {8, 9, 10}, loser one behind, equal weights. */
+export const SUDDEN_DEATH_SCORES: readonly (readonly [number, number])[] = [
+  [8, 7],
+  [9, 8],
+  [10, 9],
+];
 
 const KILL_W: Record<Slot, number> = { top: 0.16, jungle: 0.18, mid: 0.24, adc: 0.26, support: 0.16 };
 const ASSIST_W: Record<Slot, number> = { top: 0.22, jungle: 0.18, mid: 0.18, adc: 0.16, support: 0.26 };
@@ -217,25 +225,14 @@ export function generateFakeMatch(context: SeriesContext, config: MatchConfig): 
     winScore = 10;
     loseScore = 9;
   } else if (reason === "sudden_death") {
-    const reached = rng.nextUnit() < 0.5;
-    if (reached) {
-      winScore = 10;
-      loseScore = weighted(rng, [
-        [3, 1],
-        [4, 2],
-        [5, 3],
-        [6, 3],
-        [7, 2],
-        [8, 1],
-      ]);
-    } else {
-      winScore = weighted(rng, [
-        [8, 1],
-        [9, 1],
-        [10, 1],
-      ]);
-      loseScore = winScore - 1;
-    }
+    const index = weighted(
+      rng,
+      SUDDEN_DEATH_SCORES.map((pair) => [pair[0], 1] as const),
+    );
+    const pair = SUDDEN_DEATH_SCORES.find((row) => row[0] === index);
+    if (!pair) throw new Error("sudden-death score missing");
+    winScore = pair[0];
+    loseScore = pair[1];
   } else {
     winScore = weighted(rng, [
       [8, 1],

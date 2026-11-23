@@ -10,7 +10,7 @@ import { loadSave, runSeason, saveJson } from "./season.js";
 import { openingWorld } from "./world.js";
 
 /** Canonical save for career seed 20261123, club juniper-rush. Moves when the world, sudden-death table, or tactics change. */
-const JUNIPER_SEASON_SHA256 = "2fa284476077f82b5e8af6b025ddc963a8af18e8ec619722959165e907095611";
+const JUNIPER_SEASON_SHA256 = "e293fe3ec6e00bc377f189fdaf72d9eda7221f02c84604133fb78892d6069e46";
 
 function maps(playerId: string, count: number, stats: { rating?: number; dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }): SeriesResult[] {
   const out: SeriesResult[] = [];
