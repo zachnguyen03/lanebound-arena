@@ -1,4 +1,4 @@
-import { arenaCard, draftPreview, latestMap, loadoutReport, playNextMap, setLoadout, setPreset, skipSeries, ARENA_CARDS, type CareerSession } from "@lanebound/career";
+import { arenaCard, draftPreview, latestMap, loadoutReport, playNextMap, setLoadout, setPreset, skipSeries, winsTarget, ARENA_CARDS, type CareerSession } from "@lanebound/career";
 import { useLayoutEffect, useState } from "react";
 import { Button } from "./ui/button";
 
@@ -42,7 +42,6 @@ export function MatchDeck({
   const report = loadoutReport(picked);
   const draft = draftPreview(session);
   const club = session.clubs.find((item) => item.id === session.player_club_id);
-  const map = latestMap(session);
   const [hiddenMark, setHiddenMark] = useState<number | null>(null);
   const markIndex = session.maps_played;
   const mark = markIndex >= 1 && markIndex <= 5 && hiddenMark !== markIndex ? COACH[markIndex - 1] : null;
@@ -138,7 +137,7 @@ export function MatchDeck({
             ))}
           </section>
       ) : null}
-      {mode === "recap" ? <Recap map={map} players={session.players} /> : null}
+      {mode === "recap" ? <Recap session={session} /> : null}
       </div>
       <div className="matchfoot" data-testid="match-footer">
             <Button
@@ -192,33 +191,56 @@ function CoachMark({ text, target, onClose }: { text: string; target: string; on
   );
 }
 
-function Recap({ map, players }: { map: ReturnType<typeof latestMap>; players: CareerSession["players"] }) {
+function Recap({ session }: { session: CareerSession }) {
+  const map = latestMap(session);
   if (!map) {
     return <section className="empty">No map yet.</section>;
   }
-  const name = new Map(players.map((player) => [player.id, player.name]));
+  const fixtureId = session.open_fixture_id ?? session.series[session.series.length - 1]?.fixture_id;
+  const fixture = session.schedule.find((item) => item.id === fixtureId);
+  const blue = session.clubs.find((club) => club.id === fixture?.team_ids[0]);
+  const red = session.clubs.find((club) => club.id === fixture?.team_ids[1]);
+  const humanSide = fixture?.team_ids[1] === session.player_club_id ? "red" : "blue";
+  const maps = fixture ? winsTarget(fixture.format) * 2 - 1 : map.game_index;
+  const name = new Map(session.players.map((player) => [player.id, player.name]));
+  const sideRows = (side: "blue" | "red") => map.players.filter((player) => player.side === side);
   return (
     <section className="card" data-testid="recap" data-screen="recap-fake">
       <div className="ch">
         <h3>Recap</h3>
-        <span className="meta">
-          source: fake · {map.score_blue}–{map.score_red}
-        </span>
+        <span className="meta">source: fake</span>
       </div>
-      <table>
-        <tbody>
-          <tr>
-            <th>Player</th>
-            <th className="n">Rating</th>
-          </tr>
-          {map.players.map((player) => (
-            <tr key={player.player_id}>
-              <td>{name.get(player.player_id) ?? player.player_id}</td>
-              <td className="n">{player.rating.toFixed(1)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="result" data-testid="result-strip">
+        <div className="crest sm blue">{blue?.tag}</div>
+        <div>
+          <div className="disp">{map.winner === humanSide ? "W" : "L"}</div>
+          <div className="meta">
+            {map.score_blue}–{map.score_red}
+          </div>
+          <div className="meta">
+            Map {map.game_index} of {maps}
+          </div>
+        </div>
+        <div className="crest sm red">{red?.tag}</div>
+      </div>
+      <div className="ratecols">
+        {(["blue", "red"] as const).map((side) => (
+          <table key={side} data-testid={`ratings-${side}`}>
+            <tbody>
+              <tr>
+                <th>{side === "blue" ? blue?.name : red?.name}</th>
+                <th className="n">Rating</th>
+              </tr>
+              {sideRows(side).map((player) => (
+                <tr key={player.player_id}>
+                  <td>{name.get(player.player_id) ?? player.player_id}</td>
+                  <td className="n">{player.rating.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ))}
+      </div>
       {map.cards.map((card, index) => (
         <div className="dec" key={`${card.card_id}-${index}`}>
           <b>{arenaCard(card.card_id)?.name ?? card.card_id}</b>

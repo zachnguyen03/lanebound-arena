@@ -81,6 +81,24 @@ test("the coach mark floats and leaves its target where it was", async ({ page }
   expect(width).toBeLessThanOrEqual(320);
 });
 
+test("the recap leads with the result and splits ratings by team", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  const strip = page.getByTestId("result-strip");
+  await expect(strip).toBeVisible();
+  await expect(strip.locator(".disp")).toHaveText(/^[WL]$/);
+  await expect(strip).toContainText(/\d+–\d+/);
+  await expect(strip).toContainText(/Map \d+ of \d+/);
+  await expect(strip.locator(".crest")).toHaveCount(2);
+  const blue = await page.getByTestId("ratings-blue").innerText();
+  const red = await page.getByTestId("ratings-red").innerText();
+  expect(blue).toMatch(/\d+\.\d/);
+  expect(red).toMatch(/\d+\.\d/);
+  expect(blue).not.toBe(red);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
