@@ -312,7 +312,17 @@ export function CareerApp() {
                 variant="ghost"
                 onClick={() => {
                   setSettings(false);
+                  setPicked(null);
                   setScreen("pick");
+                  // The second click of a double-click would land on the club card that sat under this button.
+                  window.addEventListener(
+                    "click",
+                    function swallow(event) {
+                      event.stopPropagation();
+                      window.removeEventListener("click", swallow, true);
+                    },
+                    true,
+                  );
                 }}
               >
                 New career
