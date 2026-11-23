@@ -18,7 +18,7 @@ import { clubPromise } from "./promises";
 import { readSave, writeSave } from "./save";
 import { Button } from "./ui/button";
 
-type Screen = "menu" | "pick" | "home" | "players" | "lineup" | "contracts" | "league" | "bracket" | "fixtures" | "prep" | "recap" | "cards" | "tactics" | "draft" | "awards";
+type Screen = "menu" | "pick" | "home" | "players" | "lineup" | "contracts" | "league" | "bracket" | "fixtures" | "recap" | "cards" | "tactics" | "draft" | "awards";
 
 type View =
   | { kind: "session"; session: CareerSession }
@@ -154,7 +154,7 @@ export function CareerApp() {
           <div className="date">
             {dayLabel} · <b>Bound Circuit</b>
           </div>
-          <Button variant="primary" onClick={() => setScreen("prep")}>
+          <Button variant="primary" onClick={() => setScreen("tactics")}>
             Continue ▸
           </Button>
         </header>
@@ -200,10 +200,10 @@ export function CareerApp() {
         </main>
       ) : null}
 
-      {session && (screen === "prep" || screen === "recap" || screen === "cards" || screen === "tactics" || screen === "draft") ? (
+      {session && (screen === "recap" || screen === "cards" || screen === "tactics" || screen === "draft") ? (
         <MatchDeck
           session={session}
-          mode={screen === "recap" ? "recap" : "prep"}
+          mode={screen}
           onSession={(next) => setView({ kind: "session", session: next })}
           onMode={setScreen}
         />

@@ -14,22 +14,31 @@ test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a rep
   await page.getByRole("button", { name: "Start career" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Hunt", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Starve", exact: true })).toBeVisible();
+  await expect(page.locator('[data-screen="cards"]')).toHaveCount(0);
+  await expect(page.locator('[data-screen="draft"]')).toHaveCount(0);
+  await expect(page.getByTestId("recap")).toHaveCount(0);
+  await page.getByRole("button", { name: "Cards" }).click();
+  await expect(page.locator('[data-screen="tactics"]')).toHaveCount(0);
   await expect(page.getByText("3 / 6 points")).toBeVisible();
   await expect(page.getByText("3 / 3 cards")).toBeVisible();
+  await page.getByRole("button", { name: "Tactics" }).click();
 
   await playAndRecap(page);
   await expect(page.getByText("Game 2", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Draft" }).click();
+  await expect(page.locator('[data-screen="tactics"]')).toHaveCount(0);
+  await expect(page.locator('[data-screen="cards"]')).toHaveCount(0);
   await expect(page.getByText("Game 2 cannot repeat game 1.")).toBeVisible();
+  await page.getByRole("button", { name: "Cards" }).click();
   await expect(page.locator('[data-screen="cards"] button').first()).toBeDisabled();
+  await page.getByRole("button", { name: "Tactics" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeDisabled();
 
   await playAndRecap(page);
   if (await page.getByText("Game 3", { exact: true }).isVisible()) await playAndRecap(page);
   await page.getByRole("button", { name: "Draft" }).click();
   await expect(page.getByText("Game 1", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Cards" }).click();
   await expect(page.locator('[data-screen="cards"] button').first()).toBeEnabled();
 });
 
@@ -39,14 +48,15 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
       name: "09-tactics",
       open: async (page) => {
         await enter(page);
-        await page.locator('[data-screen="tactics"]').scrollIntoViewIfNeeded();
+        await expect(page.locator('[data-screen="tactics"]')).toBeVisible();
       },
     },
     {
       name: "09c-tactics-cards",
       open: async (page) => {
         await enter(page);
-        await page.locator('[data-screen="cards"]').evaluate((el) => el.scrollIntoView({ block: "start" }));
+        await page.getByRole("button", { name: "Cards" }).click();
+        await expect(page.locator('[data-screen="cards"]')).toBeVisible();
       },
     },
     {
@@ -56,7 +66,7 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
         await page.getByTestId("play-map").click();
         await expect(page.getByTestId("recap")).toBeVisible();
         await page.getByRole("button", { name: "Draft" }).click();
-        await page.locator('[data-screen="draft"]').evaluate((el) => el.scrollIntoView({ block: "start" }));
+        await expect(page.locator('[data-screen="draft"]')).toBeVisible();
       },
     },
     {

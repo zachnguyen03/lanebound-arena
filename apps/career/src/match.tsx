@@ -16,6 +16,15 @@ const COACH = [
   "You are the coach now. Tips turn off after this map.",
 ];
 
+const PANES = [
+  ["tactics", "Tactics"],
+  ["cards", "Cards"],
+  ["draft", "Draft"],
+  ["recap", "Recap"],
+] as const;
+
+export type MatchPane = (typeof PANES)[number][0];
+
 export function MatchDeck({
   session,
   mode,
@@ -23,9 +32,9 @@ export function MatchDeck({
   onMode,
 }: {
   session: CareerSession;
-  mode: "prep" | "recap";
+  mode: MatchPane;
   onSession: (session: CareerSession) => void;
-  onMode: (mode: "prep" | "recap" | "cards" | "tactics" | "draft") => void;
+  onMode: (mode: MatchPane) => void;
 }) {
   const locked = session.open_games.length > 0;
   const [picked, setPicked] = useState(session.loadout.map((slot) => slot.id));
@@ -51,22 +60,14 @@ export function MatchDeck({
           <p className="note">{mark}</p>
         </section>
       ) : null}
-      <div className="sub">
-        <Button variant="ghost" className={mode === "prep" ? "on" : ""} onClick={() => onMode("tactics")}>
-          Tactics
-        </Button>
-        <Button variant="ghost" onClick={() => onMode("cards")}>
-          Cards
-        </Button>
-        <Button variant="ghost" onClick={() => onMode("draft")}>
-          Draft
-        </Button>
-        <Button variant="ghost" className={mode === "recap" ? "on" : ""} onClick={() => onMode("recap")}>
-          Recap
-        </Button>
+      <div className="subtabs" data-testid="match-tabs">
+        {PANES.map(([id, label]) => (
+          <button key={id} type="button" className={mode === id ? "on" : ""} onClick={() => onMode(id)}>
+            {label}
+          </button>
+        ))}
       </div>
-      {mode === "prep" ? (
-        <>
+      {mode === "tactics" ? (
           <section className="card" data-screen="tactics">
             <div className="ch">
               <h3>Tactics</h3>
@@ -85,6 +86,8 @@ export function MatchDeck({
               ))}
             </div>
           </section>
+      ) : null}
+      {mode === "cards" ? (
           <section className="card" data-screen="cards">
             <div className="ch">
               <h3>Cards</h3>
@@ -122,6 +125,8 @@ export function MatchDeck({
             </div>
             {cardNote ? <p className="note">{cardNote}</p> : null}
           </section>
+      ) : null}
+      {mode === "draft" ? (
           <section className="card" data-screen="draft" data-testid="draft">
             <div className="ch">
               <h3>Draft</h3>
@@ -137,6 +142,8 @@ export function MatchDeck({
               </div>
             ))}
           </section>
+      ) : null}
+      {mode === "recap" ? <Recap map={map} players={session.players} /> : null}
           <div className="row">
             <Button
               variant="primary"
@@ -161,10 +168,6 @@ export function MatchDeck({
               Skip series
             </Button>
           </div>
-        </>
-      ) : (
-        <Recap map={map} players={session.players} />
-      )}
     </main>
   );
 }
