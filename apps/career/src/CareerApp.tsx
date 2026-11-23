@@ -757,30 +757,37 @@ function Awards({
     <section className="card" data-testid="awards" data-screen="awards">
       <div className="ch">
         <h3>Awards</h3>
-        <span className="meta">{winner ? `${winner.name} won the final` : ""}</span>
+        <span className="meta">
+          {final && blue && red ? `${blue.name} ${final.series_score[0]}–${final.series_score[1]} ${red.name}` : winner ? `${winner.name} won the final` : ""}
+        </span>
       </div>
-      {final && blue && red ? (
-        <p className="note">
-          {blue.name} {final.series_score[0]}–{final.series_score[1]} {red.name}
-        </p>
-      ) : null}
-      {awards.map((award) => {
-        const player = players.find((item) => item.id === award.player_id);
-        return (
-          <div className="dec" key={award.kind}>
-            <b>
-              {AWARD_NAME[award.kind]} · {player?.name}
-            </b>
-            <div className="d">{clubName(clubs, player?.club_id ?? "")}</div>
-          </div>
-        );
-      })}
+      <table>
+        <tbody>
+          <tr>
+            <th>Award</th>
+            <th>Player</th>
+            <th>Club</th>
+          </tr>
+          {awards.map((award) => {
+            const player = players.find((item) => item.id === award.player_id);
+            return (
+              <tr key={award.kind}>
+                <td>{AWARD_NAME[award.kind]}</td>
+                <td>{player?.name}</td>
+                <td>{clubName(clubs, player?.club_id ?? "")}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       {canAdvance ? (
-        <Button variant="primary" data-testid="advance-season" onClick={onAdvance}>
-          Advance season
-        </Button>
+        <div className="awardbar">
+          <Button variant="primary" data-testid="advance-season" onClick={onAdvance}>
+            Advance season
+          </Button>
+        </div>
       ) : null}
-      {advanced ? <p className="note">Contracts carried into next season.</p> : null}
+      {advanced ? <p className="note awardbar">Contracts carried into next season.</p> : null}
     </section>
   );
 }

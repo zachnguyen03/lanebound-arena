@@ -16,7 +16,7 @@ Play and skip run on the fake runner, one map at a time. The screen shows what t
 
 - A career session plays map by map. `playSeries` still uses the stand-in loadout. In the session, the human club uses the chosen preset and the three chosen v2 cards. Every other club uses the first three Commons, so a recap never shows a stand-in card id. Holders are starters 0, 1, and 2.
 - The preset and the loadout lock once a series has a map. The engine has no mid-map tactic swap. Game 3 drops the fearless lock, same as `playSeries`.
-- The Settings control was a 36px icon button with the word Settings in it, so the word covered the date. It now sizes to the word. The C4 screenshots were recaptured because that control sits on every screen.
+- The Settings control was a 36px icon button with the word Settings in it, so the word covered the date. The C4 polish replaced it with the Chief Designer gear and an aria-label.
 
 ## Proof
 
