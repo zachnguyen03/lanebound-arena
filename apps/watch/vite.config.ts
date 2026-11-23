@@ -47,25 +47,13 @@ function placeholderOffenders(root: string): string[] {
   return hits;
 }
 
-/** Drop design markdown and milestone ids from the shipped bundle. sim/ stays untouched. */
+/**
+ * Check the shipped bundle. This plugin does not rewrite chunk text.
+ * Design markdown is not part of the app, so those files are removed.
+ */
 function distHygiene(): Plugin {
   return {
     name: "watch-dist-hygiene",
-    renderChunk(code) {
-      return code
-        .replaceAll(
-          "forced_clock_end is required on MatchConfig (S3-R5-12); set true for S1 clock labs or false for arena §5.8",
-          "This match file needs a clock-end setting, true or false.",
-        )
-        .replaceAll(
-          "forced_clock_end must be a boolean (S3-R5-12)",
-          "The clock-end setting must be true or false.",
-        )
-        .replaceAll(
-          "S1 even default — real champions, AI opt-in",
-          "Even match",
-        );
-    },
     closeBundle() {
       const root = path.resolve(__dirname, "dist");
       const walk = (dir: string) => {

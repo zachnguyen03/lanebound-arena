@@ -155,9 +155,7 @@ export function WatchShell() {
         setPhase("ready");
       } catch (e) {
         if (e instanceof ConfigError) {
-          setConfigError(
-            "This match file needs a clock-end setting, true or false.",
-          );
+          setConfigError(e.message);
           setError(null);
         } else {
           setError(e instanceof Error ? e.message : "Match failed");
@@ -187,9 +185,7 @@ export function WatchShell() {
       if (e instanceof SyntaxError) {
         setConfigError("That file is not valid JSON.");
       } else if (e instanceof ConfigError) {
-        setConfigError(
-          "This match file needs a clock-end setting, true or false.",
-        );
+        setConfigError(e.message);
       } else {
         setConfigError(
           e instanceof Error ? e.message : "Could not load that match file.",

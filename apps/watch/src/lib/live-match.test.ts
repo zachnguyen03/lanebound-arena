@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { loadMatchConfig } from "@sim/match_config";
+import { evenOvrConfig, loadMatchConfig } from "@sim/match_config";
 import { simulate } from "@sim/simulate";
 import {
   cliDigest,
+  EVEN_MATCH_NOTE,
   exportConfigJson,
   importConfigJson,
   runWatchMatch,
@@ -14,7 +15,26 @@ import type { SimEvent } from "./types";
 describe("S4 live match", () => {
   it("refuses a config that omits forced_clock_end", () => {
     expect(() => loadMatchConfig({ seed: 20261122 })).toThrow(/forced_clock_end/);
+    expect(() => importConfigJson(JSON.stringify({ seed: 20261122 }))).toThrow(
+      /clock-end setting, true or false/,
+    );
+    expect(() =>
+      importConfigJson(JSON.stringify({ seed: 20261122, forced_clock_end: "no" })),
+    ).toThrow(/must be true or false/);
   });
+
+  it("exports the Watch note and matches the even preset digest", () => {
+    const watch = runWatchMatch(20261122);
+    const preset = simulate(evenOvrConfig(20261122, "hold_the_pit"));
+    expect(watch.digest).toBe(preset.digest);
+    expect(watch.config.notes).toBe(EVEN_MATCH_NOTE);
+    const json = exportConfigJson(watch.config);
+    expect(json).toContain(EVEN_MATCH_NOTE);
+    expect(json).not.toContain("opt-in");
+    expect(json).not.toContain("S3-R5");
+    const loaded = importConfigJson(json);
+    expect(simulate(loaded).digest).toBe(preset.digest);
+  }, 120_000);
 
   it("seed 20261122 evenOvr reaches first_to_10 and matches CLI digest with overlays/debug_pos", () => {
     const cli = cliDigest(20261122);
