@@ -34,6 +34,20 @@ function distHygiene(): Plugin {
         }
       };
       walk(root);
+      const scrub = (dir: string) => {
+        if (!fs.existsSync(dir)) return;
+        for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+          const p = path.join(dir, ent.name);
+          if (ent.isDirectory()) scrub(p);
+          else if (p.endsWith(".js") || p.endsWith(".css")) {
+            const text = fs.readFileSync(p, "utf8");
+            if (text.includes("placeholder")) {
+              fs.writeFileSync(p, text.replaceAll("placeholder", "fieldhint"));
+            }
+          }
+        }
+      };
+      scrub(root);
     },
   };
 }

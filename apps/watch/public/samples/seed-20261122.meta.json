@@ -4,5 +4,5 @@
   "constants_hash": "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
   "tick_count": 2400,
   "event_count": 24082,
-  "note": "Canonical S0 log (no pos). The S0 sample uses integer pads; the viewer places units and props at tile centres (plus SPAWN_JITTER_Y for units)."
+  "note": "Seed 20261122 event log with no position stream. Pads are integer tiles; the viewer places units and props at tile centres."
 }
