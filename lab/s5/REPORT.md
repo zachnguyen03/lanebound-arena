@@ -2,7 +2,8 @@
 
 **Branch:** `s5`  
 **Base:** `cursor/s4-watch-f8c1` @ `e427530ed56e8a8d53939922460168332f28c562`  
-**Tip:** `39bdbd894ff09aec1962bd8877759826cd573130` (`39bdbd8`)
+**Tip:** see `git rev-parse HEAD` on branch `s5` (implementation landed in `44c9174`; this file may trail by a docs commit).  
+
 **Date:** 23 Nov 2026  
 
 `sim/` and `tests/acceptance/**` were **not** edited. Digests below are byte-identical to the S4 tip.
