@@ -182,13 +182,17 @@ export function WatchShell() {
       setPhase("ready");
       setConfigError(null);
     } catch (e) {
-      if (e instanceof ConfigError) {
+      setError(null);
+      if (e instanceof SyntaxError) {
+        setConfigError("That file is not valid JSON.");
+      } else if (e instanceof ConfigError) {
         setConfigError(
           "This match file needs a clock-end setting, true or false.",
         );
-        setError(null);
       } else {
-        setError(e instanceof Error ? e.message : "Import failed");
+        setConfigError(
+          e instanceof Error ? e.message : "Could not load that match file.",
+        );
       }
       setPhase("empty");
     }

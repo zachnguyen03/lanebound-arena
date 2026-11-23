@@ -103,4 +103,24 @@ test.describe("S4 live evenOvr match", () => {
     await expect(err).toContainText("clock-end");
     await expect(err).not.toContainText("S3-R5");
   });
+
+  test("invalid JSON replaces the previous config error", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/");
+    const input = page.getByTestId("config-file");
+    await input.setInputFiles({
+      name: "missing-clock.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify({ seed: 1 })),
+    });
+    await expect(page.getByTestId("config-error")).toContainText("clock-end");
+    await input.setInputFiles({
+      name: "broken.json",
+      mimeType: "application/json",
+      buffer: Buffer.from("not json{"),
+    });
+    const err = page.getByTestId("config-error");
+    await expect(err).toContainText("not valid JSON");
+    await expect(err).not.toContainText("clock-end");
+  });
 });
