@@ -1,6 +1,7 @@
 # S4 final — Watch (live match)
 
 **Branch:** `cursor/s4-watch-f8c1`  
+**Tip:** `3a69c49`  
 **Base merged:** `origin/s3` @ `47f1002` (QA tip cited as `b25a000`; this head is newer and was re-fetched before archive)  
 **sim/:** not modified by Watch. Digest is `simulate(evenOvrConfig(seed))`.
 
