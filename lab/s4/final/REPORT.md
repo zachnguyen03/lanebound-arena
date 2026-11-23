@@ -1,7 +1,7 @@
 # S4 final — Watch (live match)
 
 **Branch:** `cursor/s4-watch-f8c1`  
-**Tip:** `3a69c49`  
+**Tip:** follow-ups after `18905ef` (archive name is this tip)  
 **Base merged:** `origin/s3` @ `47f1002` (QA tip cited as `b25a000`; this head is newer and was re-fetched before archive)  
 **sim/:** not modified by Watch. Digest is `simulate(evenOvrConfig(seed))`.
 
@@ -9,12 +9,27 @@
 
 | Command | Exit |
 |---|---|
-| `npx tsc --noEmit` | 0 |
+| `npx tsc --noEmit` | 0 (re-run after the verify fixes) |
 | `npx tsc -p apps/watch/tsconfig.json --noEmit` | 0 |
 | `npm test` | 0 (1393 passed, 10 skipped) |
 | `npm run purity` | 0 |
 | `npm run watch:build` | 0 |
-| `npm run watch:e2e` | 0 (18 passed, then live reshoot 4 passed) |
+| `npm run watch:e2e` | 0 (21 passed) |
+
+Port 4173 was closed before the e2e (`ss` is not on this machine; `netstat -ltnp` showed no listener).
+
+## Verify fixes after 18905ef
+
+- The fallbacks panel shows `liveDigest` (the CLI digest), not the debug-position tape.
+- Missing champion art treats an HTML 200 as missing: content-type, then JSON parse or image decode. `missing-art.spec.ts` expects the 20 paths.
+- On-screen copy no longer uses internal names. The clock-end check uses the file input. A bad JSON file replaces that error. Design markdown is not copied into `dist/`.
+- The 720 drawer no longer sets `aria-modal`. The dim layer does not take pointer events, so the transport stays clickable.
+
+```
+rg -n "TODO|FIXME|placeholder|S3-R5|evenOvrConfig|canonical S0" apps/watch/dist
+```
+
+No matches. Seven `\bS[0-5]\b` hits in the bundle are minified names (`function S0`, `function S1`, `function S2`).
 
 ## What Watch runs
 
