@@ -73,12 +73,11 @@ button.btn-primary:disabled {
 .matchdeck { height: calc(100vh - 56px); display: flex; flex-direction: column; overflow: hidden; padding: 0; gap: 0; }
 .matchscroll { flex: 1; min-height: 0; overflow: auto; padding: 20px 24px; display: grid; gap: 16px; align-content: start; }
 .matchfoot { position: sticky; bottom: 0; background: var(--c-panel); border-top: 1px solid var(--c-line); padding: 12px 24px; display: flex; gap: 8px; z-index: 5; }
-.coach { position: fixed; z-index: 15; width: 320px; max-width: 320px; background: var(--c-panel-2); border: 1px solid var(--c-line-2); padding: 14px 16px; display: grid; gap: 10px; }
+.coach { position: fixed; z-index: 15; width: 320px; max-width: 320px; background: var(--c-panel-2); border: 1px solid var(--c-line-2); padding: 14px 16px 14px 28px; display: grid; gap: 10px; }
 .coach p { margin: 0; }
-.coachcaret { position: absolute; top: -7px; width: 12px; height: 12px; background: var(--c-panel-2); border-left: 1px solid var(--c-line-2); border-top: 1px solid var(--c-line-2); transform: rotate(45deg); }
-.coach.side { padding-left: 22px; }
-.coachcaret.side { top: auto; left: -7px; }
-.result { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--c-line); }
+.coachcaret { position: absolute; top: -7px; left: 8px; width: 12px; height: 12px; margin: 0; background: var(--c-panel-2); border-left: 1px solid var(--c-line-2); border-top: 1px solid var(--c-line-2); transform: rotate(45deg); }
+.coachcaret.out { top: 18px; left: -13px; }
+.result { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 18px; border-bottom: 1px solid var(--c-line); }
 .result .disp { font-size: 28px; }
 .ratecols { display: grid; grid-template-columns: 1fr 1fr; }
 .tacticline { padding: 12px 18px 14px; }

@@ -297,6 +297,31 @@ test("back and forward move between screens and do not replay play", async ({ pa
   await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
 });
 
+test("the coach caret sits left of the first word at every desktop size", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  await expect(page.getByTestId("coach-mark")).toBeVisible();
+  for (const [width, height] of [
+    [1280, 720],
+    [1280, 800],
+    [1440, 900],
+    [1920, 1080],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    const clear = await page.getByTestId("coach-mark").evaluate((mark) => {
+      const caret = mark.querySelector(".coachcaret")!.getBoundingClientRect();
+      const text = mark.querySelector("p")!.firstChild;
+      const range = document.createRange();
+      range.setStart(text, 0);
+      range.setEnd(text, 1);
+      return range.getBoundingClientRect().left > caret.right;
+    });
+    expect(clear).toBe(true);
+  }
+});
+
 test("the map 1 coach mark leaves every status cell clear at 1440x900", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await start(page);
@@ -314,6 +339,12 @@ test("the map 1 coach mark leaves every status cell clear at 1440x900", async ({
     });
     expect(clear).toBe(true);
   }
+  const inside = await page.evaluate(() => {
+    const scroll = document.querySelector(".matchscroll")!.getBoundingClientRect();
+    const cell = document.querySelector("[data-testid='card-events'] tr:last-child td:last-child")!.getBoundingClientRect();
+    return cell.right <= scroll.right + 0.5 && cell.bottom <= scroll.bottom + 0.5;
+  });
+  expect(inside).toBe(true);
 });
 
 test("a cold load gets a favicon", async ({ page }) => {

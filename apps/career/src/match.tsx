@@ -280,8 +280,8 @@ function CoachMark({ text, target, onClose }: { text: string; target: string; on
     };
   }, [target, text]);
   return (
-    <aside ref={ref} className={box.side ? "coach side" : "coach"} data-composed="coach-mark" data-testid="coach-mark" style={{ top: box.top, left: box.left }}>
-      <span className={box.side ? "coachcaret side" : "coachcaret"} style={box.side ? { top: box.caret } : { left: box.caret }} aria-hidden="true" />
+    <aside ref={ref} className="coach" data-composed="coach-mark" data-testid="coach-mark" style={{ top: box.top, left: box.left }}>
+      <span className={box.side ? "coachcaret out" : "coachcaret"} style={box.side ? { top: box.caret } : undefined} aria-hidden="true" />
       <p>{text}</p>
       <Button variant="secondary" onClick={onClose}>
         Got it
