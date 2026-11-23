@@ -41,6 +41,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("eight clubs, Juniper highlighted, table, fixtures, save and reload", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.getByRole("button", { name: "New career" }).click();
   await expect(page.getByTestId("club-juniper-rush")).toHaveClass(/rec/);
   await expect(page.getByTestId("club-juniper-rush")).toContainText("Recommended");

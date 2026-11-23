@@ -22,6 +22,8 @@ Series flow, mixed-runner rejection, and the game-3 fearless reset were already 
 
 Sub-tabs use `.subtabs`: 44px, a bottom rule, and a 2px `--c-action` underline. Difficulty reads Favourite / Mid / Underdog. Our club uses `tr.me` in the table and on our fixtures. The top-four line is 2px `--c-line-2`. Settings is the gear icon with `aria-label` Settings, and Playwright checks that header labels do not overflow or overlap at 1440 and 1280. Club promises are the eight C-R2-7 lines, verbatim, in one table. A missing id would hide the line. The menu save summary sits under Continue and is hidden when there is no save.
 
+The last C4 pass puts the opponent’s crest and name on the right of VS. That crest is side-coloured. The club crest on the left stays neutral. Next fixtures sit in the third column under the hero. The me row is the action wash on the panel, about #282826, not a grey panel-2 fill under the wash. A disabled Start career uses panel-2, faint text, and a line-2 border, and turns gold once a club is selected. The difficulty pill does not stretch the card. Unsigned players show an em dash. The lineup title is Matchday N. The bracket note has 12px above it. Shots of 03, 16b, 19, and 06 were retaken at 1440×900, 1280×900, and 1280×800.
+
 ## Proof
 
 | Check | Exit |

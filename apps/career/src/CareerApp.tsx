@@ -318,8 +318,11 @@ export function CareerApp() {
                   window.addEventListener(
                     "click",
                     function swallow(event) {
-                      event.stopPropagation();
                       window.removeEventListener("click", swallow, true);
+                      if (event.detail > 1) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                      }
                     },
                     true,
                   );
@@ -406,7 +409,7 @@ function ClubCard({ club, selected, onPick }: { club: Club; selected: boolean; o
     >
       <div className="crest sm">{club.tag}</div>
       <div className="pn">{club.name}</div>
-      <div className="pill">{DIFFICULTY[club.difficulty]}</div>
+      <span className="pill">{DIFFICULTY[club.difficulty]}</span>
       {promise ? <div className="note">{promise}</div> : null}
       {club.recommended_first_save ? <div className="caps">Recommended</div> : null}
     </button>
@@ -451,12 +454,15 @@ function Home({
   const upcoming = fixtures.filter((fixture) => fixture.team_ids.includes(mine.id) && !played.has(fixture.id)).slice(0, 3);
   const next = upcoming[0];
   const side = next && next.team_ids[0] === mine.id ? "Blue" : "Red";
+  const opponentId = next?.team_ids.find((id) => id !== mine.id);
+  const opponent = clubs.find((club) => club.id === opponentId);
+  const opponentSide = side === "Blue" ? "red" : "blue";
   const starters = selectStarters(players, mine.id);
   return (
     <>
       <section className="hero">
         <div className="side">
-          <div className={next ? `crest ${side === "Blue" ? "blue" : "red"}` : "crest"}>{mine.tag}</div>
+          <div className="crest">{mine.tag}</div>
           <div>
             <div className="disp tname">{mine.name}</div>
             <div className="note">{DIFFICULTY[mine.difficulty]}</div>
@@ -465,30 +471,31 @@ function Home({
         <div className="mid">
           <div className="kick">{next ? "Best of 3" : "Bound Circuit"}</div>
           <div className="disp vs">VS</div>
-          <div className="note">{next ? `Matchday ${next.matchday} · ${side} side` : "Fixture pending"}</div>
+          <div className="note">
+            {next ? (
+              <>
+                Matchday {next.matchday} · <span className={side === "Blue" ? "blue" : "red"}>{side} side</span>
+              </>
+            ) : (
+              "Fixture pending"
+            )}
+          </div>
         </div>
-        <div className="next3">
-          <div className="caps">Next fixtures</div>
-          {upcoming.map((fixture) => {
-            const opponent = fixture.team_ids.find((id) => id !== mine.id) ?? fixture.team_ids[1];
-            const ours = fixture.team_ids[0] === mine.id ? "blue" : "red";
-            const theirs = ours === "blue" ? "red" : "blue";
-            return (
-              <div className="tm" key={fixture.id}>
-                <span className="dim">MD {fixture.matchday}</span>
-                <span className={`crest xs ${ours}`}>{mine.tag}</span>
-                <span className="dim">vs</span>
-                <span className={`crest xs ${theirs}`}>{clubTag(clubs, opponent)}</span>
-                <span>{clubTag(clubs, opponent)}</span>
+        <div className="side r">
+          {opponent ? (
+            <>
+              <div className={`crest ${opponentSide}`}>{opponent.tag}</div>
+              <div>
+                <div className="disp tname">{opponent.name}</div>
               </div>
-            );
-          })}
+            </>
+          ) : null}
         </div>
       </section>
       <div className="grid3">
         <section className="card">
           <div className="ch">
-            <h3>Saturday lineup</h3>
+            <h3>{next ? `Matchday ${next.matchday} lineup` : "Lineup"}</h3>
             <span className="meta">{starters.length} starters</span>
           </div>
           {starters.map((player, index) => (
@@ -505,6 +512,27 @@ function Home({
             <span className="meta">Top 4 to the bracket</span>
           </div>
           <League clubs={clubs} standings={standings} mine={mine.id} />
+        </section>
+        <section className="card">
+          <div className="ch">
+            <h3>Next fixtures</h3>
+          </div>
+          <div className="next3">
+            {upcoming.map((fixture) => {
+              const other = fixture.team_ids.find((id) => id !== mine.id) ?? fixture.team_ids[1];
+              const ours = fixture.team_ids[0] === mine.id ? "blue" : "red";
+              const theirs = ours === "blue" ? "red" : "blue";
+              return (
+                <div className="tm" key={fixture.id}>
+                  <span className="dim">MD {fixture.matchday}</span>
+                  <span className={`crest xs ${ours}`}>{mine.tag}</span>
+                  <span className="dim">vs</span>
+                  <span className={`crest xs ${theirs}`}>{clubTag(clubs, other)}</span>
+                  <span>{clubTag(clubs, other)}</span>
+                </div>
+              );
+            })}
+          </div>
         </section>
       </div>
     </>
@@ -672,7 +700,7 @@ function Players({
               <td className="rolecol">{ROLE[player.primary_slot]}</td>
               <td>{player.name}</td>
               <td className="n">{player.ovr}</td>
-              <td data-testid={`signature-${player.id}`}>{arenaCard(player.signature_archive[0] ?? "")?.name ?? ""}</td>
+              <td data-testid={`signature-${player.id}`}>{arenaCard(player.signature_archive[0] ?? "")?.name ?? "—"}</td>
             </tr>
           ))}
         </tbody>
