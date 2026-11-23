@@ -121,6 +121,20 @@ test("awards and the empty state at the three desktop widths", async ({ page }) 
   await page.getByTestId("play-map").click();
   await expect(page.getByTestId("coach-mark")).toBeVisible();
   await page.screenshot({ path: "../../lab/c6/shots/coach-mark-1440x900.png" });
+  for (let extra = 0; extra < 3; extra++) {
+    await page.getByRole("button", { name: "Got it" }).click();
+    await page.getByTestId("play-map").click();
+  }
+  await page.getByRole("button", { name: "Tactics" }).click();
+  await expect(page.getByTestId("coach-mark")).toBeVisible();
+  await expect(page.locator("section[data-screen='tactics']")).toBeVisible();
+  for (const [width, height] of [
+    [1440, 900],
+    [1280, 800],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await page.screenshot({ path: `../../lab/c6/shots/prep-coach-${width}x${height}.png` });
+  }
   await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("button", { name: "New career" }).click();
   await page.getByTestId("club-iron-lotus").click();

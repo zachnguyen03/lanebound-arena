@@ -48,14 +48,8 @@ export function CareerApp() {
   }
 
   useEffect(() => {
-    const state = history.state as { app?: string; screen?: Screen; guard?: boolean } | null;
-    if (state?.app === "career" && state.screen && !state.guard) {
-      screenRef.current = state.screen;
-      setScreenState(state.screen);
-    } else if (!state || state.app !== "career") {
-      history.replaceState({ app: "career", guard: true }, "");
-      history.pushState({ app: "career", screen: screenRef.current }, "");
-    }
+    history.replaceState({ app: "career", guard: true }, "");
+    history.pushState({ app: "career", screen: "menu" }, "");
     const onPop = (event: PopStateEvent) => {
       const next = event.state as { app?: string; screen?: Screen; guard?: boolean } | null;
       if (!next || next.app !== "career" || next.guard || !next.screen) {
