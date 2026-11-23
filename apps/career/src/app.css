@@ -76,6 +76,7 @@ button.btn-primary:disabled {
 .coach { position: fixed; z-index: 15; width: 320px; max-width: 320px; background: var(--c-panel-2); border: 1px solid var(--c-line-2); padding: 14px 16px; display: grid; gap: 10px; }
 .coach p { margin: 0; }
 .coachcaret { position: absolute; top: -7px; width: 12px; height: 12px; background: var(--c-panel-2); border-left: 1px solid var(--c-line-2); border-top: 1px solid var(--c-line-2); transform: rotate(45deg); }
+.coach.side { padding-left: 22px; }
 .coachcaret.side { top: auto; left: -7px; }
 .result { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--c-line); }
 .result .disp { font-size: 28px; }

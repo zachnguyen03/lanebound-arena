@@ -79,17 +79,19 @@ test("the coach mark floats and leaves its target where it was", async ({ page }
   await expect(mark.locator(".coachcaret")).toBeVisible();
   const width = await mark.evaluate((el) => el.getBoundingClientRect().width);
   expect(width).toBeLessThanOrEqual(320);
-  const caretLeft = () => mark.locator(".coachcaret").evaluate((el) => el.style.left || el.style.top);
-  expect(await caretLeft()).not.toBe("");
-  const wide = await caretLeft();
+  const caretSet = await mark.locator(".coachcaret").evaluate((el) => el.style.left !== "" || el.style.top !== "");
+  expect(caretSet).toBe(true);
+  const markLeft = () => mark.evaluate((el) => Number.parseFloat(el.style.left));
+  const wideLeft = await markLeft();
   await page.setViewportSize({ width: 560, height: 800 });
-  await expect.poll(caretLeft).not.toBe(wide);
+  await expect.poll(markLeft).not.toBe(wideLeft);
   const panel = await page.getByTestId("recap").boundingBox();
   const caret = await mark.locator(".coachcaret").boundingBox();
   expect(panel).not.toBeNull();
   expect(caret).not.toBeNull();
-  expect(caret!.x + caret!.width / 2).toBeGreaterThan(panel!.x);
-  expect(caret!.x).toBeLessThan(panel!.x + panel!.width);
+  expect(caret!.y).toBeGreaterThan(panel!.y);
+  expect(caret!.y).toBeLessThan(panel!.y + panel!.height);
+  expect(Math.abs(caret!.x - (panel!.x + panel!.width))).toBeLessThan(80);
 });
 
 test("the recap leads with the result and splits ratings by team", async ({ page }) => {
@@ -293,6 +295,33 @@ test("back and forward move between screens and do not replay play", async ({ pa
     await page.getByRole("button", { name: "Continue" }).click();
   }
   await expect(page.getByTestId("map-label")).toHaveText("Map 2 of 3");
+});
+
+test("the map 1 coach mark leaves every status cell clear at 1440x900", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  await expect(page.getByTestId("coach-mark")).toBeVisible();
+  const cells = page.getByTestId("card-events").locator("th:last-child, td:last-child");
+  const count = await cells.count();
+  expect(count).toBeGreaterThan(1);
+  for (let i = 0; i < count; i++) {
+    const clear = await cells.nth(i).evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      const found = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return !!found && (el.contains(found) || found.contains(el));
+    });
+    expect(clear).toBe(true);
+  }
+});
+
+test("a cold load gets a favicon", async ({ page }) => {
+  const response = await page.request.get("/favicon.ico");
+  expect(response.status()).toBe(200);
+  const type = response.headers()["content-type"] ?? "";
+  expect(type).toMatch(/icon|image/);
+  expect((await response.body()).byteLength).toBeGreaterThan(32);
 });
 
 test("coach marks follow the step, survive dismissal, and leave controls clear", async ({ page }) => {

@@ -233,7 +233,7 @@ function CoachMark({ text, target, onClose }: { text: string; target: string; on
       const footer = document.querySelector("[data-testid='match-footer']")?.getBoundingClientRect();
       const limitBottom = (footer?.top ?? window.innerHeight) - 12;
       const avoid = Array.from(
-        document.querySelectorAll("[data-coach-avoid], [data-testid='match-tabs'], [data-testid='match-footer']"),
+        document.querySelectorAll("[data-coach-avoid], [data-testid='match-tabs'], [data-testid='match-footer'], [data-testid='card-events'], .ratecols table"),
         (el) => el.getBoundingClientRect(),
       );
       const overlaps = (top: number, left: number) =>
@@ -241,19 +241,18 @@ function CoachMark({ text, target, onClose }: { text: string; target: string; on
       const inside = (top: number, left: number) =>
         left >= 8 && top >= 8 && left + width <= window.innerWidth - 8 && top + height <= limitBottom && !overlaps(top, left);
       const aligned = Math.min(Math.max(16, rect.left), window.innerWidth - width - 16);
-      const candidates = [
-        { top: rect.bottom + 12, left: aligned, side: false },
-        { top: Math.max(16, rect.top), left: rect.right + 12, side: true },
-        { top: Math.max(16, limitBottom - height), left: Math.max(16, window.innerWidth - width - 16), side: false },
-      ];
-      let chosen = candidates.find((item) => inside(item.top, item.left));
+      const below = { top: rect.bottom + 12, left: aligned, side: false };
+      const beside = { top: Math.max(16, rect.top), left: rect.right + 12, side: true };
+      const rail = `${width + 56}px`;
+      const panel = anchor as HTMLElement;
+      const railOn = panel.style.marginRight === rail;
+      let chosen = railOn ? undefined : [below, beside].find((item) => inside(item.top, item.left));
       if (!chosen) {
-        const right = Math.max(16, window.innerWidth - width - 16);
-        let top = limitBottom - height;
-        while (top > 16 && !inside(top, right)) top -= 16;
-        chosen = inside(top, right)
-          ? { top, left: right, side: false }
-          : { top: Math.max(16, limitBottom - height), left: right, side: false };
+        if (!railOn) panel.style.marginRight = rail;
+        const again = anchor.getBoundingClientRect();
+        const left = Math.max(16, window.innerWidth - width - 16);
+        const top = Math.min(Math.max(16, again.top), Math.max(16, limitBottom - height));
+        chosen = { top, left, side: true };
       }
       const caret = chosen.side
         ? Math.min(height - 24, Math.max(16, rect.top + Math.min(rect.height, 48) / 2 - chosen.top - 6))
@@ -275,10 +274,13 @@ function CoachMark({ text, target, onClose }: { text: string; target: string; on
       scroller?.removeEventListener("scroll", place);
       window.removeEventListener("resize", place);
       observer?.disconnect();
+      document.querySelectorAll("[data-coach-target]").forEach((el) => {
+        (el as HTMLElement).style.marginRight = "";
+      });
     };
   }, [target, text]);
   return (
-    <aside ref={ref} className="coach" data-composed="coach-mark" data-testid="coach-mark" style={{ top: box.top, left: box.left }}>
+    <aside ref={ref} className={box.side ? "coach side" : "coach"} data-composed="coach-mark" data-testid="coach-mark" style={{ top: box.top, left: box.left }}>
       <span className={box.side ? "coachcaret side" : "coachcaret"} style={box.side ? { top: box.caret } : { left: box.caret }} aria-hidden="true" />
       <p>{text}</p>
       <Button variant="secondary" onClick={onClose}>
