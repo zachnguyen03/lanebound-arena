@@ -1,0 +1,763 @@
+/**
+ * Authored champion kits from build-spec §7.1–7.14 (via data/champions/_extract.md).
+ * Do not edit kit numbers to pass a test — report disagreements.
+ */
+
+export type Unlock = "L1" | "L5";
+export type CcCategory = "Lock" | "Bind" | "Handicap";
+
+export interface CcEffect {
+  effect: string;
+  duration_s: number;
+  category: CcCategory;
+  school?: "physical" | "magic";
+  notes?: string;
+}
+
+export interface AbilityDef {
+  name: string;
+  unlock: Unlock;
+  type: string;
+  range?: number;
+  radius?: number;
+  length?: number;
+  width?: number;
+  angle_deg?: number;
+  dash_tiles?: number;
+  school?: "physical" | "magic";
+  l7_formula?: string;
+  damage?: "none" | string;
+  CD_s: number;
+  cast_s: number;
+  cc?: CcEffect[];
+  special?: string[];
+  notes?: string;
+  radius_design_proposal?: string;
+}
+
+export interface PassiveDef {
+  name: string;
+  unlock?: Unlock;
+  off_under_break?: boolean;
+  notes?: string;
+  /** Remaining passive fields preserved as authored in §7 */
+  [key: string]: string | number | boolean | undefined;
+}
+
+export interface ChampKit {
+  passive: PassiveDef;
+  Q: AbilityDef;
+  W: AbilityDef;
+  R: AbilityDef;
+}
+
+export const KITS: Record<string, ChampKit> = {
+  huntress: {
+    passive: { name: "none" },
+    Q: {
+      name: "Keen Bolt",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 8,
+      length: 8,
+      width: 0.5,
+      school: "physical",
+      l7_formula: "110 + 80% ATK",
+      CD_s: 8,
+      cast_s: 0.33,
+      special: ["pierce", "mark 4 s (does not consume)", "aim roll per target"],
+    },
+    W: {
+      name: "Switchback",
+      unlock: "L1",
+      type: "self dash",
+      dash_tiles: 2,
+      damage: "none",
+      CD_s: 11,
+      cast_s: 0.15,
+    },
+    R: {
+      name: "Horizon Volley",
+      unlock: "L5",
+      type: "circle skillshot",
+      range: 7.5,
+      radius: 2.6,
+      school: "physical",
+      l7_formula: "230 + 105% ATK",
+      CD_s: 55,
+      cast_s: 0.6,
+      special: ["if target is marked: +35% damage, then consume mark", "aim roll per target in circle"],
+    },
+  },
+
+  maelis: {
+    passive: { name: "none" },
+    Q: {
+      name: "Prism Split",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 7.8,
+      length: 7.8,
+      width: 0.55,
+      school: "magic",
+      l7_formula: "160 + 135% POW",
+      CD_s: 7,
+      cast_s: 0.3,
+      special: ["pierce"],
+    },
+    W: {
+      name: "Glass Veil",
+      unlock: "L1",
+      type: "self dash",
+      dash_tiles: 2.5,
+      damage: "none",
+      CD_s: 11,
+      cast_s: 0.15,
+      special: ["on cast: shield 80 + 40% POW for 2.5 s (skill-scaled) on self", "no CC", "resolved: 11 s CD, dash+shield, no CC"],
+    },
+    R: {
+      name: "Duskburst",
+      unlock: "L5",
+      type: "circle skillshot",
+      range: 7.6,
+      radius: 2.0,
+      school: "magic",
+      l7_formula: "350 + 170% POW",
+      CD_s: 55,
+      cast_s: 0.55,
+      special: ["finisher: raw × (1 + 0.20 × missing-HP fraction) per target"],
+    },
+  },
+
+  isra: {
+    passive: {
+      name: "Long Sight",
+      unlock: "L1",
+      off_under_break: true,
+      autos_and_skills_vs_targets_5plus_tiles: "+8% damage",
+      far_tiles: 5.0,
+      far_bonus: "+8%",
+      notes: "Longest auto range on roster (7.0)",
+    },
+    Q: {
+      name: "Fuse Shot",
+      unlock: "L1",
+      type: "circle point",
+      range: 8.5,
+      radius: 1.4,
+      school: "physical",
+      l7_formula: "90 + 70% ATK",
+      CD_s: 8,
+      cast_s: 0.3,
+      special: ["lands after 1.0 s", "lead target current velocity at cast (simple linear lead)"],
+    },
+    W: {
+      name: "Recoil Step",
+      unlock: "L1",
+      type: "self dash",
+      dash_tiles: 2.5,
+      damage: "none",
+      CD_s: 12,
+      cast_s: 0.15,
+    },
+    R: {
+      name: "Starfall Mortar",
+      unlock: "L5",
+      type: "circle point",
+      range: 12,
+      radius: 3.4,
+      school: "physical",
+      l7_formula: "145 + 75% ATK",
+      CD_s: 60,
+      cast_s: 0.5,
+      special: [
+        "lands after 1.2 s",
+        "sanctuary clip mandatory: land point and circle truncated at enemy pad; no damage in sanctuary tiles",
+      ],
+    },
+  },
+
+  sedge: {
+    passive: { name: "none" },
+    Q: {
+      name: "Lantern Sweep",
+      unlock: "L1",
+      type: "circle targeted (around target)",
+      range: 5.5,
+      radius: 2.2,
+      school: "magic",
+      l7_formula: "115 + 90% POW",
+      CD_s: 6.8,
+      cast_s: 0.28,
+      special: ["primary target always hits; others in radius skillshot-rolled"],
+    },
+    W: {
+      name: "Wickbind",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 6.5,
+      length: 6.5,
+      width: 0.5,
+      school: "magic",
+      l7_formula: "55 + 10% ATK + 50% POW",
+      CD_s: 12.5,
+      cast_s: 0.3,
+      cc: [{ effect: "root", duration_s: 0.85, category: "Bind", school: "magic" }],
+      special: ["pierce"],
+    },
+    R: {
+      name: "Mire Drowse",
+      unlock: "L5",
+      type: "circle point",
+      range: 11,
+      radius: 3.8,
+      school: "magic",
+      l7_formula: "85 + 45% POW",
+      CD_s: 60,
+      cast_s: 0.55,
+      cc: [{ effect: "sleep", duration_s: 2.8, category: "Lock", school: "magic" }],
+      special: [
+        "hits enemies and allies except caster",
+        "sleeping allies asleep (Ysol strong-dispel can remove)",
+        "AI: do not sleep two allies to catch one enemy unless A_true favours wipe and allies expendable",
+        "default: only fire if ≥2 enemies and ≤1 ally other than self would be hit, or Fight Call flagged commit R",
+      ],
+    },
+  },
+
+  torun: {
+    passive: { name: "none" },
+    Q: {
+      name: "Shell-Slam",
+      unlock: "L1",
+      type: "circle targeted",
+      range: 2.2,
+      radius: 1.6,
+      school: "magic",
+      l7_formula: "70 + 20% ATK + 40% POW",
+      CD_s: 8.5,
+      cast_s: 0.28,
+      cc: [
+        { effect: "knockup", duration_s: 0.95, category: "Lock", school: "magic" },
+        { effect: "taunt", duration_s: 2.0, category: "Handicap", school: "magic" },
+      ],
+      special: ["both CC apply to enemies in radius", "primary always hits; others roll Aim"],
+    },
+    W: {
+      name: "Sluice Ward",
+      unlock: "L1",
+      type: "circle ally",
+      range: 6,
+      radius: 1.2,
+      damage: "none",
+      CD_s: 12,
+      cast_s: 0.2,
+      special: [
+        "shield 200 + 60% POW for 2.5 s (skill-scaled) on allies in radius (including self if centre)",
+        "peel taunt 2.0 s on diver inside radius (enemy only)",
+        "if several divers: taunt highest target score vs shielded ally",
+      ],
+    },
+    R: {
+      name: "Lock-Tide",
+      unlock: "L5",
+      type: "circle skillshot",
+      range: 6,
+      radius: 3.2,
+      school: "magic",
+      l7_formula: "90 + 15% ATK + 50% POW",
+      CD_s: 65,
+      cast_s: 0.45,
+      cc: [{ effect: "stun", duration_s: 1.25, category: "Lock", school: "magic" }],
+    },
+  },
+
+  tolle: {
+    passive: {
+      name: "Well-Fed",
+      unlock: "L1",
+      off_under_break: true,
+      on_each_Lock_or_Bind_on_enemy: "heal 25 + 2% max HP",
+      skill_scaled: false,
+      combat_heal_multiplier: 0.75,
+      wellfed_base: 25,
+      wellfed_pct: "2%",
+      notes: "One heal per application (Q stunning two targets heals twice)",
+    },
+    Q: {
+      name: "Bucket Slam",
+      unlock: "L1",
+      type: "circle targeted",
+      range: 2.2,
+      radius: 1.6,
+      school: "magic",
+      l7_formula: "75 + 15% ATK + 30% POW",
+      CD_s: 9,
+      cast_s: 0.28,
+      cc: [{ effect: "stun", duration_s: 0.9, category: "Lock", school: "magic" }],
+    },
+    W: {
+      name: "Draw Down",
+      unlock: "L1",
+      type: "targeted unit (ally or enemy)",
+      range: 6,
+      radius: 0.0,
+      radius_design_proposal: "0.0 selected unit only; engine fallback body 0.4 — not splash, not 1.2 ally ward",
+      damage: "none",
+      CD_s: 18,
+      cast_s: 0.2,
+      cc: [{ effect: "banish", duration_s: 1.8, category: "Lock", school: "magic" }],
+    },
+    R: {
+      name: "Upwelling",
+      unlock: "L5",
+      type: "circle point",
+      range: 7,
+      radius: 3.4,
+      school: "magic",
+      l7_formula: "80 + 40% POW",
+      CD_s: 70,
+      cast_s: 0.4,
+      cc: [{ effect: "knockup", duration_s: 1.1, category: "Lock", school: "magic" }],
+      special: ["lands after 0.8 s"],
+    },
+  },
+
+  helvar: {
+    passive: { name: "none" },
+    Q: {
+      name: "Stoneverse",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 8,
+      length: 8,
+      width: 0.6,
+      school: "magic",
+      l7_formula: "100 + 90% POW",
+      CD_s: 6.8,
+      cast_s: 0.3,
+      special: ["pierce"],
+    },
+    W: {
+      name: "Faultline",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 8.5,
+      length: 8.5,
+      width: 2.0,
+      school: "magic",
+      l7_formula: "65 + 50% POW",
+      CD_s: 11.5,
+      cast_s: 0.4,
+      cc: [
+        { effect: "root", duration_s: 0.8, category: "Bind", school: "magic" },
+        {
+          effect: "slow 35%",
+          duration_s: 1.0,
+          category: "Handicap",
+          notes: "real slow; omitted from 5 s dummy CC column",
+        },
+      ],
+      special: ["pierce"],
+    },
+    R: {
+      name: "Cliffwake",
+      unlock: "L5",
+      type: "line skillshot",
+      range: 9,
+      length: 9,
+      width: 2.2,
+      school: "magic",
+      l7_formula: "230 + 115% POW",
+      CD_s: 65,
+      cast_s: 0.5,
+      special: ["knockback 2.2 tiles away from line origin (caster)", "displacement, not disable category", "pierce"],
+    },
+  },
+
+  calder: {
+    passive: { name: "none" },
+    Q: {
+      name: "Ashbreath",
+      unlock: "L1",
+      type: "cone skillshot",
+      range: 6.4,
+      angle_deg: 60,
+      school: "magic",
+      l7_formula: "115 + 95% POW",
+      CD_s: 6.5,
+      cast_s: 0.28,
+    },
+    W: {
+      name: "Smoke Drink",
+      unlock: "L1",
+      type: "self",
+      radius: 0.0,
+      notes: "authored circle self with no r; self only",
+      damage: "none",
+      CD_s: 12.5,
+      cast_s: 0.2,
+      special: ["heal 75 + 45% POW (skill-scaled, combat ×0.75)"],
+    },
+    R: {
+      name: "Ash Panic",
+      unlock: "L5",
+      type: "circle point",
+      range: 7,
+      radius: 3.0,
+      school: "magic",
+      l7_formula: "215 + 110% POW",
+      CD_s: 58,
+      cast_s: 0.45,
+      cc: [{ effect: "fear", duration_s: 1.6, category: "Lock", school: "magic" }],
+    },
+  },
+
+  kerrig: {
+    passive: { name: "none" },
+    Q: {
+      name: "Latch Line",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 6.5,
+      length: 6.5,
+      width: 0.45,
+      school: "physical",
+      l7_formula: "110 + 85% ATK",
+      CD_s: 7.5,
+      cast_s: 0.28,
+      cc: [
+        {
+          effect: "leash",
+          duration_s: 2.8,
+          category: "Bind",
+          school: "physical",
+          notes: "leash range 3.5 tiles",
+        },
+      ],
+      special: ["stops at first enemy", "mark 2.8 s (required by R)"],
+    },
+    W: {
+      name: "Spool Cut",
+      unlock: "L1",
+      type: "circle targeted",
+      range: 1.8,
+      radius: 1.2,
+      school: "physical",
+      l7_formula: "95 + 90% ATK",
+      CD_s: 7,
+      cast_s: 0.12,
+      cc: [{ effect: "slow 30%", duration_s: 0.8, category: "Handicap", school: "physical" }],
+    },
+    R: {
+      name: "Reeling Cut",
+      unlock: "L5",
+      type: "streak targeted",
+      range: 5.5,
+      dash_tiles: 5,
+      school: "physical",
+      l7_formula: "330 + 140% ATK + 15% POW",
+      CD_s: 42,
+      cast_s: 0.7,
+      special: [
+        "requires live mark on target (from Q)",
+        "finisher: raw × (1 + 0.35 × missing-HP fraction)",
+        "CD starts on windup (even if dash cancelled)",
+        "on landed hit: 2.8 s commitment — no retreat/new dash until ends",
+        "Self-Break 2.8 s (§6.5)",
+        "do not add second 1.5 s commitment tax",
+        "cast 0.7 s — statsheet v4.1 wins over older 0.50 s windup",
+      ],
+    },
+  },
+
+  mirren: {
+    passive: {
+      name: "Kiln-Cured",
+      unlock: "L1",
+      off_under_break: true,
+      enemies_hexed_by_mirren: "+12% damage from all sources for hex duration",
+      kiln_amp: "+12%",
+    },
+    Q: {
+      name: "Glaze Spit",
+      unlock: "L1",
+      type: "circle targeted",
+      range: 6,
+      radius: 1.6,
+      school: "magic",
+      l7_formula: "115 + 90% POW",
+      CD_s: 7,
+      cast_s: 0.28,
+    },
+    W: {
+      name: "Jarring",
+      unlock: "L1",
+      type: "targeted unit",
+      range: 6,
+      radius: 0.0,
+      radius_design_proposal: "0.0 selected unit only; body 0.4 if required; do not splash",
+      // TODO §7.11 Mirren W: extract field is `l7_damage` ("none (hex is the point)"), not `l7_formula`
+      damage: "none (hex is the point)",
+      CD_s: 15,
+      cast_s: 0.25,
+      cc: [
+        {
+          effect: "hex",
+          duration_s: 1.6,
+          category: "Lock",
+          school: "magic",
+          notes: "hex also slows 35%",
+        },
+      ],
+      special: ["preferred target: enemy carry (ADC slot, else highest damage dealer)"],
+    },
+    R: {
+      name: "Kiln Chorus",
+      unlock: "L5",
+      type: "circle point",
+      range: 8,
+      radius: 2.8,
+      school: "magic",
+      l7_formula: "150 + 75% POW",
+      CD_s: 70,
+      cast_s: 0.55,
+      cc: [
+        {
+          effect: "hex",
+          duration_s: 1.5,
+          category: "Lock",
+          school: "magic",
+          notes: "hex also slows 35%",
+        },
+      ],
+      special: ["Kiln-Cured applies to every enemy hexed by R"],
+    },
+  },
+
+  rhedan: {
+    passive: { name: "none" },
+    Q: {
+      name: "Tide-Cleave",
+      unlock: "L1",
+      type: "cone targeted (facing target)",
+      range: 3,
+      angle_deg: 70,
+      school: "physical",
+      l7_formula: "90 + 75% ATK",
+      CD_s: 7,
+      cast_s: 0.25,
+      special: ["primary always hits; others in cone roll Aim"],
+    },
+    W: {
+      name: "Wake Hook",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 5.5,
+      length: 5.5,
+      width: 0.5,
+      school: "physical",
+      l7_formula: "45 + 30% ATK",
+      CD_s: 12,
+      cast_s: 0.3,
+      cc: [{ effect: "root", duration_s: 0.7, category: "Bind", school: "physical" }],
+      special: ["stops at first enemy", "pull 4 tiles toward Rhedan (displacement)"],
+    },
+    R: {
+      name: "Keelbreak",
+      unlock: "L5",
+      type: "circle targeted",
+      range: 2.8,
+      radius: 2.4,
+      school: "physical",
+      l7_formula: "150 + 90% ATK",
+      CD_s: 50,
+      cast_s: 0.4,
+      cc: [{ effect: "knockup", duration_s: 0.9, category: "Lock", school: "physical" }],
+    },
+  },
+
+  brannoch: {
+    passive: {
+      name: "Bedrock",
+      unlock: "L1",
+      off_under_break: true,
+      while_below_50pct_HP: "+20 PRes and +20 MRes",
+      bedrock_hp: "50%",
+      bedrock_res: "+20",
+      notes: "Not included in snapshot eHP column (unbuffed)",
+    },
+    Q: {
+      name: "Quarry Throw",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 6.5,
+      length: 6.5,
+      width: 0.6,
+      school: "physical",
+      l7_formula: "125 + 65% ATK",
+      CD_s: 8,
+      cast_s: 0.3,
+      cc: [{ effect: "slow 35%", duration_s: 1.5, category: "Handicap", school: "physical" }],
+      special: ["pierce"],
+    },
+    W: {
+      name: "Cairn Shoulder",
+      unlock: "L1",
+      type: "streak targeted",
+      range: 3.5,
+      school: "physical",
+      l7_formula: "90 + 45% ATK",
+      CD_s: 12,
+      cast_s: 0.2,
+      cc: [{ effect: "knockup", duration_s: 0.6, category: "Lock", school: "physical" }],
+      special: ["dashes to target"],
+    },
+    R: {
+      name: "Stonefast",
+      unlock: "L5",
+      type: "circle point self-centred",
+      range: 2.6,
+      radius: 2.6,
+      school: "magic",
+      l7_formula: "170 + 20% ATK + 45% POW",
+      CD_s: 60,
+      cast_s: 0.4,
+      cc: [
+        {
+          effect: "stun",
+          duration_s: 1.6,
+          category: "Lock",
+          school: "magic",
+          notes: "tag petrify: stun + 25% damage reduction on petrified unit",
+        },
+      ],
+      special: ["hits enemies in radius"],
+    },
+  },
+
+  ysol: {
+    passive: {
+      name: "none",
+      notes: "Enchanter growth, Support slot. Saelo is Support Mage — do not confuse classes.",
+    },
+    Q: {
+      name: "Kiln Bell",
+      unlock: "L1",
+      type: "cone targeted",
+      range: 7.2,
+      angle_deg: 80,
+      school: "magic",
+      l7_formula: "60 + 40% POW",
+      CD_s: 12.5,
+      cast_s: 0.3,
+      cc: [{ effect: "silence", duration_s: 1.0, category: "Handicap", school: "magic" }],
+    },
+    W: {
+      name: "Ember Mending",
+      unlock: "L1",
+      type: "circle ally",
+      range: 6.5,
+      radius: 1.2,
+      damage: "none",
+      CD_s: 13,
+      cast_s: 0.25,
+      special: [
+        "heal 95 + 45% POW (skill-scaled, combat ×0.75)",
+        "strong dispel on each ally in radius (including chosen centre)",
+        "see §6.7 for strong dispel",
+      ],
+    },
+    R: {
+      name: "Vowbreak",
+      unlock: "L5",
+      type: "circle skillshot",
+      range: 6,
+      radius: 2.6,
+      school: "magic",
+      l7_formula: "105 + 70% POW",
+      CD_s: 70,
+      cast_s: 0.45,
+      cc: [{ effect: "knockup", duration_s: 1.05, category: "Lock", school: "magic" }],
+    },
+  },
+
+  saelo: {
+    passive: {
+      name: "Rewound Moment",
+      unlock: "L1",
+      off_under_break: true,
+      once_per_fight_when_HP_below_30pct: "shield 25% max HP for 2.5 s",
+      rewind_hp: "30%",
+      rewind_shield: "25%",
+      rewind_dur_s: 2.5,
+      skill_scaled: false,
+      reset: "out of any declared fight for 8.0 s (death does not reset mid-fight)",
+      shield_subject_to_25pct_cap: true,
+    },
+    Q: {
+      name: "Second Hand",
+      unlock: "L1",
+      type: "line skillshot",
+      range: 7,
+      length: 7,
+      width: 0.5,
+      school: "magic",
+      l7_formula: "105 + 80% POW",
+      CD_s: 8,
+      cast_s: 0.3,
+      cc: [{ effect: "slow 30%", duration_s: 1.2, category: "Handicap", school: "magic" }],
+      special: ["pierce"],
+    },
+    W: {
+      name: "Unwind",
+      unlock: "L1",
+      type: "ally targeted",
+      range: 6.5,
+      radius: 0.0,
+      radius_design_proposal: "v1 default 0.0; alt r=1.2 (Ysol parity) — do not silently take alternative",
+      damage: "none",
+      CD_s: 14,
+      cast_s: 0.25,
+      special: [
+        "heal 65 + 35% POW (skill-scaled, combat ×0.75)",
+        "basic dispel on target",
+        "see §6.7",
+      ],
+    },
+    R: {
+      name: "Still Hour",
+      unlock: "L5",
+      type: "circle point",
+      range: 8,
+      radius: 2.4,
+      school: "magic",
+      l7_formula: "90 + 45% POW",
+      CD_s: 85,
+      cast_s: 0.7,
+      cc: [{ effect: "time-stop", duration_s: 2.0, category: "Lock", school: "magic" }],
+      special: [
+        "hits enemies and allies in radius except caster",
+        "time-stop does not pierce Spellward",
+        "see §6.5",
+      ],
+    },
+  },
+};
+
+export const KIT_IDS = [
+  "brannoch",
+  "calder",
+  "helvar",
+  "huntress",
+  "isra",
+  "kerrig",
+  "maelis",
+  "mirren",
+  "rhedan",
+  "saelo",
+  "sedge",
+  "tolle",
+  "torun",
+  "ysol",
+] as const;
