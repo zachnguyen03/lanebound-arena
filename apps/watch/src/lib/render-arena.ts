@@ -85,6 +85,8 @@ function blitPlaced(
 export interface RenderArenaOpts {
   /** Canvas buffer height (580 full, or 520 for 720 plinth crop). */
   height?: number;
+  /** View-only AI lines. Must not feed the sim. */
+  overlays?: boolean;
 }
 
 /**
@@ -177,6 +179,39 @@ export function renderArena(
       drawUnit(ctx, assets, state, item.unit);
     }
   }
+
+  ctx.imageSmoothingEnabled = false;
+  for (const orb of state.orbs) {
+    if (!orb.up) continue;
+    const px = orb.x * TILE_W;
+    const py = orb.y * TILE_H;
+    if (py >= H) continue;
+    ctx.fillStyle = "#F2C14E";
+    ctx.beginPath();
+    ctx.arc(px, py, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (state.zoneOwner) {
+    const c = assets.worldProps.placements.zone.centre_px;
+    ctx.strokeStyle = state.zoneOwner === "blue" ? "#4DA3FF" : "#F5477A";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], 44, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (opts.overlays) {
+    ctx.lineWidth = 1;
+    for (const unit of Object.values(state.units)) {
+      if (!unit.targetId) continue;
+      const tgt = state.units[unit.targetId as keyof typeof state.units];
+      if (!tgt) continue;
+      ctx.strokeStyle = unit.team === "blue" ? "#4DA3FF" : "#F5477A";
+      ctx.beginPath();
+      ctx.moveTo(unit.x * TILE_W, unit.y * TILE_H);
+      ctx.lineTo(tgt.x * TILE_W, tgt.y * TILE_H);
+      ctx.stroke();
+    }
+  }
 }
 
 function pickBodyAnim(
@@ -252,22 +287,19 @@ function drawUnit(
       );
     }
   } else {
-    // Labelled placeholder for missing champ art.
-    const left = Math.round(px - ANCHOR_X);
-    const top = Math.round(py - ANCHOR_Y);
+    // Explicit labelled circle — missing art, not a silent dummy swap.
     ctx.fillStyle = unit.alive ? "#1A2130" : "#2A303C";
-    ctx.fillRect(left, top, BODY_W, BODY_H);
+    ctx.beginPath();
+    ctx.arc(px, py - 16, 14, 0, Math.PI * 2);
+    ctx.fill();
     ctx.strokeStyle = teamColor;
     ctx.lineWidth = 2;
-    ctx.strokeRect(left + 1, top + 1, BODY_W - 2, BODY_H - 2);
+    ctx.stroke();
     ctx.fillStyle = "#EEF2F8";
-    ctx.font = "bold 9px Barlow, sans-serif";
+    ctx.font = "bold 8px Barlow, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(unit.champ.slice(0, 6).toUpperCase(), px, top + BODY_H / 2 - 4);
-    ctx.fillStyle = "#A1ACBF";
-    ctx.font = "8px Barlow, sans-serif";
-    ctx.fillText(`L${unit.level}`, px, top + BODY_H / 2 + 8);
+    ctx.fillText(unit.champ.slice(0, 4).toUpperCase(), px, py - 16);
   }
 
   if (unit.alive) {

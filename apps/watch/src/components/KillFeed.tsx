@@ -8,13 +8,14 @@ interface Props {
   currentTick: number;
   rect: Rect;
   onJump: (tick: number) => void;
+  onDeath?: (event: SimEvent) => void;
 }
 
 /**
  * Takedown log per hud-spec: killer, victim, assists / score rows.
  * Only death / takedown_score — never level_up or other noise.
  */
-export function KillFeed({ events, currentTick, rect, onJump }: Props) {
+export function KillFeed({ events, currentTick, rect, onJump, onDeath }: Props) {
   const rows = useMemo(() => {
     return events
       .filter(
@@ -45,8 +46,12 @@ export function KillFeed({ events, currentTick, rect, onJump }: Props) {
               <button
                 type="button"
                 data-testid={`kill-feed-row-${e.seq}`}
+                data-event-type={e.type}
                 className="flex w-full gap-1 px-2 py-0.5 text-left hover:bg-panel-2"
-                onClick={() => onJump(e.tick)}
+                onClick={() => {
+                  onJump(e.tick);
+                  if (e.type === "death") onDeath?.(e);
+                }}
               >
                 <span className="w-8 shrink-0 tabular-nums text-faint">
                   {e.tick}

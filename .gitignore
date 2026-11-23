@@ -9,4 +9,5 @@ coverage/
 test-results/
 playwright-report/
 blob-report/
-
+uploads
+lab/**/*.tmp

@@ -1,4 +1,10 @@
-/** Champion / dummy body atlas (Maelis-style animations[name][variant]). */
+/**
+ * Champion / dummy body atlas.
+ * Loaders accept both key shapes:
+ *   animations.idle["blue-right"]
+ *   animations.idle.blue.right
+ * and normalise to the flat "blue-right" variant map.
+ */
 
 export type Facing = "left" | "right";
 export type BodyAnim = "idle" | "move" | "hit" | "death";
@@ -55,6 +61,46 @@ export function frameIndexAt(
   const raw = Math.floor(elapsed / per);
   if (clip.loop) return raw % clip.n;
   return Math.min(raw, clip.n - 1);
+}
+
+function isClip(v: unknown): v is BodyAnimClip {
+  return (
+    !!v &&
+    typeof v === "object" &&
+    Array.isArray((v as BodyAnimClip).frames)
+  );
+}
+
+/** Flatten either atlas key shape onto `animations[name]["team-facing"]`. */
+export function normalizeChampAtlas(raw: unknown, slug: string): ChampAtlas {
+  const src = raw as ChampAtlas;
+  const animations: ChampAtlas["animations"] = {};
+  const srcAnims = (src.animations ?? {}) as Record<string, unknown>;
+  for (const [name, variants] of Object.entries(srcAnims)) {
+    const flat: Record<string, BodyAnimClip> = {};
+    if (!variants || typeof variants !== "object") continue;
+    for (const [key, val] of Object.entries(variants as Record<string, unknown>)) {
+      if (isClip(val)) {
+        flat[key] = val;
+        continue;
+      }
+      if (val && typeof val === "object") {
+        for (const [facing, clip] of Object.entries(val as Record<string, unknown>)) {
+          if (isClip(clip)) flat[`${key}-${facing}`] = clip;
+        }
+      }
+    }
+    animations[name] = flat;
+  }
+  return {
+    slug: src.slug || slug,
+    cell: src.cell,
+    anchor: src.anchor,
+    sheet: src.sheet,
+    sheet_2x: src.sheet_2x,
+    scale: src.scale ?? 2,
+    animations,
+  };
 }
 
 /** Multiply 1× atlas rect/anchor for the 2× sheet. */

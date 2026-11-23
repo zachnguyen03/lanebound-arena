@@ -10,6 +10,8 @@ interface Props {
   compact?: boolean;
   drawerOpen?: boolean;
   onToggleDrawer?: () => void;
+  overlays?: boolean;
+  onToggleOverlays?: () => void;
 }
 
 function clockCaption(state: MatchViewState | null): string {
@@ -40,6 +42,8 @@ export function TopBar({
   compact,
   drawerOpen,
   onToggleDrawer,
+  overlays,
+  onToggleOverlays,
 }: Props) {
   const t = state?.t ?? 0;
   return (
@@ -101,6 +105,16 @@ export function TopBar({
             {statusLine(state)}
           </div>
         </div>
+        {onToggleOverlays ? (
+          <Button
+            data-testid="btn-toggle-overlays"
+            variant={overlays ? "active" : "outline"}
+            size="sm"
+            onClick={onToggleOverlays}
+          >
+            AI
+          </Button>
+        ) : null}
         {onToggleDrawer ? (
           <Button
             data-testid="btn-toggle-drawer"

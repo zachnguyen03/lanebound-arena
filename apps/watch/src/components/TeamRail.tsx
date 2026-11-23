@@ -71,7 +71,7 @@ export function TeamRail({ side, state, layout }: Props) {
                       compact ? "text-xs" : "text-sm",
                     )}
                   >
-                    {SLOT_LABEL[slot]}
+                    {u.champ === "unknown" ? SLOT_LABEL[slot] : u.champ}
                   </span>
                   <span className="text-[10px] text-dim">L{u.level}</span>
                 </div>

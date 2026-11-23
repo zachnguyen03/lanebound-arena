@@ -1,4 +1,5 @@
 import { digestEvents } from "@sim/canonical";
+import { statsAtLevel } from "@sim/stats";
 import type { SimEvent as CoreSimEvent } from "@sim/types";
 import { DUMMY_MAX_HP, spawnPose, unitId } from "./spawn";
 import type {
@@ -99,6 +100,10 @@ function cloneState(s: MatchViewState): MatchViewState {
     blueLineup: s.blueLineup.slice(),
     redLineup: s.redLineup.slice(),
     fallbackChamps: s.fallbackChamps.slice(),
+    orbs: s.orbs.map((o) => ({ ...o })),
+    buffs: s.buffs.map((o) => ({ ...o })),
+    fightBlue: s.fightBlue ? { ...s.fightBlue } : null,
+    fightRed: s.fightRed ? { ...s.fightRed } : null,
   };
 }
 
@@ -127,6 +132,8 @@ function emptyState(): MatchViewState {
         hitStartedAt: null,
         deathStartedAt: null,
         fallback: true,
+        intent: null,
+        targetId: null,
       };
     }
   }
@@ -144,6 +151,11 @@ function emptyState(): MatchViewState {
     blueLineup: [],
     redLineup: [],
     fallbackChamps: [],
+    zoneOwner: null,
+    orbs: [],
+    buffs: [],
+    fightBlue: null,
+    fightRed: null,
   };
 }
 
@@ -186,7 +198,17 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
     case "level_up": {
       const u = getUnit(state, ev.unit_id);
       if (!u) break;
-      if (typeof ev.new_level === "number") u.level = ev.new_level;
+      if (typeof ev.new_level === "number") {
+        u.level = ev.new_level;
+        try {
+          const s = statsAtLevel(u.champ, u.level);
+          const gained = s.hp - u.maxHp;
+          u.maxHp = s.hp;
+          u.hp = Math.min(s.hp, u.hp + Math.max(0, gained));
+        } catch {
+          /* unknown champ keeps the previous bar */
+        }
+      }
       break;
     }
     case "hit": {
@@ -241,6 +263,67 @@ function applyEvent(state: MatchViewState, ev: SimEvent): void {
       }
       break;
     }
+    case "zone_capture": {
+      if (ev.team === "blue" || ev.team === "red") state.zoneOwner = ev.team;
+      break;
+    }
+    case "orb_spawn": {
+      if (typeof ev.orb_id === "string" && typeof ev.x === "number") {
+        state.orbs = state.orbs.filter((o) => o.id !== ev.orb_id);
+        state.orbs.push({
+          id: ev.orb_id,
+          x: ev.x,
+          y: typeof ev.y === "number" ? ev.y : 0,
+          up: true,
+        });
+      }
+      break;
+    }
+    case "orb_pickup": {
+      const id = ev.orb_id;
+      if (typeof id === "string") {
+        const o = state.orbs.find((x) => x.id === id);
+        if (o) o.up = false;
+      }
+      break;
+    }
+    case "buff_spawn": {
+      if (typeof ev.buff_id === "string" && typeof ev.x === "number") {
+        state.buffs = state.buffs.filter((o) => o.id !== ev.buff_id);
+        state.buffs.push({
+          id: ev.buff_id,
+          x: ev.x,
+          y: typeof ev.y === "number" ? ev.y : 0,
+          up: true,
+        });
+      }
+      break;
+    }
+    case "buff_pickup": {
+      const id = ev.buff_id;
+      if (typeof id === "string") {
+        const o = state.buffs.find((x) => x.id === id);
+        if (o) o.up = false;
+      }
+      break;
+    }
+    case "intent": {
+      const u = getUnit(state, ev.unit_id);
+      if (!u) break;
+      if (typeof ev.intent === "string") u.intent = ev.intent;
+      u.targetId = typeof ev.target_id === "string" ? ev.target_id : null;
+      break;
+    }
+    case "fight_call": {
+      const view = {
+        commit: typeof ev.commit === "string" ? ev.commit : "",
+        focusId: typeof ev.focus_id === "string" ? ev.focus_id : null,
+        aTrue: typeof ev.a_true === "number" ? ev.a_true : null,
+      };
+      if (ev.team === "blue") state.fightBlue = view;
+      if (ev.team === "red") state.fightRed = view;
+      break;
+    }
     case "match_end": {
       state.ended = true;
       state.endReason = typeof ev.reason === "string" ? ev.reason : null;
@@ -267,6 +350,14 @@ function applyLineup(state: MatchViewState, team: Team, lineup: string[]): void 
     u.champ = champ;
     const hasArt = CHAMP_ART.has(champ);
     u.fallback = !hasArt;
+    try {
+      const s = statsAtLevel(champ, 1);
+      u.maxHp = s.hp;
+      u.hp = s.hp;
+    } catch {
+      u.maxHp = DUMMY_MAX_HP;
+      u.hp = DUMMY_MAX_HP;
+    }
     if (u.fallback) fallbacks.add(champ);
     else fallbacks.delete(champ);
     const pose = spawnPose(team, slot);
@@ -274,8 +365,6 @@ function applyLineup(state: MatchViewState, team: Team, lineup: string[]): void 
     u.y = pose.y;
     u.vx = 0;
     u.vy = 0;
-    u.hp = DUMMY_MAX_HP;
-    u.maxHp = DUMMY_MAX_HP;
     u.level = 1;
     u.xp = 0;
     u.alive = true;

@@ -37,7 +37,9 @@ export function DockPanels({ state, zone, pickups, fightCall }: Props) {
   return (
     <>
       <Panel testId="dock-zone" title="ZONE" rect={zone}>
-        Neutral · no zone events yet
+        {state?.zoneOwner
+          ? `${state.zoneOwner.toUpperCase()} owns the pit`
+          : "Neutral"}
         {state ? (
           <div className="mt-1 text-dim">
             Score {state.scoreBlue}–{state.scoreRed}
@@ -45,10 +47,14 @@ export function DockPanels({ state, zone, pickups, fightCall }: Props) {
         ) : null}
       </Panel>
       <Panel testId="dock-pickups" title="PICKUPS" rect={pickups}>
-        8 orbs · 2 flank buffs · empty pads drawn on map
+        {state
+          ? `${state.orbs.filter((o) => o.up).length} orbs up · ${state.buffs.filter((b) => b.up).length} buffs up`
+          : "No pickup events yet"}
       </Panel>
       <Panel testId="dock-fight-call" title="FIGHT CALL" rect={fightCall}>
-        No fight calls yet
+        {state?.fightBlue || state?.fightRed
+          ? `BLUE ${state.fightBlue?.commit ?? "—"} · RED ${state.fightRed?.commit ?? "—"}`
+          : "No fight calls yet"}
       </Panel>
     </>
   );

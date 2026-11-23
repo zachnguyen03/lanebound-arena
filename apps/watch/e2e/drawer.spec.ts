@@ -22,6 +22,7 @@ function hudControls(): string[] {
     "btn-speed-8",
     "scrubber",
     "btn-toggle-drawer",
+    "btn-toggle-overlays",
     "kill-feed",
     "rail-only-blue",
     "rail-only-red",
@@ -150,6 +151,7 @@ test.describe("drawer open: controls hittable / modal", () => {
     { name: "1920x1080", width: 1920, height: 1080, kind: "push" as const },
     { name: "1280x720", width: 1280, height: 720, kind: "modal" as const },
     { name: "1280x800", width: 1280, height: 800, kind: "modal" as const },
+    { name: "1440x900", width: 1440, height: 900, kind: "modal" as const },
   ]) {
     test(`${vp.name}: drawer behaviour + screenshots`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });

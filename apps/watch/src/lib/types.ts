@@ -35,6 +35,21 @@ export interface UnitView {
   deathStartedAt: number | null;
   /** True when champ art was missing and a labelled placeholder is drawn. */
   fallback: boolean;
+  intent: string | null;
+  targetId: string | null;
+}
+
+export interface OrbView {
+  id: string;
+  x: number;
+  y: number;
+  up: boolean;
+}
+
+export interface FightCallView {
+  commit: string;
+  focusId: string | null;
+  aTrue: number | null;
 }
 
 /** Champ ids with a body sheet shipped under arena-sandbox/. */
@@ -54,6 +69,11 @@ export interface MatchViewState {
   blueLineup: string[];
   redLineup: string[];
   fallbackChamps: string[];
+  zoneOwner: "blue" | "red" | null;
+  orbs: OrbView[];
+  buffs: OrbView[];
+  fightBlue: FightCallView | null;
+  fightRed: FightCallView | null;
 }
 
 export type Speed = 0.5 | 1 | 2 | 4 | 8;

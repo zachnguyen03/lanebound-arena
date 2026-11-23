@@ -20,11 +20,23 @@ import { parseJsonl } from "@watch/lib/parse-log";
 import { ReplayEngine } from "@watch/lib/replay";
 import type { Speed } from "@watch/lib/types";
 import { ArenaCanvas } from "./ArenaCanvas";
+import { championAssetPaths, WATCH_CHAMP_SLUGS } from "@watch/lib/champ-assets";
+import {
+  ConfigError,
+  exportConfigJson,
+  importConfigJson,
+  runFromConfig,
+  runWatchMatch,
+} from "@watch/lib/live-match";
+import type { MatchConfig } from "@sim/types";
+import type { SimEvent } from "@watch/lib/types";
 import { CardToastSlot, DockPanels } from "./DockPanels";
+import { DecisionStrip } from "./DecisionStrip";
 import { DevPanel } from "./DevPanel";
 import { EventLogPanel } from "./EventLogPanel";
 import { KillFeed } from "./KillFeed";
 import { LogLoader } from "./LogLoader";
+import { MatchSetup } from "./MatchSetup";
 import { TeamRail } from "./TeamRail";
 import { TopBar } from "./TopBar";
 import { TransportBar } from "./TransportBar";
@@ -55,6 +67,13 @@ export function WatchShell() {
   const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
   const drawerMode: DrawerMode = mode === "1080" ? "push" : "modal";
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [overlays, setOverlays] = useState(false);
+  const [configError, setConfigError] = useState<string | null>(null);
+  const [liveConfig, setLiveConfig] = useState<MatchConfig | null>(null);
+  const [deathEvent, setDeathEvent] = useState<SimEvent | null>(null);
+  const [missingAssets, setMissingAssets] = useState<string[]>([]);
+  const [exportedJson, setExportedJson] = useState<string | null>(null);
+  const [liveDigest, setLiveDigest] = useState<string | null>(null);
   const pushOpen = drawerOpen && drawerMode === "push";
   const modalOpen = drawerOpen && drawerMode === "modal";
   // 1080 + drawer: rebuild stage to fit remaining width (no translateX).
@@ -112,6 +131,54 @@ export function WatchShell() {
     }
   }, []);
 
+  const startLive = useCallback(
+    (seed: number) => {
+      setPhase("loading");
+      setError(null);
+      setConfigError(null);
+      setPlaying(false);
+      try {
+        const { config, result, digest } = runWatchMatch(seed);
+        const eng = new ReplayEngine(result.events);
+        setEngine(eng);
+        setLiveDigest(digest);
+        setLiveConfig(config);
+        setSourceName(`live seed ${seed}`);
+        setTick(0);
+        setDeathEvent(null);
+        setPhase("ready");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Match failed";
+        if (e instanceof ConfigError) setConfigError(msg);
+        setError(msg);
+        setPhase("empty");
+      }
+    },
+    [],
+  );
+
+  const importConfig = useCallback((text: string) => {
+    setPhase("loading");
+    setPlaying(false);
+    try {
+      const config = importConfigJson(text);
+      const { result, digest, config: canonical } = runFromConfig(config);
+      const eng = new ReplayEngine(result.events);
+      setEngine(eng);
+      setLiveDigest(digest);
+      setLiveConfig(canonical);
+      setSourceName("imported config");
+      setTick(0);
+      setPhase("ready");
+      setConfigError(null);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Import failed";
+      if (e instanceof ConfigError) setConfigError(msg);
+      setError(msg);
+      setPhase("empty");
+    }
+  }, []);
+
   const loadSample = useCallback(async () => {
     setPhase("loading");
     setError(null);
@@ -126,6 +193,24 @@ export function WatchShell() {
       setPhase("empty");
     }
   }, [loadText]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const slugs = WATCH_CHAMP_SLUGS;
+    void (async () => {
+      const missing: string[] = [];
+      for (const slug of slugs) {
+        for (const path of championAssetPaths(slug)) {
+          const res = await fetch(path);
+          if (!res.ok) missing.push(path);
+        }
+      }
+      if (!cancelled) setMissingAssets(missing);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const state = useMemo(
     () => (engine ? engine.stateAt(tick) : null),
@@ -242,6 +327,13 @@ export function WatchShell() {
       data-hud-mode={mode}
       data-drawer-open={drawerOpen ? "true" : "false"}
       data-drawer-mode={drawerMode}
+      data-overlays={overlays ? "true" : "false"}
+      data-match-end={
+        (engine?.events.find((e) => e.type === "match_end")?.reason as
+          | string
+          | undefined) ?? ""
+      }
+      data-digest={liveDigest ?? engine?.digest ?? ""}
     >
       <div
         className={
@@ -280,6 +372,8 @@ export function WatchShell() {
             compact={mode === "720" || pushOpen}
             drawerOpen={drawerOpen}
             onToggleDrawer={() => setDrawerOpen((o) => !o)}
+            overlays={overlays}
+            onToggleOverlays={() => setOverlays((o) => !o)}
           />
 
           {phase === "boot" || phase === "loading" ? (
@@ -316,6 +410,20 @@ export function WatchShell() {
               style={absStyle(layout.playfield_region)}
               className="overflow-auto bg-panel p-4"
             >
+              <MatchSetup
+                busy={phase === "loading"}
+                onStart={startLive}
+                onImportText={importConfig}
+              />
+              {configError ? (
+                <p
+                  data-testid="config-error"
+                  className="mt-2 text-sm text-team-red"
+                  role="alert"
+                >
+                  {configError}
+                </p>
+              ) : null}
               <LogLoader
                 onLoadText={loadText}
                 onLoadSample={() => void loadSample()}
@@ -349,7 +457,12 @@ export function WatchShell() {
                 }}
                 className="overflow-hidden border border-line bg-field"
               >
-                <ArenaCanvas assets={assets} state={state} mode={mode} />
+                <ArenaCanvas
+                  assets={assets}
+                  state={state}
+                  mode={mode}
+                  overlays={overlays}
+                />
               </div>
 
               <KillFeed
@@ -357,6 +470,10 @@ export function WatchShell() {
                 currentTick={tick}
                 rect={killFeedRect}
                 onJump={jump}
+                onDeath={(ev) => {
+                  setDeathEvent(ev);
+                  jump(ev.tick);
+                }}
               />
 
               <CardToastSlot rect={layout.card_toast_slot} />
@@ -407,6 +524,49 @@ export function WatchShell() {
               UTILITIES
             </div>
             <div className="grid gap-3 p-3 pt-2">
+              <MatchSetup
+                busy={phase === "loading"}
+                onStart={startLive}
+                onExport={() => {
+                  if (!liveConfig) return;
+                  const json = exportConfigJson(liveConfig);
+                  setExportedJson(json);
+                }}
+                onImportText={importConfig}
+                canExport={!!liveConfig}
+              />
+              {exportedJson ? (
+                <pre
+                  data-testid="exported-config"
+                  className="max-h-40 overflow-auto text-[10px] text-dim"
+                >
+                  {exportedJson}
+                </pre>
+              ) : null}
+              {configError ? (
+                <p data-testid="config-error" className="text-sm text-team-red" role="alert">
+                  {configError}
+                </p>
+              ) : null}
+              {deathEvent && engine ? (
+                <DecisionStrip
+                  events={engine.events}
+                  death={deathEvent}
+                  onClose={() => setDeathEvent(null)}
+                />
+              ) : null}
+              {missingAssets.length > 0 ? (
+                <div data-testid="missing-assets" className="text-xs text-dim">
+                  <div className="font-condensed text-sm text-paper">
+                    MISSING CHAMPION ART
+                  </div>
+                  <ul>
+                    {missingAssets.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <LogLoader
                 onLoadText={loadText}
                 onLoadSample={() => void loadSample()}
