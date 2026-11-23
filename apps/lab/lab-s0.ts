@@ -103,10 +103,35 @@ fs.writeFileSync(
   ].join("\n"),
 );
 
+// M0.1: two separate OS processes (not in-process twins)
+function digestFromChild(seed: number): string {
+  const r = execSync(
+    `${process.execPath} --import tsx apps/lab/digest.ts --seed ${seed}`,
+    { cwd: root, encoding: "utf8" },
+  );
+  const m = /^digest=(.+)$/m.exec(r);
+  if (!m?.[1]) throw new Error(`child digest parse failed:\n${r}`);
+  return m[1].trim();
+}
+const procA = digestFromChild(SEED);
+const procB = digestFromChild(SEED);
+const twoProcOk = procA === procB && procA === a.digest;
+fs.writeFileSync(
+  path.join(outDir, "two-process-digest-check.txt"),
+  [
+    `seed=${SEED}`,
+    `process_a=${procA}`,
+    `process_b=${procB}`,
+    `in_process=${a.digest}`,
+    `identical=${twoProcOk}`,
+    "",
+  ].join("\n"),
+);
+
 console.log(`lab:s0 wrote ${outDir}`);
-console.log(`twin_identical=${twinOk} seed+1_differs=${differOk}`);
+console.log(`twin_identical=${twinOk} two_process_identical=${twoProcOk} seed+1_differs=${differOk}`);
 console.log(`purity_exit=${purityCode} tests_exit=${testsCode}`);
 
-if (!twinOk || !differOk || purityCode !== 0 || testsCode !== 0) {
+if (!twinOk || !twoProcOk || !differOk || purityCode !== 0 || testsCode !== 0) {
   process.exit(1);
 }
