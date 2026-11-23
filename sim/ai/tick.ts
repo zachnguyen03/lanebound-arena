@@ -12,6 +12,7 @@ import type { Constants } from "../constants.js";
 import type { RngBank } from "../rng.js";
 import { isBanished } from "../status.js";
 import type { MatchConfig, MatchState, Team, UnitId } from "../types.js";
+import { retreatImmobile } from "../retreat_combat.js";
 import { hystS, mistakeBand, regroupS } from "./attributes.js";
 import { brainDecide, type ChaseState } from "./brain.js";
 import {
@@ -368,6 +369,7 @@ export function tickAi(
 
     // S2-R4-5 L1974: open a regroup_s suppress window on disengage Retreat/Regroup;
     // clear when the call flips. Expiry ends suppress without restarting.
+    // Immobile exception: do not force ai_no_freelance (same retreatImmobile).
     const retreating =
       ai.commit[team] === "disengage" &&
       (decision.intent === "Retreat" || decision.intent === "Regroup");
@@ -375,7 +377,9 @@ export function tickAi(
       if (u.ai_retreat_suppress_until === 0) {
         u.ai_retreat_suppress_until = state.t + regroupS(u.attrs.decision);
       }
-      u.ai_no_freelance = true;
+      if (!retreatImmobile(u, c)) {
+        u.ai_no_freelance = true;
+      }
     } else if (ai.commit[team] !== "disengage") {
       u.ai_retreat_suppress_until = 0;
     }

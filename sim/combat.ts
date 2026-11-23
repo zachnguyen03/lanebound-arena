@@ -18,7 +18,7 @@ import {
   type StatusState,
 } from "./status.js";
 // isLocked covers Lock category (stun/fear/hex/…) — cancel windups under Lock.
-import { retreatSuppressesCombat } from "./retreat_combat.js";
+import { retreatImmobile, retreatSuppressesCombat } from "./retreat_combat.js";
 import type { MatchState, UnitId, UnitState } from "./types.js";
 
 /** Marksman-like dummy L1 stats (Huntress numbers from build-spec §7.1). */
@@ -263,7 +263,8 @@ function pickAutoTarget(state: MatchState, atk: UnitState, c: Constants): UnitSt
   }
   // R #4: L1044 "Teamwork 50+ always-follow" is superseded. Block freestyle
   // nearest-in-range only when the brain set ai_no_freelance (focus dead/cleared).
-  if (atk.ai_target_id === null && atk.ai_no_freelance) {
+  // S2-R4-5: immobile Retreat still freelances via the same retreatImmobile predicate.
+  if (atk.ai_target_id === null && atk.ai_no_freelance && !retreatImmobile(atk, c)) {
     return null;
   }
   let best: UnitState | null = null;

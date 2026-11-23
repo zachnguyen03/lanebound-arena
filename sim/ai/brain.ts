@@ -6,6 +6,7 @@ import { inOwnSanctuary } from "../map.js";
 import { hasMark } from "../marks.js";
 import { hasKind, isBanished, isLocked, isTimeStopped } from "../status.js";
 import type { MatchState, UnitId, UnitState } from "../types.js";
+import { retreatImmobile } from "../retreat_combat.js";
 import { effExecution, holdDist, kiteSlackTiles, rHoldA, rHoldHp } from "./attributes.js";
 import { estTtk } from "./dps.js";
 import type { CommitKind } from "./fight.js";
@@ -176,12 +177,33 @@ export function brainDecide(
 
   // R #4 S2-R4-2 L1926: a disengage call is always followed. Retreat precedes
   // offensive execution casts and auto windups (Peel / locked / hex already
-  // returned above).
+  // returned above). S2-R4-5: immobile exception — keep Retreat, but name an
+  // in-range foe so autos/casts are not starved (same retreatImmobile predicate).
   if (effectiveCommit === "disengage") {
     const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    if (!retreatImmobile(u, opts.c)) {
+      return {
+        intent: "Retreat",
+        target_id: null,
+        waypoint: { x: pad[0]!, y: pad[1]! },
+        chase: null,
+        cast: null,
+      };
+    }
+    let inRange: UnitState | null = null;
+    let bestD = Infinity;
+    for (const e of state.units) {
+      if (!e.alive || e.team === u.team || isBanished(e.status)) continue;
+      const d = dist(u.x, u.y, e.x, e.y);
+      if (d > u.stats.range + 1e-9) continue;
+      if (d < bestD) {
+        bestD = d;
+        inRange = e;
+      }
+    }
     return {
       intent: "Retreat",
-      target_id: null,
+      target_id: inRange?.id ?? null,
       waypoint: { x: pad[0]!, y: pad[1]! },
       chase: null,
       cast: null,
