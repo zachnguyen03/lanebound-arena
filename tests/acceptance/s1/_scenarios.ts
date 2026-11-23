@@ -29,6 +29,6 @@ export function abilityRun(a: Ability, L: number, tl = L, extra: Partial<Scenari
   }
   if (a.shape === "streak" && a.champ === "kerrig") c.target = FOE;
   casts.push(c);
-  const sc: Scenario = { T: 6, units, casts, pos: true, ...extra };
+  const sc: Scenario = { T: 6, pos: true, ...extra, units: { ...units, ...(extra.units ?? {}) }, casts: extra.casts ?? casts };
   return { r: run(sc), a, L, tl, casterId: CASTER, foe: FOE, ally: ALLY, castTick, d, sc };
 }

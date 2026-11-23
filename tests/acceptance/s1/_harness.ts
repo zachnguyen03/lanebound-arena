@@ -122,6 +122,30 @@ export function run(sc: Scenario): Run {
   return new Run(r.events as Ev[], units, r.digest, sc, sh);
 }
 
+/**
+ * L1899 makes every living same-team unit part of the hex centroid. `run()` parks
+ * unnamed defaultEvenConfig slots as living idle champs at the team spawn, which
+ * yanks a mid-lane hex victim toward that cluster. Call this when a scenario hexes
+ * a unit whose motion is not under test: occupy every unused slot on `team` with
+ * living allies placed explicitly so the centroid stays at `at`.
+ *
+ * Anchors sit at y±5 (off a typical mid-lane skillshot). Requires an even number
+ * of unused slots (2 or 4 in the fixtures that use it) so the average is exactly `at`.
+ * Robust to the L214 spawn-slot ruling (pad centre + role×SPAWN_SLOT_SPACING, and
+ * the deletion of SPAWN_JITTER_Y): this helper never reads filler positions, the
+ * pad centre, or jitter.
+ */
+export function occupyTeamAt(team: "blue" | "red", at: [number, number], existing: Partial<Record<UId, UnitSpec>>): Partial<Record<UId, UnitSpec>> {
+  const unused = (["top", "jungle", "mid", "adc", "support"] as const)
+    .map((role) => `${team}:${role}` as UId)
+    .filter((id) => !existing[id]);
+  const out: Partial<Record<UId, UnitSpec>> = {};
+  unused.forEach((id, i) => {
+    out[id] = { champ: "torun", level: 7, x: at[0], y: at[1] + (i % 2 === 0 ? 5 : -5) };
+  });
+  return out;
+}
+
 /** Shared geometry for single-ability scenarios. Caster blue:mid at (6,8); enemy red:mid; ally blue:adc. */
 export const CASTER: UId = "blue:mid";
 export const FOE: UId = "red:mid";

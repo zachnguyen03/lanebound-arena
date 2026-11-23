@@ -1,7 +1,7 @@
 /** Cast / cooldown / windup / auto-cadence / attack-reset / time-stop timer pausing (spec §6.8-6.9 L506-523, §6.5 L448, §4.3 L142-144). */
 import { describe, expect, it } from "vitest";
 import { ABILITIES, mit } from "./_oracle.js";
-import { run, type Scenario, type UId } from "./_harness.js";
+import { FOE, occupyTeamAt, run, type Scenario, type UId } from "./_harness.js";
 import { abilityRun } from "./_scenarios.js";
 
 describe("Cooldowns: a skill cannot be recast before its authored CD and can after it (spec §7 'CD x s'; no mana, L523)", () => {
@@ -11,7 +11,11 @@ describe("Cooldowns: a skill cannot be recast before its authored CD and can aft
     const base = abilityRun(a, 7, 7, { T: a.cd + 3 });
     // re-run with two extra copies of the same cast
     const main = base.sc.casts!.find((c) => c.key === a.key)!;
-    const ar = abilityRun(a, 7, 7, { T: a.cd + 3, casts: [main, { ...main, tick: t1 }, { ...main, tick: t2 }] });
+    // Mirren W (and any foe-hex) would otherwise walk the target off range under L1899
+    // because harness fillers sit at the red spawn. Pin the centroid on the foe; aims unchanged.
+    const foe = base.sc.units[FOE]!;
+    const pin = a.cc?.some((c) => c.kind === "hex") ? occupyTeamAt("red", [foe.x, foe.y], base.sc.units) : {};
+    const ar = abilityRun(a, 7, 7, { T: a.cd + 3, casts: [main, { ...main, tick: t1 }, { ...main, tick: t2 }], units: pin });
     const cs = ar.r.casts(ar.casterId, a.key);
     expect(cs.length, "first accepted, the early recast refused, the late recast accepted").toBe(2);
     expect(cs[1]!.t).toBeGreaterThanOrEqual(0.5 + a.cd - 0.05);

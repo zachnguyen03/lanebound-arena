@@ -5,8 +5,10 @@
  */
 import { describe, expect, it } from "vitest";
 import {
+  constantsHash,
   DEFAULT_CONSTANTS,
   defaultEvenConfig,
+  mergeConstants,
   simulate,
   spawnPose,
 } from "../sim/index.js";
@@ -27,6 +29,15 @@ describe("L214 spawn-slot spacing", () => {
     expect(DEFAULT_CONSTANTS.SPAWN_SLOT_SPACING).toBeGreaterThanOrEqual(0.8);
     expect(DEFAULT_CONSTANTS.SPAWN_SLOT_SPACING).toBeLessThanOrEqual(1.2);
     expect("SPAWN_JITTER_Y" in DEFAULT_CONSTANTS).toBe(false);
+  });
+
+  it("changing SPAWN_SLOT_SPACING changes constants_hash", () => {
+    const base = constantsHash(DEFAULT_CONSTANTS);
+    const low = constantsHash(mergeConstants({ SPAWN_SLOT_SPACING: 0.8 }));
+    const high = constantsHash(mergeConstants({ SPAWN_SLOT_SPACING: 1.2 }));
+    expect(low).not.toBe(base);
+    expect(high).not.toBe(base);
+    expect(low).not.toBe(high);
   });
 
   it("t=0: all 10 units sit on pad centre ± slot spacing (y 5.5…9.5)", () => {

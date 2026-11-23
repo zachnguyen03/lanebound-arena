@@ -10,14 +10,16 @@
  */
 import { describe, expect, it } from "vitest";
 import { mit, rawDamage, ab } from "./_oracle.js";
-import { lazy, run, skillIs, type Scenario, type UId } from "./_harness.js";
+import { lazy, occupyTeamAt, run, skillIs, type Scenario, type UId } from "./_harness.js";
 
 const MI = "blue:mid" as UId, V = "red:mid" as UId, H = "blue:adc" as UId, MA = "blue:jungle" as UId, MA2 = "blue:top" as UId;
 const hq = 190 * mit(66);                       // Huntress Q L7 vs Torun L7 PRes 66, no amp
 const mq = (160 + 1.35 * 84) * mit(60);         // Maelis Q L7 vs Torun L7 MRes 60, no amp
 function scn(extra: Partial<Scenario> = {}, mirrenLevel = 7, tl = 7): Scenario {
-  return { T: 7, units: { [MI]: { champ: "mirren", level: mirrenLevel, x: 6, y: 8 }, [V]: { champ: "torun", level: tl, x: 9, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9, auto: true }, [MA]: { champ: "maelis", level: 7, x: 6, y: 7 }, [MA2]: { champ: "maelis", level: 7, x: 6, y: 6.2 } },
-    casts: [{ tick: 3, by: MI, key: "W", target: V }, { tick: 10, by: H, key: "Q", aim: [9, 8] }, { tick: 11, by: MA, key: "Q", aim: [9, 8] }, { tick: 45, by: MA2, key: "Q", aim: [9, 8] }, { tick: 60, by: H, key: "R", aim: [9, 8] }], ...extra };
+  const units: Scenario["units"] = { [MI]: { champ: "mirren", level: mirrenLevel, x: 6, y: 8 }, [V]: { champ: "torun", level: tl, x: 9, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9, auto: true }, [MA]: { champ: "maelis", level: 7, x: 6, y: 7 }, [MA2]: { champ: "maelis", level: 7, x: 6, y: 6.2 },
+    // L1899: occupy unused red slots so V is not yanked toward spawn fillers. Aims stay [9,8].
+    ...occupyTeamAt("red", [9, 8], { [V]: { champ: "torun", x: 9, y: 8 } }) };
+  return { T: 7, casts: [{ tick: 3, by: MI, key: "W", target: V }, { tick: 10, by: H, key: "Q", aim: [9, 8] }, { tick: 11, by: MA, key: "Q", aim: [9, 8] }, { tick: 45, by: MA2, key: "Q", aim: [9, 8] }, { tick: 60, by: H, key: "R", aim: [9, 8] }], ...extra, units: { ...units, ...(extra.units ?? {}) } };
 }
 
 describe("Kiln-Cured — unambiguous (spec L743, L397)", () => {

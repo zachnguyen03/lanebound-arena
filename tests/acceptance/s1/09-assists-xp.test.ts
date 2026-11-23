@@ -1,14 +1,17 @@
 /** Assist credit through to XP, from REAL casts (spec §6.10 L525-527, §5.3 L229-230 kill 45 / assist 20, §4.3 phase 10 L146). */
 import { describe, expect, it } from "vitest";
 import { ASSIST_XP, KILL_XP } from "./_oracle.js";
-import { run, type Scenario, type UId } from "./_harness.js";
+import { occupyTeamAt, run, type Scenario, type UId } from "./_harness.js";
 
 const MI = "blue:mid" as UId, H = "blue:adc" as UId, MA = "blue:top" as UId, YS = "blue:support" as UId, TO = "blue:jungle" as UId, V = "red:mid" as UId;
 const gain = (r: ReturnType<typeof run>, id: UId, source: string) => r.of("xp_gain", (e) => e.unit_id === id && e.source === source);
 
 function team(extra: Partial<Scenario> = {}, victimHp = 20): Scenario {
-  return { T: 9, units: { [MI]: { champ: "mirren", level: 7, x: 6, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9.2, hp: { frac: 0.5 } }, [MA]: { champ: "maelis", level: 7, x: 6, y: 6.8 }, [YS]: { champ: "ysol", level: 7, x: 6, y: 10.5 }, [TO]: { champ: "torun", level: 7, x: 6, y: 5.5 },
-    [V]: { champ: "torun", level: 7, x: 9, y: 8, hp: victimHp } }, ...extra };
+  const units: Scenario["units"] = { [MI]: { champ: "mirren", level: 7, x: 6, y: 8 }, [H]: { champ: "huntress", level: 7, x: 6, y: 9.2, hp: { frac: 0.5 } }, [MA]: { champ: "maelis", level: 7, x: 6, y: 6.8 }, [YS]: { champ: "ysol", level: 7, x: 6, y: 10.5 }, [TO]: { champ: "torun", level: 7, x: 6, y: 5.5 },
+    [V]: { champ: "torun", level: 7, x: 9, y: 8, hp: victimHp },
+    // L1899: occupy unused red slots so the hexed victim is not yanked toward spawn fillers. Aims stay [9,8].
+    ...occupyTeamAt("red", [9, 8], { [V]: { champ: "torun", x: 9, y: 8 } }) };
+  return { T: 9, ...extra, units: { ...units, ...(extra.units ?? {}) } };
 }
 describe("CC assist: Mirren's hex (real W) within 6 s before the kill → assist; killer gets kill XP", () => {
   const r = run(team({ casts: [{ tick: 3, by: MI, key: "W", target: V }, { tick: 25, by: H, key: "Q", aim: [9, 8] }] }));

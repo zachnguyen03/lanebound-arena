@@ -175,6 +175,7 @@ const sha = resolveCommit();
 const tmpLog = join(outDir, "tests.log.tmp");
 let vitestOk = false;
 let testCount = "?";
+let acceptanceLine = "FAIL";
 try {
   const vitestLog = execSync("npx vitest run", { cwd: root, encoding: "utf8" });
   writeFileSync(tmpLog, vitestLog);
@@ -182,6 +183,21 @@ try {
   const m = vitestLog.match(/Tests\s+(\d+) passed/);
   testCount = m ? m[1]! : "?";
   writeFileSync(join(outDir, "tests.log"), vitestLog);
+  // Acceptance count (official s1 suite) — separate run so REPORT can show 960/960.
+  try {
+    const accLog = execSync("npx vitest run tests/acceptance/s1", {
+      cwd: root,
+      encoding: "utf8",
+    });
+    const am = accLog.match(/Tests\s+(\d+) passed(?:\s*\|\s*\d+ skipped)?\s+\((\d+)\)/);
+    if (am) acceptanceLine = `${am[1]}/${am[2]}`;
+    else {
+      const am2 = accLog.match(/Tests\s+(\d+) failed \| (\d+) passed \((\d+)\)/);
+      if (am2) acceptanceLine = `${am2[2]}/${am2[3]}`;
+    }
+  } catch {
+    acceptanceLine = "FAIL";
+  }
 } catch (e: unknown) {
   const err = e as { stdout?: string; stderr?: string };
   const vitestLog = (err.stdout ?? "") + (err.stderr ?? "") + String(e);
@@ -189,6 +205,7 @@ try {
   // Do not overwrite prior tests.log on failure
   if (!existsSync(join(outDir, "tests.log"))) writeFileSync(join(outDir, "tests.log"), vitestLog);
   testCount = "FAIL";
+  acceptanceLine = "FAIL";
 }
 
 let mutationTable = "_run `npx tsx apps/lab/mutation-s1.ts`_";
@@ -225,8 +242,10 @@ npx tsx apps/lab/mutation-s1.ts
 
 | Check | Result |
 |---|---|
-| \`npm test\` | **${testCount} passed** |
-| M1 fixtures | **${allPass ? "pass" : "FAIL"}** |
+| \`npm test\` | **${vitestOk ? "PASS" : "FAIL"} — ${testCount} passed** |
+| acceptance s1 | **${acceptanceLine}** |
+| M1 fixtures | **${allPass ? "PASS" : "FAIL"}** |
+| \`constants_hash\` | \`${chash}\` |
 | \`data_hash\` | \`${dhash}\` (INV-DATA-HASH) |
 | Mutation probe | see table below |
 
