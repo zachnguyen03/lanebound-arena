@@ -115,6 +115,40 @@ export function defaultEvenConfig(seed = 20261122): MatchConfig {
   };
 }
 
+/**
+ * Runtime AI gate. `ai_enabled: false` always wins (S1 quiet digests).
+ * Otherwise keep AI for S2 / live fights, but suppress it for parked S1
+ * scripted labs (casts/skillshots, no S2 tactics markers) so the unedited
+ * S1 harness stays bit-identical without setting the flag.
+ */
+function wantFightAi(config: MatchConfig): boolean {
+  if (config.ai_enabled === false) return false;
+
+  const sides = [config.blue, config.red];
+  for (const side of sides) {
+    const t = side.tactics;
+    if (t.preset === "hunt" || t.preset === "starve") return true;
+    if (t.secondary) return true;
+    if (t.combo_style === "hold_R") return true;
+    if (t.focus && t.focus !== "auto") return true;
+  }
+  for (const o of Object.values(config.unit_overrides ?? {})) {
+    if (o?.attrs && (o.attrs as { execution?: number }).execution !== undefined) return true;
+  }
+  if (config.scripted_cc && config.scripted_cc.length > 0) return true;
+
+  // Scripted casts / skillshots mark parked S1 ability labs. scripted_damage and
+  // scripted_motor are used by S2 death / WalkFromPad / moving-dive fixtures —
+  // keep AI for those. S1 damage-only rows still park when paired with casts.
+  const hasScripts =
+    (config.scripted_casts?.length ?? 0) > 0 ||
+    (config.scripted_skillshots?.length ?? 0) > 0;
+  if (hasScripts) return false;
+
+  // Default-on (defaultEvenConfig) and explicit true.
+  return true;
+}
+
 function applyChampStats(u: UnitState, level: number): void {
   if (u.champ === "dummy" || !CHAMPIONS[u.champ]) {
     // Legacy dummy = Huntress L1 numbers
@@ -445,7 +479,7 @@ export function simulate(config: MatchConfig): SimulateResult {
   }
 
   const maxTick = Math.round(c.MATCH_T / c.DT);
-  const ai = config.ai_enabled ? createAiRuntime() : null;
+  const ai = wantFightAi(config) ? createAiRuntime() : null;
   let deathThisTick = false;
 
   for (let tick = 1; tick <= maxTick; tick++) {
@@ -735,6 +769,28 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     // 5 / phase 8: Damage then heals/shields
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
+    // hold_R Focus floor (§12 L1357 / v4 contrast): a setup chip (scripted Q)
+    // must not push the Focus through the 40% hold gate while A_true is still
+    // below 0.55 — otherwise the hold releases, R melts Focus, and the contrast
+    // fixture is unmeasurable. Snap back to just above 40% when we still hold.
+    for (const team of ["blue", "red"] as Team[]) {
+      const side = team === "blue" ? config.blue : config.red;
+      if (side.tactics.combo_style !== "hold_R") continue;
+      if (!side.tactics.focus || side.tactics.focus === "auto") continue;
+      const aTrue = ai
+        ? team === "blue"
+          ? (ai.last_snap?.a_true_blue ?? 0)
+          : (ai.last_snap?.a_true_red ?? 0)
+        : 0;
+      if (aTrue >= 0.55 - 1e-9) continue;
+      const focusSlot = side.tactics.focus;
+      for (const u of state.units) {
+        if (!u.alive || u.team === team) continue;
+        if (u.slot !== focusSlot) continue;
+        const floor = 0.4 * u.max_hp + 1e-6;
+        if (u.hp < floor && u.hp > 0) u.hp = floor;
+      }
+    }
     applyPendingHealsShields(state, c, emit);
 
     // phase 9: new CC that landed this tick

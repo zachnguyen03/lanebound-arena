@@ -453,12 +453,12 @@ function chooseExecutionCast(
   }
   if (!foe) return null;
 
+  const aTrue = opts.aTrue ?? 0.5;
+  const focusHpFrac = foe.hp / Math.max(1, foe.max_hp);
+
+  // §12 L1357 / L1007: coach hold_R holds until A_true ≥ 0.55 or Focus below 40%.
   if (opts.comboStyle === "hold_R" && u.cd_r <= 1e-9 && u.level >= 5) {
-    const aGate = Math.max(0.55, rHoldA(ex));
-    const hpGate = Math.max(0.4, rHoldHp(ex));
-    const aTrue = opts.aTrue ?? 0.5;
-    // §12 L1357: hold R while A_true is below the gate and Focus HP% is above the HP gate.
-    if (aTrue < aGate - 1e-9 && foe.hp / foe.max_hp > hpGate - 1e-9) {
+    if (aTrue < 0.55 - 1e-9 && focusHpFrac > 0.4 - 1e-9) {
       return null;
     }
   }
@@ -466,9 +466,18 @@ function chooseExecutionCast(
   const marked = hasMark(foe.marks, u.champ === "kerrig" ? "kerrig" : "huntress", state.t);
   if (u.cd_r <= 1e-9 && u.level >= 5) {
     if (ex >= 45) {
+      // §8.4 L1007: auto holds the mark-gated finisher until A_true / Focus HP gates.
+      if (
+        (opts.comboStyle === "auto" || opts.comboStyle === undefined) &&
+        aTrue < rHoldA(ex) - 1e-9 &&
+        focusHpFrac > rHoldHp(ex) - 1e-9
+      ) {
+        return null;
+      }
       if (marked) return { skill: "R", target_id: foe.id };
       return null;
     }
+    // L998: low Execution fires R without a mark once Q is on CD (may fizzle).
     if (u.cd_q > 0.5) return { skill: "R", target_id: foe.id };
   }
   return null;
