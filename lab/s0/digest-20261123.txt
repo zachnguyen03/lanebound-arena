@@ -1,0 +1,5 @@
+seed=20261123
+constants_hash=08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb
+digest=be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3
+tick_count=2400
+differs_from_20261122=true
