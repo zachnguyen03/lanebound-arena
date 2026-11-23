@@ -121,6 +121,7 @@ export function WatchShell() {
       if (events.length === 0) throw new Error("Log is empty");
       const eng = new ReplayEngine(events);
       setEngine(eng);
+      setLiveDigest(eng.digest);
       setSourceName(name);
       setTick(0);
       setPhase("ready");
@@ -573,7 +574,7 @@ export function WatchShell() {
               />
               <DevPanel
                 state={state}
-                digest={engine.digest}
+                digest={liveDigest}
                 sourceName={sourceName}
               />
             </div>
