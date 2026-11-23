@@ -6,6 +6,7 @@ import { KITS, type AbilityDef, type AbilityShape } from "../data/champions/kits
 import type { Constants } from "./constants.js";
 import { cancelAutoWindup, recordAssistCredit } from "./combat.js";
 import { abilityBaseRaw } from "./formula.js";
+import { retreatCastAllowed } from "./retreat_combat.js";
 import {
   clampAimToRange,
   unitsInCircle,
@@ -128,6 +129,9 @@ export function canCast(
   c: Constants,
 ): boolean {
   if (!canCastSkill(unit, skill, state, c)) return false;
+  // S2-R4-5 L1974: mobile Retreat/Regroup — no damage-only casts (defensive /
+  // escape / peel-CC exceptions in retreatCastAllowed).
+  if (!retreatCastAllowed(unit, skill, cast, state, c)) return false;
   const ab = abilityOf(unit.champ, skill);
   if (!shapeNeedsTarget(ab.shape)) return true;
   if (!cast.target_id) return false;

@@ -20,6 +20,7 @@ export type IntentName =
   | "Chase"
   | "Peel"
   | "Retreat"
+  | "Regroup"
   | "Idle"
   | "Dead"
   | "WalkFromPad";

@@ -34,6 +34,7 @@ import {
 } from "./status.js";
 import { statsAtLevel } from "./stats.js";
 import { createAiRuntime, tickAi } from "./ai/tick.js";
+import { cancelRetreatWindupIfMoving } from "./retreat_combat.js";
 import type {
   MatchConfig,
   MatchState,
@@ -46,6 +47,7 @@ import type {
   UnitId,
   UnitState,
 } from "./types.js";
+import { hypot } from "./math.js";
 
 const SLOTS: Slot[] = ["top", "jungle", "mid", "adc", "support"];
 
@@ -202,6 +204,7 @@ function makeUnit(
     rewind_used: false,
     abandon_scripted_motor: false,
     ai_target_id: null,
+    ai_retreat_suppress_until: 0,
     walk_from_pad_until: 0,
     ai_first_auto_done: false,
   };
@@ -519,6 +522,13 @@ export function simulate(config: MatchConfig): SimulateResult {
           reason: "path",
         });
       }
+    }
+    // S2-R4-5: first retreat step cancels an unapplied windup (unless it applies this tick).
+    for (let i = 0; i < state.units.length; i++) {
+      const u = state.units[i]!;
+      const prev = phaseStart[i]!;
+      const moved = hypot(u.x - prev.x, u.y - prev.y) > 1e-9;
+      cancelRetreatWindupIfMoving(u, moved, state, c);
     }
 
     const due = state.displacements

@@ -12,7 +12,7 @@ import type { Constants } from "../constants.js";
 import type { RngBank } from "../rng.js";
 import { isBanished } from "../status.js";
 import type { MatchConfig, MatchState, Team, UnitId } from "../types.js";
-import { hystS, mistakeBand } from "./attributes.js";
+import { hystS, mistakeBand, regroupS } from "./attributes.js";
 import { brainDecide, type ChaseState } from "./brain.js";
 import {
   canFlipCommit,
@@ -365,6 +365,20 @@ export function tickAi(
       !!ai.fight_id &&
       decision.target_id === null &&
       (ai.focus[team] === null || ai.focus_died[team]);
+
+    // S2-R4-5 L1974: open a regroup_s suppress window on disengage Retreat/Regroup;
+    // clear when the call flips. Expiry ends suppress without restarting.
+    const retreating =
+      ai.commit[team] === "disengage" &&
+      (decision.intent === "Retreat" || decision.intent === "Regroup");
+    if (retreating) {
+      if (u.ai_retreat_suppress_until === 0) {
+        u.ai_retreat_suppress_until = state.t + regroupS(u.attrs.decision);
+      }
+      u.ai_no_freelance = true;
+    } else if (ai.commit[team] !== "disengage") {
+      u.ai_retreat_suppress_until = 0;
+    }
 
     if (decision.cast) {
       beginCast(

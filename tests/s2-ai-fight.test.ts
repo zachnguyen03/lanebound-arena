@@ -84,6 +84,7 @@ function bare(partial: Partial<UnitState> & Pick<UnitState, "id" | "team" | "slo
     rewind_used: false,
     abandon_scripted_motor: false,
     ai_target_id: null,
+    ai_retreat_suppress_until: 0,
     walk_from_pad_until: 0,
     ai_first_auto_done: false,
   };

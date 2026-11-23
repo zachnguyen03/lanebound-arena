@@ -18,6 +18,7 @@ import {
   type StatusState,
 } from "./status.js";
 // isLocked covers Lock category (stun/fear/hex/…) — cancel windups under Lock.
+import { retreatSuppressesCombat } from "./retreat_combat.js";
 import type { MatchState, UnitId, UnitState } from "./types.js";
 
 /** Marksman-like dummy L1 stats (Huntress numbers from build-spec §7.1). */
@@ -61,11 +62,18 @@ export function cancelAutoWindup(u: UnitState): boolean {
 }
 
 /** §6.8 gates: cannot start auto while disarmed / locked / attack-reset pending. Time-stop is a Lock (isLocked). */
-export function canStartAuto(u: UnitState, st: StatusState): boolean {
+export function canStartAuto(
+  u: UnitState,
+  st: StatusState,
+  state?: MatchState,
+  c?: Constants,
+): boolean {
   if (u.attack_reset_pending) return false;
   if (isDisarmed(st)) return false;
   if (isLocked(st)) return false;
   if (isBanished(st)) return false;
+  // S2-R4-5 L1974: mobile Retreat/Regroup starts no new autos.
+  if (state && c && retreatSuppressesCombat(u, state, c)) return false;
   return true;
 }
 
@@ -172,9 +180,9 @@ export function tickAutos(
 
     // Ready to start a new windup?
     if (state.t < atk.auto_next_start_t) continue;
-    if (!canStartAuto(atk, atk.status)) continue;
+    if (!canStartAuto(atk, atk.status, state, c)) continue;
 
-    const target = pickAutoTarget(state, atk);
+    const target = pickAutoTarget(state, atk, c);
     if (!target) continue;
 
     const windup = c.AUTO_WINDUP / atk.stats.as;
@@ -232,7 +240,9 @@ export function landMissiles(
   return keep;
 }
 
-function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
+function pickAutoTarget(state: MatchState, atk: UnitState, c: Constants): UnitState | null {
+  // S2-R4-5: mobile retreat — no freestyle (or any) new auto target.
+  if (retreatSuppressesCombat(atk, state, c)) return null;
   if (isTaunted(atk.status)) {
     const tid = tauntSourceId(atk.status);
     if (tid) {

@@ -234,6 +234,12 @@ export interface UnitState {
   /** Set by AI when Teamwork forbids freelance autos (focus dead / awaiting call). */
   ai_no_freelance?: boolean;
   /**
+   * S2-R4-5: sim t until which a mobile Retreat/Regroup suppresses new autos and
+   * damage-only casts (0 = inactive). Cleared when the disengage call flips;
+   * expires at regroup_s.
+   */
+  ai_retreat_suppress_until: number;
+  /**
    * §9.6 L1164: sim t until which WalkFromPad applies after a respawn.
    * Match-start spawn does not set this — only post-death respawn does.
    */
