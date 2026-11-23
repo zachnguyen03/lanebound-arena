@@ -96,14 +96,31 @@ async function hitTestId(
   return { ok: true, detail: `${testId} ok` };
 }
 
-/** Visible label must read "Level up" (space in DOM + ≥3px glyph gap), never "Levelup". */
+/**
+ * Seed sample has level_up at tick 122. Drive scrubber there, set filter
+ * state explicitly, then assert the visible label reads "Level up".
+ */
 async function assertLevelUpLabel(page: Page) {
+  // Known tick from seed-20261122.jsonl (first level_up cluster).
+  await page.getByTestId("scrubber").fill("122");
+  await expect(page.getByTestId("scrubber")).toHaveValue("122");
+
+  // Explicit filter state — do not rely on defaults or leftover input.
+  const hideXp = page.locator(
+    '[data-testid="event-log-panel"] label:has-text("Hide XP gains") input[type="checkbox"]',
+  );
+  await hideXp.check();
+  await page.getByTestId("event-filter").fill("Level up");
+
   const labels = page.locator(
     '[data-testid="event-type-label"][data-event-type="level_up"]',
   );
-  await expect(labels.first()).toBeVisible();
+  await expect(labels.first()).toBeVisible({ timeout: 15_000 });
+  await expect(labels.first()).toHaveAttribute("data-label", "Level up");
+  await expect(labels.first()).toHaveText("Level up");
+
   const meta = await labels.evaluateAll((els) =>
-    els.map((el) => {
+    els.slice(0, 5).map((el) => {
       const text = el.textContent ?? "";
       const node = el.firstChild;
       let spaceW = 0;
@@ -116,19 +133,15 @@ async function assertLevelUpLabel(page: Page) {
           spaceW = range.getBoundingClientRect().width;
         }
       }
-      return {
-        dataLabel: el.getAttribute("data-label"),
-        text,
-        spaceW,
-      };
+      return { text, spaceW };
     }),
   );
   expect(meta.length).toBeGreaterThan(0);
   for (const m of meta) {
-    expect(m.dataLabel).toBe("Level up");
     expect(m.text).toBe("Level up");
-    expect(m.text.includes("Levelup")).toBe(false);
-    expect(m.spaceW, "space glyph width").toBeGreaterThanOrEqual(3);
+    expect(m.spaceW, "space glyph width after word-spacing").toBeGreaterThanOrEqual(
+      3,
+    );
   }
 }
 

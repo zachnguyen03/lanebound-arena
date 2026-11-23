@@ -48,6 +48,7 @@ npm run lab:s4
 - **Event log @1080:** flex column drawer; stage rebuilt to 1600×1080 (112 px rails, map 1:1) and centred — no transform.
 - **Event log @720:** centred **modal** over dimmed stage (dim is non-blocking so rails/transport stay hittable); focus trap; Close / Escape.
 - Event log labels are human-readable (`Level up`, `Hide XP gains`) — no snake_case in the UI.
+- Cause of “Levelup”: Barlow’s space glyph at `text-xs` is ~2px in the 320px dock; `word-spacing: 0.35em` widens it.
 - Transport speeds: **0.5 / 1 / 2 / 4 / 8**.
 - Fallback spawns at **tile centres** `(1.5,7.5)` / `(22.5,7.5)` (GD). Props at tile centres. Units follow log poses when present.
 
