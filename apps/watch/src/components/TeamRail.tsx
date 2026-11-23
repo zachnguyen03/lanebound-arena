@@ -35,9 +35,13 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
         const y = tf.y0 - rail[1] + i * (fh + tf.gap);
         const compact = fw <= 112;
         const pack = portraits?.[u.champ];
-        const portrait = compact
-          ? (pack?.compact ?? pack?.[side])
-          : pack?.[side];
+        const compactArt =
+          pack?.compact &&
+          pack.compact.naturalWidth === 24 &&
+          pack.compact.naturalHeight === 24
+            ? pack.compact
+            : undefined;
+        const portrait = compact ? compactArt : pack?.[side];
         const portraitPx = compact ? 24 : 64;
         return (
           <div

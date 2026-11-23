@@ -74,8 +74,25 @@ test.describe("S4 live evenOvr match", () => {
       await expect(page.getByTestId("portrait-red:top")).toBeVisible();
       const portrait = page.getByTestId("portrait-blue:adc");
       const portraitBox = await portrait.boundingBox();
-      expect(portraitBox?.width).toBe(vp.width >= 1920 ? 64 : 24);
+      const wantPx = vp.width >= 1920 ? 64 : 24;
+      expect(portraitBox?.width).toBe(wantPx);
       expect(portraitBox?.height).toBe(portraitBox?.width);
+      const natural = await portrait.evaluate((img: HTMLImageElement) => ({
+        w: img.naturalWidth,
+        h: img.naturalHeight,
+      }));
+      expect(natural).toEqual({ w: wantPx, h: wantPx });
+      if (wantPx === 24) {
+        const sedge = page.getByTestId("portrait-blue:jungle");
+        const sedgeBox = await sedge.boundingBox();
+        const sedgePx = await sedge.evaluate((img: HTMLImageElement) => ({
+          w: img.naturalWidth,
+          h: img.naturalHeight,
+        }));
+        expect(sedgeBox?.width).toBe(24);
+        expect(sedgeBox?.height).toBe(24);
+        expect(sedgePx).toEqual({ w: 24, h: 24 });
+      }
       await page.screenshot({
         path: path.join(outDir, `watch-${vp.name}-mid.png`),
       });
