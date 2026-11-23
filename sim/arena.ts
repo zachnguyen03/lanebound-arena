@@ -335,22 +335,26 @@ export function tickArenaPhase11(
   }
 
   // Orb / buff spawns then pickups (G4: spawn before pickup; already-on-pad picks next tick)
+  const spawnedOrbs = new Set<string>();
+  const spawnedBuffs = new Set<string>();
   for (const orb of arena.orbs) {
     if (!orb.up && state.t + 1e-12 >= orb.respawn_at) {
       orb.up = true;
+      spawnedOrbs.add(orb.orb_id);
       emit("orb_spawn", { orb_id: orb.orb_id, x: orb.x, y: orb.y });
     }
   }
   for (const buff of arena.buffs) {
     if (!buff.up && state.t + 1e-12 >= buff.respawn_at) {
       buff.up = true;
+      spawnedBuffs.add(buff.buff_id);
       emit("buff_spawn", { buff_id: buff.buff_id, x: buff.x, y: buff.y });
     }
   }
 
-  // Pickups — unit order, once per pad
+  // Pickups — unit order, once per pad; skip pads that spawned this tick (G4)
   for (const orb of arena.orbs) {
-    if (!orb.up) continue;
+    if (!orb.up || spawnedOrbs.has(orb.orb_id)) continue;
     let picker: UnitState | null = null;
     for (const u of state.units) {
       if (!canPickup(u)) continue;
@@ -372,7 +376,7 @@ export function tickArenaPhase11(
   }
 
   for (const buff of arena.buffs) {
-    if (!buff.up) continue;
+    if (!buff.up || spawnedBuffs.has(buff.buff_id)) continue;
     let picker: UnitState | null = null;
     for (const u of state.units) {
       if (!canPickup(u)) continue;
@@ -386,8 +390,9 @@ export function tickArenaPhase11(
     buff.respawn_at = state.t + c.BUFF_RESPAWN_S;
     const until = state.t + c.BUFF_DURATION_S;
     arena.buff_until[picker.id] = until;
-    if (!buff.holders.includes(picker.id)) buff.holders.push(picker.id);
-    // Refresh: clear other holders? Spec: no stack — one buff instance per pad pickup
+    picker.flank_buff_until = until;
+    // Refresh: holders list is who currently carries this pad's buff
+    buff.holders = [picker.id];
     emit("buff_pickup", {
       buff_id: buff.buff_id,
       unit_id: picker.id,
