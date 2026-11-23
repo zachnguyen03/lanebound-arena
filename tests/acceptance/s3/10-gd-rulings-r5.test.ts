@@ -67,7 +67,9 @@ describe("S3-R5-1 L1936–L1945 — independent bars, 1.0/s drain, integer ticks
     const r = runS3({
       T: 3.0,
       units: { [BA]: placeInZone(BA) },
-      cc: [{ tick: 20, target: BA, kind: "banish", duration: 5 }],
+      // G8 / S3-R5-1: a banish is visible to this tick's phase-11 occupancy.
+      // Ticks 1–20 exclusive, then banish from tick 21 through 30 (10 empty ticks).
+      cc: [{ tick: 21, target: BA, kind: "banish", duration: 5 }],
     });
     expect(barTicks(zoneOf(r), "blue")).toBe(10);
     expect(zoneOf(r).owner).toBeNull();
@@ -135,7 +137,9 @@ describe("S3-R5-1 L1936–L1945 — independent bars, 1.0/s drain, integer ticks
         [RA]: placeInZone(RA, {}, { x: 0.6 }),
       },
       cc: [
-        { tick: 1, target: RA, kind: "banish", duration: 14.8 },
+        // 14.75 s covers ticks 1–148 and is expired by 149 when a newly applied
+        // CC is not ticked down on its apply tick (L144 "Tick existing durations").
+        { tick: 1, target: RA, kind: "banish", duration: 14.75 },
         { tick: 155, target: RA, kind: "banish", duration: 20 },
       ],
     });
@@ -151,14 +155,18 @@ describe("S3-R5-1 L1936–L1945 — independent bars, 1.0/s drain, integer ticks
     // Blue captures at 30; holds exclusive until timer is well above 1; then Red
     // takes 30 exclusive ticks and captures. After Red's capture, timer is 1 (reset, then first tick).
     const r = runS3({
-      T: 9.0,
+      // End on Red's capture tick. Running past it would leave timer > 1.
+      // duration 4.95 (not 5.0): a newly applied CC is not ticked on the apply
+      // tick (L144), so ticks 1–50 are Blue-exclusive and tick 51 is unambiguously
+      // Red-exclusive (5.0 is a 50-tick boundary and can leave a leftover 1e-16).
+      T: 8.0,
       units: {
         [BA]: placeInZone(BA, {}, { x: -0.6 }),
         [RA]: placeInZone(RA, {}, { x: 0.6 }),
       },
       cc: [
-        { tick: 1, target: RA, kind: "banish", duration: 5.0 }, // blue captures and holds
-        { tick: 51, target: BA, kind: "banish", duration: 20 }, // red exclusive from tick 51
+        { tick: 1, target: RA, kind: "banish", duration: 4.95 },
+        { tick: 51, target: BA, kind: "banish", duration: 20 }, // red exclusive ticks 51–80
       ],
     });
     expect(zoneOf(r).owner).toBe("red");
@@ -247,7 +255,14 @@ describe("S3-R5-2 L1947–L1951 — phase-14 single decision, trades cancel, pre
     // is enough to pin takedown-before-claim_award. zone_tick order is pinned above.
     const r = runS3({
       T: 3,
-      units: close(),
+      // close() sits in the pit and would deny the blue claim (§5.6). The pin
+      // is log order, so the bodies stand outside and the claim is awarded.
+      units: {
+        [BA]: { x: 4, y: 2, spawn_shield_until: 0, auto: false },
+        [BM]: { x: 4.5, y: 2, spawn_shield_until: 0, auto: false },
+        [RA]: { x: 20, y: 2, spawn_shield_until: 0, auto: false },
+        [RM]: { x: 20.5, y: 2, spawn_shield_until: 0, auto: false },
+      },
       constants: { CLAIM_DELAY_S: 0.5, SCORE_TO_WIN: 10, MATCH_T: 3.0 },
       claims: [{ tick: 5, team: "blue", fight_id: "ord" }], // resolve_at = 0.5+0.5=1.0, tick 10
       damage: [killAt(10, BA, RA), killAt(10, RM, BM)],
@@ -397,7 +412,9 @@ describe("S3-R5-5 L1959 — G7 pickup once in phase 11, no swept path, orbs and 
       const r = runS3({
         T: 8.3,
         units: { [BA]: { x: PAD0.x, y: PAD0.y, spawn_shield_until: 0, auto: false } },
-        cc: [{ tick: 70, target: BA, kind, duration: 5 }],
+        // Apply on the pickup tick (81): movement this tick is still unforced, so
+        // a solo hex/fear/leash cannot walk off the pad before phase 11 (G7, L1959).
+        cc: [{ tick: 81, target: BA, kind, duration: 5 }],
       });
       expect(r.of("orb_spawn").length).toBeGreaterThanOrEqual(8);
       expect(r.of("orb_pickup", (e) => e.unit_id === BA)).toHaveLength(1);
@@ -417,7 +434,7 @@ describe("S3-R5-5 L1959 — G7 pickup once in phase 11, no swept path, orbs and 
       T: 3.0,
       units: { [BA]: { x: 7.5, y: 7.5, spawn_shield_until: 0, auto: false } },
       constants: { BUFF_FIRST_SPAWN_S: 1.0 },
-      cc: [{ tick: 5, target: BA, kind: "fear", duration: 5 }],
+      cc: [{ tick: 11, target: BA, kind: "fear", duration: 5 }],
     });
     expect(fear.of("buff_pickup", (e) => e.unit_id === BA)).toHaveLength(1);
 
@@ -675,7 +692,7 @@ describe("S3-R5-10 L1970 — win needs score ≥ 10 and strictly ahead", () => {
         [BJ]: { x: 12.2, y: 6.5, spawn_shield_until: 0, auto: false },
         [RJ]: { x: 13.2, y: 6.5, spawn_shield_until: 0, auto: false },
       },
-      constants: { SCORE_TO_WIN: 2, MATCH_T: 20, SUDDEN_DEATH_T: 24, RESPAWN_BASE: 0.4, RESPAWN_PER_LEVEL: 0 },
+      constants: { SCORE_TO_WIN: 2, MATCH_T: 20, SUDDEN_DEATH_T: 24, RESPAWN_BASE: 0.4, RESPAWN_PER_LEVEL: 0, SPAWN_SHIELD_S: 0 },
       damage: [
         killAt(5, BA, RA),
         killAt(6, RM, BM), // 1–1

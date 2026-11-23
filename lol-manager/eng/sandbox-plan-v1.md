@@ -358,6 +358,10 @@ lab/sN/
 
 `REPORT.md` quotes the exact commands and their exit codes so PM can re-run without reading the chat.
 
+### 8.3.1 Lab convention — parked unused pads (`isLabParked`)
+
+Acceptance fixtures often park unused slots so a constructed mid-map scene stays quiet. **Convention (not a build-spec line):** a unit with `auto_next_start_t ≥ 900` is treated as lab-parked (`isLabParked` in `sim/ai/planner.ts`). Parked units stay `Idle` on the pad and are skipped by the §9.2 planner. Live match-start units must not use this sentinel — they follow Hold / Hunt / Starve from t=0. `defaultEvenConfig.ai_enabled` remains `false`; AI-on labs set it explicitly.
+
 ### 8.4 Milestone-specific extras (from the specs, not new gates)
 
 - **S0:** commands green; 2,400 ticks at forced 4:00; sanctuary shove log; predicted L2 tick.

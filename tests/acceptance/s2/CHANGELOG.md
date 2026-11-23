@@ -1,5 +1,49 @@
 # s2-acceptance changelog
 
+## v6 — S2 harness defaults AI on; four labs deferred (23 Nov 2026, Anh 19:30)
+
+### Tests / harness changed
+
+- `_harness.ts` `configOf` now sets `ai_enabled = sc.ai_enabled ?? true`. Justification: M2-20..24 (L1734–1737) and R #3 S2-4 (L1916) observe `fight_call`, `dive`, `peel_start`, and `intent` — those events exist only when fight AI is on. The official S2 suite is that fight-layer lab, so the harness turns AI on by default. A test may still set `ai_enabled: false` for an explicit off case. (S1 gold digests use `defaultEvenConfig` / `npm run digest` directly, not `configOf`.)
+- The disengage-follow behaviour check in `10-gd-rulings-r4.test.ts` (R #4 S2-R4-2 L1926: "Disengage calls are always followed") is **kept live** and is not deferred.
+
+### Tests skipped (bodies unchanged; not rewritten)
+
+Deferred to post-game polish (Anh 19:30). Each skip uses that exact reason string. What they check is listed in `DEFERRED.md`.
+
+- `03-auto-peel.test.ts` — M2 400-seed peel preview lab (L1160, L1735, R #3 S2-4).
+- `09-gd-rulings-r3.test.ts` — unconditional Focus-slot `focus_id` assert (to be aligned with S2-R4-4 L1930).
+- `11-probe-gaps.test.ts` — hold_R vs auto contrast fixture (L1359 / L1007).
+- `13-anti-tuning.test.ts` — Focus scored from the shotcaller at the pad vs in the pit (L1101).
+
+### Docs
+
+- `DEFERRED.md`: the four skipped labs, with what each one checks.
+- Counts in `CHANGES.md` / `README.md`.
+
+## v5 — S2-R4-4, survivor gaps, anti-tuning (23 Nov 2026)
+
+GD ruled S2-R4-4 (Appendix R #4 L1930, option a): `fight_call.focus_id` is the targeting-score winner after the ×1.25 Focus bump, and is null only when no legal target exists. Tests assert observables; no test is tuned to a tip.
+
+### Tests added
+
+- `10-gd-rulings-r4.test.ts`: S2-R4-4 (L1930) — (1) when the Focus slot's pre-bump score ≥ best other / 1.25, `focus_id` is the slot; (2) when another target's score > 1.25 × the slot's score, `focus_id` is that target.
+- `12-survivor-gaps.test.ts`: pointed tests for the v4 held-out survivors (tick-2 first call, sanctuary chase-stop, score-winning sanctuary ward, mastery Aim, WalkFromPad intent + leave, Lock skip, `dps_est` omits R below level 5, 0.4 s ttk stop with no Approach after the stop, hex to pad centre). Hysteresis clamp-binding cases live in `09`.
+- `13-anti-tuning.test.ts`: hold_R vs auto contrast that stays naturally above 40% HP, plus a chip that must remain below 40% (no simulator HP floor); AI-on fight_call/intent identity with or without a not-yet-due `scripted_cast`; Focus scored from the actual shotcaller when Top is at the pad; `dive` at the first tick condition (2) holds under default Decision 70, with `peeler_perceived: false` if perception has not elapsed.
+
+### v4 tests changed (one-line reasons)
+
+- `10-gd-rulings-r4.test.ts`: dropped the two unconditional `focus_id ===` coach-slot asserts (L102 / L127 in v4). The Teamwork-90 freelance and disengage behaviour checks are kept, on a case-(1) geometry so L1 focus is the slot. `aimedAt` ignores Idle intents that still carry a stale `target_id`.
+- `02-chase-stops.test.ts`: added a ttk stop that must land within 0.4 s of the first Chase/Approach so a 5-tick (0.5 s) grace fails.
+- `06-unit-brain.test.ts`: Lock is tested from an Idle start with the foe walking in during the stun (and the window ends before the stun expires, so the first post-Lock Engage is not a fail). WalkFromPad requires the named intent *and* leaving sanctuary.
+- `07-targeting-ward.test.ts`: the sanctuary / banish bodies would win the targeting score without the ward (low-HP marksman vs a pit tank).
+- `09-gd-rulings-r3.test.ts`: added Decision 1 (0.4 s floor binds) and Decision 150 (1.3 s cap binds). Hex-to-pad asserts y is closer to 7.5 than to the ADC slot at 8.5.
+- `_harness.ts`: `AiScenario.ai_enabled` can be set explicitly.
+
+### Docs
+
+- `OPEN-QUESTIONS.md`: S2-R4-4 is closed. The leftover §9.3 factor list and the L1044 typo note are unchanged.
+
 ## v4 — probe-gap tests (23 Nov 2026)
 
 Adds the pre-R #4 probe-gap tests on top of v3. Each cites the spec / R #3 line. Tests assert observable events and positions; no test is tuned to a tip.

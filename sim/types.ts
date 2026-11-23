@@ -261,6 +261,16 @@ export interface UnitState {
    * Match-start spawn does not set this — only post-death respawn does.
    */
   walk_from_pad_until: number;
+  /**
+   * Planner arrival hysteresis: once inside arrive_r, stay "at waypoint" until
+   * leave_r so HoldZone ↔ Idle does not flicker every tick.
+   */
+  ai_at_planner_wp: boolean;
+  /**
+   * §9.2 "do not trickle back in 1s": sim t until which a Retreat↔HoldZone
+   * (planner re-entry) flip is blocked after Retreat begins.
+   */
+  ai_no_trickle_until: number;
   /** True after this life has fired at least one auto (first-auto pose hold). */
   ai_first_auto_done: boolean;
   /** S3-R5-7: +ZONE_AURA_RES while previous-tick exclusive owner occupant. */

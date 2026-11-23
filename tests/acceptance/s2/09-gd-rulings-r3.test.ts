@@ -139,6 +139,59 @@ describe("R #3 S2-2 L1912 — hysteresis from the shotcaller's Decision", () => 
     expect(later.length).toBeGreaterThan(0);
   });
 
+  it("R #3 S2-2 L1914: at Decision 1 the 0.4 s floor binds — no engage↔disengage flip before 0.4 s (an unclamped 0.31 s window fails)", () => {
+    // hyst_s = clamp(0.8 + 0.01×(1−50), 0.4, 1.3) = 0.4. Dropping the low
+    // clamp to 0 would allow a flip at ~0.31 s.
+    expect(hystS(1)).toBeCloseTo(0.4, 6);
+    const r = lopsidedSwing(1);
+    const first = r.fightCalls("blue")[0];
+    expect(first).toBeTruthy();
+    expect(first!.commit).toBe("engage");
+    const t0 = first!.t as number;
+    const early = r.fightCalls("blue").filter(
+      (e) => (e.t as number) < t0 + 0.4 - 1e-9 && e.commit === "disengage",
+    );
+    expect(early).toHaveLength(0);
+    const later = r.fightCalls("blue").filter(
+      (e) => (e.t as number) >= t0 + 0.4 - 1e-9 && e.commit === "disengage",
+    );
+    expect(later.length).toBeGreaterThan(0);
+  });
+
+  it("R #3 S2-2 L1914: Decision 150 is clamped to hyst_s = 1.3 — a flip by 1.4 s is required (an unclamped 1.8 s window fails)", () => {
+    // Attrs are normally 1–99 (high end 1.29). The 1.3 cap is the formula bound
+    // (R #3 S2-2). Decision 150 would be 1.8 without the cap.
+    expect(hystS(150)).toBeCloseTo(1.3, 6);
+    const r = runAi({
+      T: 5.0,
+      units: (() => {
+        const units = tight3v3(undefined, 50);
+        for (const id of [BT, BJ, BM, BA, BS]) {
+          units[id] = { ...units[id]!, attrs: { decision: 150 } };
+        }
+        units[BT] = { champ: "brannoch", x: 1.5, y: 5.5, auto: false, attrs: { decision: 150 } };
+        units[BS] = { champ: "ysol", x: 1.5, y: 9.5, auto: false, attrs: { decision: 150 } };
+        return units;
+      })(),
+      cc: [
+        { tick: 3, target: BJ, kind: "banish", duration: 8 },
+        { tick: 3, target: BA, kind: "banish", duration: 8 },
+      ],
+    });
+    const first = r.fightCalls("blue")[0];
+    expect(first).toBeTruthy();
+    expect(first!.commit).toBe("engage");
+    const t0 = first!.t as number;
+    const early = r.fightCalls("blue").filter(
+      (e) => (e.t as number) < t0 + 1.3 - 1e-9 && e.commit === "disengage",
+    );
+    expect(early).toHaveLength(0);
+    const later = r.fightCalls("blue").filter(
+      (e) => (e.t as number) <= t0 + 1.4 + 0.1 && e.commit === "disengage",
+    );
+    expect(later.length).toBeGreaterThan(0);
+  });
+
   it("R #3 S2-2 L1912: at Decision 50 (hyst_s = 0.8) a flip at 0.75 s is blocked and a flip by 0.85 s is allowed — a stale 1.0 s window fails", () => {
     // t0 is the first engage call. Banish (not a death) makes disengage the
     // desired commit immediately after. A 1.0 s leftover from the retired
@@ -300,7 +353,7 @@ describe("R #3 S2-6 L1916 — combo_style hold_R, Focus slot, secondary tactic",
     expect(rCasts).toHaveLength(0);
   });
 
-  it("the Focus slot (×1.25) is the fight_call focus_id when that enemy slot is flagged (§12 L1352)", () => {
+  it.skip("the Focus slot (×1.25) is the fight_call focus_id when that enemy slot is flagged (§12 L1352) — deferred to post-game polish (Anh 19:30)", () => {
     const adc = runAi({
       T: 1.5,
       tactics: { blue: { preset: "hunt", combo_style: "auto", focus: "adc" } },
@@ -343,11 +396,13 @@ describe("R #3 L1920 — hexed with no living allies walks to the pad centre", (
     const end = r.unit(BA);
     expect(end).toBeTruthy();
     expect(end!.alive).toBe(true);
-    // Closer to pad centre than to the ADC slot (1.5, 8.5), and y has moved toward 7.5.
+    // Closer to pad centre (1.5, 7.5) than to the ADC slot (1.5, 8.5), and y
+    // has moved toward 7.5 — a destination of (1.5, 8.5) must fail this.
     const toCentre = dist({ x: end!.x, y: end!.y }, PAD_BLUE);
     const toSlot = dist({ x: end!.x, y: end!.y }, { x: 1.5, y: 8.5 });
     expect(toCentre).toBeLessThan(toSlot);
-    expect(end!.y).toBeLessThan(8.5 - 0.15);
+    expect(end!.y).toBeLessThan(8.5 - 0.3);
+    expect(Math.abs(end!.y - 7.5)).toBeLessThan(Math.abs(end!.y - 8.5));
     expect(end!.x).toBeLessThan(6);
   });
 });

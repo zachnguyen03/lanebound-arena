@@ -1,6 +1,9 @@
 /**
  * §9.2 Arena planner — out-of-fight objectives for Hold / Hunt / Starve.
  * Fight Call and auto-peel override these in the Unit Brain.
+ *
+ * Lab convention (not a build-spec line): `isLabParked` treats
+ * `auto_next_start_t ≥ 900` as a harness-parked unused pad.
  */
 import { CHAMPIONS, type ChampClass } from "../../data/champions/defs.js";
 import type { Constants } from "../constants.js";
@@ -10,7 +13,10 @@ import type { MatchState, Team, UnitId, UnitState } from "../types.js";
 
 export type TacticPreset = "hold_the_pit" | "hunt" | "starve";
 
-/** S2 harness parks unused pads with auto_next_start_t ≥ 900. */
+/**
+ * Lab harness convention: unused pads are parked with `auto_next_start_t ≥ 900`
+ * so fixtures stay quiet. Not a build-spec constant.
+ */
 export function isLabParked(u: UnitState): boolean {
   return u.auto_next_start_t >= 900 - 1e-9;
 }
@@ -52,6 +58,14 @@ function livingAllies(state: MatchState, team: Team): UnitState[] {
   );
 }
 
+/** Friendly-side rim of the zone (Hold backliners / Starve pre-orb). */
+function zoneRim(u: UnitState, c: Constants, outset = 0.5): { x: number; y: number } {
+  const cx = c.ZONE_CENTER[0]!;
+  const cy = c.ZONE_CENTER[1]!;
+  const side = u.team === "blue" ? -1 : 1;
+  return { x: cx + side * (c.ZONE_RADIUS + outset), y: cy };
+}
+
 /**
  * Hold the Pit: ≥2 bodies (Tank → Fighter → highest HP) walk to the zone;
  * Marksmen / Enchanters hold the rim toward their own side.
@@ -60,11 +74,8 @@ function holdZoneWaypoint(u: UnitState, state: MatchState, c: Constants): { x: n
   const cx = c.ZONE_CENTER[0]!;
   const cy = c.ZONE_CENTER[1]!;
   const cls = champClass(u);
-  const rim = cls === "Marksman" || cls === "Enchanter";
-  if (rim) {
-    // Rim on the friendly side of the zone so both teams can meet.
-    const side = u.team === "blue" ? -1 : 1;
-    return { x: cx + side * (c.ZONE_RADIUS + 0.5), y: cy };
+  if (cls === "Marksman" || cls === "Enchanter") {
+    return zoneRim(u, c, 0.5);
   }
   const allies = livingAllies(state, u.team);
   const ranked = allies.slice().sort((a, b) => {
@@ -74,13 +85,12 @@ function holdZoneWaypoint(u: UnitState, state: MatchState, c: Constants): { x: n
     if (b.hp !== a.hp) return b.hp - a.hp;
     return a.index - b.index;
   });
-  const holders = new Set(ranked.slice(0, Math.max(2, ranked.length)).map((x) => x.id));
-  // Frontliners and anyone in the top holders walk to the centre; leftovers to rim.
+  // Top two priority bodies occupy the centre (§9.2 "at least two").
+  const holders = new Set(ranked.slice(0, 2).map((x) => x.id));
   if (holders.has(u.id) || cls === "Tank" || cls === "Fighter") {
     return { x: cx, y: cy };
   }
-  const side = u.team === "blue" ? -1 : 1;
-  return { x: cx + side * (c.ZONE_RADIUS + 0.5), y: cy };
+  return zoneRim(u, c, 0.5);
 }
 
 /** Hunt: walk toward the nearest living non-sanctuary enemy (else enemy pad). */
@@ -103,7 +113,10 @@ function huntWaypoint(u: UnitState, state: MatchState, c: Constants): { x: numbe
 
 /** Starve: nearest orb pad (own side first), else a light zone contest on the rim. */
 function starveWaypoint(u: UnitState, state: MatchState, c: Constants): { x: number; y: number } {
-  const ownSide = u.team === "blue" ? (p: readonly [number, number]) => p[0]! < 12 : (p: readonly [number, number]) => p[0]! > 12;
+  const ownSide =
+    u.team === "blue"
+      ? (p: readonly [number, number]) => p[0]! < 12
+      : (p: readonly [number, number]) => p[0]! > 12;
   const ranked = ORB_PADS.slice().sort((a, b) => {
     const oa = ownSide(a) ? 0 : 1;
     const ob = ownSide(b) ? 0 : 1;
@@ -113,10 +126,7 @@ function starveWaypoint(u: UnitState, state: MatchState, c: Constants): { x: num
   const pad = ranked[0]!;
   // Before first orb wave, still walk toward a pad (and meet mid for contests).
   if (state.t + 1e-9 < c.ORB_FIRST_SPAWN_S) {
-    const cx = c.ZONE_CENTER[0]!;
-    const cy = c.ZONE_CENTER[1]!;
-    const side = u.team === "blue" ? -1 : 1;
-    return { x: cx + side * (c.ZONE_RADIUS + 0.2), y: cy };
+    return zoneRim(u, c, 0.2);
   }
   return { x: pad[0]!, y: pad[1]! };
 }
@@ -152,9 +162,20 @@ export function planObjective(
   };
 }
 
-/** True when the unit is close enough to its planner waypoint to stop pushing. */
-export function atPlannerWaypoint(u: UnitState, wp: { x: number; y: number }, arriveR = 0.4): boolean {
-  return dist(u.x, u.y, wp.x, wp.y) <= arriveR + 1e-9;
+/**
+ * Arrival test with exit hysteresis so HoldZone ↔ Idle does not flicker every
+ * tick when the motor overshoots the arrive radius. `u.ai_at_planner_wp` is
+ * maintained by the Unit Brain.
+ */
+export function atPlannerWaypoint(
+  u: UnitState,
+  wp: { x: number; y: number },
+  arriveR = 0.4,
+  leaveR = 1.0,
+): boolean {
+  const d = dist(u.x, u.y, wp.x, wp.y);
+  if (u.ai_at_planner_wp) return d <= leaveR + 1e-9;
+  return d <= arriveR + 1e-9;
 }
 
 export type { UnitId };

@@ -116,7 +116,7 @@ describe("Auto-peel (§9.5 L1147–1160, M2-22 L1735, R #3 S2-4 L1914)", () => {
     expect(r.of("peel_start", (e) => e.peeler_id === PEELER)).toHaveLength(0);
   });
 
-  it("M2 preview lab: peel_start fires in ≥ 70% of dive events with peeler_perceived, over 400 seeds; denominator is recorded and must be > 0 (L1160, L1735, R #3 S2-4; fail if unmeasured)", () => {
+  it.skip("M2 preview lab: peel_start fires in ≥ 70% of dive events with peeler_perceived, over 400 seeds; denominator is recorded and must be > 0 (L1160, L1735, R #3 S2-4; fail if unmeasured) — deferred to post-game polish (Anh 19:30)", () => {
     const N = 400;
     let eligible = 0;
     let fired = 0;

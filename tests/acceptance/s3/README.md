@@ -1,10 +1,10 @@
-# S3 acceptance suite v2 — Appendix R #5
+# S3 acceptance suite v3 — Appendix R #5, fixture triage
 
-Verifier-owned. Official package: `s3-acceptance-v2.tar.gz`. Unpack at the repo root so files land under `tests/acceptance/s3/`.
+Verifier-owned. Official package: `s3-acceptance-v3.tar.gz`. Unpack at the repo root so files land under `tests/acceptance/s3/`.
 
 Built against the S1 PM-passed tip `2cdcf26` public API (`simulate`, `defaultEvenConfig`, `MatchConfig` lab hooks, the §4.4 event log, `digestEvents`) plus the minimal S3 additions in `_contract.md`. Tests that need zone / claims / orbs / buffs / catch-up / the real §5.8 win conditions / `player_stats` fields are **expected to fail** until S3 exists. Do not tune a test to an implementation, and do not loosen an assert to go green.
 
-v2 adds a test for every Appendix R #5 ruling (S3-R5-1..10, L1936–L1970; edited spec lines L146, L303, L311, L313; edit note L1972). Open questions from v1 are resolved in `OPEN-QUESTIONS.md` (also at `lab/s3-acceptance/OPEN-QUESTIONS.md`, the path L1934 cites). `XP_TO_LEVEL` is confirmed by Anh (the written table, L5=820).
+v3 keeps the v2 assertions and only fixes fixtures that could not show the ruled effect (see `CHANGELOG.md` and `lab/s3-acceptance/TRIAGE-358e83c.md`). v2 adds a test for every Appendix R #5 ruling (S3-R5-1..10, L1936–L1970; edited spec lines L146, L303, L311, L313; edit note L1972). Open questions from v1 are resolved in `OPEN-QUESTIONS.md` (also at `lab/s3-acceptance/OPEN-QUESTIONS.md`, the path L1934 cites). `XP_TO_LEVEL` is confirmed by Anh (the written table, L5=820).
 
 ## What this suite covers (M3 / plan §8.4 S3 / sandbox §11 S3 / Appendix R #5)
 
@@ -33,7 +33,7 @@ Sources: build spec §4.3–4.4, §5.3–5.8, §14.7, §15, M3 tests 25–31 (L1
 
 with `TIME_XP_PER_S = 11.5`. Time-only predictions: L2 at tick 122, L5 at tick 714, L7 at tick 1357. Anh confirmed the written table (L5=820). Do not substitute 966 or any other curve.
 
-## Test count by area (v2)
+## Test count by area (v3, same 152 cases as v2)
 
 Counted as vitest `it(...)` / `it.each` cases. `it.each` over 6 classes counts as 6; over 7 CC kinds counts as 7; over 9 pickup statuses counts as 9; over 2 seeds counts as 2.
 
@@ -53,7 +53,7 @@ Counted as vitest `it(...)` / `it.each` cases. `it.each` over 6 classes counts a
 
 ### Expected colour on the S1 tip `2cdcf26`
 
-Verified with `npx vitest run tests/acceptance/s3` on the extracted `2cdcf26` tip at `/tmp/t2c`: **25 passed, 127 failed** (152 total).
+Verified with `npx vitest run tests/acceptance/s3` on the extracted `2cdcf26` tip at `/tmp/t2c`: **25 passed, 127 failed** (152 total). On the S3 tip `358e83c`, after these fixture fixes: **152 passed, 0 failed**.
 
 **Green** — already true of S1, or they only read published constants / gold:
 

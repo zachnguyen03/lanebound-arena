@@ -200,20 +200,24 @@ describe("M3-29 L1751 / §5.7 L305 — flank buffs", () => {
   it("+10% move speed for 45 s: a buffed Huntress covers more ground than an unbuffed one on the same path (L305)", () => {
     // Short-circuit first spawn (lab, same pattern as S0 MATCH_T: 2) so the
     // walk is measured under the buff; duration stays 45 s.
-    const walkTo: [number, number] = [18, 7.5];
+    // Huntress MS is 3.3; (7.5, 7.5) → (18, 7.5) is only 10.5 tiles and both
+    // arrive in well under 6 s, so path length would match. Walk a long
+    // diagonal and stop mid-path (T=3.0). Spawn at 0.1 so pickup is tick 2,
+    // while the unit is still inside r=0.9 (~0.66 tiles of motion).
+    const walkTo: [number, number] = [22, 0.5];
     const from = { x: BUFF0.x, y: BUFF0.y };
     const common = {
-      T: 6.0,
+      T: 3.0,
       pos: true,
       motor: { [BA]: { to: [walkTo], arrive_r: 0.15, hold_at_end: true } },
-      constants: { BUFF_FIRST_SPAWN_S: 1.0, BUFF_DURATION_S: 45.0, BUFF_MS: 0.1 },
+      constants: { BUFF_FIRST_SPAWN_S: 0.1, BUFF_DURATION_S: 45.0, BUFF_MS: 0.1 },
     };
     const buffed = runS3({
       ...common,
       units: { [BA]: { ...from, champ: "huntress", spawn_shield_until: 0, auto: false } },
     });
     const plain = runS3({
-      T: 6.0,
+      T: 3.0,
       pos: true,
       units: { [BA]: { ...from, champ: "huntress", spawn_shield_until: 0, auto: false } },
       motor: { [BA]: { to: [walkTo], arrive_r: 0.15, hold_at_end: true } },

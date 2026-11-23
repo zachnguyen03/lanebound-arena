@@ -1,4 +1,11 @@
 export { simulate, defaultEvenConfig, spawnPose } from "./simulate.js";
+export {
+  loadMatchConfig,
+  evenOvrConfig,
+  ARENA_PRESETS,
+  ConfigError,
+} from "./match_config.js";
+export type { TacticPreset as ConfigTacticPreset } from "./match_config.js";
 export { mergeConstants, DEFAULT_CONSTANTS, XP_TO_LEVEL } from "./constants.js";
 export type { Constants } from "./constants.js";
 export { constantsHash, digestEvents, canonicalJSON, constantsTable } from "./canonical.js";

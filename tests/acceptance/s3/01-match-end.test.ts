@@ -151,18 +151,17 @@ describe("M3-30 L1752 / §5.8 L315–318 / G4 L1885 — tiebreaks at SUDDEN_DEAT
   it("tied scores and tied zone-control time (both 0), blue has more takedowns: reason takedowns (L316)", () => {
     const r = runS3({
       T: 8,
-      units: twoKillSetup(),
+      // Bodies stay outside the pit: twoKillSetup sits inside r=3 of (12, 8),
+      // so a scripted red claim would be denied (§5.6) and the ladder would
+      // see 1–0 and end clock. Scripted claims still resolve deny normally.
+      units: {
+        [BA]: { x: 4, y: 2, spawn_shield_until: 0, auto: false },
+        [BM]: { x: 4.5, y: 2, spawn_shield_until: 0, auto: false },
+        [RA]: { x: 20, y: 2, spawn_shield_until: 0, auto: false },
+        [RM]: { x: 20.5, y: 2, spawn_shield_until: 0, auto: false },
+      },
       constants: { MATCH_T: 8.0, SUDDEN_DEATH_T: 8.0, BO1_EXTRA_S: 2.0, SCORE_TO_WIN: 10, CLAIM_DELAY_S: 1.0 },
-      // Kill at t=0.5, well before the clock. Scores stay 1–0 until we… wait,
-      // a 1–0 score would already win on clock, not reach the takedown tiebreak.
-      // The takedown comparison only runs when *scores* are still tied (L314–316).
-      // Assist does not increment the team score (L320), so this path cannot be
-      // a 1–0 vs 0–0. Leave scores 0–0 and also takedowns 0–0? Then we would
-      // fall through to the coin. To isolate takedowns, scores must be tied
-      // AND takedowns must differ — which is impossible if every takedown
-      // awards +1 score (§5.8 L320) unless some other score event equalises.
-      // Use a red zone_tick or claim to equalise? Simpler: blue kill + red
-      // claim_award (hook) so scores 1–1, takedowns 1–0, zone times 0–0.
+      // Blue kill + red claim_award so scores 1–1, takedowns 1–0, zone times 0–0.
       damage: [killAt(3, BA, RA)],
       claims: [{ tick: 4, team: "red", fight_id: "eq" }],
     });

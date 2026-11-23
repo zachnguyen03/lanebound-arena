@@ -113,27 +113,49 @@ export function brainDecide(
     }
   }
 
-  // WalkFromPad is respawn-only (§9.6 L1166) and wins over lab-park Idle so a
-  // mid-map body that dies and respawns still leaves the pad. Lab-parked unused
-  // pads (auto_next_start_t ≥ 900) otherwise stay Idle so fixtures stay quiet.
-  // Live match-start units follow the §9.2 planner (Hold → zone, Hunt/Starve).
+  // WalkFromPad is respawn-only (§9.6 L1166) and wins over lab-park Idle,
+  // disengage Retreat, and sanctuary planner so a respawn can leave the pad
+  // (otherwise Retreat↔WalkFromPad oscillates every tick).
+  if (state.t <= u.walk_from_pad_until + 1e-9 && u.walk_from_pad_until > 0) {
+    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    const outX = u.team === "blue" ? 3.5 : 20.5;
+    return {
+      intent: "WalkFromPad",
+      target_id: null,
+      waypoint: { x: outX, y: pad[1]! },
+      chase: null,
+      cast: null,
+    };
+  }
+
+  // Lab-parked unused pads (auto_next_start_t ≥ 900) stay Idle.
+  // Live match-start units follow the §9.2 planner. §9.2 L1115: during
+  // disengage / regroup_s / the 1 s no-trickle window, do not planner-walk
+  // back out of the pad into HoldZone.
   if (inOwnSanctuary(u.team, u.x, u.y, opts.c)) {
-    if (state.t <= u.walk_from_pad_until + 1e-9 && u.walk_from_pad_until > 0) {
-      const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
-      const outX = u.team === "blue" ? 3.5 : 20.5;
+    if (isLabParked(u)) {
+      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    }
+    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    const holdPad =
+      opts.commit === "disengage" ||
+      state.t <= u.ai_retreat_suppress_until + 1e-9 ||
+      state.t <= u.ai_no_trickle_until + 1e-9;
+    if (holdPad) {
       return {
-        intent: "WalkFromPad",
+        intent:
+          opts.commit === "disengage" && state.t > u.ai_no_trickle_until + 1e-9
+            ? "Idle"
+            : "Retreat",
         target_id: null,
-        waypoint: { x: outX, y: pad[1]! },
+        waypoint: { x: pad[0]!, y: pad[1]! },
         chase: null,
         cast: null,
       };
     }
-    if (isLabParked(u)) {
-      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
-    }
     const plan = planObjective(state, u, opts.tactic, opts.c);
     if (plan && !atPlannerWaypoint(u, plan.waypoint)) {
+      u.ai_at_planner_wp = false;
       return {
         intent: plan.intent,
         target_id: null,
@@ -142,6 +164,7 @@ export function brainDecide(
         cast: null,
       };
     }
+    if (plan) u.ai_at_planner_wp = true;
   }
 
   if (isLocked(u.status) || isTimeStopped(u.status) || isBanished(u.status)) {
@@ -201,6 +224,18 @@ export function brainDecide(
   // in-range foe so autos/casts are not starved (same retreatImmobile predicate).
   if (effectiveCommit === "disengage") {
     const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    const atPad = dist(u.x, u.y, pad[0]!, pad[1]!) <= 1.0 + 1e-9;
+    // §9.2: open the 1 s no-trickle window once per retreat march.
+    if (!atPad && u.ai_no_trickle_until < state.t - 1e-9) {
+      u.ai_no_trickle_until = state.t + 1.0;
+    }
+    if (
+      atPad &&
+      state.t > u.ai_no_trickle_until + 1e-9 &&
+      state.t > u.ai_retreat_suppress_until + 1e-9
+    ) {
+      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    }
     if (!retreatImmobile(u, opts.c)) {
       return {
         intent: "Retreat",
@@ -245,14 +280,18 @@ export function brainDecide(
 
   if (!opts.peeling && !nearEnemy && !huntEnemy) {
     const plan = planObjective(state, u, opts.tactic, opts.c);
-    if (plan && !atPlannerWaypoint(u, plan.waypoint)) {
-      return {
-        intent: plan.intent,
-        target_id: null,
-        waypoint: plan.waypoint,
-        chase: null,
-        cast: null,
-      };
+    if (plan) {
+      const at = atPlannerWaypoint(u, plan.waypoint);
+      u.ai_at_planner_wp = at;
+      if (!at) {
+        return {
+          intent: plan.intent,
+          target_id: null,
+          waypoint: plan.waypoint,
+          chase: null,
+          cast: null,
+        };
+      }
     }
     return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
   }

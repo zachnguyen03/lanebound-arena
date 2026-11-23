@@ -275,6 +275,12 @@ export function tickAi(
         ai.commit[team] = "hold";
         ai.focus[team] = null;
       }
+      // Soft grace over and no geometric fight: clear a stale disengage so the
+      // §9.2 planner can leave the pad (otherwise Retreat↔Idle parks forever).
+      if (!geomFight && !softIssue && ai.commit[team] === "disengage") {
+        ai.commit[team] = "hold";
+        ai.focus[team] = null;
+      }
       ai.last_l1_t = state.t;
     }
   }
@@ -358,21 +364,44 @@ export function tickAi(
     const prevIntent = u.intent;
     const prevTarget = u.ai_target_id ?? null;
 
-    ai.intent_target[u.id] = decision.target_id;
-    u.ai_target_id = decision.target_id;
+    // §9.2 L1115: minimum 1 s dwell — do not trickle back into HoldZone inside
+    // the window after Retreat (Idle intermediates still count). HoldZone →
+    // Retreat (follow a disengage call) is always allowed.
+    let intent = decision.intent;
+    let waypoint = decision.waypoint;
+    let targetId = decision.target_id;
+    if (
+      intent === "HoldZone" &&
+      state.t <= u.ai_no_trickle_until + 1e-9 &&
+      (prevIntent === "Retreat" || prevIntent === "Idle" || prevIntent === "HoldZone")
+    ) {
+      // Stay put on the pad / prior retreat pose — do not walk back mid.
+      intent = prevIntent === "HoldZone" ? "Retreat" : prevIntent;
+      if (intent === "Retreat") {
+        const pad = u.team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
+        waypoint = { x: pad[0]!, y: pad[1]! };
+      } else {
+        waypoint = u.waypoint ? { ...u.waypoint } : null;
+      }
+      targetId = prevTarget;
+    } else if (intent === "Retreat" && prevIntent !== "Retreat") {
+      u.ai_no_trickle_until = Math.max(u.ai_no_trickle_until, state.t + 1.0);
+    }
+
+    ai.intent_target[u.id] = targetId;
+    u.ai_target_id = targetId;
     // R #4 supersedes L1044 "Teamwork 50+ always-follow". Block freestyle autos
     // only when the call's focus is dead/cleared and the brain named no target.
     u.ai_no_freelance =
       !!ai.fight_id &&
-      decision.target_id === null &&
+      targetId === null &&
       (ai.focus[team] === null || ai.focus_died[team]);
 
     // S2-R4-5 L1974: open a regroup_s suppress window on disengage Retreat/Regroup;
     // clear when the call flips. Expiry ends suppress without restarting.
     // Immobile exception: do not force ai_no_freelance (same retreatImmobile).
     const retreating =
-      ai.commit[team] === "disengage" &&
-      (decision.intent === "Retreat" || decision.intent === "Regroup");
+      ai.commit[team] === "disengage" && (intent === "Retreat" || intent === "Regroup");
     if (retreating) {
       if (u.ai_retreat_suppress_until === 0) {
         u.ai_retreat_suppress_until = state.t + regroupS(u.attrs.decision);
@@ -384,7 +413,7 @@ export function tickAi(
       u.ai_retreat_suppress_until = 0;
     }
 
-    if (decision.cast) {
+    if (decision.cast && intent === decision.intent) {
       beginCast(
         state,
         {
@@ -400,20 +429,20 @@ export function tickAi(
     }
 
     // R #3 S2-7: intent only on state change (intent name / target_id) — not waypoint.
-    u.intent = decision.intent;
-    if (decision.waypoint) {
-      u.waypoint = { ...decision.waypoint };
-    } else if (decision.intent === "Idle" || decision.intent === "Engage") {
+    u.intent = intent;
+    if (waypoint) {
+      u.waypoint = { ...waypoint };
+    } else if (intent === "Idle" || intent === "Engage") {
       u.waypoint = null;
     }
-    const targetChanged = prevTarget !== (decision.target_id ?? null);
+    const targetChanged = prevTarget !== (targetId ?? null);
     if (prevIntent !== u.intent || targetChanged) {
       emit("intent", {
         unit_id: u.id,
-        intent: decision.intent,
-        target_id: decision.target_id ?? null,
-        x: decision.waypoint ? decision.waypoint.x : null,
-        y: decision.waypoint ? decision.waypoint.y : null,
+        intent,
+        target_id: targetId ?? null,
+        x: waypoint ? waypoint.x : null,
+        y: waypoint ? waypoint.y : null,
       });
     }
   }

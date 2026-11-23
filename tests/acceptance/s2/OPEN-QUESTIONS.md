@@ -1,8 +1,10 @@
 # S2 open questions
 
+Four labs are deferred to post-game polish (Anh 19:30) and listed in `DEFERRED.md`. They are skipped, not open questions.
+
 All eight v1 questions (OQ-S2-1 through OQ-S2-8), the §5.6 vs G9 wording, and "hexed with no allies" were ruled in build-spec Appendix R #3 (L1909–1920, 23 Nov 2026). Those entries have been removed. The suite was updated to the rulings; see CHANGELOG.md.
 
-R #3 is closed. Appendix R #4 (L1924–1927) ruled the reach form, the fight-call follow inequality (no 1.3 base threshold), and the removal of `nearOwnPad`. Those tests are in `10-gd-rulings-r4.test.ts` and `01-fight-call.test.ts`.
+R #3 is closed. Appendix R #4 (L1924–1930) ruled the reach form, the fight-call follow inequality (no 1.3 base threshold), the removal of `nearOwnPad`, and S2-R4-4 (L1930): `fight_call.focus_id` is the targeting-score winner after the ×1.25 Focus bump, null only when no legal target exists. Those tests are in `10-gd-rulings-r4.test.ts`, `11-probe-gaps.test.ts`, and `01-fight-call.test.ts`.
 
 Silences that were never in the v1 list, and were not fully pinned this round, stay untested rather than invented:
 

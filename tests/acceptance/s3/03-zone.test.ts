@@ -140,7 +140,8 @@ describe("§5.5 L272 — capture progress (1.0/s exclusive, 3.0 s → zone_captu
     const r = runS3({
       T: 3.0,
       units: { [BA]: placeInZone(BA) },
-      cc: [{ tick: 20, target: BA, kind: "banish", duration: 5 }],
+      // Same-tick banish (G8 L1889): ticks 1–20 exclusive, empty from tick 21.
+      cc: [{ tick: 21, target: BA, kind: "banish", duration: 5 }],
     });
     const z = zoneOf(r);
     expect(z.owner).toBeNull();
@@ -311,7 +312,7 @@ describe("§5.5 L273 — holder aura (owned and exclusive only)", () => {
     const hitAfter = after.of("hit", (e) => e.target_id === BA);
     expect(hitBefore.length).toBeGreaterThan(0);
     expect(hitAfter.length).toBeGreaterThan(0);
-    const lost = (e: { hp_after?: unknown; raw?: unknown; mitigated?: unknown }) =>
+    const lost = (e: { hp_after?: unknown; raw?: unknown; mitigated?: unknown; [key: string]: unknown }) =>
       typeof e.mitigated === "number" ? e.mitigated : undefined;
     const m0 = lost(hitBefore[0]!);
     const m1 = lost(hitAfter[0]!);

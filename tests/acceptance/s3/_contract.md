@@ -1,4 +1,4 @@
-# S3 public API contract (minimal) — v2
+# S3 public API contract (minimal) — v3
 
 Verifier-owned. The S3 build agent implements **exactly** these additions on top of the S1 public API at tip `2cdcf26` (`simulate`, `defaultEvenConfig`, `MatchConfig` lab hooks, `SimulateResult`, the §4.4 event log, `digestEvents`). Do not invent further public fields to make a test pass. Lab hooks below are the only new `MatchConfig` keys this suite uses.
 
@@ -27,6 +27,14 @@ On that tick, apply the §5.6 claim-window rules as if that team just scored a n
 A separate test also opens a claim from a real net +1 fight win (scripted kills, no hook), which is the production path.
 
 Existing S1 lab hooks (`unit_overrides`, `scripted_motor`, `scripted_damage`, `scripted_cc`, `scripted_casts`, `constants`, `debug_pos`, `assert_sanctuary`, `forced_clock_end`) are unchanged. **v2 lab addition:** `unit_overrides[id].ms` (tiles/s) is allowed, the same way `range` and `as` already are, so a no-sweep pickup fixture can cross a pad in one tick.
+
+**v3 lab addition:** `sim_until?: number` — the run cap, set by the harness from the scenario's `T`. It is not a game rule. When a test also passes `constants.MATCH_T` / `SUDDEN_DEATH_T`, those knobs are the §5.8 clocks and `T` is only how long to simulate (e.g. `T: 8` with `MATCH_T: 5`). If `sim_until` is omitted, short lab fixtures that set `MATCH_T` to `T` still end at `MATCH_T` when `SUDDEN_DEATH_T` is left at the default.
+
+`scripted_damage` **does not** pierce the 1.5 s spawn shield (L220). Fixtures that must re-kill a just-respawned unit set `constants.SPAWN_SHIELD_S: 0` (or wait the shield out). Do not invent a silent pierce.
+
+`scripted_cc` is applied so it is visible to phase-11 occupancy on the apply tick (G8, S3-R5-1) and so that a newly applied CC is not ticked down on that tick (L144 "Tick existing durations"). Occupancy, bars, and pickup then see the new status the same tick.
+
+The production claim path (a net +1 fight win, no `scripted_claim_open`) still uses G9 / §5.6 when `ai_enabled` is false: scripted kills inside a legal fight must open a claim the same way an AI-on fight would. That is the scoring rule, not a new hook.
 
 ## `MatchState` additions (build spec §14.7 L1546–1549, S3-R5-1, S3-R5-9)
 

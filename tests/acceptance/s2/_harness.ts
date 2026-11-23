@@ -65,6 +65,8 @@ export interface PlaceSpec {
 export interface AiScenario {
   seed?: number;
   T: number;
+  /** Fight-AI gate. Defaults on in configOf (M2-20..24 L1734–1737); set false to opt out. */
+  ai_enabled?: boolean;
   units?: Partial<Record<UId, PlaceSpec>>;
   tactics?: { blue?: Partial<S2Tactics>; red?: Partial<S2Tactics> };
   cc?: Array<{ tick: number; target: UId; kind: string; duration: number; source?: UId }>;
@@ -128,6 +130,10 @@ export function configOf(sc: AiScenario): MatchConfig {
   };
   if (sc.tactics?.blue) cfg.blue = { ...cfg.blue, tactics: { ...cfg.blue.tactics, ...sc.tactics.blue } };
   if (sc.tactics?.red) cfg.red = { ...cfg.red, tactics: { ...cfg.red.tactics, ...sc.tactics.red } };
+  // M2-20..24 L1734–1737 / R #3 S2-4 L1916: fight_call, dive, peel_start, and
+  // intent are the S2 observables; they exist only when fight AI is on.
+  // A test may still set ai_enabled: false for an explicit off case.
+  cfg.ai_enabled = sc.ai_enabled ?? true;
 
   const uo: NonNullable<MatchConfig["unit_overrides"]> = {};
   for (const [id, u] of Object.entries(sc.units ?? {}) as [UId, PlaceSpec][]) {

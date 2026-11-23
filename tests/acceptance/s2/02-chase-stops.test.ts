@@ -7,7 +7,8 @@
  * The test does not compute or assert an exact A_true or dummy-5s dps_est.
  * After a stop, Chase, Approach, and Kite toward that target are all rejected
  * (§9.4 L1143: revert to planner). Timing uses one planner tick (1.0 s, §9.2 L1105),
- * not a 0.5 s acceptance grace.
+ * not a 0.5 s acceptance grace. A second ttk case requires the stop
+ * within 0.4 s of the first Chase/Approach so a 5-tick (0.5 s) delay fails.
  */
 import { describe, expect, it } from "vitest";
 import { dist, inRedSanctuary, pathOf, runAi, type UId } from "./_harness.js";
@@ -141,5 +142,46 @@ describe("Chase stops (§9.4 L1143, §9.6 L1164, Hunt §9.2 L1109 / §12 L1349)"
       const lastT = tgtPath.find((q) => q.tick === lastCh.tick) ?? tgtPath[tgtPath.length - 1]!;
       expect(dist(lastCh, lastT)).toBeGreaterThanOrEqual(d0 - 0.4);
     }
+  });
+
+  it("R #3 S2-5 L1917 / §9.4: when est_ttk is already > 2 at the first Chase, the stop is issued within 0.4 s (no 5-tick / 0.5 s grace)", () => {
+    // Same L1 assassin vs standing L10 tank as the planner-tick case. Dummy 5 s
+    // dps_est of a level-1 kit (R not included) is already est_ttk > 2 when
+    // chase begins. §9.4 stops as soon as that inequality holds — a held-out
+    // 5-tick delay would still be in Chase at t0+0.4 s.
+    const r = runAi({
+      T: 4.0,
+      pos: true,
+      tactics: { blue: { preset: "hunt" } },
+      units: {
+        [CHASER]: { champ: "kerrig", level: 1, x: 12, y: 4, auto: true },
+        [FLEE]: { champ: "brannoch", level: 10, x: 14, y: 4, auto: false },
+      },
+      motor: { [FLEE]: { to: [[14, 4]], arrive_r: 0.2, hold_at_end: true } },
+    });
+    const chase = r.of("intent", (e) => e.unit_id === CHASER && (e.intent === "Chase" || e.intent === "Approach"));
+    expect(chase.length).toBeGreaterThan(0);
+    const firstChaseT = chase[0]!.t as number;
+    const deadline = firstChaseT + 0.4;
+    const towardAfter = r.of(
+      "intent",
+      (e) =>
+        e.unit_id === CHASER &&
+        (e.t as number) >= deadline - 1e-9 &&
+        (e.intent === "Chase" || e.intent === "Approach" || e.intent === "Kite") &&
+        (e.target_id == null || e.target_id === FLEE),
+    );
+    expect(towardAfter).toHaveLength(0);
+    const stoppedByDeadline = r.of(
+      "intent",
+      (e) =>
+        e.unit_id === CHASER &&
+        (e.t as number) <= deadline + 1e-9 &&
+        (e.t as number) >= firstChaseT &&
+        e.intent !== "Chase" &&
+        e.intent !== "Approach" &&
+        e.intent !== "Kite",
+    );
+    expect(stoppedByDeadline.length).toBeGreaterThan(0);
   });
 });

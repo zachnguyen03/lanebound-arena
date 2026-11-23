@@ -78,6 +78,8 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     zone_aura_res: 0,
     walk_from_pad_until: 0,
     flank_buff_until: 0,
+    ai_at_planner_wp: false,
+    ai_no_trickle_until: 0,
     ai_first_auto_done: false,
   };
   Object.assign(u, partial);

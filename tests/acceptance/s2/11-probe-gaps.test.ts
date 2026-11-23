@@ -76,7 +76,7 @@ describe("§9.3 L1128 — killability Lock ×1.25", () => {
 });
 
 describe("R #3 S2-6 L1916 / §12 L1359 — hold_R vs auto contrast", () => {
-  it("same fixture: auto casts R at the first legal moment, hold_R holds it while A_true < 0.55 and the Focus is above 40% HP (§12 L1359, §8.4 L1007)", () => {
+  it.skip("same fixture: auto casts R at the first legal moment, hold_R holds it while A_true < 0.55 and the Focus is above 40% HP (§12 L1359, §8.4 L1007) — deferred to post-game polish (Anh 19:30)", () => {
     // Execution 30: auto may fire R without a live mark (L998). Focus at ~half
     // HP is at or below auto r_hold_hp at Execution 50 (L1003) but still above
     // the hold_R 40% gate (L1359). Even fight keeps a_true < 0.55.

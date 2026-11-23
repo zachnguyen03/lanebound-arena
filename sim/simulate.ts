@@ -223,6 +223,8 @@ function makeUnit(
     ai_target_id: null,
     ai_retreat_suppress_until: 0,
     walk_from_pad_until: 0,
+    ai_at_planner_wp: false,
+    ai_no_trickle_until: 0,
     ai_first_auto_done: false,
     zone_aura_res: 0,
   };
@@ -644,6 +646,8 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.abandon_scripted_motor = false;
       // §9.6 L1164: leave sanctuary within 1.5 s of respawn.
       u.walk_from_pad_until = state.t + 1.5;
+      u.ai_at_planner_wp = false;
+      u.ai_no_trickle_until = 0;
       u.ai_first_auto_done = false;
       emit("respawn", { unit_id: u.id, x: pose.x, y: pose.y, slot: u.slot });
     }

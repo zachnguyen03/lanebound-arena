@@ -151,6 +151,7 @@ export interface S3Scenario {
 
 /** Lab-only widening of MatchConfig; fields are in _contract.md. */
 export type S3MatchConfig = MatchConfig & {
+  sim_until?: number;
   scripted_claim_open?: ScriptedClaimOpen[];
 };
 
@@ -273,10 +274,12 @@ export function configOf(sc: S3Scenario): S3MatchConfig {
   const cfg: S3MatchConfig = {
     ...defaultEvenConfig(sc.seed ?? 20261122),
     constants: { MATCH_T: sc.T, ...(sc.constants ?? {}) },
+    // T is the run cap. When constants.MATCH_T is also set, it is the rules
+    // clock and must not silently truncate the sim (e.g. T:8, MATCH_T:5).
+    sim_until: sc.T,
     debug_pos: sc.pos ?? false,
     forced_clock_end: sc.forced_clock_end ?? false,
     assert_sanctuary: sc.assert_sanctuary,
-    sim_until: sc.T,
   };
 
   const uo: NonNullable<MatchConfig["unit_overrides"]> = {};
