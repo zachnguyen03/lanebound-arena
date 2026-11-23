@@ -2,6 +2,20 @@
 
 These need S3 systems (zone, orbs, buffs, claims) or an M6 sample size. They are **not** faked in this suite. `08-deferred-s3.test.ts` holds skipped stubs with the real asserts, to be un-skipped when the systems exist.
 
+
+## Deferred to post-game polish (Anh 19:30)
+
+These four labs stay in the suite as `it.skip` with the reason string `deferred to post-game polish (Anh 19:30)`. Bodies are unchanged. They are not dropped.
+
+| Test | File | What it checks |
+|---|---|---|
+| M2 400-seed peel preview lab | `03-auto-peel.test.ts` | `peel_start` fires in ≥ 70% of `dive` events with `peeler_perceived === true`, over 400 seeds; the denominator is recorded and must be > 0 (L1160, L1735, R #3 S2-4). Unperceived dives are still logged and counted separately. |
+| Focus-slot `focus_id` (unconditional) | `09-gd-rulings-r3.test.ts` | When the coach flags a Focus slot, `fight_call.focus_id` is that slot (§12 L1352). Pending rewrite to S2-R4-4 L1930 (option a): `focus_id` is the targeting-score winner after the ×1.25 bump, not a hard assignment. |
+| hold_R vs auto contrast | `11-probe-gaps.test.ts` | Same fixture: auto casts R at the first legal moment; `hold_R` holds it while `A_true < 0.55` and the Focus stays above 40% HP (§12 L1359, §8.4 L1007). |
+| Focus scored from the actual shotcaller | `13-anti-tuning.test.ts` | Two identical-kit bodies: the one closer to the shotcaller is `focus_id`, including when the shotcaller is at the pad (§9.1 L1101). |
+
+The disengage-follow check in `10-gd-rulings-r4.test.ts` (R #4 S2-R4-2 L1926) is **not** deferred.
+
 ## Needs S3 (zone / orbs / buffs)
 
 | Item | Spec | Why deferred |
