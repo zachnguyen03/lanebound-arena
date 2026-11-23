@@ -242,6 +242,26 @@ describe("S2 simulate digests", () => {
       "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
     );
   });
+
+  /**
+   * Engineer-owned (not acceptance): default Hold-the-Pit AI-on match must leave
+   * the pads and issue a fight_call. Lab-parked slots stay idle; this uses live
+   * defaultEvenConfig units (auto_next_start_t = 0).
+   */
+  it("default AI-on match reaches fight_call within 15 s (seeds 20261122 / 20261123)", () => {
+    const N = 15;
+    for (const seed of [20261122, 20261123] as const) {
+      const r = simulate({
+        ...defaultEvenConfig(seed),
+        ai_enabled: true,
+        constants: { MATCH_T: N },
+      });
+      const first = r.events.find((e) => e.type === "fight_call");
+      expect(first, `seed ${seed}: expected a fight_call by t=${N}`).toBeTruthy();
+      expect(first!.t as number).toBeLessThanOrEqual(N + 1e-9);
+      expect(r.events.some((e) => e.type === "intent")).toBe(true);
+    }
+  });
 });
 
 describe("S2 secondary tactic (L1344 / INV-SECONDARY-IDLE-L1)", () => {

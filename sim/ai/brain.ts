@@ -10,10 +10,17 @@ import { retreatImmobile } from "../retreat_combat.js";
 import { effExecution, holdDist, kiteSlackTiles, rHoldA, rHoldHp } from "./attributes.js";
 import { estTtk } from "./dps.js";
 import type { CommitKind } from "./fight.js";
+import {
+  atPlannerWaypoint,
+  isLabParked,
+  planObjective,
+} from "./planner.js";
 import { pickUnitTarget } from "./target.js";
 
 export type IntentName =
   | "HoldZone"
+  | "CollectOrb"
+  | "TakeBuff"
   | "Approach"
   | "Kite"
   | "Engage"
@@ -106,9 +113,10 @@ export function brainDecide(
     }
   }
 
-  // WalkFromPad: leave own sanctuary within 1.5 s of respawn only (§9.6 L1164).
-  // Match-start spawn leaves walk_from_pad_until at 0 — stay put on the pad
-  // (do not Hunt/Approach out; unused default slots must not flood S1/S2 labs).
+  // WalkFromPad is respawn-only (§9.6 L1166) and wins over lab-park Idle so a
+  // mid-map body that dies and respawns still leaves the pad. Lab-parked unused
+  // pads (auto_next_start_t ≥ 900) otherwise stay Idle so fixtures stay quiet.
+  // Live match-start units follow the §9.2 planner (Hold → zone, Hunt/Starve).
   if (inOwnSanctuary(u.team, u.x, u.y, opts.c)) {
     if (state.t <= u.walk_from_pad_until + 1e-9 && u.walk_from_pad_until > 0) {
       const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
@@ -121,7 +129,19 @@ export function brainDecide(
         cast: null,
       };
     }
-    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    if (isLabParked(u)) {
+      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    }
+    const plan = planObjective(state, u, opts.tactic, opts.c);
+    if (plan && !atPlannerWaypoint(u, plan.waypoint)) {
+      return {
+        intent: plan.intent,
+        target_id: null,
+        waypoint: plan.waypoint,
+        chase: null,
+        cast: null,
+      };
+    }
   }
 
   if (isLocked(u.status) || isTimeStopped(u.status) || isBanished(u.status)) {
@@ -224,6 +244,16 @@ export function brainDecide(
   }
 
   if (!opts.peeling && !nearEnemy && !huntEnemy) {
+    const plan = planObjective(state, u, opts.tactic, opts.c);
+    if (plan && !atPlannerWaypoint(u, plan.waypoint)) {
+      return {
+        intent: plan.intent,
+        target_id: null,
+        waypoint: plan.waypoint,
+        chase: null,
+        cast: null,
+      };
+    }
     return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
   }
 
@@ -240,13 +270,13 @@ export function brainDecide(
 
   // Outside a Fight Call:
   // - Hunt / engage commit: still chase & hold_dist (chase-stop suite is 1v1).
-  // - Otherwise keep authored poses for scripted S1 labs (autos off → Idle;
-  //   first AA from stand so OQ-7 distance holds; then Positioning may kite).
+  // - Lab-parked slots stay Idle. Live units with an in-range foe take the first
+  //   AA from stand; otherwise fall through to Positioning / kite. Far-away
+  //   planner walks are handled above when !nearEnemy.
   if (opts.fightIds.length === 0 && !opts.peeling) {
     const huntOrEngage = opts.tactic === "hunt" || effectiveCommit === "engage";
     if (!huntOrEngage) {
-      const autosOn = u.auto_next_start_t < 900;
-      if (!autosOn) {
+      if (isLabParked(u)) {
         return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
       }
       if (!u.ai_first_auto_done) {
