@@ -77,6 +77,10 @@ button.btn-primary:disabled {
 .result { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--c-line); }
 .result .disp { font-size: 28px; }
 .ratecols { display: grid; grid-template-columns: 1fr 1fr; }
+.inset { padding: 0 18px 14px; }
+.inset table td:first-child, .inset table th:first-child { padding-left: 0; }
+.inset table td:last-child, .inset table th:last-child { padding-right: 0; }
+.inset .note { padding-bottom: 8px; }
 .seg button { padding: 7px 12px; color: var(--c-dim); background: transparent; font: inherit; white-space: nowrap; }
 .seg button.on { background: var(--c-text); color: var(--c-field); font-weight: 600; }
 .seg button:disabled { opacity: 0.45; cursor: not-allowed; }

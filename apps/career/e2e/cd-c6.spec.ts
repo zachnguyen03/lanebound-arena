@@ -145,6 +145,23 @@ test("the match uses Map N of N and never Game or MAP", async ({ page }) => {
   await expect(page.getByTestId("coach-mark")).toContainText("Map 1 of 3");
 });
 
+test("the draft is a padded table of role, player, champion, and status", async ({ page }) => {
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  await page.getByRole("button", { name: "Draft" }).click();
+  const table = page.getByTestId("draft").locator("table");
+  await expect(table).toContainText("Role");
+  await expect(table).toContainText("Player");
+  await expect(table).toContainText("Champion");
+  await expect(table).toContainText("Status");
+  const champion = (await table.locator("tr").nth(1).locator("td").nth(2).innerText()).trim();
+  expect(champion).toMatch(/^[A-Z]/);
+  expect(champion).not.toBe(champion.toLowerCase());
+  const pad = await page.locator(".inset").evaluate((el) => getComputedStyle(el).paddingLeft);
+  expect(pad).toBe("18px");
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);

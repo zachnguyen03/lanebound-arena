@@ -16,6 +16,8 @@ const COACH = [
   "You are the coach now. Tips turn off after this map.",
 ];
 
+const ROLE = { top: "Top", jungle: "Jungle", mid: "Mid", adc: "ADC", support: "Support" } as const;
+
 const PANES = [
   ["tactics", "Tactics"],
   ["cards", "Cards"],
@@ -128,15 +130,27 @@ export function MatchDeck({
               <h3>Draft</h3>
               <span className="meta">{draft.fearless ? "Team-fearless" : "Fearless reset"}</span>
             </div>
+            <div className="inset">
             {draft.game_index === 2 ? <p className="note">Map 2 cannot repeat map 1.</p> : null}
-            {draft.blue.map((slot) => (
-              <div className="dec" key={slot.player_id}>
-                <b>
-                  {slot.name} · {slot.champion}
-                </b>
-                <div className="d">{draft.locked_champions.includes(slot.champion) ? "Fearless lock" : "In the pool"}</div>
-              </div>
-            ))}
+            <table>
+              <tbody>
+                <tr>
+                  <th>Role</th>
+                  <th>Player</th>
+                  <th>Champion</th>
+                  <th>Status</th>
+                </tr>
+                {draft.blue.map((slot) => (
+                  <tr key={slot.player_id}>
+                    <td>{ROLE[slot.slot as keyof typeof ROLE]}</td>
+                    <td>{slot.name}</td>
+                    <td>{championName(slot.champion)}</td>
+                    <td>{draft.locked_champions.includes(slot.champion) ? "Fearless lock" : "In the pool"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
           </section>
       ) : null}
       {mode === "recap" ? <Recap session={session} /> : null}
@@ -175,6 +189,10 @@ export function MatchDeck({
       ) : null}
     </main>
   );
+}
+
+function championName(id: string): string {
+  return id.charAt(0).toUpperCase() + id.slice(1);
 }
 
 function seriesMaps(session: CareerSession, fixtureId: string | null): number {
