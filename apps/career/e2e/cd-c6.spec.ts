@@ -192,6 +192,16 @@ test("card events are a padded table with a side chip and status colour", async 
   expect(colour.color).toBe(colour.expected);
 });
 
+test("squad tables do not use the me row", async ({ page }) => {
+  await start(page);
+  await page.getByRole("button", { name: "Squad" }).click();
+  await expect(page.locator("main table tr.me")).toHaveCount(0);
+  const pad = await page.locator(".splitline").evaluate((el) => getComputedStyle(el).paddingLeft);
+  expect(pad).toBe("18px");
+  await page.getByRole("button", { name: "Contracts" }).click();
+  await expect(page.locator("main table tr.me")).toHaveCount(0);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);

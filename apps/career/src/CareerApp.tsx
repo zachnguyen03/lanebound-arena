@@ -706,7 +706,7 @@ function Players({
             <th className="n">OVR</th>
           </tr>
           {roster.map((player) => (
-            <tr key={player.id} className="me">
+            <tr key={player.id}>
               <td className="rolecol">{ROLE[player.primary_slot]}</td>
               <td>{player.name}</td>
               <td className="n">{player.ovr}</td>
@@ -719,7 +719,7 @@ function Players({
         <div className="ch">
           <h3>Training focus</h3>
         </div>
-        <p className="note">Opens after the first Split</p>
+        <p className="note splitline">Opens after the first Split</p>
       </section>
     </section>
   );
@@ -860,7 +860,7 @@ function Contracts({
           {rows.map((contract) => {
             const player = players.find((item) => item.id === contract.player_id);
             return (
-              <tr key={contract.player_id} className="me">
+              <tr key={contract.player_id}>
                 <td className="rolecol">{player ? ROLE[player.primary_slot] : ""}</td>
                 <td>{player?.name}</td>
                 <td className="n">{contract.years_left}</td>
