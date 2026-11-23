@@ -17,6 +17,7 @@ import {
 } from "./status.js";
 import { DEFAULT_CONSTANTS } from "./constants.js";
 import { RngBank } from "./rng.js";
+import { sha256Hex } from "./sha256.js";
 
 export { computePacket, statsAtLevel, skillScale, hitChance, effAim, emptyStatus, applyCc, addShield, absorbDamage, breakSleepOnHpLoss, strongDispel, basicDispel };
 
@@ -154,14 +155,19 @@ export function rollAimHits(
   effAimVal: number,
   reflexes: number,
   n: number,
-): { hits: number; rate: number; digestSeed: string } {
+): { hits: number; rate: number; replayDigest: string; hitChance: number } {
   const rng = new RngBank(seed);
   const p = hitChance(effAimVal, reflexes);
   let hits = 0;
+  const bits: number[] = [];
   for (let i = 0; i < n; i++) {
-    if (rng.next("skillshot", 0) < p) hits += 1;
+    const hit = rng.next("skillshot", 0) < p;
+    bits.push(hit ? 1 : 0);
+    if (hit) hits += 1;
   }
-  return { hits, rate: hits / n, digestSeed: `${seed}:${hits}` };
+  // Replay digest: SHA-256 of the hit/miss bitstring (identical seed → identical digest).
+  const payload = bits.join("");
+  return { hits, rate: hits / n, replayDigest: sha256Hex(payload), hitChance: p };
 }
 
 export type { StatusState, CcKind };
