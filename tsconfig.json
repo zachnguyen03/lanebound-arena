@@ -21,6 +21,12 @@
       "@data/*": ["data/*"]
     }
   },
-  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*"],
+  "include": [
+    "sim/**/*",
+    "apps/**/*",
+    "tests/**/*",
+    "data/**/*",
+    "vitest.config.ts"
+  ],
   "exclude": ["apps/watch"]
 }

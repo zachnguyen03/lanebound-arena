@@ -28,8 +28,9 @@ npm run lab:s4
 | `npx tsc --noEmit` | **PASS** (root excludes `apps/watch`) |
 | `npx tsc -p apps/watch` | **PASS** |
 | Canvas scale @1920 / @1280×720 / @1280×800 | **1.0** (intrinsic CSS == buffer; see `canvas-scale.txt`) |
-| Drawer @1920 (push) | Flex column; stage reflows to 1600 px (112 rails, map 1:1, no translateX); rails + HUD hittable; 8× works |
+| Drawer @1920 (push) | Flex column; stage reflows to 1600 px (112 rails, map 1:1, no translateX); Esc closes; rails + HUD hittable; 8× works |
 | Drawer @1280 (modal) | Centred modal over dim (rails/transport hittable); focus trap; Close / Escape |
+| Event log labels | `Level up` with word-spacing (not `Levelup`); covered at 1920 + 1280 |
 | 1280×800 utilities under HUD | **PASS** — spacer; loader below the fold |
 | Takedown log (quiet S0) | **No takedowns yet** (no level_up filler) |
 | Takedown log (handmade deaths) | `BLUE scores · 1–0` / death rows; see `watch-takedown-log-crop.png` |

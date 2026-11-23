@@ -4,7 +4,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { loadWatchAssets, type WatchAssets } from "@watch/lib/assets";
 import {
@@ -167,7 +166,19 @@ export function WatchShell() {
     };
   }, [playing, engine, speed]);
 
-  // Focus trap + Escape for modal drawer.
+  // Escape closes the drawer at every size (push + modal).
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setDrawerOpen(false);
+    };
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, [drawerOpen]);
+
+  // Focus trap for modal drawer only.
   useEffect(() => {
     if (!drawerOpen || drawerMode !== "modal") return;
     const root = modalRef.current;
@@ -178,11 +189,6 @@ export function WatchShell() {
     const first = focusables[0];
     first?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        setDrawerOpen(false);
-        return;
-      }
       if (e.key !== "Tab" || focusables.length === 0) return;
       const list = [...focusables];
       const i = list.indexOf(document.activeElement as HTMLElement);
@@ -438,9 +444,6 @@ export function WatchShell() {
           role="dialog"
           aria-modal="true"
           aria-label="Event log"
-          onKeyDown={(e: ReactKeyboardEvent) => {
-            if (e.key === "Escape") setDrawerOpen(false);
-          }}
         >
           {/* Dim only — pointer-events none so rails / transport stay hittable. */}
           <div

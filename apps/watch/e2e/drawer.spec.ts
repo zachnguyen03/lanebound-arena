@@ -96,6 +96,42 @@ async function hitTestId(
   return { ok: true, detail: `${testId} ok` };
 }
 
+/** Visible label must read "Level up" (space in DOM + ≥3px glyph gap), never "Levelup". */
+async function assertLevelUpLabel(page: Page) {
+  const labels = page.locator(
+    '[data-testid="event-type-label"][data-event-type="level_up"]',
+  );
+  await expect(labels.first()).toBeVisible();
+  const meta = await labels.evaluateAll((els) =>
+    els.map((el) => {
+      const text = el.textContent ?? "";
+      const node = el.firstChild;
+      let spaceW = 0;
+      if (node && node.nodeType === Node.TEXT_NODE) {
+        const i = (node.textContent ?? "").indexOf(" ");
+        if (i >= 0) {
+          const range = document.createRange();
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          spaceW = range.getBoundingClientRect().width;
+        }
+      }
+      return {
+        dataLabel: el.getAttribute("data-label"),
+        text,
+        spaceW,
+      };
+    }),
+  );
+  expect(meta.length).toBeGreaterThan(0);
+  for (const m of meta) {
+    expect(m.dataLabel).toBe("Level up");
+    expect(m.text).toBe("Level up");
+    expect(m.text.includes("Levelup")).toBe(false);
+    expect(m.spaceW, "space glyph width").toBeGreaterThanOrEqual(3);
+  }
+}
+
 test.describe("drawer open: controls hittable / modal", () => {
   for (const vp of [
     { name: "1920x1080", width: 1920, height: 1080, kind: "push" as const },
@@ -123,7 +159,6 @@ test.describe("drawer open: controls hittable / modal", () => {
         expect(
           transform === "none" || transform === "matrix(1, 0, 0, 1, 0, 0)",
         ).toBe(true);
-        // Stage fits remaining width (1920 − 320 = 1600).
         const stageBox = await page.getByTestId("hud-stage").boundingBox();
         expect(stageBox).toBeTruthy();
         expect(stageBox!.width).toBe(1600);
@@ -136,7 +171,6 @@ test.describe("drawer open: controls hittable / modal", () => {
         fullPage: false,
       });
 
-      // Drawer open: every HUD + rail control fully in viewport and hittable.
       const hits: string[] = [];
       for (const id of hudControls()) {
         const r = await hitTestId(page, id);
@@ -144,31 +178,33 @@ test.describe("drawer open: controls hittable / modal", () => {
       }
       expect(hits, hits.join("\n")).toEqual([]);
 
+      await assertLevelUpLabel(page);
+      await expect(page.getByTestId("event-log-panel")).toContainText(
+        "Hide XP gains",
+      );
+      await expect(page.getByTestId("event-log-panel")).not.toContainText(
+        "Hide xp_gain",
+      );
+      await expect(page.getByTestId("event-list")).not.toContainText("level_up");
+
       if (vp.kind === "push") {
         await page.getByTestId("btn-speed-8").click();
         await expect(page.getByTestId("btn-speed-8")).toHaveClass(
           /border-paper/,
         );
-        await expect(page.getByTestId("event-log-panel")).toContainText(
-          "Hide XP gains",
-        );
-        await expect(page.getByTestId("event-log-panel")).not.toContainText(
-          "Hide xp_gain",
-        );
-        await expect(page.getByTestId("event-list")).toContainText("Level up");
-        await expect(page.getByTestId("event-list")).not.toContainText(
-          "level_up",
-        );
       } else {
         await expect(page.getByTestId("drawer-backdrop")).toBeVisible();
         const closeHit = await hitTestId(page, "btn-close-drawer");
         expect(closeHit.ok, closeHit.detail).toBe(true);
-        // 8× is hittable through the dim (pointer-events: none on backdrop).
         await page.getByTestId("btn-speed-8").click();
         await expect(page.getByTestId("btn-speed-8")).toHaveClass(
           /border-paper/,
         );
       }
+
+      // Esc closes the drawer at every size (push + modal).
+      await page.keyboard.press("Escape");
+      await expect(page.getByTestId("event-drawer")).toHaveCount(0);
     });
   }
 });

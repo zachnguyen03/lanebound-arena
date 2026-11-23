@@ -26,6 +26,24 @@ function UndrawnMark() {
   );
 }
 
+/**
+ * Event type label. At text-xs the default space glyph is ~2px and reads as
+ * "Levelup" in the docked drawer — bump word-spacing so the gap stays visible.
+ */
+function EventTypeLabel({ type }: { type: string }) {
+  const label = eventTypeLabel(type);
+  return (
+    <span
+      data-testid="event-type-label"
+      data-event-type={type}
+      data-label={label}
+      className="whitespace-nowrap font-medium tracking-normal [word-spacing:0.35em]"
+    >
+      {label}
+    </span>
+  );
+}
+
 export function EventLogPanel({
   events,
   currentTick,
@@ -124,11 +142,11 @@ export function EventLogPanel({
                   </span>
                   <span
                     className={cn(
-                      "inline-flex items-center font-medium",
+                      "inline-flex items-center",
                       undrawn ? "text-dim" : "text-paper",
                     )}
                   >
-                    {eventTypeLabel(e.type)}
+                    <EventTypeLabel type={e.type} />
                     {undrawn ? <UndrawnMark /> : null}
                   </span>
                 </button>
