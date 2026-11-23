@@ -60,12 +60,11 @@ export function cancelAutoWindup(u: UnitState): boolean {
   return true;
 }
 
-/** §6.8 gates: cannot start auto while disarmed / locked / time-stopped / attack-reset pending. */
+/** §6.8 gates: cannot start auto while disarmed / locked / attack-reset pending. Time-stop is a Lock (isLocked). */
 export function canStartAuto(u: UnitState, st: StatusState): boolean {
   if (u.attack_reset_pending) return false;
   if (isDisarmed(st)) return false;
   if (isLocked(st)) return false;
-  if (isTimeStopped(st)) return false;
   if (isBanished(st)) return false;
   return true;
 }

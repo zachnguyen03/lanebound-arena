@@ -158,8 +158,8 @@ function queueDamage(
   finisher_mult: number,
   c: Constants,
 ): void {
-  if (isBanished(target.status)) return;
   // Kit amps / petrify / bedrock applied at resolve time so same-tick own CC does not affect own packet (OQ-2).
+  // Banish invuln is enforced in resolvePendingDamage (not here).
   const pkt = computePacket({
     base_raw,
     level: source.level,
@@ -362,7 +362,8 @@ function collectHits(
       r,
       bodyR,
       (u) => {
-        if (u.id === source.id) return false;
+        // Caster self-exclusion for hits_allies is applied at resolve (friendlyFire) /
+        // landPendingSkills re-collect — keep a single exclusion site there (PM S1 cleanup).
         if (ab.hits_allies) return true;
         return u.team !== source.team;
       },
@@ -767,9 +768,7 @@ function resolveCastEnd(
     units = ids
       .map((id) => state.units.find((u) => u.id === id))
       .filter((u): u is UnitState => !!u && u.alive);
-    // Snapshot may drop the original primary (dead / filtered). Capture a local
-    // non-null binding so the callback does not see `primary` as possibly null
-    // (TS control-flow does not narrow captured `let` across the find predicate).
+    // Snapshot may drop primary; local binding narrows for the find predicate.
     const snapPrimary = primary;
     if (snapPrimary !== null && !units.find((u) => u.id === snapPrimary.id)) {
       primary = units[0] ?? null;
@@ -963,12 +962,13 @@ export function landPendingSkills(
       }
     }
 
+    // Sanctuary enemies already dropped by unitsInCircle / clipPointAoE.
     resolveOnTargets(
       state,
       source,
       ab,
       p.skill,
-      landUnits.filter((u) => !(u.team !== source.team && inOwnSanctuary(u.team, u.x, u.y, c))),
+      landUnits,
       primary,
       true,
       rng,
