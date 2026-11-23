@@ -15,7 +15,7 @@ Sources, both hashes verified:
 | C1 | `38231d54730644d9303afa1d043cf32d1bc2b1aa` | Circle calendar, C-R-1 table, player-series-first matchdays, MD8/MD9 Bo5 bracket, fake season runner |
 | C2 | `26a9a8d046b97f200943aa7e5fb54541c21a2d2d` | Glicko-2, placement points, awards, contract tick, canonical save |
 | Report | `1b589b00803eaf39ff94d13ead1b1adbd8384cde` | First proof write-up, replayed onto the new base |
-| Verify | tip after this file | Rebase onto `2cdcf26`, pin the season sha, map-diff fixture, Glickman digits, shared `meanMapRating`, career purity allow-list |
+| Verify | `1c6ab2144a865ef8e87bb1a13f9c98300080980d` | Pin the season sha, map-diff fixture, Glickman digits, shared `meanMapRating`, career purity allow-list |
 
 ## Commands
 
