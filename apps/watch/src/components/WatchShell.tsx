@@ -12,6 +12,7 @@ import {
   arenaDisplaySize,
   DRAWER_W,
   layoutFor,
+  layoutForPushDrawer,
   MIN_VIEWPORT,
   pickHudMode,
   type HudMode,
@@ -52,9 +53,14 @@ function useViewport() {
 export function WatchShell() {
   const vp = useViewport();
   const mode: HudMode = pickHudMode(vp.w);
-  const layout = layoutFor(mode);
   const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
   const drawerMode: DrawerMode = mode === "1080" ? "push" : "modal";
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const pushOpen = drawerOpen && drawerMode === "push";
+  const modalOpen = drawerOpen && drawerMode === "modal";
+  // 1080 + drawer: rebuild stage to fit remaining width (no translateX).
+  const layout =
+    pushOpen ? layoutForPushDrawer(vp.w) : layoutFor(mode);
 
   const [assets, setAssets] = useState<WatchAssets | null>(null);
   const [assetsError, setAssetsError] = useState<string | null>(null);
@@ -65,7 +71,6 @@ export function WatchShell() {
   const [tick, setTick] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
   const accRef = useRef(0);
@@ -213,15 +218,7 @@ export function WatchShell() {
   const mapLeft = mapSlot[0] + Math.floor((mapSlot[2] - mapSize.w) / 2);
   const mapTop = mapSlot[1] + Math.floor((mapSlot[3] - mapSize.h) / 2);
 
-  const killFeedRect =
-    mode === "720" && layout.dock_panels.kill_feed
-      ? layout.dock_panels.kill_feed
-      : layout.kill_feed;
-
-  const pushOpen = drawerOpen && drawerMode === "push";
-  const modalOpen = drawerOpen && drawerMode === "modal";
-  // Shift stage left so the right-hand controls stay in the remaining viewport.
-  const stageShiftX = pushOpen ? -DRAWER_W : 0;
+  const killFeedRect = layout.dock_panels.kill_feed ?? layout.kill_feed;
 
   const drawerPanel = (
     <EventLogPanel
@@ -241,16 +238,21 @@ export function WatchShell() {
       data-drawer-mode={drawerMode}
     >
       <div
-        className="min-w-0 flex-1"
-        style={{
-          overflowX: pushOpen ? "hidden" : "auto",
-          overflowY: "auto",
-        }}
+        className={
+          pushOpen
+            ? "flex min-w-0 flex-1 flex-col items-center overflow-hidden"
+            : "min-w-0 flex-1"
+        }
+        style={
+          pushOpen
+            ? { overflowX: "hidden", overflowY: "auto" }
+            : { overflowX: "auto", overflowY: "auto" }
+        }
       >
         {belowMin ? (
           <div
             data-testid="desktop-notice"
-            className="sticky top-0 z-50 border-b border-line bg-panel px-4 py-2 text-center text-sm text-dim"
+            className="sticky top-0 z-50 w-full border-b border-line bg-panel px-4 py-2 text-center text-sm text-dim"
           >
             Best viewed on desktop (minimum 1280×720)
           </div>
@@ -264,13 +266,12 @@ export function WatchShell() {
             height: stageH,
             minWidth: stageW,
             minHeight: stageH,
-            transform: stageShiftX ? `translateX(${stageShiftX}px)` : undefined,
           }}
         >
           <TopBar
             state={state}
             rect={layout.top_bar}
-            compact={mode === "720"}
+            compact={mode === "720" || pushOpen}
             drawerOpen={drawerOpen}
             onToggleDrawer={() => setDrawerOpen((o) => !o)}
           />
@@ -371,7 +372,7 @@ export function WatchShell() {
                   maxTick={engine.maxTick}
                   speed={speed}
                   seed={state.seed}
-                  compact={mode === "720"}
+                  compact={mode === "720" || pushOpen}
                   onPlayPause={() => setPlaying((p) => !p)}
                   onStep={onStep}
                   onScrub={(t) => jump(t)}
@@ -414,7 +415,7 @@ export function WatchShell() {
         ) : null}
       </div>
 
-      {/* 1080: full-height push column (stage shifted left above). */}
+      {/* 1080: real flex column — stage re-centres in remaining width (no transform). */}
       {pushOpen ? (
         <div
           data-testid="event-drawer"
@@ -433,7 +434,7 @@ export function WatchShell() {
           data-testid="event-drawer"
           data-drawer-kind="modal"
           data-overlay="drawer-modal"
-          className="fixed inset-0 z-[60] flex justify-end"
+          className="pointer-events-none fixed inset-0 z-[60] flex items-start justify-center pt-12"
           role="dialog"
           aria-modal="true"
           aria-label="Event log"
@@ -441,15 +442,15 @@ export function WatchShell() {
             if (e.key === "Escape") setDrawerOpen(false);
           }}
         >
-          <button
-            type="button"
+          {/* Dim only — pointer-events none so rails / transport stay hittable. */}
+          <div
             data-testid="drawer-backdrop"
             className="absolute inset-0 bg-black/55"
-            aria-label="Close event log"
-            onClick={() => setDrawerOpen(false)}
+            aria-hidden
           />
+          {/* Height capped above the 720 dock (y≈572) so kill-feed / transport stay hittable. */}
           <div
-            className="relative z-[61] flex h-full flex-col border-l border-line bg-panel shadow-lg"
+            className="pointer-events-auto relative z-[61] flex max-h-[500px] w-full max-w-md flex-col border border-line bg-panel shadow-lg"
             style={{ width: DRAWER_W }}
           >
             {drawerPanel}

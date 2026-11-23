@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SimEvent } from "@watch/lib/types";
 import { UNRENDERED_EVENT_TYPES } from "@watch/lib/types";
+import { eventTypeLabel } from "@watch/lib/event-labels";
 import { cn } from "@watch/lib/cn";
 import { Button } from "./ui/button";
 
@@ -11,7 +12,7 @@ interface Props {
   onClose?: () => void;
 }
 
-/** Muted mark for events not yet drawn on the map (DEV drawer only). */
+/** Muted mark for events not yet drawn on the map. */
 function UndrawnMark() {
   return (
     <span
@@ -40,12 +41,13 @@ export function EventLogPanel({
     return events.filter((e) => {
       if (hideXp && e.type === "xp_gain") return false;
       if (!q) return true;
-      const hay = `${e.type} ${e.seq} ${e.tick} ${JSON.stringify(e)}`.toLowerCase();
+      const label = eventTypeLabel(e.type).toLowerCase();
+      const hay =
+        `${e.type} ${label} ${e.seq} ${e.tick} ${JSON.stringify(e)}`.toLowerCase();
       return hay.includes(q);
     });
   }, [events, filter, hideXp]);
 
-  // Auto-scroll to the current tick on scrub / step / jump.
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
@@ -65,7 +67,7 @@ export function EventLogPanel({
       <div className="flex items-center justify-between border-b border-line px-3 py-2">
         <div>
           <h2 className="font-condensed text-lg tracking-wide">EVENT LOG</h2>
-          <p className="text-xs text-dim">Dev tool · click to jump</p>
+          <p className="text-xs text-dim">Click a row to jump</p>
         </div>
         {onClose ? (
           <Button
@@ -83,7 +85,7 @@ export function EventLogPanel({
           data-testid="event-filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter type / id…"
+          placeholder="Filter events…"
           className="min-w-0 flex-1 border border-line-2 bg-field px-2 py-1 text-sm text-paper placeholder:text-faint"
         />
         <label className="flex items-center gap-1 text-xs text-dim">
@@ -92,7 +94,7 @@ export function EventLogPanel({
             checked={hideXp}
             onChange={(e) => setHideXp(e.target.checked)}
           />
-          Hide xp_gain
+          Hide XP gains
         </label>
       </div>
       <ul
@@ -126,10 +128,9 @@ export function EventLogPanel({
                       undrawn ? "text-dim" : "text-paper",
                     )}
                   >
-                    {e.type}
+                    {eventTypeLabel(e.type)}
                     {undrawn ? <UndrawnMark /> : null}
                   </span>
-                  <span className="ml-auto truncate text-faint">seq {e.seq}</span>
                 </button>
               </li>
             );

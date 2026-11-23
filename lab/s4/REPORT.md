@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
-**Tip commit:** `a09ef05d85745a61fdd3a7cac7d6f258109ded8e`  
+**Tip commit:** `TIP_PLACEHOLDER`  
 **Layout tip verified independently:** `c6de901` (HUD rects ≤1 px, scale 1.0, bbox clean)  
 **Dummy tip verified independently:** `fc1697a`  
 **Date:** 23 Nov 2026  
@@ -24,10 +24,10 @@ npm run lab:s4
 
 | Check | Result |
 |---|---|
-| `npm test` | **30 passed** |
+| `npm test` | **32 passed** |
 | Canvas scale @1920 / @1280×720 / @1280×800 | **1.0** (intrinsic CSS == buffer; see `canvas-scale.txt`) |
-| Drawer @1920 (push) | Stage shifts left; HUD controls hittable via `elementFromPoint` without scroll; 8× click works with drawer open |
-| Drawer @1280 (modal) | Full-height modal + dim backdrop + focus trap + Close/Escape; close then 8× |
+| Drawer @1920 (push) | Flex column; stage reflows to 1600 px (112 rails, map 1:1, no translateX); rails + HUD hittable; 8× works |
+| Drawer @1280 (modal) | Centred modal over dim (rails/transport hittable); focus trap; Close / Escape |
 | 1280×800 utilities under HUD | **PASS** — spacer; loader below the fold |
 | Takedown log (quiet S0) | **No takedowns yet** (no level_up filler) |
 | Takedown log (handmade deaths) | `BLUE scores · 1–0` / death rows; see `watch-takedown-log-crop.png` |
@@ -42,8 +42,9 @@ npm run lab:s4
 - **720:** stage 1280×720; rails **112 px**; map **1056×520** 1:1 (plinth crop); takedown feed in dock; same dock family.
 - **1280×800:** 720 HUD + clear under-HUD spacer; utilities (loader / DEV) fully below the fold.
 - **Below 1280×720:** desktop notice + horizontal scroll; no stacked mobile layout.
-- **Event log @1080:** full-height **push** column; stage `translateX(-320)` so right-hand controls stay in the remaining viewport (no scroll).
-- **Event log @720:** **modal** over dimmed stage; focus trapped; Close / Escape / backdrop dismiss.
+- **Event log @1080:** flex column drawer; stage rebuilt to 1600×1080 (112 px rails, map 1:1) and centred — no transform.
+- **Event log @720:** centred **modal** over dimmed stage (dim is non-blocking so rails/transport stay hittable); focus trap; Close / Escape.
+- Event log labels are human-readable (`Level up`, `Hide XP gains`) — no snake_case in the UI.
 - Transport speeds: **0.5 / 1 / 2 / 4 / 8**.
 - Fallback spawns at **tile centres** `(1.5,7.5)` / `(22.5,7.5)` (GD). Props at tile centres. Units follow log poses when present.
 

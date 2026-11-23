@@ -8,18 +8,31 @@ const outDir = path.resolve(
   "../../../lab/s4",
 );
 
-/** HUD controls that must stay in-viewport and hittable with the drawer open (push mode). */
-const HUD_CONTROLS = [
-  "btn-play-pause",
-  "btn-step",
-  "btn-speed-0.5",
-  "btn-speed-1",
-  "btn-speed-2",
-  "btn-speed-4",
-  "btn-speed-8",
-  "scrubber",
-  "btn-toggle-drawer",
-] as const;
+const SLOTS = ["top", "jungle", "mid", "adc", "support"] as const;
+
+/** HUD controls + both rails + every rail frame. */
+function hudControls(): string[] {
+  const ids = [
+    "btn-play-pause",
+    "btn-step",
+    "btn-speed-0.5",
+    "btn-speed-1",
+    "btn-speed-2",
+    "btn-speed-4",
+    "btn-speed-8",
+    "scrubber",
+    "btn-toggle-drawer",
+    "kill-feed",
+    "rail-only-blue",
+    "rail-only-red",
+  ];
+  for (const team of ["blue", "red"] as const) {
+    for (const slot of SLOTS) {
+      ids.push(`frame-${team}:${slot}`);
+    }
+  }
+  return ids;
+}
 
 async function loadSample(page: Page) {
   await page.goto("/");
@@ -29,37 +42,47 @@ async function loadSample(page: Page) {
   });
 }
 
+async function assertFullyInViewport(
+  page: Page,
+  testId: string,
+): Promise<string | null> {
+  const loc = page.getByTestId(testId);
+  const box = await loc.boundingBox();
+  if (!box) return `${testId} missing box`;
+  const vp = page.viewportSize()!;
+  if (box.x < -0.5 || box.y < -0.5) {
+    return `${testId} origin (${box.x},${box.y}) outside viewport`;
+  }
+  if (box.x + box.width > vp.width + 0.5) {
+    return `${testId} right edge ${box.x + box.width} > ${vp.width}`;
+  }
+  if (box.y + box.height > vp.height + 0.5) {
+    return `${testId} bottom edge ${box.y + box.height} > ${vp.height}`;
+  }
+  return null;
+}
+
 async function hitTestId(
   page: Page,
   testId: string,
 ): Promise<{ ok: boolean; detail: string }> {
+  const boundsErr = await assertFullyInViewport(page, testId);
+  if (boundsErr) return { ok: false, detail: boundsErr };
+
   const loc = page.getByTestId(testId);
   const box = await loc.boundingBox();
   if (!box) return { ok: false, detail: `${testId} missing box` };
   const cx = box.x + box.width / 2;
   const cy = box.y + box.height / 2;
-  // Must be inside the viewport (no scroll required).
-  const vp = page.viewportSize()!;
-  if (cx < 0 || cy < 0 || cx > vp.width || cy > vp.height) {
-    return {
-      ok: false,
-      detail: `${testId} centre (${cx},${cy}) outside viewport ${vp.width}x${vp.height}`,
-    };
-  }
   const top = await page.evaluate(
     ({ x, y, want }) => {
       const el = document.elementFromPoint(x, y) as HTMLElement | null;
-      if (!el) return { hit: null as string | null, tag: null as string | null };
-      const node =
-        (el.closest(`[data-testid="${want}"]`) as HTMLElement | null) ??
-        (el.closest(
-          "button, input, [role='button'], a, select, textarea",
-        ) as HTMLElement | null) ??
-        el;
+      if (!el) return { inWant: false, hit: null as string | null };
       return {
-        hit: node.getAttribute("data-testid"),
-        tag: node.tagName,
         inWant: !!el.closest(`[data-testid="${want}"]`),
+        hit: (el.closest("[data-testid]") as HTMLElement | null)?.getAttribute(
+          "data-testid",
+        ),
       };
     },
     { x: cx, y: cy, want: testId },
@@ -67,7 +90,7 @@ async function hitTestId(
   if (!top.inWant) {
     return {
       ok: false,
-      detail: `${testId} centre hit testid=${top.hit} tag=${top.tag}`,
+      detail: `${testId} centre hit testid=${top.hit}`,
     };
   }
   return { ok: true, detail: `${testId} ok` };
@@ -93,49 +116,58 @@ test.describe("drawer open: controls hittable / modal", () => {
         vp.kind,
       );
 
+      if (vp.kind === "push") {
+        const transform = await page
+          .getByTestId("hud-stage")
+          .evaluate((el) => getComputedStyle(el).transform);
+        expect(
+          transform === "none" || transform === "matrix(1, 0, 0, 1, 0, 0)",
+        ).toBe(true);
+        // Stage fits remaining width (1920 − 320 = 1600).
+        const stageBox = await page.getByTestId("hud-stage").boundingBox();
+        expect(stageBox).toBeTruthy();
+        expect(stageBox!.width).toBe(1600);
+        expect(stageBox!.x).toBeGreaterThanOrEqual(0);
+      }
+
       fs.mkdirSync(outDir, { recursive: true });
       await page.screenshot({
         path: path.join(outDir, `watch-${vp.name}-drawer.png`),
         fullPage: false,
       });
 
-      if (vp.kind === "push") {
-        const hits: string[] = [];
-        for (const id of HUD_CONTROLS) {
-          const r = await hitTestId(page, id);
-          if (!r.ok) hits.push(r.detail);
-        }
-        // Takedown panel edge must also remain hittable.
-        const kf = await hitTestId(page, "kill-feed");
-        if (!kf.ok) hits.push(kf.detail);
-        expect(hits, hits.join("\n")).toEqual([]);
+      // Drawer open: every HUD + rail control fully in viewport and hittable.
+      const hits: string[] = [];
+      for (const id of hudControls()) {
+        const r = await hitTestId(page, id);
+        if (!r.ok) hits.push(r.detail);
+      }
+      expect(hits, hits.join("\n")).toEqual([]);
 
-        // Click 8x with drawer open — speed must change.
+      if (vp.kind === "push") {
         await page.getByTestId("btn-speed-8").click();
-        await expect(page.getByTestId("btn-speed-8")).toHaveClass(/border-paper/);
+        await expect(page.getByTestId("btn-speed-8")).toHaveClass(
+          /border-paper/,
+        );
+        await expect(page.getByTestId("event-log-panel")).toContainText(
+          "Hide XP gains",
+        );
+        await expect(page.getByTestId("event-log-panel")).not.toContainText(
+          "Hide xp_gain",
+        );
+        await expect(page.getByTestId("event-list")).toContainText("Level up");
+        await expect(page.getByTestId("event-list")).not.toContainText(
+          "level_up",
+        );
       } else {
-        // Modal: backdrop covers stage; Close is hittable; close then click 8x.
         await expect(page.getByTestId("drawer-backdrop")).toBeVisible();
         const closeHit = await hitTestId(page, "btn-close-drawer");
         expect(closeHit.ok, closeHit.detail).toBe(true);
-        // Stage control centres must NOT be the transport while modal is up.
-        const speedBox = await page.getByTestId("btn-speed-8").boundingBox();
-        expect(speedBox).toBeTruthy();
-        const covered = await page.evaluate(
-          ({ x, y }) => {
-            const el = document.elementFromPoint(x, y) as HTMLElement | null;
-            return el?.closest('[data-testid="event-drawer"]') != null;
-          },
-          {
-            x: speedBox!.x + speedBox!.width / 2,
-            y: speedBox!.y + speedBox!.height / 2,
-          },
-        );
-        expect(covered).toBe(true);
-        await page.getByTestId("btn-close-drawer").click();
-        await expect(page.getByTestId("event-drawer")).toHaveCount(0);
+        // 8× is hittable through the dim (pointer-events: none on backdrop).
         await page.getByTestId("btn-speed-8").click();
-        await expect(page.getByTestId("btn-speed-8")).toHaveClass(/border-paper/);
+        await expect(page.getByTestId("btn-speed-8")).toHaveClass(
+          /border-paper/,
+        );
       }
     });
   }
