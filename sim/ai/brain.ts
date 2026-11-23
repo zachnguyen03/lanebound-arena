@@ -173,6 +173,20 @@ export function brainDecide(
     effectiveCommit = "hold";
   }
 
+  // R #4 S2-R4-2 L1926: a disengage call is always followed. Retreat precedes
+  // offensive execution casts and auto windups (Peel / locked / hex already
+  // returned above).
+  if (effectiveCommit === "disengage") {
+    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    return {
+      intent: "Retreat",
+      target_id: null,
+      waypoint: { x: pad[0]!, y: pad[1]! },
+      chase: null,
+      cast: null,
+    };
+  }
+
   // Execution casts run even when not yet "near" by senseR (scripted setup fixtures).
   const cast = chooseExecutionCast(state, u, opts);
   if (cast) {
@@ -186,7 +200,7 @@ export function brainDecide(
     };
   }
 
-  if (!opts.peeling && effectiveCommit !== "disengage" && !nearEnemy && !huntEnemy) {
+  if (!opts.peeling && !nearEnemy && !huntEnemy) {
     return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
   }
 
@@ -232,17 +246,6 @@ export function brainDecide(
         return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
       }
     }
-  }
-
-  if (effectiveCommit === "disengage") {
-    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
-    return {
-      intent: "Retreat",
-      target_id: null,
-      waypoint: { x: pad[0]!, y: pad[1]! },
-      chase: null,
-      cast: null,
-    };
   }
 
   const enemies = state.units.filter(
