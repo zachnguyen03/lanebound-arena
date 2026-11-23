@@ -37,4 +37,4 @@ The last C4 pass puts the opponent’s crest and name on the right of VS. That c
 
 Playwright covers a new career for each of the eight clubs, the Juniper highlight, the 8-row table, the fixture list, save and reload, a rejected import, screenshots at 1440×900, 1280×900, and 1280×800, and an `elementFromPoint` check with Settings open and with the save-error overlay open. Side-by-side PNGs are in `lab/c4/side-by-side/`.
 
-Season sha is unchanged: `b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c`.
+Season sha after C-R2-8 (composition tags, tactics on their own field): `23c624715c25b3229a687de70b078eee2a9b69599ae668c8f8f21b952ca9a1f9`.

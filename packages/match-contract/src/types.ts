@@ -21,6 +21,9 @@ export type EndReason =
   | "takedowns"
   | "coin_flip";
 export type TacticPreset = "hold" | "hunt" | "starve";
+/** Sandbox §6.5.1 composition tags. Not tactic presets. */
+export const COMP_ARCHETYPES = ["Dive", "Peel", "Poke", "Balanced"] as const;
+export type CompArchetype = (typeof COMP_ARCHETYPES)[number];
 export type CardOutcome = "fired" | "expired_unmet";
 
 export const SLOTS: readonly Slot[] = ["top", "jungle", "mid", "adc", "support"];
@@ -148,7 +151,9 @@ export interface MatchResult {
   score_blue: number;
   score_red: number;
   score_parts: [ScoreParts, ScoreParts];
-  archetypes: { blue: string; red: string };
+  archetypes: { blue: CompArchetype; red: CompArchetype };
+  /** career-match/1.x additive. Tactic preset for each side. */
+  tactics: { blue: TacticPreset; red: TacticPreset };
   champ_ids: string[];
   peel_fired: number;
   peel_eligible: number;

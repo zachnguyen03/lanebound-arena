@@ -1,6 +1,7 @@
 import { FAKE_CONSTANTS_HASH, assertAcceptableSimReplay, fakeDigest, isFakeDigest } from "./digest.js";
 import {
   CAREER_MATCH_VERSION,
+  COMP_ARCHETYPES,
   SLOTS,
   type CardMatchLog,
   type ContractPlayer,
@@ -50,6 +51,16 @@ function reqNum(obj: Record<string, unknown>, key: string): number {
 function oneOf<T extends string>(value: string, allowed: readonly T[], key: string): T {
   if (!(allowed as readonly string[]).includes(value)) fail(`${key} invalid: ${value}`);
   return value as T;
+}
+
+const TACTIC_PRESETS = ["hold", "hunt", "starve"] as const;
+
+function readSidePresets(value: unknown): { blue: (typeof TACTIC_PRESETS)[number]; red: (typeof TACTIC_PRESETS)[number] } {
+  if (!isRecord(value)) fail("tactics");
+  return {
+    blue: oneOf(reqString(value, "blue"), TACTIC_PRESETS, "tactics.blue"),
+    red: oneOf(reqString(value, "red"), TACTIC_PRESETS, "tactics.red"),
+  };
 }
 
 const SLOT_SET = new Set<string>(SLOTS);
@@ -273,7 +284,11 @@ export function validateMatchResult(input: unknown): MatchResult {
     score_blue: scoreBlue,
     score_red: scoreRed,
     score_parts: [readScoreParts(parts[0], "score_parts[0]"), readScoreParts(parts[1], "score_parts[1]")],
-    archetypes: { blue: reqString(archetypes, "blue"), red: reqString(archetypes, "red") },
+    archetypes: {
+      blue: oneOf(reqString(archetypes, "blue"), COMP_ARCHETYPES, "archetypes.blue"),
+      red: oneOf(reqString(archetypes, "red"), COMP_ARCHETYPES, "archetypes.red"),
+    },
+    tactics: readSidePresets(input.tactics),
     champ_ids: champs.map((id) => {
       if (typeof id !== "string") fail("champ_ids");
       return id;

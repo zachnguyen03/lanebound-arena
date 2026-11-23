@@ -1,6 +1,6 @@
 # C5 play, cards, tactics, draft, recap
 
-Play and skip run on the fake runner, one map at a time. The screen shows what the engine returns. It does not recompute ratings, standings, or card outcomes. `runSeason` and `playSeries` are unchanged, so the season sha stays `b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c`.
+Play and skip run on the fake runner, one map at a time. The screen shows what the engine returns. It does not recompute ratings, standings, or card outcomes. `runSeason` still plays the season on the fake runner. C-R2-8 moved the season sha to `23c624715c25b3229a687de70b078eee2a9b69599ae668c8f8f21b952ca9a1f9` because `archetypes` is now the composition tag.
 
 ## Content differences against the mockups
 
