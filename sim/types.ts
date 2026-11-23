@@ -201,10 +201,14 @@ export interface UnitState {
   cast_aim_y: number;
   cast_force_hit: boolean;
   cast_seq: number;
+  /** Instant circle AoE: unit ids in radius at cast_start (Still Hour / Mire). */
+  cast_snapshot_ids: UnitId[] | null;
   break_until: number;
   commit_until: number;
   /** Saelo Rewound Moment: once per fight. */
   rewind_used: boolean;
+  /** After fear, ignore scripted motor and re-enter AA range if autos are on. */
+  abandon_scripted_motor: boolean;
 }
 
 export interface Displacement {
@@ -215,6 +219,10 @@ export interface Displacement {
   spawn_seq: number;
   source_id: string;
   skill_id: string;
+  /** If set, queue a follow-up hop this many ticks after THIS hop lands. */
+  return_dx?: number;
+  return_dy?: number;
+  return_delay_ticks?: number;
 }
 
 export interface PendingDamage {

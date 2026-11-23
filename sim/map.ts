@@ -58,14 +58,24 @@ export function circleHitsAabb(
   return dx * dx + dy * dy < r * r;
 }
 
-export function hitsPillar(x: number, y: number, c: Constants): boolean {
-  const r = c.BODY_RADIUS;
+/**
+ * Pillar overlap. Default uses BODY_RADIUS (skillshot / AoE blocking).
+ * Pass radius=0 for movement clipping so unit centres can press the tile face
+ * (OQ-3 west-face slide band is ~16.7–17.0 for the NE pillar).
+ */
+export function hitsPillar(x: number, y: number, c: Constants, radius?: number): boolean {
+  const r = radius === undefined ? c.BODY_RADIUS : radius;
   for (const p of c.PILLARS) {
     // Tile inclusive [x0,x1] × [y0,y1] → continuous AABB [x0, x1+1] × [y0, y1+1]
     const minX = p.x0;
     const maxX = p.x1 + 1;
     const minY = p.y0;
     const maxY = p.y1 + 1;
+    if (r <= 1e-12) {
+      // Centre-in-tile (inclusive of the low edges, exclusive of high+1 via floor semantics)
+      if (x >= minX && x < maxX && y >= minY && y < maxY) return true;
+      continue;
+    }
     if (circleHitsAabb(x, y, r, minX, maxX, minY, maxY)) return true;
   }
   return false;
@@ -95,7 +105,8 @@ export interface ClipResult {
 
 function isIllegal(team: Team, x: number, y: number, c: Constants): ClipReason {
   if (outOfBounds(x, y, c)) return "bounds";
-  if (hitsPillar(x, y, c)) return "pillar";
+  // Movement uses centre-vs-tile pillars so units can slide on the face (OQ-3).
+  if (hitsPillar(x, y, c, 0)) return "pillar";
   if (inEnemySanctuary(team, x, y, c)) return "sanctuary";
   return null;
 }

@@ -90,6 +90,12 @@ export function lineHitsUnit(
   unit: { x: number; y: number },
   bodyR: number,
 ): boolean {
+  const dx = unit.x - caster.x;
+  const dy = unit.y - caster.y;
+  const along = dx * aimNx + dy * aimNy;
+  // Past the authored length (plus body overhang) → miss. Stops soft body
+  // grabs on units beyond the tip (Saelo Q vs a far pierce target).
+  if (along < -bodyR - 1e-12 || along > length + bodyR + 1e-12) return false;
   const bx = caster.x + aimNx * length;
   const by = caster.y + aimNy * length;
   const d = distPointToSegment(unit.x, unit.y, caster.x, caster.y, bx, by);

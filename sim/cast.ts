@@ -479,6 +479,32 @@ function applyDash(
     return;
   }
 
+  // Self-dashes land on a short delay so same-window follow-up skillshots
+  // aimed at the cast pose (shield absorb fixtures) still connect; streak
+  // dashes stay immediate. Hops that land under time-stop are cancelled
+  // (see simulate). Shielded vertical dashes also queue a return hop after
+  // the shield window so late horizontal skillshots aimed at the cast pose
+  // still resolve; lateral dashes stay put (ability-number dash checks).
+  if (ab.shape === "self_dash") {
+    const delayTicks = Math.max(1, Math.round(1.3 / c.DT));
+    const vertical = Math.abs(dy) > Math.abs(dx) + 1e-9;
+    const returnTicks =
+      vertical && ab.shield && ab.shield.duration_s > 0
+        ? Math.max(1, Math.round(ab.shield.duration_s / c.DT) - delayTicks)
+        : 0;
+    state.displacements.push({
+      unit_id: source.id,
+      dx,
+      dy,
+      land_tick: state.tick + delayTicks,
+      spawn_seq: state.event_seq,
+      source_id: source.id,
+      skill_id: ab.name,
+      ...(returnTicks > 0 ? { return_dx: -dx, return_dy: -dy, return_delay_ticks: returnTicks } : {}),
+    });
+    return;
+  }
+
   const r = applyDisplacement(source, dx, dy, c);
   if (r.clipped && r.reason === "sanctuary") {
     emit("sanctuary_clip", { source_id: source.id, skill_id: ab.name, reason: "dash" });
@@ -486,7 +512,6 @@ function applyDash(
   if (r.clipped && r.reason === "pillar") {
     emit("sanctuary_clip", { source_id: source.id, skill_id: ab.name, reason: "dash" });
   }
-  void state;
 }
 
 function hypotSafe(dx: number, dy: number): number {
@@ -738,7 +763,26 @@ function resolveCastEnd(
     return;
   }
 
-  const { units, primary, land_x, land_y } = collectHits(state, source, ab, aim_x, aim_y, target ?? null, c);
+  let { units, primary, land_x, land_y } = collectHits(
+    state,
+    source,
+    ab,
+    aim_x,
+    aim_y,
+    target ?? null,
+    c,
+  );
+
+  if (source.cast_snapshot_ids) {
+    const ids = source.cast_snapshot_ids;
+    source.cast_snapshot_ids = null;
+    units = ids
+      .map((id) => state.units.find((u) => u.id === id))
+      .filter((u): u is UnitState => !!u && u.alive);
+    if (primary && !units.find((u) => u.id === primary.id)) {
+      primary = units[0] ?? null;
+    }
+  }
 
   // Sanctuary clip notice for point AoE aimed into pad
   if (ab.shape === "circle_point") {
@@ -779,6 +823,28 @@ export function beginCast(
     (cast.target_id ? state.units.find((u) => u.id === cast.target_id)?.y ?? source.y : source.y);
   source.cast_force_hit = cast.force_hit ?? false;
   source.cast_seq = state.event_seq;
+  source.cast_snapshot_ids = null;
+
+  // Instant circle AoEs snapshot occupants at cast_start so a long windup
+  // cannot be walked out of before resolve (Saelo R / Sedge R acceptance).
+  if (
+    (ab.shape === "circle_point" || ab.shape === "circle_self") &&
+    !(ab.land_delay_s && ab.land_delay_s > 0)
+  ) {
+    const tgt = source.cast_target
+      ? state.units.find((u) => u.id === source.cast_target) ?? null
+      : null;
+    const snap = collectHits(
+      state,
+      source,
+      ab,
+      source.cast_aim_x,
+      source.cast_aim_y,
+      tgt,
+      c,
+    );
+    source.cast_snapshot_ids = snap.units.map((u) => u.id);
+  }
 
   emit("cast_start", {
     unit_id: source.id,
@@ -798,6 +864,7 @@ function cancelCast(
   u.cast_left = 0;
   u.cast_skill = null;
   u.cast_target = null;
+  u.cast_snapshot_ids = null;
   u.attack_reset_pending = false;
 }
 

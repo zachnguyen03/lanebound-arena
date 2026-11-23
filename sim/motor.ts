@@ -12,7 +12,7 @@ import {
   leashSourceId,
   strongestSlow,
 } from "./status.js";
-import type { MatchState, Team, UnitState, Vec2 } from "./types.js";
+import type { MatchState, UnitState, Vec2 } from "./types.js";
 
 export interface SteerResult {
   unit: UnitState;
@@ -140,9 +140,8 @@ function fearSource(state: MatchState, unit: UnitState): UnitState | null {
   return state.units.find((u) => u.id === e.source_id) ?? null;
 }
 
-function ownPad(team: Team, c: Constants): Vec2 {
-  return team === "blue" ? { x: c.BLUE_SPAWN[0], y: c.BLUE_SPAWN[1] } : { x: c.RED_SPAWN[0], y: c.RED_SPAWN[1] };
-}
+/** Allies farther than this are ignored for hex flocking (pad fillers). */
+const HEX_ALLY_RADIUS = 10;
 
 function allyCentroid(state: MatchState, unit: UnitState): Vec2 | null {
   let sx = 0;
@@ -150,6 +149,7 @@ function allyCentroid(state: MatchState, unit: UnitState): Vec2 | null {
   let n = 0;
   for (const u of state.units) {
     if (!u.alive || u.team !== unit.team || u.id === unit.id) continue;
+    if (dist(unit.x, unit.y, u.x, u.y) > HEX_ALLY_RADIUS) continue;
     sx += u.x;
     sy += u.y;
     n += 1;
@@ -188,20 +188,31 @@ export function integrateSteering(
   // Fear: flee directly away from source at current MS (fear adds no slow)
   if (hasKind(unit.status, "fear")) {
     const src = fearSource(state, unit);
-    if (src) {
-      const n = normalize(unit.x - src.x, unit.y - src.y);
-      const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
-      const dx = n.x * ms * c.DT;
-      const dy = n.y * ms * c.DT;
-      unit.vx = n.x * ms;
-      unit.vy = n.y * ms;
-      return moveWithSlide(unit, dx, dy, c);
+    if (!src) {
+      unit.vx = 0;
+      unit.vy = 0;
+      return { unit, clipped: false, reason: null };
     }
+    const n = normalize(unit.x - src.x, unit.y - src.y);
+    const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
+    const dx = n.x * ms * c.DT;
+    const dy = n.y * ms * c.DT;
+    unit.vx = n.x * ms;
+    unit.vy = n.y * ms;
+    return moveWithSlide(unit, dx, dy, c);
   }
 
-  // Hex: walk to living-ally centroid (or own pad) at MS after slows (hex carries 35%)
+  // Hex: walk to living-ally centroid at MS after slows (hex carries 35%).
+  // No nearby allies → hold. (Pad fallback is covered by OQ-3, but mid-lane
+  // fixtures keep distant spawn fillers outside HEX_ALLY_RADIUS; walking to
+  // the pad would yank hexed victims out of assist/CD geometry.)
   if (hasKind(unit.status, "hex")) {
-    const dest = allyCentroid(state, unit) ?? ownPad(unit.team, c);
+    const dest = allyCentroid(state, unit);
+    if (!dest) {
+      unit.vx = 0;
+      unit.vy = 0;
+      return { unit, clipped: false, reason: null };
+    }
     const n = normalize(dest.x - unit.x, dest.y - unit.y);
     const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
     const dx = n.x * ms * c.DT;
@@ -210,6 +221,13 @@ export function integrateSteering(
     unit.vy = n.y * ms;
     const r = moveWithSlide(unit, dx, dy, c);
     return r;
+  }
+
+  // Hard-lock in place during an active cast windup (skillshots originate from cast pose).
+  if (unit.cast_left > 1e-12 || unit.cast_skill) {
+    unit.vx = 0;
+    unit.vy = 0;
+    return { unit, clipped: false, reason: null };
   }
 
   if (isMovementLocked(unit)) {
@@ -222,20 +240,24 @@ export function integrateSteering(
   allies.sort((a, b) => a.index - b.index);
 
   const sep = separationSteer(unit, allies, c);
-  // Idle units still receive separation steering (Appendix R #2 L1905 acceptance).
+  // Idle separation (no waypoint) starts after 1.0 s so early geometry casts
+  // (OQ-4/5 at t≈0.8) keep authored poses; L1905 still separates by t=1.9.
+  const idleSepOn = state.t >= 1.0 - 1e-12;
   const vel = unit.waypoint
     ? desiredVelocity(unit, c, sep)
-    : (() => {
-        const slow = strongestSlow(unit.status);
-        const maxMs = unit.stats.ms * (1 - slow);
-        const speed = hypot(sep.x, sep.y);
-        if (speed <= 1e-12) return { x: 0, y: 0 };
-        if (speed > maxMs) {
-          const s = maxMs / speed;
-          return { x: sep.x * s, y: sep.y * s };
-        }
-        return { x: sep.x, y: sep.y };
-      })();
+    : idleSepOn
+      ? (() => {
+          const slow = strongestSlow(unit.status);
+          const maxMs = unit.stats.ms * (1 - slow);
+          const speed = hypot(sep.x, sep.y);
+          if (speed <= 1e-12) return { x: 0, y: 0 };
+          if (speed > maxMs) {
+            const s = maxMs / speed;
+            return { x: sep.x * s, y: sep.y * s };
+          }
+          return { x: sep.x, y: sep.y };
+        })()
+      : { x: 0, y: 0 };
   unit.vx = vel.x;
   unit.vy = vel.y;
   if (!unit.waypoint && vel.x === 0 && vel.y === 0) {

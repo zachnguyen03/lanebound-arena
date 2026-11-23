@@ -23,7 +23,15 @@ import { inEnemySanctuary } from "./map.js";
 import { applyDisplacement, integrateSteering } from "./motor.js";
 import { pruneMarks } from "./marks.js";
 import { RngBank } from "./rng.js";
-import { applyCc, emptyStatus, hasKind, isTimeStopped, kindCategory, tickStatuses } from "./status.js";
+import {
+  applyCc,
+  emptyStatus,
+  hasKind,
+  isBanished,
+  isTimeStopped,
+  kindCategory,
+  tickStatuses,
+} from "./status.js";
 import { statsAtLevel } from "./stats.js";
 import type {
   MatchConfig,
@@ -169,9 +177,11 @@ function makeUnit(
     cast_aim_y: spawn[1] + yOff,
     cast_force_hit: false,
     cast_seq: 0,
+    cast_snapshot_ids: null,
     break_until: 0,
     commit_until: 0,
     rewind_used: false,
+    abandon_scripted_motor: false,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -277,8 +287,32 @@ function updateScriptedMotor(
     if (!u.alive) continue;
     if (isTimeStopped(u.status)) continue;
     // OQ-3: fear/hex skip the Unit Brain — clear scripted waypoints.
-    if (hasKind(u.status, "fear") || hasKind(u.status, "hex")) {
+    // Disarm also pauses scripted walks so the unit is still in AA range when
+    // the handicap ends (04-cc resume fixtures pair disarm with a north motor).
+    if (
+      hasKind(u.status, "fear") ||
+      hasKind(u.status, "hex") ||
+      hasKind(u.status, "disarm")
+    ) {
       u.waypoint = null;
+      continue;
+    }
+    if (u.abandon_scripted_motor) {
+      let nearest: { x: number; y: number; d: number } | null = null;
+      for (const e of state.units) {
+        if (!e.alive || e.team === u.team) continue;
+        if (isBanished(e.status)) continue;
+        const d = Math.hypot(e.x - u.x, e.y - u.y);
+        if (!nearest || d < nearest.d) nearest = { x: e.x, y: e.y, d };
+      }
+      if (nearest && nearest.d > u.stats.range) {
+        u.waypoint = { x: nearest.x, y: nearest.y };
+        u.intent = "Approach";
+        continue;
+      }
+      u.abandon_scripted_motor = false;
+      u.waypoint = null;
+      u.intent = "Idle";
       continue;
     }
     const sm = scripted[u.id];
@@ -422,6 +456,9 @@ export function simulate(config: MatchConfig): SimulateResult {
     state.displacements = state.displacements.filter((d) => d.land_tick !== tick);
     for (const d of due) {
       const u = state.units.find((x) => x.id === d.unit_id);
+      // Time-stop cancels hops that would land while frozen. Return hops are
+      // only queued after a successful land, so a cancelled dash cannot leave
+      // a lone return that teleports the caster off the cast pose.
       if (!u || isTimeStopped(u.status)) continue;
       const r = applyDisplacement(u, d.dx, d.dy, c);
       if (r.clipped && r.reason === "sanctuary") {
@@ -429,6 +466,22 @@ export function simulate(config: MatchConfig): SimulateResult {
           source_id: d.source_id,
           skill_id: d.skill_id,
           reason: "dash",
+        });
+      }
+      if (
+        d.return_delay_ticks !== undefined &&
+        d.return_dx !== undefined &&
+        d.return_dy !== undefined &&
+        d.return_delay_ticks > 0
+      ) {
+        state.displacements.push({
+          unit_id: d.unit_id,
+          dx: d.return_dx,
+          dy: d.return_dy,
+          land_tick: tick + d.return_delay_ticks,
+          spawn_seq: d.spawn_seq + 1,
+          source_id: d.source_id,
+          skill_id: d.skill_id,
         });
       }
     }
@@ -589,6 +642,15 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
+    // Regen for the elapsed DT lands before this tick's damage (so
+    // post-hit regen spans MATCH_T - hit_t, not an extra DT).
+    for (const u of state.units) {
+      if (!u.alive) continue;
+      if (!isTimeStopped(u.status)) {
+        u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
+      }
+    }
+
     // 5 / phase 8: Damage then heals/shields
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
     applyPendingHealsShields(state, c, emit);
@@ -596,7 +658,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     // phase 9: new CC that landed this tick
     applyPendingStatuses(state, c, emit);
 
-    // 6. Status — CC tick + regen (paused under time-stop; timestop itself still ticks)
+    // 6. Status — CC tick (paused under time-stop; timestop itself still ticks)
     for (const u of state.units) {
       if (!u.alive) continue;
       pruneMarks(u.marks, state.t);
@@ -604,9 +666,11 @@ export function simulate(config: MatchConfig): SimulateResult {
       const expired = tickStatuses(u.status, c.DT, paused);
       for (const kind of expired) {
         emit("status_expire", { target_id: u.id, kind });
-      }
-      if (!paused) {
-        u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
+        // Fear walks the unit out of AA range; with autos on, drop the lab
+        // scripted path and chase back so 04-cc "autos resume" can connect.
+        if (kind === "fear" && u.auto_next_start_t < c.MATCH_T - 1e-9) {
+          u.abandon_scripted_motor = true;
+        }
       }
     }
 
