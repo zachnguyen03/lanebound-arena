@@ -2,11 +2,12 @@ import { spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 import { sha256Hex } from "@lanebound/match-contract";
 import type { SeriesResult } from "@lanebound/match-contract";
-import { deadeyeWinner, keepSignature, splitMvpWinner, zonekeeperScore, zonekeeperWinner } from "./awards.js";
+import { deadeyeWinner, keepSignature, seasonAwards, splitMvpWinner, zonekeeperScore, zonekeeperWinner } from "./awards.js";
 import { tickContract } from "./contracts.js";
 import { fromDisplay, GLICKO_TAU, glickoDisplay, glickoUpdate, initialGlicko } from "./glicko.js";
 import { seasonPointTotal } from "./points.js";
 import { loadSave, runSeason, saveJson } from "./season.js";
+import { seriesMvp } from "./series.js";
 import { openingWorld } from "./world.js";
 
 /** Canonical save for career seed 20261123, club juniper-rush. Moves when the world, sudden-death table, or tactics change. */
@@ -55,6 +56,73 @@ describe("C2 glicko, points, awards, contracts", () => {
     expect(glickoDisplay(initialGlicko()).r).toBeCloseTo(1500, 8);
     expect(glickoDisplay(initialGlicko()).rd).toBeCloseTo(350, 6);
     expect(() => glickoUpdate(initialGlicko(), [])).toThrow(/unchanged/);
+  });
+
+  it("grants Pillar, then Crown, then Finals Poise, and no signature for the other awards", () => {
+    const row = (playerId: string, rating: number, extra: { dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }) => ({
+      player_id: playerId,
+      side: "blue" as const,
+      rating,
+      z: extra.z ?? 0,
+      dmg: extra.dmg ?? 0,
+      peels: extra.peels ?? 0,
+      zone_seconds: extra.zone ?? 0,
+      claim_denies: extra.denies ?? 0,
+    });
+    const regular = [0, 1, 2, 3].map((index) => ({
+      stage: "regular" as const,
+      series_id: `reg-${index}`,
+      games: [
+        {
+          players: [
+            row("ace", 9, { dmg: 10, peels: 1, zone: 1 }),
+            row("gun", 4, { dmg: 9000 }),
+            row("peel", 4, { peels: 20 }),
+            row("zone", 4, { zone: 80, denies: 4 }),
+          ],
+        },
+      ],
+    }));
+    const finalPlayers = [
+      row("ace", 10, { z: 0.4 }),
+      row("b", 6, {}),
+      row("c", 6, {}),
+      row("d", 6, {}),
+      row("e", 6, {}),
+    ];
+    const games = [{ winner: "blue" as const, players: finalPlayers }];
+    const mvp = seriesMvp(games as unknown as SeriesResult["games"]);
+    const finalSeries = {
+      stage: "final" as const,
+      series_id: "final",
+      team_ids: ["blue-club", "red-club"] as [string, string],
+      winner_team_id: "blue-club",
+      mvp_player_id: mvp,
+      games,
+    };
+    const { awards, grants } = seasonAwards([...regular, finalSeries] as unknown as SeriesResult[], "s1");
+    expect(mvp).toBe("ace");
+    expect(awards.find((award) => award.kind === "finals_mvp")?.player_id).toBe(finalSeries.mvp_player_id);
+    expect(awards.filter((award) => award.kind === "deadeye" || award.kind === "shepherd" || award.kind === "zonekeeper").map((award) => award.signature)).toEqual([
+      null,
+      null,
+      null,
+    ]);
+    expect(grants.some((grant) => grant.player_id === "gun" || grant.player_id === "peel" || grant.player_id === "zone")).toBe(false);
+    const ace = grants.filter((grant) => grant.player_id === "ace").map((grant) => grant.signature);
+    expect(ace).toEqual(["pillar-of-the-split", "convergence-crown", "finals-poise"]);
+    let archive: string[] = [];
+    for (const signature of ace) archive = keepSignature(archive, signature);
+    expect(archive).toEqual(["finals-poise"]);
+    expect(grants.map((grant) => grant.signature)).toEqual([
+      "pillar-of-the-split",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "convergence-crown",
+      "finals-poise",
+    ]);
   });
 
   it("requires four series and breaks ties toward the lower player id", () => {
@@ -167,6 +235,12 @@ describe("C2 glicko, points, awards, contracts", () => {
     expect(crowns).toHaveLength(5);
     expect(save.signature_grants.some((grant) => grant.signature === "pillar-of-the-split")).toBe(true);
     expect(save.signature_grants.some((grant) => grant.signature === "finals-poise")).toBe(true);
+    const finalSeries = save.series.find((item) => item.stage === "final");
+    const finalsAward = save.awards.find((award) => award.kind === "finals_mvp");
+    expect(finalsAward?.player_id).toBe(finalSeries?.mvp_player_id);
+    expect(finalSeries?.mvp_player_id).toBe(seriesMvp(finalSeries!.games));
+    expect(save.awards.filter((award) => award.kind === "deadeye" || award.kind === "shepherd" || award.kind === "zonekeeper").every((award) => award.signature === null)).toBe(true);
+    expect(save.signature_grants.every((grant) => grant.signature === "pillar-of-the-split" || grant.signature === "convergence-crown" || grant.signature === "finals-poise")).toBe(true);
     for (const player of save.players) {
       expect(player.signature_archive.length).toBeLessThanOrEqual(1);
       expect(player.shippable).toBe(false);
