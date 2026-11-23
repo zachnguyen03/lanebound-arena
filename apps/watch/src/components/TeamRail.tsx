@@ -70,7 +70,7 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
                 )}
                 style={
                   portrait
-                    ? { width: portraitPx, height: portraitPx }
+                    ? { width: portraitPx + 2, height: portraitPx + 2 }
                     : undefined
                 }
                 title={
@@ -84,7 +84,7 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
                     width={portraitPx}
                     height={portraitPx}
                     data-testid={`portrait-${u.id}`}
-                    className="pixelated"
+                    className="pixelated shrink-0"
                     style={{
                       width: portraitPx,
                       height: portraitPx,
