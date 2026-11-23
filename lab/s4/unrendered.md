@@ -4,7 +4,7 @@ The shell consumes these events in the side panel (filter + jump) but does **not
 
 | Event type | Planned visual | Status |
 |---|---|---|
-| `cast_start` / `cast_cancel` | Telegraph / cast bar | TODO — S1 kits + telegraphs |
+| `cast_start` / `cast_cancel` | Telegraph / cast bar | Not drawn. Even default seeds 20261122 and 20261123 emit 0 `cast_start` (772 ticks each). The plan wants a shape blit; the log has no cast to place one on. |
 | `projectile_spawn` | Missile sprite | TODO — S1 combat log |
 | `hit` | Floating numbers / shield plate | **Body `hit` anim plays** on damage; floaters still TODO |
 | `heal` / `shield_apply` | Floating numbers / shield plate | TODO |
