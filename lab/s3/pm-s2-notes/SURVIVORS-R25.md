@@ -55,3 +55,22 @@ exit 1 KILLED
 ```
 
 All four **KILLED**. None treated as equivalent.
+
+---
+
+## PM behaviour statements (real AI path) — `tests/s2-survivor-behaviour.test.ts`
+
+One test per statement. No internal-helper asserts; acceptance suites untouched.
+
+| # | Test name | Statement |
+|---|---|---|
+| 1 | `follows a much greener local shot, not the far called target (engage, Teamwork 90)` | Engage call names far full-HP Red ADC; Red Mid ~200 HP beside Blue ADC (TW90); she attacks Red Mid |
+| 2 | `a dead called target does not stay the attack target` | Call names Red ADC; after Red ADC dies she switches to live Red Mid and never keeps the corpse |
+| 3 | `a no-damage chaser still treats a 1-HP target as killable (chase continues)` | L1 Blue Mid with `as=0` mid-chase on 1-HP Red ADC; chase continues (TTK finite ≤ 2 s via denom floor) |
+
+```
+npx vitest run tests/s2-survivor-behaviour.test.ts
+✓ tests/s2-survivor-behaviour.test.ts (3 tests)
+Tests  3 passed (3)
+```
+
