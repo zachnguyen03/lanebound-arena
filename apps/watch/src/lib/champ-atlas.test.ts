@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   collectAtlasFiles,
@@ -12,6 +14,39 @@ describe("champion atlas files", () => {
     expect(collectAtlasFiles("maelis", { status: { slow: { file: note } } })).toEqual([
       "vfx/slow.png",
     ]);
+  });
+
+  it("maps skill ids onto icons and never emits them as urls", () => {
+    expect(resolveAtlasFile("kerrig", "q-latch-line")).toBe(
+      "icons/q-latch-line.png",
+    );
+    expect(resolveAtlasFile("brannoch", "p-bedrock")).toBe("icons/p-bedrock.png");
+    expect(
+      collectAtlasFiles("brannoch", {
+        skills: { p: { file: "p-bedrock" } },
+        icons: { p: { file: "icons/p-bedrock.png" } },
+      }),
+    ).toEqual(["icons/p-bedrock.png"]);
+
+    const dir = path.resolve("apps/watch/public/champions");
+    for (const slug of fs.readdirSync(dir)) {
+      const atlasPath = path.join(dir, slug, "atlas.json");
+      if (!fs.existsSync(atlasPath)) continue;
+      const files = collectAtlasFiles(
+        slug,
+        JSON.parse(fs.readFileSync(atlasPath, "utf8")),
+      );
+      for (const rel of files) {
+        expect(rel.includes("/") || rel.includes("."), rel).toBe(true);
+      }
+      if (slug === "kerrig") {
+        expect(files).toContain("icons/q-latch-line.png");
+        expect(files).not.toContain("q-latch-line");
+      }
+      if (slug === "huntress" || slug === "sedge") {
+        expect(files.some((rel) => rel.startsWith("icons/"))).toBe(true);
+      }
+    }
   });
 
   it("fills n and ms from fps when a clip only has frames", () => {

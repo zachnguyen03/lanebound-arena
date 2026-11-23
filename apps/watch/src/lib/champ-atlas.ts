@@ -98,7 +98,18 @@ function asClip(raw: unknown): BodyAnimClip | null {
 }
 
 /**
+ * `skills.*.file` is a skill id (`q-latch-line`), not a path.
+ * The bitmap is `icons/<id>.png`. A real path contains `/` or an extension.
+ */
+function skillIconPath(file: string): string | null {
+  if (file.includes("/") || file.includes(".")) return null;
+  if (!/^[a-z0-9-]+$/.test(file)) return null;
+  return `icons/${file}.png`;
+}
+
+/**
  * Atlas `file` / `sheet` strings. Maelis `status.slow.file` is a note, not a path.
+ * Skill ids resolve to `icons/<id>.png` and are never used as URLs.
  */
 export function resolveAtlasFile(slug: string, file: string): string | null {
   const trimmed = file.trim();
@@ -110,7 +121,8 @@ export function resolveAtlasFile(slug: string, file: string): string | null {
     return "vfx/slow.png";
   }
   if (/[\s()]/.test(trimmed)) return null;
-  return trimmed.replace(/^\.\//, "");
+  const rel = trimmed.replace(/^\.\//, "");
+  return skillIconPath(rel) ?? rel;
 }
 
 /** Relative sheet paths referenced by an atlas, with the Maelis note resolved. */

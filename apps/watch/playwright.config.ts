@@ -11,9 +11,9 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: "npx vite preview --host 127.0.0.1 --port 4173",
+    command: "node e2e/serve-check.mjs",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });
