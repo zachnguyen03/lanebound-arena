@@ -98,13 +98,7 @@ export function maxHp(champ: string, level: number) { return statAt(champ, level
 
 export function run(sc: Scenario): Run {
   const sh = sc.abs ? 0 : ZONE_SHIFT;
-  // Acceptance fixtures pin scripted casts/motors; keep fight AI off so units stay put.
-  const cfg: any = {
-    ...defaultEvenConfig(sc.seed ?? 20261122),
-    constants: { MATCH_T: sc.T },
-    debug_pos: sc.pos ?? false,
-    ai_enabled: false,
-  };
+  const cfg: any = { ...defaultEvenConfig(sc.seed ?? 20261122), constants: { MATCH_T: sc.T }, debug_pos: sc.pos ?? false };
   const uo: any = {};
   for (const [id, u] of Object.entries(sc.units)) {
     const level = u!.level ?? 7;
