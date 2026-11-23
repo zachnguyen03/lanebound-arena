@@ -1,9 +1,9 @@
-# S1 Report — 14 champions + combat tests (M1)
+# S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** `5fbe3604c026b0d6c13b7a7de90ec61c2037064f`  
+**Commit:** `9122c0693960ba498c79b11ac42d77d55d72fb8c`  
 **Date:** 23 Nov 2026  
-**Regenerate:** `npm run lab:s1`
+**Regenerate:** `npm run lab:s1` (set `LANEBOUND_COMMIT` in git-archive extracts)
 
 ## Commands
 
@@ -13,101 +13,117 @@ npm run digest -- --seed 20261122
 npm run digest -- --seed 20261123
 npm run purity
 npm run lab:s1
+npx tsx apps/lab/mutation-s1.ts
 ```
 
 ## Results
 
 | Check | Result |
 |---|---|
-| `npm test` | **104 passed** (see `tests.log`) |
-| M1 fixtures 5–19b | **all pass** |
-| Twin / gold digests | **unchanged from S0 tip `1caa5eb`** (quiet default match) |
-| `npm run purity` | **PURITY OK** |
+| `npm test` | **122 passed** |
+| M1 fixtures | **pass** |
+| `data_hash` | `82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a` (INV-DATA-HASH) |
+| Mutation probe | see table below |
 
-### Digests (gold — unchanged this milestone)
+### Digests (current gold)
 
 ```
 seed=20261122
 constants_hash=08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb
-digest=07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a
+data_hash=82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a
+digest=e0c3d7b631b35e13f8420e0fa0711c8e7fb24678413d5568ce097bfc627fffe4
 
 seed=20261123
 constants_hash=08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb
-digest=be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3
+data_hash=82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a
+digest=d3df901fd5e5ed364fcb1bd8353532551a296570460b5b1b384be95da4b9d270
 ```
 
-### Digest / constants_hash before → after
+### Digest / hashes before → after
 
-| | before (S0 `1caa5eb`) | after (this S1 tip) |
+| | before (S0 `1caa5eb` / prior S1 dummy) | after (this tip — real champions) |
 |---|---|---|
-| constants_hash | `08a57092…caffb` | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` *(same)* |
-| digest 20261122 | `07a8be50…083a` | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` *(same)* |
-| digest 20261123 | `be36ec90…22f3` | `be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3` *(same)* |
+| constants_hash | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` *(unchanged)* |
+| data_hash | *(absent)* | `82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a` **NEW** |
+| digest 20261122 | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` | `e0c3d7b631b35e13f8420e0fa0711c8e7fb24678413d5568ce097bfc627fffe4` |
+| digest 20261123 | `be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3` | `d3df901fd5e5ed364fcb1bd8353532551a296570460b5b1b384be95da4b9d270` |
 
-**Reason:** S1 adds champion/combat modules and auto gates, but the default quiet even-OVR match still fires no autos (units out of range) and emits the same event bodies. No §15 constant was added or changed.
+**Reason:** Default even match now picks real champions (stats from §7 tables). `match_start` includes `data_hash` (canonical kits+defs). No §15 constant changed.
 
-## Fixture table (M1 5–19b)
+## Fixture coverage
+
+### Helper-level
 
 | Spec # | Spec value | Measured | Tolerance | Pass |
 |---|---|---|---|---|
-| 5 | L1/L7/L10 snapshots ×14 | all match | display round / eHP ±0.05 | PASS |
-| 5.skill_scale | 0.70/0.90/1.00/1.15 | 0.7/0.9/1/1.15 | exact | PASS |
+| 5 | L1/L7/L10 snapshots ×14 | all match | display round | PASS |
 | 6 | Huntress Q L7 vs 36 PRes = 139.706 | 139.705882 | ±0.02 | PASS |
-| 7 | Huntress R mark +35% | 1.350000 | exact 1.35 | PASS |
-| 8a | Maelis R 1+0.20*missing | 1.080000 | ±0.02 packet | PASS |
-| 8b | Kerrig R 1+0.35*missing; no-mark fizzle | 1.175000; fizzle=true | ±0.02 | PASS |
-| 9 | Isra R on enemy pad → 0 + clip | dmg=0; clipped=true | dmg=0 | PASS |
-| 10 | sleep break / Ysol strong / Saelo basic | shieldKeep=true; hpBreak=true; basicKeeps=true; strong=true | all true | PASS |
-| 11 | Tolle W banish 1.8s r=0 | applied=1.8; r=0 | 1.8 / 0.0 | PASS |
-| 12 | Saelo R timestop (caster excluded) | kit R=Still Hour; r=2.4 | Still Hour / 2.4 | PASS |
-| 13 | Brannoch petrify 25% DR | 0.7500 | 0.75 | PASS |
-| 14 | Mirren Kiln-Cured +12% | 1.1200 | 1.12 | PASS |
-| 15 | Kerrig R no-mark fizzle; cast 0.7; commit 2.8 | cast=0.7 | 0.7 | PASS |
-| 16 | shield cap 25% max HP | pool=250 | 250 | PASS |
-| 17 | combat heal ×0.75 in 3s | in=75; out=100 | 75 / 100 | PASS |
-| 18 | DR d, 0.70d, 0.49d | 2.0000, 1.4000, 0.9800 | 2, 1.4, 0.98 | PASS |
-| 19 | Lock taper ×0.35 once owed≥7.5 | taper=true; applied=0.48999999999999994 | 0.49 | PASS |
-| 19b-55 | Aim 60 vs Reflexes 60 → 55% | rate=54.65%; digest=29ca0a0e96e2… | ±2 pts; identical replay | PASS |
-| 19b-85 | Aim 90 vs Reflexes 60 → 85% | rate=84.70%; digest=4458b1cc5f73… | ±2 pts; identical replay | PASS |
-| 19b-25 | Aim 60 vs Reflexes 90 → 25% | rate=24.95%; digest=7307990a2bb4… | ±2 pts; identical replay | PASS |
-| 19b-formula | hit%=clamp(0.55+0.01*(Aim−Ref),0.25,0.90) | 0.55/0.8500000000000001/0.25000000000000006 | 0.55/0.85/0.25 | PASS |
+| 7h | Huntress R absolute base from kits | 335.0000 | 230+1.05*ATK | PASS |
+| 8a | Maelis R absolute L7 base | 492.8000 | 350+1.7*POW | PASS |
+| 8b | Kerrig R absolute L7 base | 471.6000 | 330+1.4*ATK+0.15*POW | PASS |
+| 11h | Tolle W radius/duration from kits | r=0; d=1.8 | 0 / 1.8 | PASS |
+| 12h | Saelo R Still Hour r=2.4 | Still Hour r=2.4 | Still Hour / 2.4 | PASS |
+| calder | Calder W radius 0.0 | 0 | 0.0 | PASS |
+| mirren-slow | Mirren W hex slows 35% | hex also slows 35% | 35% | PASS |
+| 16 | shield cap 25% | 250 | 250 | PASS |
+| 17 | combat heal ×0.75 | 75 | 75 | PASS |
+| 18 | DR d,0.70d,0.49d | 2.00,1.40,0.98 | 2,1.4,0.98 | PASS |
+| 19 | Lock taper ×0.35 | 0.48999999999999994 | 0.49 | PASS |
+| 5.ss | skill_scale | 0.7/1/1.15 | 0.7/1/1.15 | PASS |
+
+### Sim-level (scripted_casts / scripted_skillshots)
+
+| Spec # | Spec value | Measured | Tolerance | Pass |
+|---|---|---|---|---|
+| 7s | Huntress mark apply+consume via scripted casts | see vitest m1-sim-behavior | events | PASS |
+| 9s | Isra R sanctuary clip via cast | see vitest | sanctuary_clip | PASS |
+| 10s | Sedge R ally sleep + dispels | see vitest | cc_apply/dispel | PASS |
+| 11s | Tolle W banish invuln + r=0 | see vitest | banish | PASS |
+| 12s | Saelo R timestop + CD freeze | see vitest | timestop | PASS |
+| 13s | Brannoch R petrify stun | see vitest | petrify | PASS |
+| 14s | Mirren Kiln +12% / hex end / Break | see vitest | 1.12 | PASS |
+| 15s | Kerrig R cast 0.7 + mark gate | see vitest | 0.7 | PASS |
+| 19b | Aim 55/85/25% ±2 over 2000 via scripted_skillshots | see vitest | HIT_* | PASS |
+| gates | windup cancel / Blind / attack_reset / timestop / assists | see vitest | §6.8–6.10 | PASS |
+
+## Mutation probe
+
+Each single-number / behavior edit must turn ≥1 test red:
+
+| Mutation | Turns red? | Note |
+|---|---|---|
+| Huntress Q CD 8→9 | YES | ≥1 test red |
+| Tolle W banish duration 1.8→1.5 | YES | ≥1 test red |
+| Saelo R radius 2.4→2.0 | YES | ≥1 test red |
+| Maelis R base 350→340 | YES | ≥1 test red |
+| Huntress R base 230→220 | YES | ≥1 test red |
+| Kerrig R base 330→320 | YES | ≥1 test red |
+| banish skip removed (invuln) | YES | ≥1 test red |
+| CC assist credit removed | YES | ≥1 test red |
+| heal assist credit removed | YES | ≥1 test red |
+| Blind miss disabled | YES | ≥1 test red |
+| time-stop auto pause disabled | YES | ≥1 test red |
+| Mirren W slow 35→25 in notes+apply | YES | ≥1 test red |
+mutation_probe_pass=true
+
 
 ## Kits
 
-All 14 authored kits present: brannoch, calder, helvar, huntress, isra, kerrig, maelis, mirren, rhedan, saelo, sedge, tolle, torun, ysol.
+brannoch, calder, helvar, huntress, isra, kerrig, maelis, mirren, rhedan, saelo, sedge, tolle, torun, ysol — wired into `simulate()` via lineup picks; abilities cast through `scripted_casts`.
 
 ## Constants changed
 
 None. `constants_hash` unchanged.
 
-## New constants
+## New hashes / inventions
 
-None added this milestone.
-
-## Inventions (still flagged)
-
-| Id | Constant / rule | Notes |
+| Id | Item | Notes |
 |---|---|---|
-| INV-SEP-STRENGTH | `SEPARATION_STRENGTH` | Unruled soft-separation push (G6). **Keep flagged.** |
-| INV-SEP-RADIUS | `SEPARATION_RADIUS` | Soft-separation radius 0.6 (G6). |
-| INV-ARRIVE-R | `SCRIPTED_ARRIVE_R` | Scripted-motor arrive radius. **Keep flagged.** |
-| INV-SPAWN-JITTER | `SPAWN_JITTER_Y` | Pad spawn y-jitter. |
-| INV-DUMMY-STATS | dummy L1 = Huntress | S0 placeholder until lineup picks drive stats (S1 kits available; defaultEvenConfig still uses dummy). |
-| INV-SHA256 | pure JS SHA-256 | No `node:crypto` in `sim/`. |
-| INV-G10 | canonical JSON recipe | Frozen in S0 report; now spec via G10. |
-
-`AUTO_WINDUP` is **not** an invention (spec §6.8 / §15).
+| INV-DATA-HASH | `data_hash` | SHA-256 of canonical kits + L1/growth/snapshots; on `match_start` next to `constants_hash`. Engineering addition. |
+| INV-SEP-STRENGTH | `SEPARATION_STRENGTH` | Still unruled. |
+| INV-ARRIVE-R | `SCRIPTED_ARRIVE_R` | Still unruled. |
 
 ## Open questions
 
-1. Default even match still spawns `champ: "dummy"` with Huntress L1 numbers — wiring picks→kit stats into `defaultEvenConfig` is deferred (would retarget digests; do in a dedicated commit with gold update).
-2. Mirren W extract uses `l7_damage: "none"` rather than `l7_formula` in one note — kit record uses damage:`"none"` / hex as the point; no number disagreement.
-3. Full skill cast/projectile engine for all 14 kits is fixture-covered for M1 packets/CC; AI targeting of kits is S2.
-
-## Deferred S0 items now in scope
-
-| Item | Status |
-|---|---|
-| Skill start cancels windup (§6.9) | `cancelAutoWindup` |
-| Blind / Disarm / Lock / timestop / attack-reset gates (§6.8) | `canStartAuto` + Blind miss on apply |
-| Assists from CC and heals (§6.10) | `assist_log` kinds `cc` / `heal` / `shield` |
+1. Full projectile geometry for every skillshot (width/pierce/lead) beyond the M1 fixture set is deferred; scripted force_hit covers packet/CC correctness.
+2. Attack-reset is set for the duration of a skill cast (blocks autos mid-cast); cleared on cast_end.
