@@ -614,10 +614,9 @@ export function WatchShell() {
           data-overlay="drawer-modal"
           className="pointer-events-none fixed inset-0 z-[60] flex items-start justify-center pt-12"
           role="dialog"
-          aria-modal="true"
           aria-label="Event log"
         >
-          {/* Dim only — pointer-events none so rails / transport stay hittable. */}
+          {/* Not aria-modal: this dim layer does not take clicks, so transport stays usable. */}
           <div
             data-testid="drawer-backdrop"
             className="absolute inset-0 bg-black/55"
