@@ -62,6 +62,29 @@ export interface MatchConfig {
   debug_pos?: boolean;
   /** Lab-only: assert sanctuary each tick; emit sanctuary_violation on failure. */
   assert_sanctuary?: boolean;
+  /** Lab/test: override initial unit pose / vitals after spawn. */
+  unit_overrides?: Partial<
+    Record<
+      UnitId,
+      {
+        x?: number;
+        y?: number;
+        hp?: number;
+        xp?: number;
+        level?: number;
+        spawn_shield_until?: number;
+        /** Lab: block autos until this sim t (windup may not start). */
+        auto_next_start_t?: number;
+      }
+    >
+  >;
+  /** Lab/test: inject raw damage packets on a given tick (phase 4). */
+  scripted_damage?: Array<{
+    tick: number;
+    source_id: UnitId;
+    target_id: UnitId;
+    raw: number;
+  }>;
 }
 
 export interface ScriptedMotor {
@@ -102,10 +125,19 @@ export interface UnitState {
   alive: boolean;
   spawn_shield_until: number;
   auto_cd: number;
+  /** Remaining windup time (s); 0 = not winding up. */
+  auto_windup_left: number;
+  /** Target locked at windup start. */
+  auto_windup_target: UnitId | null;
+  /** Earliest t at which the next auto windup may start. */
+  auto_next_start_t: number;
   stats: DummyStats;
   intent: string;
   waypoint: Vec2 | null;
   scripted_wp_i: number;
+  /** Recent damage contributors for assist credit: { source_id, t }. */
+  damage_log: Array<{ source_id: UnitId; t: number }>;
+  last_hit_by: UnitId | null;
 }
 
 export interface Displacement {

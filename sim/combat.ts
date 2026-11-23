@@ -42,6 +42,8 @@ export function tickAutos(
       if (atk.auto_cd < 0) atk.auto_cd = 0;
       continue;
     }
+    // Not ready to start a new auto (windup cadence / lab lockout).
+    if (state.t < atk.auto_next_start_t) continue;
 
     const target = pickAutoTarget(state, atk);
     if (!target) continue;
@@ -123,6 +125,10 @@ export function resolvePendingDamage(
     const mitigated = p.raw * mit(resist);
     // Floor HP after applied packet (build-spec §4.1).
     target.hp = Math.floor(target.hp - mitigated);
+    if (mitigated > 0) {
+      target.last_hit_by = p.source_id;
+      target.damage_log.push({ source_id: p.source_id, t: state.t });
+    }
     emit("hit", {
       source_id: p.source_id,
       target_id: p.target_id,

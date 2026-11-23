@@ -87,15 +87,19 @@ function makeUnit(
     alive: true,
     spawn_shield_until: c.SPAWN_SHIELD_S,
     auto_cd: 0,
+    auto_windup_left: 0,
+    auto_windup_target: null,
+    auto_next_start_t: 0,
     stats: { ...DUMMY_MARKSMAN },
     intent: "Idle",
     waypoint: null,
     scripted_wp_i: 0,
+    damage_log: [],
+    last_hit_by: null,
   };
 }
 
 function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
-  void cfg;
   const units: UnitState[] = [];
   let index = 0;
   for (const team of ["blue", "red"] as Team[]) {
@@ -105,7 +109,61 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       index += 1;
     }
   }
+  const overs = cfg.unit_overrides;
+  if (overs) {
+    for (const u of units) {
+      const o = overs[u.id];
+      if (!o) continue;
+      if (o.x !== undefined) u.x = o.x;
+      if (o.y !== undefined) u.y = o.y;
+      if (o.hp !== undefined) u.hp = o.hp;
+      if (o.xp !== undefined) u.xp = o.xp;
+      if (o.level !== undefined) u.level = o.level;
+      if (o.spawn_shield_until !== undefined) u.spawn_shield_until = o.spawn_shield_until;
+      if (o.auto_next_start_t !== undefined) u.auto_next_start_t = o.auto_next_start_t;
+    }
+  }
   return units;
+}
+
+function applyLevelUps(
+  state: MatchState,
+  c: Constants,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  for (const u of state.units) {
+    if (!u.alive) continue;
+    while (u.level < 10) {
+      const need = c.XP_TO_LEVEL[u.level + 1];
+      if (need === undefined || u.xp < need) break;
+      u.level += 1;
+      const hpGain = 200 / 6;
+      u.max_hp += hpGain;
+      u.hp += hpGain;
+      u.stats.hp = u.max_hp;
+      u.stats.atk += 28 / 6;
+      u.stats.as += 0.12 / 6;
+      u.stats.crit += 0.06 / 6;
+      emit("level_up", {
+        unit_id: u.id,
+        new_level: u.level,
+      });
+    }
+  }
+}
+
+function grantXp(
+  u: UnitState,
+  amount: number,
+  source: string,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  u.xp += amount;
+  emit("xp_gain", {
+    unit_id: u.id,
+    amount,
+    source,
+  });
 }
 
 function tOf(tick: number): number {
@@ -291,8 +349,22 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
-    // 4. Cast — dummy autos
+    // 4. Cast — dummy autos + lab scripted damage
     tickAutos(state, c, rng, (type, payload) => emit(type, payload));
+    if (config.scripted_damage) {
+      for (const sd of config.scripted_damage) {
+        if (sd.tick !== tick) continue;
+        state.pending_damage.push({
+          seq: state.event_seq,
+          source_id: sd.source_id,
+          target_id: sd.target_id,
+          skill_id: "scripted",
+          raw: sd.raw,
+          physical: true,
+          crit: false,
+        });
+      }
+    }
 
     // 5. Damage
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
@@ -303,47 +375,62 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
     }
 
-    // 10. Deaths + time XP (G2)
+    // 10. Deaths / kill+assist XP / time XP / level-ups (G2)
+    // Order: deaths + kill/assist XP → time XP → level-ups.
     for (const u of state.units) {
-      if (u.alive && u.hp <= 0) {
-        u.alive = false;
-        u.hp = 0;
-        u.waypoint = null;
-        emit("death", {
-          unit_id: u.id,
-          killer_id: null,
-          assists: [],
-          respawn_at: state.t + c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level,
-        });
+      if (!(u.alive && u.hp <= 0)) continue;
+      u.alive = false;
+      u.hp = 0;
+      u.waypoint = null;
+      u.auto_windup_left = 0;
+      u.auto_windup_target = null;
+
+      const killerId = u.last_hit_by;
+      const assists: UnitId[] = [];
+      if (killerId) {
+        const killer = state.units.find((x) => x.id === killerId);
+        if (killer && killer.alive && killer.team !== u.team) {
+          const windowStart = state.t - c.ASSIST_WINDOW_S;
+          const seen = new Set<UnitId>();
+          for (const entry of u.damage_log) {
+            if (entry.t < windowStart) continue;
+            if (entry.source_id === killerId) continue;
+            if (seen.has(entry.source_id)) continue;
+            const asst = state.units.find((x) => x.id === entry.source_id);
+            if (!asst || !asst.alive || asst.team !== killer.team) continue;
+            seen.add(entry.source_id);
+            assists.push(entry.source_id);
+          }
+          // Stable assist order by unit index
+          assists.sort((a, b) => {
+            const ai = state.units.find((x) => x.id === a)?.index ?? 0;
+            const bi = state.units.find((x) => x.id === b)?.index ?? 0;
+            return ai - bi;
+          });
+
+          grantXp(killer, c.KILL_XP, "kill", emit);
+          for (const aid of assists) {
+            const asst = state.units.find((x) => x.id === aid);
+            if (asst && asst.alive) grantXp(asst, c.ASSIST_XP, "assist", emit);
+          }
+        }
       }
+
+      emit("death", {
+        unit_id: u.id,
+        killer_id: killerId,
+        assists,
+        respawn_at: state.t + c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level,
+      });
     }
 
     const timeXp = c.TIME_XP_PER_S * c.DT;
     for (const u of state.units) {
-      if (!u.alive) continue;
-      u.xp += timeXp;
-      emit("xp_gain", {
-        unit_id: u.id,
-        amount: timeXp,
-        source: "time",
-      });
-      while (u.level < 10) {
-        const need = c.XP_TO_LEVEL[u.level + 1];
-        if (need === undefined || u.xp < need) break;
-        u.level += 1;
-        const hpGain = 200 / 6;
-        u.max_hp += hpGain;
-        u.hp += hpGain;
-        u.stats.hp = u.max_hp;
-        u.stats.atk += 28 / 6;
-        u.stats.as += 0.12 / 6;
-        u.stats.crit += 0.06 / 6;
-        emit("level_up", {
-          unit_id: u.id,
-          new_level: u.level,
-        });
-      }
+      if (!u.alive) continue; // dies this tick: no time XP (G2)
+      grantXp(u, timeXp, "time", emit);
     }
+
+    applyLevelUps(state, c, emit);
 
     // 14. Match-end
     if (clockEndFlag) {
