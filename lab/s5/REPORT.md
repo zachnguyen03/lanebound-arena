@@ -2,7 +2,7 @@
 
 **Branch:** `s5`  
 **Base:** `cursor/s4-watch-f8c1` @ `e427530ed56e8a8d53939922460168332f28c562`  
-**Tip:** `08accd6374d07e26d3b2021e555c2662b5683ffd` (`08accd6`)  
+**Tip:** `800df02013cc5d376f5e1209b5c669117fa9dc8f` (`800df02`)
 
 **Date:** 23 Nov 2026  
 
