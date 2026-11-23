@@ -21,9 +21,50 @@ test("match tabs show one pane", async ({ page }) => {
   await expect(page.getByText("No map yet.")).toBeVisible();
 });
 
+test("the match footer stays on screen and Play map is the only gold button", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("play-map").click();
+  await expect(page.getByTestId("coach-mark")).toBeVisible();
+  const footer = page.getByTestId("match-footer");
+  const box = await footer.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(800);
+  const paint = await footer.evaluate((el) => {
+    const probe = document.createElement("div");
+    probe.style.background = "var(--c-panel)";
+    probe.style.borderTop = "1px solid var(--c-line)";
+    document.body.append(probe);
+    const expected = getComputedStyle(probe);
+    const style = getComputedStyle(el);
+    const result = {
+      position: style.position,
+      background: style.backgroundColor,
+      borderTop: style.borderTopColor,
+      panel: expected.backgroundColor,
+      line: expected.borderTopColor,
+    };
+    probe.remove();
+    return result;
+  });
+  expect(paint.position).toBe("sticky");
+  expect(paint.background).toBe(paint.panel);
+  expect(paint.borderTop).toBe(paint.line);
+  const play = await page.getByTestId("play-map").boundingBox();
+  expect(play).not.toBeNull();
+  const hit = await page.evaluate(({ x, y }) => {
+    const el = document.elementFromPoint(x, y);
+    return el ? el.closest("[data-testid='play-map']") !== null : false;
+  }, { x: play!.x + play!.width / 2, y: play!.y + play!.height / 2 });
+  expect(hit).toBe(true);
+  await expect(page.locator("button.btn-primary:not([disabled])")).toHaveCount(1);
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
-    await expect(page.locator(`[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
+    await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);
   }
   await expect(page.getByTestId("recap")).toHaveCount(0);
 }

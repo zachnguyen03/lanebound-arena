@@ -154,7 +154,10 @@ export function CareerApp() {
           <div className="date">
             {dayLabel} · <b>Bound Circuit</b>
           </div>
-          <Button variant="primary" onClick={() => setScreen("tactics")}>
+          <Button
+            variant={screen === "tactics" || screen === "cards" || screen === "draft" || screen === "recap" ? "secondary" : "primary"}
+            onClick={() => setScreen("tactics")}
+          >
             Continue ▸
           </Button>
         </header>

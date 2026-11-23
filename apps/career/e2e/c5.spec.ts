@@ -30,7 +30,7 @@ test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a rep
   await expect(page.locator('[data-screen="cards"]')).toHaveCount(0);
   await expect(page.getByText("Game 2 cannot repeat game 1.")).toBeVisible();
   await page.getByRole("button", { name: "Cards" }).click();
-  await expect(page.locator('[data-screen="cards"] button').first()).toBeDisabled();
+  await expect(page.locator('section[data-screen="cards"] button').first()).toBeDisabled();
   await page.getByRole("button", { name: "Tactics" }).click();
   await expect(page.getByRole("button", { name: "Hold the Pit" })).toBeDisabled();
 
@@ -39,7 +39,7 @@ test("a Bo3 on the fake runner stays fearless on game 2 and recaps without a rep
   await page.getByRole("button", { name: "Draft" }).click();
   await expect(page.getByText("Game 1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Cards" }).click();
-  await expect(page.locator('[data-screen="cards"] button').first()).toBeEnabled();
+  await expect(page.locator('section[data-screen="cards"] button').first()).toBeEnabled();
 });
 
 test("prep and recap at the three desktop widths", async ({ page }) => {
@@ -48,7 +48,7 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
       name: "09-tactics",
       open: async (page) => {
         await enter(page);
-        await expect(page.locator('[data-screen="tactics"]')).toBeVisible();
+        await expect(page.locator('section[data-screen="tactics"]')).toBeVisible();
       },
     },
     {
@@ -56,7 +56,7 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
       open: async (page) => {
         await enter(page);
         await page.getByRole("button", { name: "Cards" }).click();
-        await expect(page.locator('[data-screen="cards"]')).toBeVisible();
+        await expect(page.locator('section[data-screen="cards"]')).toBeVisible();
       },
     },
     {
@@ -66,7 +66,7 @@ test("prep and recap at the three desktop widths", async ({ page }) => {
         await page.getByTestId("play-map").click();
         await expect(page.getByTestId("recap")).toBeVisible();
         await page.getByRole("button", { name: "Draft" }).click();
-        await expect(page.locator('[data-screen="draft"]')).toBeVisible();
+        await expect(page.locator('section[data-screen="draft"]')).toBeVisible();
       },
     },
     {

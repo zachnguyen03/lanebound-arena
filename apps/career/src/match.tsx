@@ -46,7 +46,8 @@ export function MatchDeck({
   const mark = session.maps_played >= 1 && session.maps_played <= 5 ? COACH[session.maps_played - 1] : null;
 
   return (
-    <main className="wrap" data-screen={mode === "recap" ? "recap" : "prep"}>
+    <main className="wrap matchdeck" data-screen="match">
+      <div className="matchscroll">
       <div className="ch">
         <h2 className="disp">{club?.name}</h2>
         <span className="meta">{draft.fixture_id ? `Game ${draft.game_index}` : "Season complete"}</span>
@@ -77,7 +78,7 @@ export function MatchDeck({
               {TACTIC.map(([id, label]) => (
                 <Button
                   key={id}
-                  variant={session.human_preset === id ? "primary" : "secondary"}
+                  variant="secondary"
                   disabled={locked}
                   onClick={() => onSession(setPreset(session, id))}
                 >
@@ -144,7 +145,8 @@ export function MatchDeck({
           </section>
       ) : null}
       {mode === "recap" ? <Recap map={map} players={session.players} /> : null}
-          <div className="row">
+      </div>
+      <div className="matchfoot" data-testid="match-footer">
             <Button
               variant="primary"
               data-testid="play-map"
@@ -167,7 +169,7 @@ export function MatchDeck({
             >
               Skip series
             </Button>
-          </div>
+      </div>
     </main>
   );
 }
