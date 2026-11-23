@@ -1,6 +1,6 @@
 # S2 behaviour pins
 
-## `tests/s2-mutation-survivors.test.ts`
+## `tests/s2-ai-targeting-pins.test.ts`
 
 | Test | Behaviour |
 |---|---|
@@ -10,7 +10,7 @@
 | `level-4 dummy 5s damage is auto-only (R is not included below level 5)` | Below level 5, dummy 5s damage is auto-only |
 | `reachFactor uses the rational far-eta curve 1/(1+0.4·dd+0.08·dd²)` | Far-eta reach uses the rational curve |
 
-## `tests/s2-r25-follow-focus.test.ts`
+## `tests/s2-follow-focus-pins.test.ts`
 
 | Test | Behaviour |
 |---|---|

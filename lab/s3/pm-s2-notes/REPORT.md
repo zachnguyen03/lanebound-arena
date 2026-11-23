@@ -50,9 +50,9 @@ Test: `tests/s2-intent-dwell.test.ts` (both seeds).
 
 ### 3. Extra S2 behaviour pins
 
-See `tests/s2-mutation-survivors.test.ts`, `tests/s2-r25-follow-focus.test.ts`,
+See `tests/s2-ai-targeting-pins.test.ts`, `tests/s2-follow-focus-pins.test.ts`,
 and `tests/s2-survivor-behaviour.test.ts` (names and behaviours listed in
-`SURVIVORS-R25.md`).
+`BEHAVIOUR-S2.md`).
 
 ### 4. Vacuous holders slice + one rim function
 

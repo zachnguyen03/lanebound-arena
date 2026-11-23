@@ -1,6 +1,6 @@
 # S3 behaviour pins
 
-## `tests/s3-mutation-survivors.test.ts`
+## `tests/s3-zone-pickup-pins.test.ts`
 
 | Test | Behaviour |
 |---|---|

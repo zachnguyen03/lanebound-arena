@@ -37,9 +37,7 @@ describe("Orb pickup pose", () => {
   it("end pose outside the pad does not pick up even when velocity back-projects onto the pad", () => {
     const c = {
       ...DEFAULT_CONSTANTS,
-      ORB_PICKUP_R: 0.9,
       ORB_FIRST_SPAWN_S: 99,
-      DT: 0.1,
     };
     const arena = createArenaRuntime(c);
     const orb = arena.orbs[0]!;
