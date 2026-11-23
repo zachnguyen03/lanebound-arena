@@ -49,8 +49,7 @@ export function LogLoader({ disabled, onLoadText, onLoadSample }: Props) {
     >
       <div className="font-condensed text-lg text-paper">LOAD EVENT LOG</div>
       <p className="mt-1 text-sm text-dim">
-        Drop a canonical S0 <code className="text-paper">.jsonl</code>, or pick a
-        file. Deterministic replay only — the viewer never feeds the sim.
+        Drop an event log (.jsonl), or pick a file.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button

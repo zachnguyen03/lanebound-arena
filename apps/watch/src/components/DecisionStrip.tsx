@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
-import { deathDecisionStrip, filterDecisions } from "@watch/lib/decisions";
+import {
+  deathDecisionStrip,
+  filterDecisions,
+  formatDecision,
+} from "@watch/lib/decisions";
 import type { SimEvent } from "@watch/lib/types";
 
 interface Props {
@@ -62,7 +66,7 @@ function StripCol({ title, rows }: { title: string; rows: SimEvent[] }) {
         ) : (
           rows.map((e) => (
             <li key={e.seq} className="truncate text-paper">
-              {e.tick} {e.type} {String(e.intent ?? e.commit ?? e.unit_id ?? "")}
+              {formatDecision(e)}
             </li>
           ))
         )}

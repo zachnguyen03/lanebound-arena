@@ -20,7 +20,7 @@ export function MatchSetup({
     <div data-testid="match-setup" className="border border-line bg-panel p-3">
       <div className="font-condensed text-lg">LIVE MATCH</div>
       <p className="mt-1 text-sm text-dim">
-        Steps simulate() from evenOvrConfig (AI on, forced_clock_end false).
+        Runs an even match with the arena clock and AI.
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button
@@ -50,17 +50,6 @@ export function MatchSetup({
             onClick={onExport}
           >
             Export config
-          </Button>
-        ) : null}
-        {onImportText ? (
-          <Button
-            data-testid="btn-reject-config"
-            size="sm"
-            variant="outline"
-            disabled={busy}
-            onClick={() => onImportText(JSON.stringify({ seed: 1 }))}
-          >
-            Reject missing clock flag
           </Button>
         ) : null}
         {onImportText ? (

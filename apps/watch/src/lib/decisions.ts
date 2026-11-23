@@ -42,6 +42,45 @@ export function deathDecisionStrip(
   return { tick: death.tick, t, killerId, victimId, killer, victim };
 }
 
+/** Readable row for the death strip. Not the raw event type. */
+export function formatDecision(e: SimEvent): string {
+  const t = typeof e.t === "number" ? e.t : e.tick / 10;
+  const m = Math.floor(t / 60);
+  const s = Math.floor(t % 60);
+  const clock = `${m}:${s.toString().padStart(2, "0")}`;
+  const who =
+    typeof e.unit_id === "string"
+      ? e.unit_id.replace(":", " ")
+      : typeof e.team === "string"
+        ? `${e.team} side`
+        : "A unit";
+  if (e.type === "intent") {
+    const intent = typeof e.intent === "string" ? e.intent : "an action";
+    const target =
+      typeof e.target_id === "string"
+        ? ` toward ${e.target_id.replace(":", " ")}`
+        : "";
+    return `${clock} ${who} chooses ${intent}${target}`;
+  }
+  if (e.type === "fight_call") {
+    const commit = typeof e.commit === "string" ? e.commit : "hold";
+    const focus =
+      typeof e.focus_id === "string"
+        ? `, focus ${e.focus_id.replace(":", " ")}`
+        : "";
+    return `${clock} ${who} calls ${commit}${focus}`;
+  }
+  if (e.type === "peel_start") {
+    const target =
+      typeof e.target_id === "string"
+        ? e.target_id.replace(":", " ")
+        : "a teammate";
+    return `${clock} ${who} peels for ${target}`;
+  }
+  const label = e.type.replaceAll("_", " ");
+  return `${clock} ${who} ${label}`;
+}
+
 export function filterDecisions(
   rows: readonly SimEvent[],
   unitQuery: string,

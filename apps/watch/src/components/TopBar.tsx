@@ -65,7 +65,7 @@ export function TopBar({
         <div
           className={`truncate text-[10px] text-dim ${compact ? "leading-none" : ""}`}
         >
-          Arena Watch · sandbox
+          Arena Watch
         </div>
       </div>
       <div className="flex items-center gap-4">

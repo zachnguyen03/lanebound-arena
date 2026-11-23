@@ -103,8 +103,8 @@ export function EventLogPanel({
           data-testid="event-filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter events…"
-          className="min-w-0 flex-1 border border-line-2 bg-field px-2 py-1 text-sm text-paper placeholder:text-faint"
+          aria-label="Filter events"
+          className="min-w-0 flex-1 border border-line-2 bg-field px-2 py-1 text-sm text-paper"
         />
         <label className="flex items-center gap-1 text-xs text-dim">
           <input

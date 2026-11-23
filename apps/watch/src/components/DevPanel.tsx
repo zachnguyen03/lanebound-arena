@@ -25,9 +25,6 @@ export function DevPanel({ state, digest, sourceName }: Props) {
             <span className="text-paper">{fallbacks.join(", ")}</span>
           )}
         </div>
-        <div className="text-faint">
-          Body art: dummy sheet under arena-sandbox/dummy/ (CD training dummy).
-        </div>
       </div>
     </div>
   );

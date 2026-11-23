@@ -153,9 +153,14 @@ export function WatchShell() {
         setDeathEvent(null);
         setPhase("ready");
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Match failed";
-        if (e instanceof ConfigError) setConfigError(msg);
-        setError(msg);
+        if (e instanceof ConfigError) {
+          setConfigError(
+            "This match file needs a clock-end setting, true or false.",
+          );
+          setError(null);
+        } else {
+          setError(e instanceof Error ? e.message : "Match failed");
+        }
         setPhase("empty");
       }
     },
@@ -177,9 +182,14 @@ export function WatchShell() {
       setPhase("ready");
       setConfigError(null);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Import failed";
-      if (e instanceof ConfigError) setConfigError(msg);
-      setError(msg);
+      if (e instanceof ConfigError) {
+        setConfigError(
+          "This match file needs a clock-end setting, true or false.",
+        );
+        setError(null);
+      } else {
+        setError(e instanceof Error ? e.message : "Import failed");
+      }
       setPhase("empty");
     }
   }, []);

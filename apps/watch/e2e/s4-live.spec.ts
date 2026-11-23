@@ -94,9 +94,13 @@ test.describe("S4 live evenOvr match", () => {
   test("missing forced_clock_end is shown in the UI", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto("/");
-    await page.getByTestId("btn-reject-config").click();
-    await expect(page.getByTestId("config-error")).toContainText(
-      "forced_clock_end",
-    );
+    await page.getByTestId("config-file").setInputFiles({
+      name: "missing-clock.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify({ seed: 1 })),
+    });
+    const err = page.getByTestId("config-error");
+    await expect(err).toContainText("clock-end");
+    await expect(err).not.toContainText("S3-R5");
   });
 });
