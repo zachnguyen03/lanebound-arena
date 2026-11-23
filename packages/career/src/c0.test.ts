@@ -172,8 +172,8 @@ describe("C0 fake runner and stand-in world", () => {
     expect(first.mastery).toEqual({ brannoch: 80, rhedan: 60 });
     expect(world.contracts[0]).toMatchObject({ player_id: "standin-1", opening_years: 4, years_left: 4, wage: 138 });
     const wages = world.contracts.map((contract) => contract.wage);
-    expect(Math.min(...wages)).toBeGreaterThanOrEqual(20);
-    expect(Math.max(...wages)).toBeLessThanOrEqual(400);
+    expect(Math.min(...wages)).toBe(31);
+    expect(Math.max(...wages)).toBe(164);
     expect(world.players.every((player) => player.id === `standin-${dump.find((row) => row.name === player.name)!.pid}`)).toBe(true);
     expect(world.players.some((player) => player.id.includes("-top-") || player.name === "P0001")).toBe(false);
     const paperMeans = [77.4, 70.8, 69.0, 67.8, 65.4, 63.8, 61.8, 57.2];

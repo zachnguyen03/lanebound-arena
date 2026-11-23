@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateFakeMatch } from "@lanebound/career";
+import { generateFakeMatch, playSeries } from "@lanebound/career";
 import { openingWorld, selectStarters } from "@lanebound/career";
 import {
   FAKE_CONSTANTS_HASH,
@@ -9,6 +9,7 @@ import {
   sha256Hex,
   validateMatchResult,
   validateSeriesContext,
+  validateSeriesResult,
 } from "@lanebound/match-contract";
 import type { MatchConfig, SeriesContext } from "@lanebound/match-contract";
 
@@ -91,6 +92,32 @@ describe("career-match/1", () => {
     const raw = structuredClone(result);
     raw.source = "sim";
     expect(() => validateMatchResult(raw)).toThrow(/sim replay/);
+  });
+
+  it("rejects a series that mixes sim and fake sources", () => {
+    const world = openingWorld();
+    const starters = new Map(world.clubs.map((club) => [club.id, selectStarters(world.players, club.id)]));
+    const series = playSeries({
+      careerSeed: 20261123,
+      world,
+      starters,
+      humanClubId: "juniper-rush",
+      fixture: {
+        id: "mix-source",
+        competition_id: "bound_circuit",
+        season_id: "s1",
+        stage: "regular",
+        format: "bo3",
+        matchday: 1,
+        ordinal: 0,
+        team_ids: ["juniper-rush", "vanta-owls"],
+      },
+    });
+    const mixed = {
+      ...series,
+      games: series.games.map((game, index) => (index === 0 ? { ...game, source: "sim" as const, digest: "simdigest" } : game)),
+    };
+    expect(() => validateSeriesResult(mixed)).toThrow(/series mixes sim and fake/);
   });
 
   it("validates a series context", () => {
