@@ -1,0 +1,13 @@
+hold_the_pit 20261122 {"control_blue":29.2,"control_red":48,"zone_tick_blue":2,"zone_tick":6,"captures":[{"t":42.7,"team":"blue"},{"t":75.5,"team":"red"}],"orbs_blue":0,"orbs_red":1,"orbs":1,"fight_calls":284,"end":"first_to_10","winner":"red","score":[6,10]}
+hold_the_pit 20261123 {"control_blue":45,"control_red":0,"zone_tick_blue":3,"zone_tick":3,"captures":[{"t":28.4,"team":"blue"}],"orbs_blue":0,"orbs_red":2,"orbs":2,"fight_calls":340,"end":"first_to_10","winner":"blue","score":[10,5]}
+hold_the_pit 20261130 {"control_blue":44.3,"control_red":10.9,"zone_tick_blue":3,"zone_tick":3,"captures":[{"t":31.4,"team":"blue"},{"t":80.5,"team":"red"},{"t":116.4,"team":"blue"}],"orbs_blue":1,"orbs_red":3,"orbs":4,"fight_calls":464,"end":"first_to_10","winner":"blue","score":[10,6]}
+hunt 20261122 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":0,"orbs_red":0,"orbs":0,"fight_calls":1132,"end":"coin_flip","winner":"red","score":[0,0]}
+hunt 20261123 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":0,"orbs_red":0,"orbs":0,"fight_calls":1132,"end":"coin_flip","winner":"red","score":[0,0]}
+hunt 20261130 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":0,"orbs_red":0,"orbs":0,"fight_calls":1132,"end":"coin_flip","winner":"blue","score":[0,0]}
+starve 20261122 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":25,"orbs_red":12,"orbs":37,"fight_calls":134,"end":"clock","winner":"red","score":[1,3]}
+starve 20261123 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":13,"orbs_red":24,"orbs":37,"fight_calls":118,"end":"clock","winner":"red","score":[1,4]}
+starve 20261130 {"control_blue":0,"control_red":0,"zone_tick_blue":0,"zone_tick":0,"captures":[],"orbs_blue":25,"orbs_red":12,"orbs":37,"fight_calls":134,"end":"clock","winner":"red","score":[1,3]}
+batch hold_the_pit {"control":{"mean":54.407500000000006,"se":2.8588131558841705,"n":40},"orbs":{"mean":0.1,"se":0.04803844614152613,"n":40},"zone_tick":{"mean":4.175,"se":0.27242383080366445,"n":40},"control_zeros":0,"orb_zeros":36}
+batch hunt {"control":{"mean":0,"se":0,"n":40},"orbs":{"mean":0,"se":0,"n":40},"zone_tick":{"mean":0,"se":0,"n":40},"control_zeros":40,"orb_zeros":40}
+batch starve {"control":{"mean":0,"se":0,"n":40},"orbs":{"mean":20.35,"se":0.913257062134458,"n":40},"zone_tick":{"mean":0,"se":0,"n":40},"control_zeros":40,"orb_zeros":0}
+done

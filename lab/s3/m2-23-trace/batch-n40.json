@@ -1,0 +1,59 @@
+{
+  "hold_the_pit": {
+    "control": {
+      "mean": 54.407500000000006,
+      "se": 2.8588131558841705,
+      "n": 40
+    },
+    "orbs": {
+      "mean": 0.1,
+      "se": 0.04803844614152613,
+      "n": 40
+    },
+    "zone_tick": {
+      "mean": 4.175,
+      "se": 0.27242383080366445,
+      "n": 40
+    },
+    "control_zeros": 0,
+    "orb_zeros": 36
+  },
+  "hunt": {
+    "control": {
+      "mean": 0,
+      "se": 0,
+      "n": 40
+    },
+    "orbs": {
+      "mean": 0,
+      "se": 0,
+      "n": 40
+    },
+    "zone_tick": {
+      "mean": 0,
+      "se": 0,
+      "n": 40
+    },
+    "control_zeros": 40,
+    "orb_zeros": 40
+  },
+  "starve": {
+    "control": {
+      "mean": 0,
+      "se": 0,
+      "n": 40
+    },
+    "orbs": {
+      "mean": 20.35,
+      "se": 0.913257062134458,
+      "n": 40
+    },
+    "zone_tick": {
+      "mean": 0,
+      "se": 0,
+      "n": 40
+    },
+    "control_zeros": 40,
+    "orb_zeros": 0
+  }
+}
