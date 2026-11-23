@@ -99,7 +99,7 @@ function bareForGates(partial: Partial<UnitState> = {}): UnitState {
 }
 
 describe("S1 behaviour coverage", () => {
-  it("banish: target is invulnerable — scripted damage during banish deals no hit (spec L444, L1712)", () => {
+  it("banish: target is invulnerable — scripted damage during banish deals no hit (spec L444, L1716 item 11)", () => {
     const victim = "red:adc" as UnitId;
     const src = "blue:adc" as UnitId;
     const r = simulate(
@@ -121,7 +121,7 @@ describe("S1 behaviour coverage", () => {
     expect(u.hp).toBe(u.max_hp);
   });
 
-  it("Blind: autos complete windup but miss (raw 0 / miss:true) — §6.5 / §6.8 L452, L506", () => {
+  it("Blind: autos complete windup but miss (raw 0 / miss:true) — §6.1 / §6.5 L348, L458", () => {
     const adc = "blue:adc" as UnitId;
     const foe = "red:adc" as UnitId;
     const r = simulate(
@@ -143,7 +143,7 @@ describe("S1 behaviour coverage", () => {
     expect(dmg.length).toBe(0);
   });
 
-  it("consumeMark: live mark is removed and Huntress R emits mark_consume +35% (spec L393, L556, L1715)", () => {
+  it("consumeMark: live mark is removed and Huntress R emits mark_consume +35% (spec L393, L556, L1712 item 7)", () => {
     const list: { kind: "huntress" | "kerrig"; source_id: UnitId; expires_t: number }[] = [];
     applyMark(list, "huntress", "blue:adc", 1.0, 4.0);
     expect(hasMark(list, "huntress", 1.0)).toBe(true);
@@ -183,14 +183,14 @@ describe("S1 behaviour coverage", () => {
     expect(canStartAuto(u, u.status)).toBe(false);
   });
 
-  it("canStartAuto under Disarm is false (spec L452, L506)", () => {
+  it("canStartAuto under Disarm is false (spec L458, L506)", () => {
     const u = bareForGates();
     expect(canStartAuto(u, u.status)).toBe(true);
     applyCc(u.status, { kind: "disarm", raw_duration: 2, ...ccOpts });
     expect(canStartAuto(u, u.status)).toBe(false);
   });
 
-  it("Isra R sanctuary: aim into enemy pad → sanctuary_clip and 0 damage to pad occupant (spec L164 sanctuary, Isra R §7)", () => {
+  it("Isra R sanctuary: aim into enemy pad → sanctuary_clip and 0 damage to pad occupant (spec L215, L1714 item 9)", () => {
     const isra = "blue:adc" as UnitId;
     const victim = "red:support" as UnitId;
     const r = simulate(
@@ -209,7 +209,7 @@ describe("S1 behaviour coverage", () => {
     ).toBe(0);
   });
 
-  it("Sedge R self-exclusion: caster is not slept; ally in radius is (spec L619, L1711)", () => {
+  it("Sedge R self-exclusion: caster is not slept; ally in radius is (spec L619, L1715 item 10)", () => {
     const sedge = "blue:jungle" as UnitId;
     const ally = "blue:adc" as UnitId;
     expect(KITS.sedge!.R.hits_allies).toBe(true);

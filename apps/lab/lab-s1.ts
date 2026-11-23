@@ -224,9 +224,9 @@ const simRows = rows.filter((r) => r.level === "sim");
 const md = `# S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** \`s1\`  
-**Commit:** generated from code at \`${sha}\`  
+**Commit:** generated from code at \`${sha}\` (parent of this REPORT commit; identical code — comments/docs only may differ)  
 **Date:** 23 Nov 2026  
-**Regenerate:** \`LANEBOUND_COMMIT=<tip> npm run lab:s1\` (report commit itself need not match)
+**Regenerate:** \`LANEBOUND_COMMIT=<code-tip> npm run lab:s1\` (REPORT commit is a child of that tip; code digests match)
 
 ## Commands
 
