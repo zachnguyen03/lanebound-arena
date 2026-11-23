@@ -99,6 +99,25 @@ test("the recap leads with the result and splits ratings by team", async ({ page
   expect(blue).not.toBe(red);
 });
 
+test("picked cards sit beside the points and signatures stay out of the pool", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await start(page);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Cards" }).click();
+  await expect(page.locator(".pickedfaces img")).toHaveCount(3);
+  await expect(page.getByText("3 / 6 points")).toBeVisible();
+  const face = await page.locator("[data-testid='card-pool'] img").first().boundingBox();
+  expect(face).not.toBeNull();
+  expect(Math.round(face!.width)).toBe(120);
+  expect(Math.round(face!.height)).toBe(168);
+  const names = await page.locator("[data-testid='card-pool'] img").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("alt")));
+  for (const signature of ["Pillar of the Split", "Finals Poise", "Crown of the Split", "Convergence Crown"]) {
+    expect(names).not.toContain(signature);
+  }
+  const pool = await page.getByTestId("card-pool").evaluate((el) => getComputedStyle(el).overflowY);
+  expect(pool).toBe("auto");
+});
+
 async function expectOne(page: Page, screen: string) {
   for (const pane of ["tactics", "cards", "draft"]) {
     await expect(page.locator(`section[data-screen="${pane}"]`)).toHaveCount(pane === screen ? 1 : 0);

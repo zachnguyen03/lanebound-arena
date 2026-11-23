@@ -40,6 +40,17 @@ export function MatchDeck({
   const [picked, setPicked] = useState(session.loadout.map((slot) => slot.id));
   const [cardNote, setCardNote] = useState("");
   const report = loadoutReport(picked);
+  function toggleCard(id: string) {
+    const on = picked.includes(id);
+    const next = on ? picked.filter((item) => item !== id) : picked.length < 3 ? [...picked, id] : [...picked.slice(0, 2), id];
+    if (next.length === 3 && !loadoutReport(next).ok) {
+      setCardNote("That set is over the budget.");
+      return;
+    }
+    setCardNote("");
+    setPicked(next);
+    if (next.length === 3) onSession(setLoadout(session, next));
+  }
   const draft = draftPreview(session);
   const club = session.clubs.find((item) => item.id === session.player_club_id);
   const [hiddenMark, setHiddenMark] = useState<number | null>(null);
@@ -85,34 +96,29 @@ export function MatchDeck({
           <section className="card" data-screen="cards">
             <div className="ch">
               <h3>Cards</h3>
+            </div>
+            <div className="cardtop">
+              <div className="pickedfaces">
+                {picked.map((id) => {
+                  const card = arenaCard(id);
+                  if (!card) return null;
+                  return (
+                    <button key={id} type="button" disabled={locked} onClick={() => toggleCard(id)}>
+                      <img src={`/cards/${card.id}.png`} alt={card.name} />
+                    </button>
+                  );
+                })}
+              </div>
               <span className="meta">
                 {report.cost} / 6 points · {report.cards} / 3 cards
               </span>
             </div>
-            <div className="faces">
-              {ARENA_CARDS.map((card) => {
+            <div className="pool" data-testid="card-pool">
+              {ARENA_CARDS.filter((card) => card.rarity !== "Signature").map((card) => {
                 const on = picked.includes(card.id);
                 return (
-                  <button
-                    key={card.id}
-                    className={on ? "card clubpick on" : "card clubpick"}
-                    disabled={locked}
-                    onClick={() => {
-                      const next = on ? picked.filter((id) => id !== card.id) : picked.length < 3 ? [...picked, card.id] : [...picked.slice(0, 2), card.id];
-                      if (next.length === 3 && !loadoutReport(next).ok) {
-                        setCardNote("That set is over the budget.");
-                        return;
-                      }
-                      setCardNote("");
-                      setPicked(next);
-                      if (next.length === 3) onSession(setLoadout(session, next));
-                    }}
-                  >
-                    <img src={`/cards/${card.id}.png`} alt={card.name} width={120} height={168} />
-                    <div className="pn">{card.name}</div>
-                    <div className="note">
-                      {card.cost} {card.rarity}
-                    </div>
+                  <button key={card.id} type="button" className={on ? "on" : ""} disabled={locked} onClick={() => toggleCard(card.id)}>
+                    <img src={`/cards/arena/small/${card.id}.png`} alt={card.name} width={120} height={168} />
                   </button>
                 );
               })}

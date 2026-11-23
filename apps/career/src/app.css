@@ -61,9 +61,13 @@ button.btn-primary:disabled {
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
 .form { font-family: var(--f-mono); }
 .note { color: var(--c-dim); font-size: 13px; }
-.faces { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.faces .clubpick { padding: 8px; }
-.faces img { width: 100%; height: auto; display: block; }
+.cardtop { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 0 18px 12px; }
+.pickedfaces { display: flex; gap: 8px; }
+.pickedfaces img { width: 168px; height: auto; display: block; }
+.pool { max-height: 280px; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, 120px); gap: 8px; padding: 8px 18px 16px; }
+.pool button { padding: 0; background: transparent; border: 1px solid transparent; }
+.pool button.on { border-color: var(--c-action); }
+.pool img { width: 120px; height: 168px; object-fit: cover; display: block; }
 .matchdeck { height: calc(100vh - 56px); display: flex; flex-direction: column; overflow: hidden; padding: 0; gap: 0; }
 .matchscroll { flex: 1; min-height: 0; overflow: auto; padding: 20px 24px; display: grid; gap: 16px; align-content: start; }
 .matchfoot { position: sticky; bottom: 0; background: var(--c-panel); border-top: 1px solid var(--c-line); padding: 12px 24px; display: flex; gap: 8px; z-index: 5; }
