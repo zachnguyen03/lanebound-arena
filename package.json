@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "packages/match-contract",
+    "packages/career"
+  ],
   "description": "Lanebound Arena sandbox — deterministic headless sim",
   "scripts": {
     "typecheck": "tsc --noEmit",
