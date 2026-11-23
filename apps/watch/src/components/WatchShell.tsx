@@ -583,11 +583,13 @@ export function WatchShell() {
                 onLoadText={loadText}
                 onLoadSample={() => void loadSample()}
               />
-              <DevPanel
-                state={state}
-                digest={liveDigest}
-                sourceName={sourceName}
-              />
+              {import.meta.env.DEV ? (
+                <DevPanel
+                  state={state}
+                  digest={liveDigest}
+                  sourceName={sourceName}
+                />
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -639,6 +641,9 @@ function MissingArtList({ paths }: { paths: string[] }) {
   return (
     <div data-testid="missing-assets" className="mt-3 text-xs text-dim">
       <div className="font-condensed text-sm text-paper">MISSING CHAMPION ART</div>
+      <p className="mt-1 text-paper">
+        Champion pictures are not in this build. These files are missing:
+      </p>
       <ul>
         {paths.map((p) => (
           <li key={p}>{p}</li>

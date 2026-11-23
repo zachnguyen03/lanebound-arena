@@ -25,7 +25,6 @@ test("dummy body screenshots + map crop", async ({ page }) => {
   // 1920 mid-match
   await page.setViewportSize({ width: 1920, height: 1080 });
   await loadMid(page);
-  await expect(page.getByTestId("dev-panel")).toContainText("none");
   await page.screenshot({
     path: path.join(outDir, "watch-1920-mid-dummy.png"),
     fullPage: false,
