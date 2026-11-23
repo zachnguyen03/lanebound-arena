@@ -396,6 +396,88 @@ function updateScriptedMotor(
   }
 }
 
+/**
+ * Lab scripted_cc — same phase-9 step as kit `applyPendingStatuses` (S3-R5-11).
+ * Applied after existing timers tick/expire so the apply tick is not shortened
+ * and the new effect is visible to later phases (occupancy, G7 pickup).
+ */
+function applyScriptedCc(
+  state: MatchState,
+  config: MatchConfig,
+  c: Constants,
+  tick: number,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  if (!config.scripted_cc) return;
+  for (const sc of config.scripted_cc) {
+    if (sc.tick !== tick) continue;
+    const u = state.units.find((x) => x.id === sc.target_id);
+    if (!u) continue;
+    const sourceId = sc.source_id ?? ("lab" as UnitId);
+    if (sc.kind === "break") {
+      const r = applyCc(u.status, {
+        kind: "break",
+        raw_duration: sc.duration,
+        school: "magic",
+        source_id: sourceId,
+        now: state.t,
+        dr_window: c.DR_WINDOW_S,
+        dr_factor: c.DR_FACTOR,
+        dr_floor: c.DR_FLOOR,
+        lock_budget: c.LOCK_BUDGET_S,
+        lock_taper: c.LOCK_TAPER,
+      });
+      u.status.break_until = state.t + r.applied_duration;
+      u.break_until = u.status.break_until;
+      if (!r.rejected) {
+        emit("status_apply", {
+          source_id: sourceId,
+          target_id: u.id,
+          kind: "break",
+          category: "handicap",
+          raw_duration: sc.duration,
+          applied_duration: r.applied_duration,
+          dr_factor: r.dr_factor,
+          lock_taper: r.lock_taper,
+        });
+      }
+      continue;
+    }
+    const r = applyCc(u.status, {
+      kind: sc.kind,
+      raw_duration: sc.duration,
+      school: "magic",
+      source_id: sourceId,
+      now: state.t,
+      dr_window: c.DR_WINDOW_S,
+      dr_factor: c.DR_FACTOR,
+      dr_floor: c.DR_FLOOR,
+      lock_budget: c.LOCK_BUDGET_S,
+      lock_taper: c.LOCK_TAPER,
+    });
+    if (!r.rejected && r.applied_duration > 0) {
+      if (sc.source_id) recordAssistCredit(u, sc.source_id, state.t, "cc");
+      emit("status_apply", {
+        source_id: sourceId,
+        target_id: u.id,
+        kind: sc.kind,
+        category: kindCategory(sc.kind),
+        raw_duration: sc.duration,
+        applied_duration: r.applied_duration,
+        dr_factor: r.dr_factor,
+        lock_taper: r.lock_taper,
+      });
+      if (
+        sc.kind === "silence" ||
+        sc.kind === "disarm" ||
+        (kindCategory(sc.kind) === "lock" && sc.kind !== "timestop")
+      ) {
+        cancelAutoWindup(u);
+      }
+    }
+  }
+}
+
 export function simulate(config: MatchConfig): SimulateResult {
   const c = mergeConstants(config.constants);
   const chash = constantsHash(c);
@@ -771,10 +853,10 @@ export function simulate(config: MatchConfig): SimulateResult {
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
     applyPendingHealsShields(state, c, emit);
 
-    // phase 9: new CC that landed this tick
-    applyPendingStatuses(state, c, emit);
-
-    // 6. Status — CC tick (paused under time-stop; timestop itself still ticks)
+    // Phase 9 (S3-R5-11 L1976 / L144): (1) tick timers that were already
+    // running at tick start, (2) expire finished effects, (3) apply this tick's
+    // new CC and buffs (kit pending + lab scripted_cc) without ticking them.
+    // Duration D on tick t covers ticks t .. t+round(10D)-1.
     for (const u of state.units) {
       if (!u.alive) continue;
       pruneMarks(u.marks, state.t);
@@ -790,77 +872,8 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
-    // Lab scripted_cc after duration tick-down so the apply tick is not shortened
-    // (matches §4.3 "tick existing"; production CC still applies in phase 9 above).
-    if (config.scripted_cc) {
-      for (const sc of config.scripted_cc) {
-        if (sc.tick !== tick) continue;
-        const u = state.units.find((x) => x.id === sc.target_id);
-        if (!u) continue;
-        const sourceId = sc.source_id ?? ("lab" as UnitId);
-        if (sc.kind === "break") {
-          const r = applyCc(u.status, {
-            kind: "break",
-            raw_duration: sc.duration,
-            school: "magic",
-            source_id: sourceId,
-            now: state.t,
-            dr_window: c.DR_WINDOW_S,
-            dr_factor: c.DR_FACTOR,
-            dr_floor: c.DR_FLOOR,
-            lock_budget: c.LOCK_BUDGET_S,
-            lock_taper: c.LOCK_TAPER,
-          });
-          u.status.break_until = state.t + r.applied_duration;
-          u.break_until = u.status.break_until;
-          if (!r.rejected) {
-            emit("status_apply", {
-              source_id: sourceId,
-              target_id: u.id,
-              kind: "break",
-              category: "handicap",
-              raw_duration: sc.duration,
-              applied_duration: r.applied_duration,
-              dr_factor: r.dr_factor,
-              lock_taper: r.lock_taper,
-            });
-          }
-          continue;
-        }
-        const r = applyCc(u.status, {
-          kind: sc.kind,
-          raw_duration: sc.duration,
-          school: "magic",
-          source_id: sourceId,
-          now: state.t,
-          dr_window: c.DR_WINDOW_S,
-          dr_factor: c.DR_FACTOR,
-          dr_floor: c.DR_FLOOR,
-          lock_budget: c.LOCK_BUDGET_S,
-          lock_taper: c.LOCK_TAPER,
-        });
-        if (!r.rejected && r.applied_duration > 0) {
-          if (sc.source_id) recordAssistCredit(u, sc.source_id, state.t, "cc");
-          emit("status_apply", {
-            source_id: sourceId,
-            target_id: u.id,
-            kind: sc.kind,
-            category: kindCategory(sc.kind),
-            raw_duration: sc.duration,
-            applied_duration: r.applied_duration,
-            dr_factor: r.dr_factor,
-            lock_taper: r.lock_taper,
-          });
-          if (
-            sc.kind === "silence" ||
-            sc.kind === "disarm" ||
-            (kindCategory(sc.kind) === "lock" && sc.kind !== "timestop")
-          ) {
-            cancelAutoWindup(u);
-          }
-        }
-      }
-    }
+    applyPendingStatuses(state, c, emit);
+    applyScriptedCc(state, config, c, tick, emit);
 
     // 10. Deaths / kill+assist XP / time XP / level-ups (G2)
     for (const u of state.units) {
