@@ -2,25 +2,31 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate } from "../sim/index.js";
 
 /**
- * Gold digests / hashes. Update only with before→after in lab/s1/REPORT.md.
- * S1 tip: real champions in defaultEvenConfig + data_hash on match_start.
+ * Gold digests / hashes. Update only with before→after in the agent report / lab REPORT.
+ * Tile-centre ruling (Appendix R) moved spawn/buff pads to centres → constants_hash + digests.
  */
 export const GOLD = {
   seed_20261122: {
-    digest: "e0c3d7b631b35e13f8420e0fa0711c8e7fb24678413d5568ce097bfc627fffe4",
-    constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
-    data_hash: "82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a",
+    digest: "dadc07b7462ff4d963357c5d7f1c1dd4966f2fb2326c02c49c96aea536b8de12",
+    constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
+    data_hash: "6204e101a81bce7a25cb09130740015b687407d89313cf14e32fca88cffae633",
   },
   seed_20261123: {
-    digest: "d3df901fd5e5ed364fcb1bd8353532551a296570460b5b1b384be95da4b9d270",
-    constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
-    data_hash: "82875d4c32712d11116f71eccca0997fcacea006c0997103ebc15603a3d1a06a",
+    digest: "b80189c4c69b38802de139bf0ba8a5b0c1e9135c2744e1abebfdc5aca51cf79a",
+    constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
+    data_hash: "6204e101a81bce7a25cb09130740015b687407d89313cf14e32fca88cffae633",
   },
-  /** S0 tip 1caa5eb (dummy lineups, no data_hash) — retained for before/after. */
-  s0_before: {
+  /** Historical S0 tip (integer spawn/buff pads) — retained for before/after. */
+  s0_before_tile_centre: {
     digest_20261122: "07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a",
     digest_20261123: "be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3",
     constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
+  },
+  /** Tip immediately before tile-centre on this branch (S1 kits + SEP already in). */
+  tip_before_tile_centre: {
+    digest_20261122: "ed469ea246bea0fde61fce5a709555305dd1d587b00a9eafa631a37f4339f4f4",
+    digest_20261123: "ba1d0dd9c8f03bb1ecdd04caef6ee1241e8263eb1ad34b92e9a8fb5a26e24506",
+    constants_hash: "3e4a4c7789bfa750380c01101c8e8a55c87549cc092e635c80f011fd5853a84c",
   },
 } as const;
 

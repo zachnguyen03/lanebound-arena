@@ -128,8 +128,10 @@ export const DEFAULT_CONSTANTS: Constants = {
   MAP_W: 24,
   MAP_H: 16,
   BODY_RADIUS: 0.4,
-  BLUE_SPAWN: [1.0, 7.0],
-  RED_SPAWN: [22.0, 7.0],
+  // Tile-centre rule (Appendix R): tile (x,y) covers [x,x+1)×[y,y+1); placement at (x+0.5,y+0.5).
+  // Spawn tiles (1,7) / (22,7) → centres. Zone centre is a POINT on the seam, not a tile.
+  BLUE_SPAWN: [1.5, 7.5],
+  RED_SPAWN: [22.5, 7.5],
   SANCTUARY_BLUE_X: [0, 1],
   SANCTUARY_RED_X: [22, 23],
   PILLARS: PILLARS_DEFAULT,
@@ -159,9 +161,10 @@ export const DEFAULT_CONSTANTS: Constants = {
   BUFF_DURATION_S: 45.0,
   BUFF_DMG: 0.12,
   BUFF_MS: 0.1,
+  // Flank buff tiles (7,7)/(16,7) → centres (Appendix R tile-centre).
   BUFF_PADS: [
-    [7, 7],
-    [16, 7],
+    [7.5, 7.5],
+    [16.5, 7.5],
   ],
   SCORE_TO_WIN: 10,
   MATCH_T: 240.0,

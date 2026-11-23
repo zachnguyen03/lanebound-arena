@@ -248,12 +248,12 @@ digest=${d23.digest}
 
 | | before (S0 \`1caa5eb\` / prior S1 dummy) | after (this tip — real champions) |
 |---|---|---|
-| constants_hash | \`${S0_BEFORE.constants_hash}\` | \`${chash}\` *(unchanged)* |
+| constants_hash | \`${S0_BEFORE.constants_hash}\` | \`${chash}\` |
 | data_hash | *(absent)* | \`${dhash}\` **NEW** |
 | digest 20261122 | \`${S0_BEFORE.digest_20261122}\` | \`${d22.digest}\` |
 | digest 20261123 | \`${S0_BEFORE.digest_20261123}\` | \`${d23.digest}\` |
 
-**Reason:** Default even match now picks real champions (stats from §7 tables). \`match_start\` includes \`data_hash\` (canonical kits+defs). No §15 constant changed.
+**Reason:** Real champions + \`data_hash\`; Appendix R tile-centre moves spawn/buff pads to centres → \`constants_hash\` changes; digests follow.
 
 ## Fixture coverage
 
@@ -281,15 +281,15 @@ ${KIT_IDS.join(", ")} — wired into \`simulate()\` via lineup picks; abilities 
 
 ## Constants changed
 
-None. \`constants_hash\` unchanged.
+Appendix R tile-centre: \`BLUE_SPAWN\`/\`RED_SPAWN\` → (1.5,7.5)/(22.5,7.5); \`BUFF_PADS\` → (7.5,7.5)/(16.5,7.5). Zone centre stays (12,8). Sanctuary columns unchanged. \`constants_hash\` changed.
 
 ## New hashes / inventions
 
 | Id | Item | Notes |
 |---|---|---|
 | INV-DATA-HASH | \`data_hash\` | SHA-256 of canonical kits + L1/growth/snapshots; on \`match_start\` next to \`constants_hash\`. Engineering addition. |
-| INV-SEP-STRENGTH | \`SEPARATION_STRENGTH\` | Still unruled. |
-| INV-ARRIVE-R | \`SCRIPTED_ARRIVE_R\` | Still unruled. |
+| INV-SEP-STRENGTH | \`SEPARATION_STRENGTH\` | Ruled into constants table (Appendix R #2). |
+| INV-ARRIVE-R | \`SCRIPTED_ARRIVE_R\` | Lab-only; out of constants_hash (Appendix R #2). |
 
 ## Open questions
 
