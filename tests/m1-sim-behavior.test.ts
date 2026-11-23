@@ -138,23 +138,24 @@ describe("M1-10 Sedge sleep + dispels (sim)", () => {
     const sedge = "blue:jungle" as UnitId;
     const ally = "blue:adc" as UnitId;
     const ysol = "blue:support" as UnitId;
+    // Healers must sit outside Sedge R r=3.8 (L619) but inside W range 6.5 of the sleeper.
     const cfg = shortCfg({
       unit_overrides: {
         [sedge]: { x: 12, y: 8, level: 7, champ: "sedge", spawn_shield_until: 0, auto_next_start_t: 999 },
         [ally]: { x: 12.5, y: 8, level: 1, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
-        [ysol]: { x: 11.5, y: 8, level: 7, champ: "ysol", spawn_shield_until: 0, auto_next_start_t: 999 },
+        [ysol]: { x: 12.5, y: 13, level: 7, champ: "ysol", spawn_shield_until: 0, auto_next_start_t: 999 },
       },
       scripted_casts: [
         { tick: 2, source_id: sedge, skill: "R", aim_x: 12.5, aim_y: 8, force_hit: true },
       ],
     });
     const r = simulate(cfg);
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "sleep" && e.target_id === ally)).toBe(
-      true,
-    );
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "sleep" && e.target_id === sedge)).toBe(
-      false,
-    );
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "sleep" && e.target_id === ally),
+    ).toBe(true);
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "sleep" && e.target_id === sedge),
+    ).toBe(false);
     expect(KITS.sedge!.R.cc![0]!.duration_s).toBe(2.8);
 
     // Saelo basic does not remove sleep (dispel while sleep still live; end before sleep expires)
@@ -163,7 +164,14 @@ describe("M1-10 Sedge sleep + dispels (sim)", () => {
       unit_overrides: {
         [sedge]: { x: 12, y: 8, level: 7, champ: "sedge", spawn_shield_until: 0, auto_next_start_t: 999 },
         [ally]: { x: 12.5, y: 8, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
-        ["blue:support"]: { x: 12.2, y: 8, level: 7, champ: "saelo", spawn_shield_until: 0, auto_next_start_t: 999 },
+        ["blue:support"]: {
+          x: 12.5,
+          y: 3,
+          level: 7,
+          champ: "saelo",
+          spawn_shield_until: 0,
+          auto_next_start_t: 999,
+        },
       },
       scripted_casts: [
         { tick: 2, source_id: sedge, skill: "R", aim_x: 12.5, aim_y: 8, force_hit: true },
@@ -171,7 +179,7 @@ describe("M1-10 Sedge sleep + dispels (sim)", () => {
       ],
     });
     const rb = simulate(cfgBasic);
-    expect(rb.events.some((e) => e.type === "dispel" && e.kind === "basic")).toBe(true);
+    expect(rb.events.some((e) => e.type === "dispel" && e.strength === "basic")).toBe(true);
     expect(hasKind(rb.state.units.find((u) => u.id === ally)!.status, "sleep")).toBe(true);
 
     const cfgStrong = shortCfg({
@@ -179,7 +187,7 @@ describe("M1-10 Sedge sleep + dispels (sim)", () => {
       unit_overrides: {
         [sedge]: { x: 12, y: 8, level: 7, champ: "sedge", spawn_shield_until: 0, auto_next_start_t: 999 },
         [ally]: { x: 12.5, y: 8, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
-        [ysol]: { x: 12.2, y: 8, level: 7, champ: "ysol", spawn_shield_until: 0, auto_next_start_t: 999 },
+        [ysol]: { x: 12.5, y: 13, level: 7, champ: "ysol", spawn_shield_until: 0, auto_next_start_t: 999 },
       },
       scripted_casts: [
         { tick: 2, source_id: sedge, skill: "R", aim_x: 12.5, aim_y: 8, force_hit: true },
@@ -187,7 +195,7 @@ describe("M1-10 Sedge sleep + dispels (sim)", () => {
       ],
     });
     const rs = simulate(cfgStrong);
-    expect(rs.events.some((e) => e.type === "dispel" && e.kind === "strong")).toBe(true);
+    expect(rs.events.some((e) => e.type === "dispel" && e.strength === "strong")).toBe(true);
     expect(hasKind(rs.state.units.find((u) => u.id === ally)!.status, "sleep")).toBe(false);
   });
 });
@@ -220,12 +228,12 @@ describe("M1-11 Tolle W banish (sim)", () => {
         scripted_damage: [{ tick: 10, source_id: tolle, target_id: target, raw: 500 }],
       }),
     );
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "banish" && e.target_id === target)).toBe(
-      true,
-    );
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "banish" && e.target_id === nearby)).toBe(
-      false,
-    );
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "banish" && e.target_id === target),
+    ).toBe(true);
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "banish" && e.target_id === nearby),
+    ).toBe(false);
     const t = r.state.units.find((u) => u.id === target)!;
     expect(isBanished(t.status)).toBe(true);
     const banHit = r.events.find((e) => e.type === "hit" && e.target_id === target && e.tick === 10);
@@ -243,23 +251,21 @@ describe("M1-12 Saelo R time-stop (sim)", () => {
     const saelo = "blue:support" as UnitId;
     const enemy = "red:adc" as UnitId;
     const ally = "blue:adc" as UnitId;
-    const cfg = shortCfg({
-      unit_overrides: {
-        [saelo]: { x: 12, y: 8, level: 7, champ: "saelo", spawn_shield_until: 0, auto_next_start_t: 999 },
-        [enemy]: { x: 12.5, y: 8, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 5000 },
-        [ally]: { x: 11.5, y: 8, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
-      },
-      scripted_casts: [
-        { tick: 2, source_id: enemy, skill: "Q", target_id: ally, force_hit: true },
-        { tick: 8, source_id: saelo, skill: "R", aim_x: 12, aim_y: 8, force_hit: true },
-      ],
-    });
-    // Put enemy on CD first via cast, then timestop and check CD freeze
+    // MATCH_T ends while timestop (2.0 s from ~1.7) is still live.
     const r = simulate(
       shortCfg({
+        constants: { MATCH_T: 3.0 },
         unit_overrides: {
           [saelo]: { x: 12, y: 8, level: 7, champ: "saelo", spawn_shield_until: 0, auto_next_start_t: 999 },
-          [enemy]: { x: 12.5, y: 8, level: 7, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 5000 },
+          [enemy]: {
+            x: 12.5,
+            y: 8,
+            level: 7,
+            champ: "maelis",
+            spawn_shield_until: 0,
+            auto_next_start_t: 999,
+            hp: 5000,
+          },
           [ally]: { x: 11.5, y: 8, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
         },
         scripted_casts: [
@@ -271,21 +277,29 @@ describe("M1-12 Saelo R time-stop (sim)", () => {
     const enemyU = r.state.units.find((u) => u.id === enemy)!;
     const saeloU = r.state.units.find((u) => u.id === saelo)!;
     const allyU = r.state.units.find((u) => u.id === ally)!;
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "timestop" && e.target_id === enemy),
+    ).toBe(true);
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "timestop" && e.target_id === ally),
+    ).toBe(true);
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "timestop" && e.target_id === saelo),
+    ).toBe(false);
     expect(isTimeStopped(enemyU.status)).toBe(true);
     expect(isTimeStopped(allyU.status)).toBe(true);
     expect(isTimeStopped(saeloU.status)).toBe(false);
-    // CD freeze: capture cd_q right after timestop apply vs later
     const afterCast = r.events.find((e) => e.type === "cast_end" && e.unit_id === enemy);
     expect(afterCast).toBeDefined();
     // Enemy still has CD remaining and timestop paused it — cd_q should be > 0 and not fully decayed
     expect(enemyU.cd_q).toBeGreaterThan(KITS.maelis!.Q.CD_s - 2.0);
-    void cfg;
   });
 });
 
 describe("M1-13 Brannoch R petrify (sim)", () => {
   it("applies stun+petrify 1.6s and 25% damage taken reduction", () => {
     expect(KITS.brannoch!.R.cc![0]!.duration_s).toBe(1.6);
+    expect(KITS.brannoch!.R.cc![0]!.petrify).toBe(true);
     const bran = "blue:top" as UnitId;
     const victim = "red:adc" as UnitId;
     const cfg = shortCfg({
@@ -297,12 +311,16 @@ describe("M1-13 Brannoch R petrify (sim)", () => {
       scripted_damage: [{ tick: 12, source_id: bran, target_id: victim, raw: 100 }],
     });
     const r = simulate({ ...cfg, constants: { MATCH_T: 2.0 } });
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "petrify" && e.target_id === victim)).toBe(
-      true,
+    // Spec L458: petrify is a stun (Lock); engine reports kind "stun" with petrify tag.
+    const pet = r.events.find(
+      (e) =>
+        e.type === "status_apply" &&
+        e.target_id === victim &&
+        (e.kind === "stun" || e.kind === "petrify"),
     );
-    // Still active at match end (cast ~0.6 + 1.6s > 2.0? cast ends t=0.6, expires 2.2 — check at t=1.5 via event)
-    const petrifyAt = r.events.find((e) => e.type === "cc_apply" && e.kind === "petrify")!;
-    expect(petrifyAt.applied as number).toBeCloseTo(1.6, 5);
+    expect(pet).toBeDefined();
+    expect(pet!.applied_duration as number).toBeCloseTo(1.6, 5);
+    expect(pet!.category).toBe("lock");
   });
 });
 
@@ -312,37 +330,38 @@ describe("M1-14 Mirren Kiln-Cured (sim)", () => {
     const mirren = "blue:mid" as UnitId;
     const victim = "red:adc" as UnitId;
     const third = "blue:adc" as UnitId;
-    const cfg = shortCfg({
-      unit_overrides: {
-        [mirren]: { x: 12, y: 8, level: 7, champ: "mirren", spawn_shield_until: 0, auto_next_start_t: 999 },
-        [victim]: { x: 13, y: 8, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 8000 },
-        [third]: { x: 12.5, y: 8, level: 7, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
-      },
-      scripted_casts: [
-        { tick: 2, source_id: mirren, skill: "W", target_id: victim, force_hit: true },
-        { tick: 10, source_id: third, skill: "Q", target_id: victim, force_hit: true },
-      ],
-    });
-    const r = simulate({
-      ...cfg,
-      constants: { MATCH_T: 2.5 },
-      scripted_casts: [
-        { tick: 2, source_id: mirren, skill: "W", target_id: victim, force_hit: true },
-        { tick: 8, source_id: third, skill: "Q", target_id: victim, force_hit: true },
-      ],
-    });
-    const v = r.state.units.find((u) => u.id === victim)!;
-    expect(r.events.some((e) => e.type === "cc_apply" && e.kind === "hex" && e.target_id === victim)).toBe(
-      true,
+    // Cluster other reds on the victim so L1899 hex centroid does not yank them off the Q line.
+    const redCluster = {
+      "red:top": { x: 13, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+      "red:jungle": { x: 13, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+      "red:mid": { x: 13, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+      "red:support": { x: 13, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+    };
+    const r = simulate(
+      shortCfg({
+        constants: { MATCH_T: 2.5 },
+        unit_overrides: {
+          [mirren]: { x: 12, y: 8, level: 7, champ: "mirren", spawn_shield_until: 0, auto_next_start_t: 999 },
+          [victim]: { x: 13, y: 8, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 8000 },
+          [third]: { x: 12.5, y: 8, level: 7, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
+          ...redCluster,
+        },
+        scripted_casts: [
+          { tick: 2, source_id: mirren, skill: "W", target_id: victim, force_hit: true },
+          { tick: 8, source_id: third, skill: "Q", target_id: victim, aim_x: 13, aim_y: 8, force_hit: true },
+        ],
+      }),
     );
-    // Slow is authored 35% on Mirren W hex (kits.cc notes)
+    const v = r.state.units.find((u) => u.id === victim)!;
+    expect(
+      r.events.some((e) => e.type === "status_apply" && e.kind === "hex" && e.target_id === victim),
+    ).toBe(true);
     expect(KITS.mirren!.W.slow?.pct).toBe(0.35);
-    const hexApply = r.events.find((e) => e.type === "cc_apply" && e.kind === "hex")!;
-    expect(hexApply).toBeDefined();
-    // During hex window, Huntress Q should be kiln-amped; inspect mid-match state via hit
     void strongestSlow;
-    void v;
-    const hit = r.events.find((e) => e.type === "hit" && e.skill_id === KITS.huntress!.Q.name)!;
+    const hit = r.events.find(
+      (e) => e.type === "hit" && e.skill_id === KITS.huntress!.Q.name && e.target_id === victim,
+    )!;
+    expect(hit).toBeDefined();
     const s = statsAtLevel("huntress", 7);
     const base = kitBase("huntress", "Q", s.atk, s.pow);
     const expectMit = base * 1.12 * mit(v.stats.pres);
@@ -355,16 +374,23 @@ describe("M1-14 Mirren Kiln-Cured (sim)", () => {
         [mirren]: { x: 12, y: 8, level: 7, champ: "mirren", spawn_shield_until: 0, auto_next_start_t: 999 },
         [victim]: { x: 13, y: 8, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 8000 },
         [third]: { x: 12.5, y: 8, level: 7, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
+        ...redCluster,
       },
       scripted_casts: [
         { tick: 2, source_id: mirren, skill: "W", target_id: victim, force_hit: true },
-        { tick: 40, source_id: third, skill: "Q", target_id: victim, force_hit: true },
+        { tick: 40, source_id: third, skill: "Q", target_id: victim, aim_x: 13, aim_y: 8, force_hit: true },
       ],
     });
     const r2 = simulate(cfgEnd);
     const v2 = r2.state.units.find((u) => u.id === victim)!;
     expect(hasKind(v2.status, "hex")).toBe(false);
-    const hit2 = r2.events.find((e) => e.type === "hit" && e.skill_id === KITS.huntress!.Q.name && e.tick >= 40)!;
+    const hit2 = r2.events.find(
+      (e) =>
+        e.type === "hit" &&
+        e.skill_id === KITS.huntress!.Q.name &&
+        e.target_id === victim &&
+        (e.tick as number) >= 40,
+    )!;
     expect(hit2.mitigated as number).toBeCloseTo(base * mit(v2.stats.pres), 4);
 
     // Forced Break disables Kiln amp
@@ -373,17 +399,22 @@ describe("M1-14 Mirren Kiln-Cured (sim)", () => {
         [mirren]: { x: 12, y: 8, level: 7, champ: "mirren", spawn_shield_until: 0, auto_next_start_t: 999 },
         [victim]: { x: 13, y: 8, champ: "maelis", spawn_shield_until: 0, auto_next_start_t: 999, hp: 8000 },
         [third]: { x: 12.5, y: 8, level: 7, champ: "huntress", spawn_shield_until: 0, auto_next_start_t: 999 },
+        ...redCluster,
       },
       scripted_casts: [
         { tick: 2, source_id: mirren, skill: "W", target_id: victim, force_hit: true },
-        { tick: 10, source_id: third, skill: "Q", target_id: victim, force_hit: true },
+        { tick: 10, source_id: third, skill: "Q", target_id: victim, aim_x: 13, aim_y: 8, force_hit: true },
       ],
-      scripted_cc: [{ tick: 8, target_id: victim, kind: "break", duration: 10 }],
+      // OQ-2 / L1897: Break on Kiln's OWNER (Mirren), not the hexed victim.
+      scripted_cc: [{ tick: 8, target_id: mirren, kind: "break", duration: 10 }],
     });
     const r3 = simulate(cfgBreak);
+    const mir = r3.state.units.find((u) => u.id === mirren)!;
     const vict = r3.state.units.find((u) => u.id === victim)!;
-    expect(underBreak(vict.status, r3.state.t)).toBe(true);
-    const hit3 = r3.events.find((e) => e.type === "hit" && e.skill_id === KITS.huntress!.Q.name)!;
+    expect(underBreak(mir.status, r3.state.t)).toBe(true);
+    const hit3 = r3.events.find(
+      (e) => e.type === "hit" && e.skill_id === KITS.huntress!.Q.name && e.target_id === victim,
+    )!;
     expect(hit3.mitigated as number).toBeCloseTo(base * mit(vict.stats.pres), 4);
   });
 });
@@ -405,15 +436,18 @@ describe("M1-15 Kerrig R cast timing (sim)", () => {
       ],
     });
     const r = simulate(cfg);
-    const start = r.events.find((e) => e.type === "cast_start" && e.skill === "R")!;
+    // cast_start carries skill_id (ability name); cast_end carries skill key.
+    const start = r.events.find(
+      (e) => e.type === "cast_start" && e.skill_id === KITS.kerrig!.R.name,
+    )!;
     const end = r.events.find((e) => e.type === "cast_end" && e.skill === "R")!;
     expect(start).toBeDefined();
     expect(end).toBeDefined();
     expect((end.t as number) - (start.t as number)).toBeCloseTo(0.7, 6);
-    // CD started on windup (beginCast): at cast_start, cd_r should be set
     const k = r.state.units.find((u) => u.id === kerrig)!;
     expect(k.cd_r).toBeGreaterThan(0);
-    expect(r.events.some((e) => e.type === "dash")).toBe(true);
+    // Streak dash is immediate displacement (no separate "dash" event) — landed on the mark.
+    expect(k.x).toBeCloseTo(14, 5);
   });
 });
 
@@ -536,7 +570,7 @@ describe("§6.8–6.10 sim e2e gates", () => {
       scripted_damage: [{ tick: 10, source_id: killer, target_id: victim, raw: 10_000 }],
     });
     const r = simulate(cfg);
-    expect(r.events.some((e) => e.type === "cc_apply" && e.target_id === victim)).toBe(true);
+    expect(r.events.some((e) => e.type === "status_apply" && e.target_id === victim)).toBe(true);
     expect(r.events.some((e) => e.type === "heal" && e.target_id === killer)).toBe(true);
     const death = r.events.find((e) => e.type === "death" && e.unit_id === victim)!;
     expect(death).toBeDefined();
