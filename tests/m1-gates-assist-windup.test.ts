@@ -5,7 +5,7 @@ import { applyCc, emptyStatus } from "../sim/status.js";
 import type { UnitState } from "../sim/types.js";
 
 function bareUnit(partial: Partial<UnitState> = {}): UnitState {
-  return {
+  const u: UnitState = {
     id: "blue:adc",
     team: "blue",
     slot: "adc",
@@ -20,6 +20,7 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     xp: 0,
     level: 1,
     alive: true,
+    respawn_at: Infinity,
     spawn_shield_until: 0,
     auto_cd: 0,
     auto_windup_left: 0.3,
@@ -66,11 +67,14 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     cast_aim_y: 8,
     cast_force_hit: false,
     cast_seq: 0,
+    cast_snapshot_ids: null,
     break_until: 0,
     commit_until: 0,
     rewind_used: false,
-    ...partial,
+    abandon_scripted_motor: false,
   };
+  Object.assign(u, partial);
+  return u;
 }
 
 const ccOpts = {

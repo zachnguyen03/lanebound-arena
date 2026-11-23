@@ -767,7 +767,11 @@ function resolveCastEnd(
     units = ids
       .map((id) => state.units.find((u) => u.id === id))
       .filter((u): u is UnitState => !!u && u.alive);
-    if (primary && !units.find((u) => u.id === primary.id)) {
+    // Snapshot may drop the original primary (dead / filtered). Capture a local
+    // non-null binding so the callback does not see `primary` as possibly null
+    // (TS control-flow does not narrow captured `let` across the find predicate).
+    const snapPrimary = primary;
+    if (snapPrimary !== null && !units.find((u) => u.id === snapPrimary.id)) {
       primary = units[0] ?? null;
     }
   }

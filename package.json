@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Lanebound Arena sandbox — deterministic headless sim",
   "scripts": {
-    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit && vitest run",
     "digest": "tsx apps/lab/digest.ts",
     "purity": "tsx apps/lab/purity.ts",
     "lab:s0": "tsx apps/lab/lab-s0.ts",
