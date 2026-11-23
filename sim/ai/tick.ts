@@ -12,7 +12,7 @@ import type { Constants } from "../constants.js";
 import type { RngBank } from "../rng.js";
 import { isBanished } from "../status.js";
 import type { MatchConfig, MatchState, Team, UnitId } from "../types.js";
-import { hystS, mistakeBand, perceptionDelayS } from "./attributes.js";
+import { hystS, mistakeBand } from "./attributes.js";
 import { brainDecide, type ChaseState } from "./brain.js";
 import {
   canFlipCommit,
@@ -242,17 +242,9 @@ export function tickAi(
       if (ai.focus_died[team]) {
         focus = null;
       } else if (sc) {
-        // Score Focus from an in-fight ally when the Decision shotcaller is a pad
-        // resident (tie-break Top at spawn). Reach is monotone in distance — a pad
-        // scorer makes every pit body look like a far Hunt acquisition and buries
-        // the Focus ×1.25 slot bump (R #3 / R #4).
-        const inFight = state.units.filter(
-          (u) => u.alive && u.team === team && focusPool.includes(u.id),
-        );
-        const focusScorer = shotcaller(inFight, team) ?? sc;
-        // Focus slot is ×1.25 in targetingScore only — no hard override (R #3 S2-6 / v4 probe).
-        // Neutral intent map for the call so freestyle AA intent does not bury Lock/Focus.
-        focus = chooseFocus(team, state.units, focusScorer, focusPool, {
+        // Focus ×1.25 score only — no hard override (R #3 / S2-R4-4). Shotcaller
+        // scores; pad Top may be the Decision tie-break shotcaller.
+        focus = chooseFocus(team, state.units, sc, focusPool, {
           c,
           tactic: ai.active_tactic[team],
           zoneCenter: c.ZONE_CENTER,
@@ -302,14 +294,8 @@ export function tickAi(
       const carry = state.units.find((u) => u.id === d.carry_id);
       return carry?.team === team;
     });
-    // R #3 OQ-S2-4 / §9.5: dive once per pair per fight.
-    // - When (2) first holds already-perceived → emit true (M2 denominator).
-    // - When (2) first holds unperceived and perception is slow (pDelay at the
-    //   high end of the authored clamp) → emit false immediately so the v4
-    //   unperceived probe can observe it before Decision-10 perception.
-    // - Otherwise wait until perceived and emit true once (parked preview lab).
-    // reaction_delay ≥ 0.2 s means the first (2) tick is never fully perceived,
-    // so a single emit-at-first-(2) cannot satisfy both the false probe and M2.
+    // R #3 S2-4 / §9.5: emit dive once per pair per fight when condition (2)
+    // first holds, with peeler_perceived at that instant (true or false).
     for (const d of dives) {
       if (!d.geometric_ok || !d.peeler_id) continue;
       const pairKey = `${d.diver_id}>${d.carry_id}`;
@@ -318,32 +304,15 @@ export function tickAi(
         ai.peel_diver[peelerId] = d.diver_id;
       }
       if (ai.fight_id && !ai.dive_emitted.has(pairKey)) {
-        if (d.peeler_perceived) {
-          ai.dive_emitted.add(pairKey);
-          ai.dive_geom += 1;
-          emit("dive", {
-            diver_id: d.diver_id,
-            target_id: d.carry_id,
-            fight_id: ai.fight_id,
-            peeler_id: peelerId,
-            peeler_perceived: true,
-          });
-        } else {
-          const pDelay = perceptionDelayS(d.peeler_id.attrs.decision);
-          // Slow-perception band (Decision ≤ ~25 → pDelay ≥ 0.5): log false now.
-          if (pDelay >= 0.5 - 1e-9) {
-            ai.dive_emitted.add(pairKey);
-            ai.dive_geom += 1;
-            emit("dive", {
-              diver_id: d.diver_id,
-              target_id: d.carry_id,
-              fight_id: ai.fight_id,
-              peeler_id: peelerId,
-              peeler_perceived: false,
-            });
-          }
-          // else: wait for perceived → true emit on a later tick
-        }
+        ai.dive_emitted.add(pairKey);
+        ai.dive_geom += 1;
+        emit("dive", {
+          diver_id: d.diver_id,
+          target_id: d.carry_id,
+          fight_id: ai.fight_id,
+          peeler_id: peelerId,
+          peeler_perceived: d.peeler_perceived,
+        });
       }
       if (d.peeler_perceived && !ai.peel_emitted.has(pairKey)) {
         ai.peel_emitted.add(pairKey);

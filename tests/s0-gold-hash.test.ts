@@ -7,7 +7,7 @@ import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate
  */
 export const GOLD = {
   seed_20261122: {
-    // S1 quiet-match gold (explicit ai_enabled: false — defaultEvenConfig is AI-on for S2).
+    // S1 quiet-match gold (defaultEvenConfig.ai_enabled is false; explicit false kept for clarity).
     digest: "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
     constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
