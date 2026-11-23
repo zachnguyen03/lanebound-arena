@@ -19,11 +19,20 @@ export interface Vec2 {
   y: number;
 }
 
+/**
+ * Coach tactics (§12 / Appendix R #3 S2-6).
+ * S1 frozen API deviation — before: combo_style "auto"|"aggressive"|"conservative"
+ * (no focus / secondary). After: combo_style "auto"|"hold_R"; optional focus + secondary.
+ */
 export interface Tactics {
   preset: "hold_the_pit" | "hunt" | "starve";
+  /** Optional secondary preset (§12 L1344: planner would otherwise idle). */
+  secondary?: "hold_the_pit" | "hunt" | "starve";
   aggression: -1 | 0 | 1;
   protect_the_carry: boolean;
-  combo_style: "auto" | "aggressive" | "conservative";
+  combo_style: "auto" | "hold_R";
+  /** `auto` or an enemy slot; that slot's targeting score ×1.25 (§12 L1352). */
+  focus?: "auto" | "top" | "jungle" | "mid" | "adc" | "support";
 }
 
 export interface PlayerAttrs {
@@ -116,6 +125,12 @@ export interface MatchConfig {
     duration: number;
     source_id?: UnitId;
   }>;
+  /**
+   * S2: enable fight-layer AI. defaultEvenConfig sets true; S1 acceptance forces false.
+   */
+  ai_enabled?: boolean;
+  /** Lab: skip Decision perception delay for peel geometry tests. */
+  ai_ignore_perception?: boolean;
 }
 
 export interface ScriptedCast {
@@ -177,6 +192,8 @@ export interface UnitState {
   auto_next_start_t: number;
   stats: DummyStats;
   attrs: PlayerAttrs;
+  /** Mastery 0–100 for the current champion (default 50 when unset). */
+  mastery: number;
   intent: string;
   waypoint: Vec2 | null;
   scripted_wp_i: number;
@@ -211,6 +228,10 @@ export interface UnitState {
   rewind_used: boolean;
   /** After fear, ignore scripted motor and re-enter AA range if autos are on. */
   abandon_scripted_motor: boolean;
+  /** S2: Unit Brain current target (autos prefer this when in range). */
+  ai_target_id: UnitId | null;
+  /** Set by AI when Teamwork forbids freelance autos (focus dead / awaiting call). */
+  ai_no_freelance?: boolean;
 }
 
 export interface Displacement {
@@ -329,4 +350,6 @@ export interface SimulateResult {
   constants_hash: string;
   data_hash: string;
   tick_count: number;
+  /** S2 peel lab counters (present when ai_enabled). */
+  ai_stats?: { dive_geom: number; peel_fired: number; peel_rate: number | null };
 }

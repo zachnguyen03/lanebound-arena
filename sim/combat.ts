@@ -242,6 +242,19 @@ function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
       }
     }
   }
+  // Prefer Unit Brain target when in range (Teamwork follow-call).
+  if (atk.ai_target_id) {
+    const pref = state.units.find((u) => u.id === atk.ai_target_id);
+    if (pref && pref.alive && pref.team !== atk.team && !isBanished(pref.status)) {
+      const d = dist(atk.x, atk.y, pref.x, pref.y);
+      if (d <= atk.stats.range) return pref;
+    }
+  }
+  // Teamwork ≥ 50 under AI: never freelance onto a greener local body
+  // (§8.4 L1039–1044). S1 (ai off) keeps nearest-in-range selection.
+  if (atk.attrs.teamwork >= 50 && atk.ai_target_id === null && atk.ai_no_freelance) {
+    return null;
+  }
   let best: UnitState | null = null;
   let bestD = Infinity;
   let bestIndex = Infinity;

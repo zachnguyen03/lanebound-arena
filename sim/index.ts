@@ -8,6 +8,18 @@ export { clipMove, inEnemySanctuary, hitsPillar } from "./map.js";
 export { statsAtLevel, skillScale, hitChance, mit } from "./stats.js";
 export { computePacket } from "./packet.js";
 export { cancelAutoWindup, canStartAuto, recordAssistCredit } from "./combat.js";
+export {
+  evaluateFight,
+  fightIssuesCall,
+  chaseShouldStop,
+  detectDives,
+  holdDist,
+  skillshotHitChance,
+  effAim as aiEffAim,
+  effExecution,
+  createAiRuntime,
+  tickAi,
+} from "./ai/index.js";
 export type {
   MatchConfig,
   SimulateResult,

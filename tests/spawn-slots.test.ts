@@ -43,6 +43,7 @@ describe("L214 spawn-slot spacing", () => {
   it("t=0: all 10 units sit on pad centre ± slot spacing (y 5.5…9.5)", () => {
     const r = simulate({
       ...defaultEvenConfig(20261122),
+      ai_enabled: false,
       constants: { MATCH_T: 0.5 },
     });
     const spacing = DEFAULT_CONSTANTS.SPAWN_SLOT_SPACING;
@@ -76,6 +77,7 @@ describe("L214 spawn-slot spacing", () => {
     // Top stays alive on their slot the whole time (occupancy must not matter).
     const r = simulate({
       ...defaultEvenConfig(20261122),
+      ai_enabled: false,
       constants: { MATCH_T: 8.0 },
       unit_overrides: {
         [mid]: { x: 12, y: 8, level: 1, spawn_shield_until: 0, auto_next_start_t: 999, hp: 30 },

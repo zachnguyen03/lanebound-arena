@@ -18,7 +18,8 @@ const MS_H = statAt("huntress", 7).ms; // 3.3, spec L547
 /** Like `run()`, plus extra `constants` overrides (public MatchConfig.constants). */
 function runConst(sc: Scenario, extra: Record<string, unknown> = {}): Run {
   const sh = sc.abs ? 0 : ZONE_SHIFT;
-  const cfg: any = { ...defaultEvenConfig(sc.seed ?? 20261122), constants: { MATCH_T: sc.T, ...extra }, debug_pos: sc.pos ?? false };
+  // Mirror `run()`: S1 fixtures pin geometry; fight AI must stay off (defaultEvenConfig enables it for S2).
+  const cfg: any = { ...defaultEvenConfig(sc.seed ?? 20261122), constants: { MATCH_T: sc.T, ...extra }, debug_pos: sc.pos ?? false, ai_enabled: false };
   const uo: any = {};
   for (const [id, u] of Object.entries(sc.units)) {
     const level = u!.level ?? 7;

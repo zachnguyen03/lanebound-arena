@@ -7,12 +7,13 @@ import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate
  */
 export const GOLD = {
   seed_20261122: {
-    digest: "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
+    // S2: AI on by default; `intent` is a first-class digest event (was S1 quiet-match gold).
+    digest: "0f7456370f500188fa4fddde922d9c55213e792819bb9b8614b370a1c5df2e26",
     constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   seed_20261123: {
-    digest: "f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0",
+    digest: "612148a2e910c47c0cf5793153e3cd4d7023dbebb287caeed1797f883bb89760",
     constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },

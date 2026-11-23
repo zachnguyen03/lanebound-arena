@@ -33,6 +33,7 @@ import {
   tickStatuses,
 } from "./status.js";
 import { statsAtLevel } from "./stats.js";
+import { createAiRuntime, tickAi } from "./ai/tick.js";
 import type {
   MatchConfig,
   MatchState,
@@ -72,6 +73,7 @@ const DEFAULT_TACTICS = {
   aggression: 0 as const,
   protect_the_carry: true,
   combo_style: "auto" as const,
+  // focus / secondary omitted — optional per R #3; default behaviour = focus "auto"
 };
 
 const DEFAULT_ATTRS: PlayerAttrs = {
@@ -106,7 +108,8 @@ export function defaultEvenConfig(seed = 20261122): MatchConfig {
     },
     draft_mode: "fixed",
     forced_clock_end: true,
-    notes: "S1 even default — real champions",
+    ai_enabled: true,
+    notes: "S2 even default — real champions, fight-layer AI on",
   };
 }
 
@@ -132,6 +135,7 @@ function makeUnit(
   c: Constants,
   champ: string,
   attrs: PlayerAttrs,
+  mastery = 50,
 ): UnitState {
   const id = `${team}:${slot}` as UnitId;
   const pose = spawnPose(team, slot, c);
@@ -169,6 +173,7 @@ function makeUnit(
       ms: 3.3,
     },
     attrs: { ...attrs },
+    mastery,
     intent: "Idle",
     waypoint: null,
     scripted_wp_i: 0,
@@ -195,6 +200,7 @@ function makeUnit(
     commit_until: 0,
     rewind_used: false,
     abandon_scripted_motor: false,
+    ai_target_id: null,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -210,7 +216,9 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       const slot = SLOTS[si]!;
       const champ = side.picks[si] ?? "dummy";
       const attrs = side.players[si]?.attrs ?? DEFAULT_ATTRS;
-      units.push(makeUnit(team, slot, index, c, champ, attrs));
+      const masteryMap = side.players[si]?.mastery ?? {};
+      const mastery = masteryMap[champ] ?? 50;
+      units.push(makeUnit(team, slot, index, c, champ, attrs, mastery));
       index += 1;
     }
   }
@@ -433,12 +441,16 @@ export function simulate(config: MatchConfig): SimulateResult {
   }
 
   const maxTick = Math.round(c.MATCH_T / c.DT);
+  const ai = config.ai_enabled ? createAiRuntime() : null;
+  let deathThisTick = false;
 
   for (let tick = 1; tick <= maxTick; tick++) {
     if (state.ended) break;
     state.tick = tick;
     state.t = tOf(tick);
     const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T;
+    const deathsForAi = deathThisTick;
+    deathThisTick = false;
 
     // Respawn at own slot (L214): no occupancy check — G6 soft separation.
     for (const u of state.units) {
@@ -469,6 +481,11 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.attack_reset_pending = false;
       u.abandon_scripted_motor = false;
       emit("respawn", { unit_id: u.id, x: pose.x, y: pose.y, slot: u.slot });
+    }
+
+    // Phase 2: AI decide (Fight Call / peel / Unit Brain). Scripted motor wins per-unit.
+    if (ai) {
+      tickAi(state, config, c, rng, ai, emit, deathsForAi);
     }
 
     updateScriptedMotor(state, config, c, emit);
@@ -553,12 +570,18 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     if (config.debug_pos) {
       for (const u of state.units) {
+        // `move` — S1 lab path samples; `pos` — S2 acceptance pathOf (both excluded from digest).
         emit("move", {
           unit_id: u.id,
           x: u.x,
           y: u.y,
           vx: u.vx,
           vy: u.vy,
+        });
+        emit("pos", {
+          unit_id: u.id,
+          x: u.x,
+          y: u.y,
         });
       }
     }
@@ -730,6 +753,7 @@ export function simulate(config: MatchConfig): SimulateResult {
     for (const u of state.units) {
       if (!(u.alive && u.hp <= 0)) continue;
       u.alive = false;
+      deathThisTick = true;
       u.hp = 0;
       u.waypoint = null;
       u.auto_windup_left = 0;
@@ -812,6 +836,14 @@ export function simulate(config: MatchConfig): SimulateResult {
     }
   }
 
+  const ai_stats = ai
+    ? {
+        dive_geom: ai.dive_geom,
+        peel_fired: ai.peel_fired,
+        peel_rate: ai.dive_geom > 0 ? ai.peel_fired / ai.dive_geom : null,
+      }
+    : undefined;
+
   return {
     state,
     events,
@@ -819,5 +851,6 @@ export function simulate(config: MatchConfig): SimulateResult {
     constants_hash: chash,
     data_hash: dhash,
     tick_count: state.tick,
+    ...(ai_stats ? { ai_stats } : {}),
   };
 }

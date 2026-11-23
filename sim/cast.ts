@@ -27,7 +27,7 @@ import { computePacket } from "./packet.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
 import { clipPointAoE } from "./sanctuary_clip.js";
-import { hitChance, skillScale } from "./stats.js";
+import { effAim, hitChance, skillScale } from "./stats.js";
 import {
   addShield,
   applyCc,
@@ -612,7 +612,13 @@ function resolveOnTargets(
       const skipRoll =
         isPrimary && (ab.shape === "circle_target" || ab.shape === "cone_target");
       if (!skipRoll && v.team !== source.team) {
-        hit = rollSkillshotHit(rng, source.attrs.aim, v.attrs.reflexes, c, unitKeyFromId(source.id));
+        hit = rollSkillshotHit(
+          rng,
+          effAim(source.attrs.aim, source.mastery),
+          v.attrs.reflexes,
+          c,
+          unitKeyFromId(source.id),
+        );
         emit("skillshot_roll", { source_id: source.id, target_id: v.id, hit, skill_id });
       }
     }
@@ -1135,7 +1141,13 @@ export function runScriptedSkillshots(
   let hits = 0;
   const bits: number[] = [];
   for (let i = 0; i < opts.count; i++) {
-    const hit = rollSkillshotHit(rng, source.attrs.aim, target.attrs.reflexes, c, unitKeyFromId(source.id));
+    const hit = rollSkillshotHit(
+      rng,
+      effAim(source.attrs.aim, source.mastery),
+      target.attrs.reflexes,
+      c,
+      unitKeyFromId(source.id),
+    );
     bits.push(hit ? 1 : 0);
     if (hit) hits += 1;
     emit("skillshot_roll", {
@@ -1145,6 +1157,17 @@ export function runScriptedSkillshots(
       skill_id: "lab_skillshot",
       i,
     });
+    // S2 acceptance mastery test counts `hit` (S1 labs use skillshot_roll).
+    if (hit) {
+      emit("hit", {
+        source_id: source.id,
+        target_id: target.id,
+        skill_id: "lab_skillshot",
+        miss: false,
+        raw: 0,
+        mitigated: 0,
+      });
+    }
   }
   return { hits, bits };
 }
