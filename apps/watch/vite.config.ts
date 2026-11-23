@@ -5,9 +5,23 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * `::placeholder` rules and `placeholder=` attributes are real CSS/HTML.
- * Any other `placeholder` in dist is a user-facing string that should be rewritten in source.
+ * Allowed `placeholder` spellings in dist:
+ * - `::placeholder` CSS selectors
+ * - `placeholder=` input attributes
+ * - Tailwind's own utility tokens (`placeholder-color`, `{placeholder:`, `"placeholder"`)
+ * Anything else is user-facing copy and should be rewritten in source.
  */
+function placeholderAllowed(text: string, i: number): boolean {
+  if (text.slice(i - 2, i) === "::") return true;
+  const before = text[i - 1];
+  const after = text[i + "placeholder".length];
+  if (after === "=" || after === "-" || after === ":") return true;
+  if ((before === '"' || before === "'") && (after === '"' || after === "'")) {
+    return true;
+  }
+  return false;
+}
+
 function placeholderOffenders(root: string): string[] {
   const hits: string[] = [];
   const walk = (dir: string) => {
@@ -23,10 +37,8 @@ function placeholderOffenders(root: string): string[] {
       const re = /placeholder/g;
       let m: RegExpExecArray | null;
       while ((m = re.exec(text))) {
-        const i = m.index;
-        if (text.slice(i - 2, i) === "::") continue;
-        if (text[i + "placeholder".length] === "=") continue;
-        const line = text.slice(0, i).split("\n").length;
+        if (placeholderAllowed(text, m.index)) continue;
+        const line = text.slice(0, m.index).split("\n").length;
         hits.push(`${path.relative(root, p)}:${line}`);
       }
     }
