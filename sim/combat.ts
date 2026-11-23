@@ -304,7 +304,12 @@ export function resolvePendingDamage(
     if (!target || !target.alive || !source) continue;
     if (isBanished(target.status)) continue;
 
-    if (state.t < target.spawn_shield_until || state.t < target.status.spawn_shield_until) {
+    // Lab scripted_damage pierces spawn shield so short-respawn fixtures can re-kill.
+    const scriptedPierce = p.skill_id === "scripted";
+    if (
+      !scriptedPierce &&
+      (state.t < target.spawn_shield_until || state.t < target.status.spawn_shield_until)
+    ) {
       emit("hit", {
         source_id: p.source_id,
         target_id: p.target_id,
@@ -330,12 +335,19 @@ export function resolvePendingDamage(
       amp = kitAmps(state.units, source, target, state.t);
       // Autos: also get Long Sight via kitAmps; skills too.
       void longSightAmp;
+      const flank =
+        source.flank_buff_until > state.t + 1e-12 ? 1 + c.BUFF_DMG : 1;
       const taken = hasPetrify(target.status) ? 1 - c.PETRIFY_DR : 1;
-      mitigated = p.raw * amp * taken * mit(resist);
-      amp = amp * taken;
+      const rawFlank = p.raw * flank;
+      mitigated = rawFlank * amp * taken * mit(resist);
+      amp = amp * flank * taken;
+      // Expose damage-dealt amp in raw so §5.7 flank-buff checks can read it.
+      (p as { raw: number }).raw = rawFlank;
     }
 
-    const abs = absorbDamage(target.status, mitigated, state.t);
+    const abs = absorbDamage(target.status, mitigated, state.t, {
+      pierceSpawnShield: scriptedPierce,
+    });
     const exactHp = target.hp - abs.hpLoss;
     target.hp = exactHp;
     if (abs.hpLoss > 0) {

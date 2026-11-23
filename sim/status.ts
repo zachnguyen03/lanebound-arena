@@ -346,8 +346,13 @@ export function addShield(
   return { applied: Math.max(0, applied), capped_to: capped };
 }
 
-export function absorbDamage(st: StatusState, mitigated: number, now: number): { hpLoss: number; shieldAbsorbed: number } {
-  if (now < st.spawn_shield_until) {
+export function absorbDamage(
+  st: StatusState,
+  mitigated: number,
+  now: number,
+  opts?: { pierceSpawnShield?: boolean },
+): { hpLoss: number; shieldAbsorbed: number } {
+  if (!opts?.pierceSpawnShield && now < st.spawn_shield_until) {
     return { hpLoss: 0, shieldAbsorbed: mitigated };
   }
   if (st.shield_pool >= mitigated) {
