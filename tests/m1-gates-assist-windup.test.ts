@@ -74,6 +74,8 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     rewind_used: false,
     abandon_scripted_motor: false,
     ai_target_id: null,
+    walk_from_pad_until: 0,
+    ai_first_auto_done: false,
   };
   Object.assign(u, partial);
   return u;

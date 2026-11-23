@@ -108,8 +108,10 @@ export function defaultEvenConfig(seed = 20261122): MatchConfig {
     },
     draft_mode: "fixed",
     forced_clock_end: true,
+    // Fight AI on by default. Official S1/S2 harnesses do not set ai_enabled
+    // (archives 69ccef0b / 84484806). AI-off digests use MatchConfig.ai_enabled: false.
     ai_enabled: true,
-    notes: "S2 even default — real champions, fight-layer AI on",
+    notes: "S2 even default — real champions + fight AI",
   };
 }
 
@@ -201,6 +203,8 @@ function makeUnit(
     rewind_used: false,
     abandon_scripted_motor: false,
     ai_target_id: null,
+    walk_from_pad_until: 0,
+    ai_first_auto_done: false,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -480,6 +484,9 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.last_hit_by = null;
       u.attack_reset_pending = false;
       u.abandon_scripted_motor = false;
+      // §9.6 L1164: leave sanctuary within 1.5 s of respawn.
+      u.walk_from_pad_until = state.t + 1.5;
+      u.ai_first_auto_done = false;
       emit("respawn", { unit_id: u.id, x: pose.x, y: pose.y, slot: u.slot });
     }
 

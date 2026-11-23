@@ -12,9 +12,12 @@ import {
   defaultEvenConfig,
   simulate,
   DEFAULT_CONSTANTS,
+  mergeConstants,
 } from "../sim/index.js";
+import { createAiRuntime, tickAi } from "../sim/ai/tick.js";
+import { RngBank } from "../sim/rng.js";
 import { emptyStatus } from "../sim/status.js";
-import type { UnitState } from "../sim/types.js";
+import type { MatchConfig, UnitState } from "../sim/types.js";
 
 const c = DEFAULT_CONSTANTS;
 
@@ -81,6 +84,8 @@ function bare(partial: Partial<UnitState> & Pick<UnitState, "id" | "team" | "slo
     rewind_used: false,
     abandon_scripted_motor: false,
     ai_target_id: null,
+    walk_from_pad_until: 0,
+    ai_first_auto_done: false,
   };
   Object.assign(u, partial);
   return u;
@@ -213,10 +218,15 @@ describe("S2 peel geometry", () => {
   });
 });
 
-describe("S2 simulate with AI", () => {
-  it("defaultEvenConfig digests match published S2 gold (AI on; intent in digest)", () => {
-    const r = simulate(defaultEvenConfig(20261122));
-    expect(r.digest).toBe("0f7456370f500188fa4fddde922d9c55213e792819bb9b8614b370a1c5df2e26");
+describe("S2 simulate digests", () => {
+  it("AI-off quiet match matches S1 digest for seed 20261122", () => {
+    const r = simulate({ ...defaultEvenConfig(20261122), ai_enabled: false });
+    expect(r.digest).toBe("7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f");
+  });
+
+  it("AI-off quiet match matches S1 digest for seed 20261123", () => {
+    const r = simulate({ ...defaultEvenConfig(20261123), ai_enabled: false });
+    expect(r.digest).toBe("f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0");
   });
 
   it("AI-on same seed is deterministic across two runs", () => {
@@ -226,8 +236,46 @@ describe("S2 simulate with AI", () => {
     expect(a.digest).toBe(b.digest);
   });
 
-  it("AI-off quiet match recovers S1 digest for seed 20261122", () => {
-    const r = simulate({ ...defaultEvenConfig(20261122), ai_enabled: false });
-    expect(r.digest).toBe("7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f");
+  it("explicit ai_enabled: false matches S1 quiet digest for 20261122", () => {
+    expect(simulate({ ...defaultEvenConfig(20261122), ai_enabled: false }).digest).toBe(
+      "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
+    );
+  });
+});
+
+describe("S2 secondary tactic (L1344 / INV-SECONDARY-IDLE-L1)", () => {
+  it("on an L1 tick with no Fight Call, active_tactic becomes secondary", () => {
+    const base = defaultEvenConfig(7);
+    const cfg: MatchConfig = {
+      ...base,
+      ai_enabled: true,
+      blue: {
+        ...base.blue,
+        tactics: {
+          preset: "hold_the_pit",
+          secondary: "starve",
+          aggression: 0,
+          protect_the_carry: true,
+          combo_style: "auto",
+        },
+      },
+      constants: { MATCH_T: 2.0 },
+      unit_overrides: {
+        "blue:mid": { x: 4, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+        "red:mid": { x: 20, y: 8, spawn_shield_until: 0, auto_next_start_t: 999 },
+      },
+    };
+    const r0 = simulate({ ...cfg, ai_enabled: false, constants: { MATCH_T: 0.1 } });
+    const state = r0.state;
+    const c = mergeConstants(cfg.constants);
+    const ai = createAiRuntime();
+    const rng = new RngBank(7);
+    const emit = (_type: string, _payload: Record<string, unknown>) => {};
+    for (let tick = 1; tick <= 10; tick++) {
+      state.tick = tick;
+      state.t = tick * c.DT;
+      tickAi(state, cfg, c, rng, ai, emit, false);
+    }
+    expect(ai.active_tactic.blue).toBe("starve");
   });
 });

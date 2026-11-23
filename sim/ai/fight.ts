@@ -37,21 +37,10 @@ function dist(ax: number, ay: number, bx: number, by: number): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function nearOwnPad(u: UnitState, c: Constants): boolean {
-  const pad = u.team === "blue" ? c.BLUE_SPAWN : c.RED_SPAWN;
-  return dist(u.x, u.y, pad[0]!, pad[1]!) <= 4.0;
-}
-
 function livingNonBanished(u: UnitState, c: Constants): boolean {
-  // Sanctuary / pad-leaver units do not seed or join a fight — otherwise
-  // defaultEvenConfig fillers at spawn (or just outside via WalkFromPad) skew
-  // the G9 centroid and turn a 2v1 lab into a false 2v2.
-  return (
-    u.alive &&
-    !isBanished(u.status) &&
-    !inOwnSanctuary(u.team, u.x, u.y, c) &&
-    !nearOwnPad(u, c)
-  );
+  // G9 / Appendix R #4: living, non-banished, not in own sanctuary.
+  // nearOwnPad exclusion removed (R #4).
+  return u.alive && !isBanished(u.status) && !inOwnSanctuary(u.team, u.x, u.y, c);
 }
 
 /**

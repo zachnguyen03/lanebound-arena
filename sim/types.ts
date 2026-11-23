@@ -126,7 +126,8 @@ export interface MatchConfig {
     source_id?: UnitId;
   }>;
   /**
-   * S2: enable fight-layer AI. defaultEvenConfig sets true; S1 acceptance forces false.
+   * S2: enable fight-layer AI. Opt-in — defaultEvenConfig leaves false so the
+   * unedited S1 suite stays correct. S2 `configOf` sets true.
    */
   ai_enabled?: boolean;
   /** Lab: skip Decision perception delay for peel geometry tests. */
@@ -232,6 +233,13 @@ export interface UnitState {
   ai_target_id: UnitId | null;
   /** Set by AI when Teamwork forbids freelance autos (focus dead / awaiting call). */
   ai_no_freelance?: boolean;
+  /**
+   * §9.6 L1164: sim t until which WalkFromPad applies after a respawn.
+   * Match-start spawn does not set this — only post-death respawn does.
+   */
+  walk_from_pad_until: number;
+  /** True after this life has fired at least one auto (first-auto pose hold). */
+  ai_first_auto_done: boolean;
 }
 
 export interface Displacement {

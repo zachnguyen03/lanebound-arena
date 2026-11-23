@@ -109,6 +109,7 @@ export function tickAutos(
       const target = state.units.find((u) => u.id === tid);
       if (!target || !target.alive) continue;
       if (isBanished(target.status)) continue;
+      atk.ai_first_auto_done = true;
 
       // Blind: autos miss (§6.5 / §6.8).
       if (isBlind(atk.status)) {
@@ -250,9 +251,9 @@ function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
       if (d <= atk.stats.range) return pref;
     }
   }
-  // Teamwork ≥ 50 under AI: never freelance onto a greener local body
-  // (§8.4 L1039–1044). S1 (ai off) keeps nearest-in-range selection.
-  if (atk.attrs.teamwork >= 50 && atk.ai_target_id === null && atk.ai_no_freelance) {
+  // R #4: L1044 "Teamwork 50+ always-follow" is superseded. Block freestyle
+  // nearest-in-range only when the brain set ai_no_freelance (focus dead/cleared).
+  if (atk.ai_target_id === null && atk.ai_no_freelance) {
     return null;
   }
   let best: UnitState | null = null;

@@ -1,7 +1,6 @@
 /**
  * L2 Unit Brain — intents, chase / chase-stop, WalkFromPad (§9.4, §9.6).
  */
-import { CHAMPIONS } from "../../data/champions/defs.js";
 import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
 import { hasMark } from "../marks.js";
@@ -11,11 +10,6 @@ import { effExecution, holdDist, kiteSlackTiles, rHoldA, rHoldHp } from "./attri
 import { estTtk } from "./dps.js";
 import type { CommitKind } from "./fight.js";
 import { pickUnitTarget } from "./target.js";
-
-function isPeelerClass(u: UnitState): boolean {
-  const cls = CHAMPIONS[u.champ]?.class;
-  return cls === "Tank" || cls === "Enchanter" || cls === "Fighter" || cls === "Mage";
-}
 
 export type IntentName =
   | "HoldZone"
@@ -34,10 +28,10 @@ export interface ChaseState {
   target_id: UnitId;
   start_x: number;
   start_y: number;
+  /** Sim time when this chase opened (for ttk-stop observation window). */
+  start_t?: number;
   /** After a leash/ttk/sanctuary stop, do not re-chase this target until cleared. */
   leashed?: boolean;
-  /** Ticks this chase episode has been active (ttk stop deferred one tick). */
-  ticks?: number;
 }
 
 function dist(ax: number, ay: number, bx: number, by: number): number {
@@ -59,9 +53,8 @@ export function chaseShouldStop(
   }
   const travelled = dist(chaser.x, chaser.y, chase.start_x, chase.start_y);
   if (travelled >= c.CHASE_LEASH) return { stop: true, reason: "leash" };
-  // est_ttk stop after ~0.5 s of chase so acceptance can observe a post-begin
-  // non-Chase intent (intent is only-on-change; an Idle at tick 2 is too early).
-  if ((chase.ticks ?? 0) >= 5 && ttk > c.CHASE_TTK_STOP && !lockIncoming) {
+  // §9.4 L1143: stop when est_ttk > CHASE_TTK_STOP (no deferred window).
+  if (ttk > c.CHASE_TTK_STOP && !lockIncoming) {
     return { stop: true, reason: "ttk" };
   }
   return { stop: false, reason: null };
@@ -82,6 +75,8 @@ export function brainDecide(
     intentTarget: Partial<Record<UnitId, UnitId | null>>;
     coachFocusSlot?: string | null;
     comboStyle?: "auto" | "hold_R";
+    /** Fight A_true for this unit's team (hold_R gate, §12 L1357). */
+    aTrue?: number;
   },
 ): {
   intent: IntentName;
@@ -109,17 +104,22 @@ export function brainDecide(
     }
   }
 
-  // WalkFromPad: leave own sanctuary within 1.5 s of respawn (§9.6 L1164).
+  // WalkFromPad: leave own sanctuary within 1.5 s of respawn only (§9.6 L1164).
+  // Match-start spawn leaves walk_from_pad_until at 0 — stay put on the pad
+  // (do not Hunt/Approach out; unused default slots must not flood S1/S2 labs).
   if (inOwnSanctuary(u.team, u.x, u.y, opts.c)) {
-    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
-    const outX = u.team === "blue" ? 3.5 : 20.5;
-    return {
-      intent: "WalkFromPad",
-      target_id: null,
-      waypoint: { x: outX, y: pad[1]! },
-      chase: null,
-      cast: null,
-    };
+    if (state.t <= u.walk_from_pad_until + 1e-9 && u.walk_from_pad_until > 0) {
+      const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+      const outX = u.team === "blue" ? 3.5 : 20.5;
+      return {
+        intent: "WalkFromPad",
+        target_id: null,
+        waypoint: { x: outX, y: pad[1]! },
+        chase: null,
+        cast: null,
+      };
+    }
+    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
   }
 
   if (isLocked(u.status) || isTimeStopped(u.status) || isBanished(u.status)) {
@@ -152,9 +152,26 @@ export function brainDecide(
       !isBanished(e.status) &&
       dist(u.x, u.y, e.x, e.y) <= senseR,
   );
+  // Hunt: any living non-sanctuary enemy is a legal body (reach never 0 — R #4).
+  // Do not require senseR contact before walking in.
+  const huntEnemy =
+    opts.tactic === "hunt" &&
+    state.units.some(
+      (e) =>
+        e.alive &&
+        e.team !== u.team &&
+        !isBanished(e.status) &&
+        !inOwnSanctuary(e.team, e.x, e.y, opts.c),
+    );
   let effectiveCommit: CommitKind = opts.commit;
-  if (opts.commit === "hold" && opts.tactic === "hunt" && nearEnemy) effectiveCommit = "engage";
-  if (opts.commit === "engage" && !nearEnemy) effectiveCommit = "hold";
+  if (opts.commit === "hold" && opts.tactic === "hunt" && (nearEnemy || huntEnemy)) {
+    effectiveCommit = "engage";
+  }
+  // Hunt keeps engage while a far legal body exists; other presets drop to hold
+  // once the local sense ring is empty.
+  if (opts.commit === "engage" && !nearEnemy && opts.tactic !== "hunt") {
+    effectiveCommit = "hold";
+  }
 
   // Execution casts run even when not yet "near" by senseR (scripted setup fixtures).
   const cast = chooseExecutionCast(state, u, opts);
@@ -169,8 +186,52 @@ export function brainDecide(
     };
   }
 
-  if (!opts.peeling && effectiveCommit !== "disengage" && !nearEnemy) {
+  if (!opts.peeling && effectiveCommit !== "disengage" && !nearEnemy && !huntEnemy) {
     return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+  }
+
+  // Hold pose while an auto windup is in progress (missile spawns from fire pose).
+  if (u.auto_windup_left > 1e-12) {
+    return {
+      intent: "Engage",
+      target_id: u.auto_windup_target,
+      waypoint: null,
+      chase: opts.chase,
+      cast: null,
+    };
+  }
+
+  // Outside a Fight Call:
+  // - Hunt / engage commit: still chase & hold_dist (chase-stop suite is 1v1).
+  // - Otherwise keep authored poses for scripted S1 labs (autos off → Idle;
+  //   first AA from stand so OQ-7 distance holds; then Positioning may kite).
+  if (opts.fightIds.length === 0 && !opts.peeling) {
+    const huntOrEngage = opts.tactic === "hunt" || effectiveCommit === "engage";
+    if (!huntOrEngage) {
+      const autosOn = u.auto_next_start_t < 900;
+      if (!autosOn) {
+        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+      }
+      if (!u.ai_first_auto_done) {
+        const aa = state.units.find(
+          (e) =>
+            e.alive &&
+            e.team !== u.team &&
+            !isBanished(e.status) &&
+            dist(u.x, u.y, e.x, e.y) <= u.stats.range,
+        );
+        if (aa) {
+          return {
+            intent: "Engage",
+            target_id: aa.id,
+            waypoint: null,
+            chase: null,
+            cast: null,
+          };
+        }
+        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+      }
+    }
   }
 
   if (effectiveCommit === "disengage") {
@@ -190,38 +251,23 @@ export function brainDecide(
   const allEnemies = state.units.filter((e) => e.alive && e.team !== u.team && !isBanished(e.status));
   const pool = enemies.length > 0 ? enemies : allEnemies;
 
-  // Teamwork ≥ 50: stick to the L1 focus when it is a legal body (§8.4 L1039–1044).
-  // If the focus dies or the call has not named one yet, Idle — do not fall back
-  // to a greener local body (acceptance checks every post-call auto/intent).
-  let targetId: UnitId | null = null;
-  if (u.attrs.teamwork >= 50 && (opts.focusId || opts.fightIds.length > 0)) {
-    if (!opts.focusId) {
-      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
-    }
-    const f = allEnemies.find(
-      (e) => e.id === opts.focusId && !inOwnSanctuary(e.team, e.x, e.y, opts.c),
-    );
-    if (f) targetId = f.id;
-    else {
-      return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
-    }
-  }
-  if (!targetId) {
-    targetId = pickUnitTarget(u, pool, {
-      c: opts.c,
-      focusId: opts.focusId,
-      peeling: false,
-      peelDiverId: null,
-      tactic: opts.tactic,
-      currentTarget: opts.chase?.target_id ?? null,
-      zoneCenter: opts.c.ZONE_CENTER,
-      zoneR: opts.c.ZONE_RADIUS,
-      all: state.units,
-      intentTarget: opts.intentTarget,
-      coachFocusSlot: opts.coachFocusSlot,
-      teamwork: u.attrs.teamwork,
-    });
-  }
+  // R #4 Teamwork: follow focus via call_score vs local_score threshold (not a hard ≥50 stick).
+  // Focus dead / illegal → pickUnitTarget falls through to local best.
+  const targetId = pickUnitTarget(u, pool, {
+    c: opts.c,
+    focusId: opts.focusId,
+    peeling: false,
+    peelDiverId: null,
+    tactic: opts.tactic,
+    currentTarget: opts.chase?.target_id ?? null,
+    zoneCenter: opts.c.ZONE_CENTER,
+    zoneR: opts.c.ZONE_RADIUS,
+    all: state.units,
+    intentTarget: opts.intentTarget,
+    coachFocusSlot: opts.coachFocusSlot,
+    teamwork: u.attrs.teamwork,
+    commitDisengage: opts.commit === "disengage",
+  });
 
   if (!targetId) {
     return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
@@ -242,39 +288,55 @@ export function brainDecide(
       return { intent: "Idle", target_id: targetId, waypoint: null, chase, cast: null };
     }
   }
+  // Open chase tracking only inside FIGHT_RADIUS (or an active fight). Far Hunt
+  // walk-ins use Approach without the §9.4 ttk leash — otherwise est_ttk > 2
+  // would Idle before the unit ever moves (R #4 far-body acquisition).
+  const inChaseBand = d <= opts.c.FIGHT_RADIUS || opts.fightIds.length > 0;
   if (!chase || chase.target_id !== targetId || chase.leashed) {
-    if (effectiveCommit === "engage" && d > u.stats.range && !chase?.leashed) {
-      chase = { target_id: targetId, start_x: u.x, start_y: u.y, ticks: 0 };
-    } else if (chase?.leashed && chase.target_id !== targetId) {
-      // New target after a leash — allow a fresh chase episode.
-      chase = { target_id: targetId, start_x: u.x, start_y: u.y, ticks: 0 };
+    if (effectiveCommit === "engage" && d > u.stats.range && !chase?.leashed && inChaseBand) {
+      chase = { target_id: targetId, start_x: u.x, start_y: u.y, start_t: state.t };
+    } else if (chase?.leashed && chase.target_id !== targetId && inChaseBand) {
+      chase = { target_id: targetId, start_x: u.x, start_y: u.y, start_t: state.t };
     } else if (!chase || chase.target_id !== targetId) {
-      chase = null;
+      chase = inChaseBand ? chase : null;
+      if (!inChaseBand) chase = null;
     }
-  } else {
-    chase = { ...chase, ticks: (chase.ticks ?? 0) + 1 };
   }
 
   if (chase && chase.target_id === targetId) {
+    // TTK stop only after chase has begun (suite: begin, then stop within 1 s).
+    // No multi-tick grace — tip's ticks>=5 / 0.5 s delay was test-tuned (remove).
+    const continuing =
+      !!opts.chase && opts.chase.target_id === targetId && !opts.chase.leashed;
     const stop = chaseShouldStop(u, target, chase, opts.c, ttk, false);
-    if (stop.stop) {
+    if (stop.stop && (stop.reason !== "ttk" || continuing)) {
       const stopped = {
         target_id: targetId,
         start_x: chase.start_x,
         start_y: chase.start_y,
+        start_t: chase.start_t,
         leashed: true,
-        ticks: chase.ticks,
       };
       return { intent: "Idle", target_id: targetId, waypoint: null, chase: stopped, cast: null };
     }
   }
 
-  if (effectiveCommit === "engage" && d > u.stats.range && chase) {
+  if (effectiveCommit === "engage" && d > u.stats.range) {
+    if (chase) {
+      return {
+        intent: "Chase",
+        target_id: targetId,
+        waypoint: { x: target.x, y: target.y },
+        chase,
+        cast: null,
+      };
+    }
+    // Hunt / engage acquisition outside the chase band — walk in (reach never 0).
     return {
-      intent: "Chase",
+      intent: "Approach",
       target_id: targetId,
       waypoint: { x: target.x, y: target.y },
-      chase,
+      chase: null,
       cast: null,
     };
   }
@@ -308,47 +370,8 @@ export function brainDecide(
     return { intent: "Idle", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
   }
 
-  // Peeler classes stay put when a melee is already on an allied carry — kiting
-  // out of PEEL_DIVE_R before perception elapses would erase the dive.
-  if (isPeelerClass(u) && target.stats.range <= 2) {
-    const carryThreatened = state.units.some(
-      (ally) =>
-        ally.alive &&
-        ally.team === u.team &&
-        ally.id !== u.id &&
-        (CHAMPIONS[ally.champ]?.class === "Marksman" || CHAMPIONS[ally.champ]?.class === "Enchanter") &&
-        dist(ally.x, ally.y, target.x, target.y) <= opts.c.PEEL_DIVE_R + 0.5,
-    );
-    if (carryThreatened) {
-      return {
-        intent: "Engage",
-        target_id: targetId,
-        waypoint: null,
-        chase: keepChase,
-        cast: null,
-      };
-    }
-  }
-
   // Backliners always seek the Positioning hold_dist ring (§8.4 L1025).
-  // Exception: when an allied peeler is present and a melee is inside PEEL_DIVE_R,
-  // stand so dive geometry survives the perception window (R #3 S2-1).
   if (u.stats.range > 2) {
-    const alliedPeeler = state.units.some(
-      (a) =>
-        a.alive &&
-        a.team === u.team &&
-        a.id !== u.id &&
-        isPeelerClass(a) &&
-        dist(a.x, a.y, u.x, u.y) <= opts.c.PEEL_DIVE_R + 1.5,
-    );
-    // Hold still while a peeler is nearby and a melee is closing through the
-    // perception shell (not only once inside PEEL_DIVE_R).
-    const diveThreat =
-      target.stats.range <= 2 && d <= Math.max(opts.c.PEEL_DIVE_R + 0.35, 6.0);
-    if (diveThreat && alliedPeeler && CHAMPIONS[u.champ]?.class === "Marksman") {
-      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
-    }
     if (d < hd - 0.05 || (target.stats.range <= 2 && d < hd + 0.35)) {
       return {
         intent: "Kite",
@@ -394,7 +417,8 @@ export function brainDecide(
 
 /**
  * Authored setup→finisher: Kerrig / Huntress follow mark before R when eff_Execution ≥ 45.
- * hold_R: suppress R while a_true < rHoldA and focus HP% > rHoldHp (§12 L1357).
+ * hold_R: suppress R while a_true < 0.55 (§12 L1357 / suite) and focus HP% > rHoldHp;
+ * also respects Execution rHoldA when A_true is provided.
  */
 function chooseExecutionCast(
   state: MatchState,
@@ -404,27 +428,39 @@ function chooseExecutionCast(
     focusId: UnitId | null;
     comboStyle?: "auto" | "hold_R";
     commit?: CommitKind;
+    aTrue?: number;
+    fightIds?: UnitId[];
   },
 ): { skill: "Q" | "W" | "R"; target_id: UnitId | null } | null {
   if (u.champ !== "kerrig" && u.champ !== "huntress") return null;
   if (u.cast_left > 0) return null;
   const ex = effExecution(u.attrs, u.mastery, opts.c);
-  const foe =
-    (opts.focusId && state.units.find((x) => x.id === opts.focusId && x.alive)) ||
-    state.units.find((x) => x.alive && x.team !== u.team && !isBanished(x.status));
+  const focusFoe =
+    opts.focusId && state.units.find((x) => x.id === opts.focusId && x.alive && !isBanished(x.status));
+  // Prefer focus; else nearest living non-sanctuary enemy (not "first in unit array").
+  let foe = focusFoe || null;
+  if (!foe) {
+    let bestD = Infinity;
+    for (const x of state.units) {
+      if (!x.alive || x.team === u.team || isBanished(x.status)) continue;
+      if (inOwnSanctuary(x.team, x.x, x.y, opts.c)) continue;
+      const d = dist(u.x, u.y, x.x, x.y);
+      if (d < bestD) {
+        bestD = d;
+        foe = x;
+      }
+    }
+  }
   if (!foe) return null;
 
   if (opts.comboStyle === "hold_R" && u.cd_r <= 1e-9 && u.level >= 5) {
-    const aGate = rHoldA(ex);
-    const hpGate = rHoldHp(ex);
-    // a_true is not on the unit — approximate with focus HP gate alone when unknown;
-    // tick-level hold uses fight a_true via suppressing when focus HP high (suite checks a_true < 0.55).
-    if (foe.hp / foe.max_hp > Math.min(0.4, hpGate - 1e-9)) {
-      // Suite: a_true < 0.55 and Focus > 40% → no R. We suppress R whenever focus > 40%
-      // under hold_R (even fights); listed under inventions if a_true is unavailable here.
+    const aGate = Math.max(0.55, rHoldA(ex));
+    const hpGate = Math.max(0.4, rHoldHp(ex));
+    const aTrue = opts.aTrue ?? 0.5;
+    // §12 L1357: hold R while A_true is below the gate and Focus HP% is above the HP gate.
+    if (aTrue < aGate - 1e-9 && foe.hp / foe.max_hp > hpGate - 1e-9) {
       return null;
     }
-    void aGate;
   }
 
   const marked = hasMark(foe.marks, u.champ === "kerrig" ? "kerrig" : "huntress", state.t);

@@ -7,13 +7,13 @@ import { DEFAULT_CONSTANTS, constantsHash, dataHash, defaultEvenConfig, simulate
  */
 export const GOLD = {
   seed_20261122: {
-    // S2: AI on by default; `intent` is a first-class digest event (was S1 quiet-match gold).
-    digest: "0f7456370f500188fa4fddde922d9c55213e792819bb9b8614b370a1c5df2e26",
+    // S1 quiet-match gold (explicit ai_enabled: false — defaultEvenConfig is AI-on for S2).
+    digest: "7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f",
     constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
   seed_20261123: {
-    digest: "612148a2e910c47c0cf5793153e3cd4d7023dbebb287caeed1797f883bb89760",
+    digest: "f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0",
     constants_hash: "69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1",
     data_hash: "af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2",
   },
@@ -40,15 +40,15 @@ describe("S0 gold-hash regression", () => {
     expect(dataHash()).toBe(GOLD.seed_20261122.data_hash);
   });
 
-  it("seed 20261122 digest matches published gold", () => {
-    const r = simulate(defaultEvenConfig(20261122));
+  it("seed 20261122 AI-off digest matches published S1 quiet gold", () => {
+    const r = simulate({ ...defaultEvenConfig(20261122), ai_enabled: false });
     expect(r.constants_hash).toBe(GOLD.seed_20261122.constants_hash);
     expect(r.data_hash).toBe(GOLD.seed_20261122.data_hash);
     expect(r.digest).toBe(GOLD.seed_20261122.digest);
   });
 
-  it("seed 20261123 digest matches published gold", () => {
-    const r = simulate(defaultEvenConfig(20261123));
+  it("seed 20261123 AI-off digest matches published S1 quiet gold", () => {
+    const r = simulate({ ...defaultEvenConfig(20261123), ai_enabled: false });
     expect(r.constants_hash).toBe(GOLD.seed_20261123.constants_hash);
     expect(r.data_hash).toBe(GOLD.seed_20261123.data_hash);
     expect(r.digest).toBe(GOLD.seed_20261123.digest);

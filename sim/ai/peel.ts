@@ -3,6 +3,7 @@
  */
 import { CHAMPIONS } from "../../data/champions/defs.js";
 import type { Constants } from "../constants.js";
+import { inOwnSanctuary } from "../map.js";
 import { isLocked, isTimeStopped } from "../status.js";
 import type { UnitId, UnitState } from "../types.js";
 import { perceptionDelayS, perceptionRadiusTiles, reactionDelayS, teamworkMaySkipPeel } from "./attributes.js";
@@ -98,9 +99,7 @@ export function detectDives(
       const d = dist(diver, carry);
 
       const pairKey = `${diver.id}>${carry.id}`;
-      // AI runs before motor; pos/pathOf samples are post-motor. Backdate the
-      // dive clock by one DT so reaction aligns with the path enter time.
-      if (diveStartAt[pairKey] === undefined) diveStartAt[pairKey] = Math.max(0, opts.now - 0.1);
+      if (diveStartAt[pairKey] === undefined) diveStartAt[pairKey] = opts.now;
       const diveStartT = diveStartAt[pairKey]!;
 
       const hardCommit = opts.tactic === "hunt" && opts.a_true >= 0.62;
@@ -112,6 +111,8 @@ export function detectDives(
         if (!p.alive || p.team !== carry.team) continue;
         if (p.id === carry.id) continue;
         if (isLocked(p.status) || isTimeStopped(p.status)) continue;
+        // Pad residents are not peelers — keeps unused spawn slots out of S1 labs.
+        if (inOwnSanctuary(p.team, p.x, p.y, c)) continue;
         if (!isPeelerClass(p)) continue;
         const cls = CHAMPIONS[p.champ]?.class;
         const tankOrEnc = cls === "Tank" || cls === "Enchanter";

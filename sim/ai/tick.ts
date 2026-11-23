@@ -242,22 +242,16 @@ export function tickAi(
       if (ai.focus_died[team]) {
         focus = null;
       } else if (sc) {
+        // Focus slot is ×1.25 in targetingScore only — no hard override (R #3 S2-6 / v4 probe).
+        // Neutral intent map for the call so freestyle AA intent does not bury Lock/Focus.
         focus = chooseFocus(team, state.units, sc, focusPool, {
           c,
           tactic: ai.active_tactic[team],
           zoneCenter: c.ZONE_CENTER,
           zoneR: c.ZONE_RADIUS,
-          intentTarget: ai.intent_target,
+          intentTarget: {},
           coachFocusSlot: side.tactics.focus === "auto" ? null : side.tactics.focus ?? null,
         });
-        // Prefer a still-legal previous focus (Teamwork stick).
-        if (
-          prevFocus &&
-          focusPool.includes(prevFocus) &&
-          state.units.some((u) => u.id === prevFocus && u.alive && !isBanished(u.status))
-        ) {
-          focus = prevFocus;
-        }
       }
       ai.focus[team] = focus;
       emit("fight_call", {
@@ -300,6 +294,8 @@ export function tickAi(
       const carry = state.units.find((u) => u.id === d.carry_id);
       return carry?.team === team;
     });
+    // R #3 OQ-S2-4: emit dive once per pair per fight when §9.5 (2) first holds,
+    // with peeler_perceived true or false at that instant (no deferred emit).
     for (const d of dives) {
       if (!d.geometric_ok || !d.peeler_id) continue;
       const pairKey = `${d.diver_id}>${d.carry_id}`;
@@ -307,8 +303,7 @@ export function tickAi(
       if (d.peeler_perceived) {
         ai.peel_diver[peelerId] = d.diver_id;
       }
-      // Emit dive once when the peeler has perceived (M2 denominator).
-      if (ai.fight_id && d.peeler_perceived && !ai.dive_emitted.has(pairKey)) {
+      if (ai.fight_id && !ai.dive_emitted.has(pairKey)) {
         ai.dive_emitted.add(pairKey);
         ai.dive_geom += 1;
         emit("dive", {
@@ -316,7 +311,7 @@ export function tickAi(
           target_id: d.carry_id,
           fight_id: ai.fight_id,
           peeler_id: peelerId,
-          peeler_perceived: true,
+          peeler_perceived: d.peeler_perceived,
         });
       }
       if (d.peeler_perceived && !ai.peel_emitted.has(pairKey)) {
@@ -340,6 +335,7 @@ export function tickAi(
     const team = u.team;
     const side = team === "blue" ? config.blue : config.red;
     const peeling = ai.peel_diver[u.id] !== undefined;
+    const aTrue = team === "blue" ? snap.a_true_blue : snap.a_true_red;
     const decision = brainDecide(state, u, {
       c,
       commit: ai.commit[team],
@@ -352,15 +348,17 @@ export function tickAi(
       intentTarget: ai.intent_target,
       coachFocusSlot: side.tactics.focus === "auto" ? null : side.tactics.focus ?? null,
       comboStyle: side.tactics.combo_style,
+      aTrue,
     });
     if (decision.chase) ai.chase[u.id] = decision.chase;
     else delete ai.chase[u.id];
 
     ai.intent_target[u.id] = decision.target_id;
     u.ai_target_id = decision.target_id;
-    // Teamwork ≥ 50 with no legal focus: block combat freelance onto other bodies.
+    // R #4 supersedes L1044 "Teamwork 50+ always-follow". Block freestyle autos
+    // only when the call's focus is dead/cleared and the brain named no target.
     u.ai_no_freelance =
-      u.attrs.teamwork >= 50 &&
+      !!ai.fight_id &&
       decision.target_id === null &&
       (ai.focus[team] === null || ai.focus_died[team]);
 
@@ -379,18 +377,17 @@ export function tickAi(
       );
     }
 
+    // R #3 S2-7: intent only on state change (intent name / target_id) — not waypoint.
     const prevIntent = u.intent;
-    const prevWp = u.waypoint;
+    const prevTarget = u.ai_target_id ?? null;
     u.intent = decision.intent;
     if (decision.waypoint) {
       u.waypoint = { ...decision.waypoint };
     } else if (decision.intent === "Idle" || decision.intent === "Engage") {
       u.waypoint = null;
     }
-    const wpChanged =
-      (prevWp?.x ?? null) !== (u.waypoint?.x ?? null) ||
-      (prevWp?.y ?? null) !== (u.waypoint?.y ?? null);
-    if (prevIntent !== u.intent || wpChanged) {
+    const targetChanged = prevTarget !== (decision.target_id ?? null);
+    if (prevIntent !== u.intent || targetChanged) {
       emit("intent", {
         unit_id: u.id,
         intent: decision.intent,
