@@ -1,7 +1,7 @@
 # S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** `f57e0d19d25c6c9506c007feca8fb7fdaaaeefcb`  
+**Commit:** `a4aff84c9a8e6a64fb0e1451dfa81397785a8f5d`  
 **Date:** 23 Nov 2026  
 **Regenerate:** `npm run lab:s1` (set `LANEBOUND_COMMIT` in git-archive extracts)
 
