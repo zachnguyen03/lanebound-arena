@@ -1,7 +1,7 @@
 # S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** generated from code at `8cc54bc109b13f3a55a7aa6c3424ec22788426fa`  
+**Commit:** generated from code at `6a1dc5590ebbe16f62c9cae2d0711830c1e25bc1`  
 **Date:** 23 Nov 2026  
 **Regenerate:** `LANEBOUND_COMMIT=<tip> npm run lab:s1` (report commit itself need not match)
 
@@ -20,7 +20,7 @@ npx tsx apps/lab/mutation-s1.ts
 
 | Check | Result |
 |---|---|
-| `npm test` | **PASS — 1095 passed** |
+| `npm test` | **PASS — 1106 passed** |
 | acceptance s1 | **960/960** |
 | M1 fixtures | **PASS** |
 | `constants_hash` | `69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1` |
