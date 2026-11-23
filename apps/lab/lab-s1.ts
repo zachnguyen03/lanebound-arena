@@ -22,10 +22,11 @@ import { kitBase, threeStunDr, addShield, emptyStatus, applyCc } from "../../sim
 import { roundSnapshot, statsAtLevel, skillScale, hitChance, mit } from "../../sim/stats.js";
 import { applyHeal } from "../../sim/heal.js";
 
-const S0_BEFORE = {
-  digest_20261122: "07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a",
-  digest_20261123: "be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3",
-  constants_hash: "08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb",
+/** Pre-L214 tip `419dbf1` (tile-centre gold) — L214 removed SPAWN_JITTER_Y and added SPAWN_SLOT_SPACING. */
+const L214_BEFORE = {
+  digest_20261122: "5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6",
+  digest_20261123: "2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a",
+  constants_hash: "c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364",
 };
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -223,9 +224,9 @@ const simRows = rows.filter((r) => r.level === "sim");
 const md = `# S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** \`s1\`  
-**Commit:** \`${sha}\`  
+**Commit:** generated from code at \`${sha}\`  
 **Date:** 23 Nov 2026  
-**Regenerate:** \`npm run lab:s1\` (set \`LANEBOUND_COMMIT\` in git-archive extracts)
+**Regenerate:** \`LANEBOUND_COMMIT=<tip> npm run lab:s1\` (report commit itself need not match)
 
 ## Commands
 
@@ -234,7 +235,7 @@ npm ci && npm test
 npm run digest -- --seed 20261122
 npm run digest -- --seed 20261123
 npm run purity
-npm run lab:s1
+LANEBOUND_COMMIT=<tip> npm run lab:s1
 npx tsx apps/lab/mutation-s1.ts
 \`\`\`
 
@@ -263,16 +264,16 @@ data_hash=${dhash}
 digest=${d23.digest}
 \`\`\`
 
-### Digest / hashes before → after
+### Digest / hashes before → after (L214)
 
-| | before (S0 \`1caa5eb\` / prior S1 dummy) | after (this tip — real champions) |
+| | before (pre-L214 \`419dbf1\`) | after (L214 — this code tip) |
 |---|---|---|
-| constants_hash | \`${S0_BEFORE.constants_hash}\` | \`${chash}\` |
-| data_hash | *(absent)* | \`${dhash}\` **NEW** |
-| digest 20261122 | \`${S0_BEFORE.digest_20261122}\` | \`${d22.digest}\` |
-| digest 20261123 | \`${S0_BEFORE.digest_20261123}\` | \`${d23.digest}\` |
+| constants_hash | \`${L214_BEFORE.constants_hash}\` | \`${chash}\` |
+| data_hash | \`${dhash}\` (unchanged) | \`${dhash}\` |
+| digest 20261122 | \`${L214_BEFORE.digest_20261122}\` | \`${d22.digest}\` |
+| digest 20261123 | \`${L214_BEFORE.digest_20261123}\` | \`${d23.digest}\` |
 
-**Reason:** Real champions + \`data_hash\`; Appendix R tile-centre moves spawn/buff pads to centres → \`constants_hash\` changes; digests follow.
+**Reason:** L214 spawn slots — \`SPAWN_JITTER_Y\` 0.3 removed, \`SPAWN_SLOT_SPACING\` 1.0 added (pad centre + role×spacing). \`constants_hash\` \`c25f7a17…\` → \`69f5b9e6…\`; digests follow; S0 + brawl gold re-pinned.
 
 ## Fixture coverage
 
@@ -300,7 +301,7 @@ ${KIT_IDS.join(", ")} — wired into \`simulate()\` via lineup picks; abilities 
 
 ## Constants changed
 
-Appendix R tile-centre: \`BLUE_SPAWN\`/\`RED_SPAWN\` → (1.5,7.5)/(22.5,7.5); \`BUFF_PADS\` → (7.5,7.5)/(16.5,7.5). Zone centre stays (12,8). Sanctuary columns unchanged. \`constants_hash\` changed.
+L214: deleted \`SPAWN_JITTER_Y\` (was 0.3); added \`SPAWN_SLOT_SPACING\` 1.0 (tunable 0.8–1.2, hashed). Spawn/respawn y = pad_centre_y + role×spacing (Top −2 … Support +2). Pad centres unchanged from tile-centre ruling. \`constants_hash\` \`c25f7a17…\` → \`69f5b9e6…\`.
 
 ## New hashes / inventions
 

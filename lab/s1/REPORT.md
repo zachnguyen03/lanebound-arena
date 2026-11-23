@@ -1,9 +1,9 @@
 # S1 Report — 14 champions + combat tests (M1) — fix round
 
 **Branch:** `s1`  
-**Commit:** `5d69316f2cc025bbae8863b48f0c8f8f81257038`  
+**Commit:** generated from code at `8cc54bc109b13f3a55a7aa6c3424ec22788426fa`  
 **Date:** 23 Nov 2026  
-**Regenerate:** `npm run lab:s1` (set `LANEBOUND_COMMIT` in git-archive extracts)
+**Regenerate:** `LANEBOUND_COMMIT=<tip> npm run lab:s1` (report commit itself need not match)
 
 ## Commands
 
@@ -12,7 +12,7 @@ npm ci && npm test
 npm run digest -- --seed 20261122
 npm run digest -- --seed 20261123
 npm run purity
-npm run lab:s1
+LANEBOUND_COMMIT=<tip> npm run lab:s1
 npx tsx apps/lab/mutation-s1.ts
 ```
 
@@ -41,16 +41,16 @@ data_hash=af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2
 digest=f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0
 ```
 
-### Digest / hashes before → after
+### Digest / hashes before → after (L214)
 
-| | before (S0 `1caa5eb` / prior S1 dummy) | after (this tip — real champions) |
+| | before (pre-L214 `419dbf1`) | after (L214 — this code tip) |
 |---|---|---|
-| constants_hash | `08a57092e523021c6e5ed0ce354b1668bf4f11fe4d3c4f3fa05f5d40052caffb` | `69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1` |
-| data_hash | *(absent)* | `af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2` **NEW** |
-| digest 20261122 | `07a8be5079bc66d6c5460a9b0ca4044ddada6158658cbf32476d05ab500d083a` | `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f` |
-| digest 20261123 | `be36ec904ceb38fcdb2f32c752cda188655fd54b65b8d6ca1442b391783922f3` | `f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0` |
+| constants_hash | `c25f7a1779f6115a2b6f27cd118e57a4a83c6dec20ebec599b7a5430ef4a7364` | `69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1` |
+| data_hash | `af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2` (unchanged) | `af2cbafa03a1cea2485b6118b09232a7c511e682189102e486d3e2cd549a32f2` |
+| digest 20261122 | `5c784b9aca72ed2015a249f08245fc1e839529029ffde80ee84013bbc9590fd6` | `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f` |
+| digest 20261123 | `2f6e9d8046542c9ceb19243c3e698e5096ba6579007e79d98623d761602aab0a` | `f3946e13929209cf9fd179cf20b147b050a6402ab09a83d2bdf6306e3c744cd0` |
 
-**Reason:** Real champions + `data_hash`; Appendix R tile-centre moves spawn/buff pads to centres → `constants_hash` changes; digests follow.
+**Reason:** L214 spawn slots — `SPAWN_JITTER_Y` 0.3 removed, `SPAWN_SLOT_SPACING` 1.0 added (pad centre + role×spacing). `constants_hash` `c25f7a17…` → `69f5b9e6…`; digests follow; S0 + brawl gold re-pinned.
 
 ## Fixture coverage
 
@@ -94,19 +94,19 @@ Each single-number / behavior edit must turn ≥1 test red:
 
 | Mutation | Turns red? | Note |
 |---|---|---|
-| Huntress Q CD 8→9 | NO | FIND STRING MISSING — probe skipped |
-| Tolle W banish duration 1.8→1.5 | NO | FIND STRING MISSING — probe skipped |
-| Saelo R radius 2.4→2.0 | NO | FIND STRING MISSING — probe skipped |
-| Maelis R base 350→340 | NO | FIND STRING MISSING — probe skipped |
-| Huntress R base 230→220 | NO | FIND STRING MISSING — probe skipped |
-| Kerrig R base 330→320 | NO | FIND STRING MISSING — probe skipped |
-| banish skip removed (invuln) | NO | FIND STRING MISSING — probe skipped |
-| CC assist credit removed | NO | FIND STRING MISSING — probe skipped |
+| Huntress Q CD 8→9 | YES | ≥1 test red |
+| Tolle W banish duration 1.8→1.5 | YES | ≥1 test red |
+| Saelo R radius 2.4→2.0 | YES | ≥1 test red |
+| Maelis R base 350→340 | YES | ≥1 test red |
+| Huntress R base 230→220 | YES | ≥1 test red |
+| Kerrig R base 330→320 | YES | ≥1 test red |
+| banish skip removed (invuln) | YES | ≥1 test red |
+| CC assist credit removed | YES | ≥1 test red |
 | heal assist credit removed | YES | ≥1 test red |
 | Blind miss disabled | YES | ≥1 test red |
 | time-stop auto pause disabled | YES | ≥1 test red |
-| Mirren W slow 35→25 in notes+apply | NO | FIND STRING MISSING — probe skipped |
-mutation_probe_pass=false
+| Mirren W slow 35→25 | YES | ≥1 test red |
+mutation_probe_pass=true
 
 
 ## Kits
@@ -115,7 +115,7 @@ brannoch, calder, helvar, huntress, isra, kerrig, maelis, mirren, rhedan, saelo,
 
 ## Constants changed
 
-Appendix R tile-centre: `BLUE_SPAWN`/`RED_SPAWN` → (1.5,7.5)/(22.5,7.5); `BUFF_PADS` → (7.5,7.5)/(16.5,7.5). Zone centre stays (12,8). Sanctuary columns unchanged. `constants_hash` changed.
+L214: deleted `SPAWN_JITTER_Y` (was 0.3); added `SPAWN_SLOT_SPACING` 1.0 (tunable 0.8–1.2, hashed). Spawn/respawn y = pad_centre_y + role×spacing (Top −2 … Support +2). Pad centres unchanged from tile-centre ruling. `constants_hash` `c25f7a17…` → `69f5b9e6…`.
 
 ## New hashes / inventions
 
