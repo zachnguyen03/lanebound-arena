@@ -1,5 +1,6 @@
 export { finalFixture, matchdayPlayOrder, regularSeasonFixtures, seedRankMap, semiFixtures, type Fixture } from "./calendar.js";
 export { championsForSlot, championSlot, CHAMPION_SLOT } from "./champions.js";
+export { compArchetype } from "./archetype.js";
 export { generateFakeMatch, mapMvp, SUDDEN_DEATH_SCORES } from "./fake.js";
 export { AI_PRESETS, aiPreset, selectPicks, standinLoadout, tacticsFor, toContractPlayer } from "./lineup.js";
 export { gameSeed, mixU32, seriesSeed, SplitMix32 } from "./rng.js";
@@ -23,6 +24,19 @@ export { tickContract, tickContracts } from "./contracts.js";
 export { fromDisplay, glickoDisplay, glickoSeries, glickoUpdate, initialGlicko, GLICKO_SCALE, GLICKO_TAU, type GlickoState } from "./glicko.js";
 export { PLAYOFF_BONUS, placementPoints, REGULAR_SEASON_POINTS, seasonPointTotal } from "./points.js";
 export { loadSave, runSeason, SAVE_FORMAT, saveJson, type CareerSave, type ClubState, type RankingSnapshot } from "./season.js";
+export { ARENA_CARDS, arenaCard, loadoutReport, type ArenaCard, type LoadoutReport } from "./cards.js";
+export { advanceSeason, chooseSignature, dismissCoach, draftPreview, latestMap, playNextMap, setLoadout, setPreset, skipSeries, type DraftSlot } from "./play.js";
+export {
+  parseSession,
+  SESSION_VERSION,
+  sessionJson,
+  startCareer,
+  type CareerSession,
+  type CardSlot,
+  type PendingSignature,
+  type SessionClubState,
+  type SignatureChoice,
+} from "./session.js";
 export {
   CLUB_SEEDS,
   OPENING_WORLD_SHA256,

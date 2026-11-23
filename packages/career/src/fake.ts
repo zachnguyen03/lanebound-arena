@@ -12,6 +12,7 @@ import {
   type Side,
   type Slot,
 } from "@lanebound/match-contract";
+import { compArchetype } from "./archetype.js";
 import { SplitMix32 } from "./rng.js";
 import { teamStrength, winProbabilityBlue } from "./strength.js";
 
@@ -337,7 +338,8 @@ export function generateFakeMatch(context: SeriesContext, config: MatchConfig): 
     score_blue: scoreBlue,
     score_red: scoreRed,
     score_parts: [partsBlue, partsRed],
-    archetypes: { blue: config.blue.tactics.primary, red: config.red.tactics.primary },
+    archetypes: { blue: compArchetype(config.blue.picks), red: compArchetype(config.red.picks) },
+    tactics: { blue: config.blue.tactics.primary, red: config.red.tactics.primary },
     champ_ids: [...config.blue.picks, ...config.red.picks],
     peel_fired: peelFired,
     peel_eligible: peelFired,

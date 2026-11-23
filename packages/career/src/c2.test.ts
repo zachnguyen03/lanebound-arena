@@ -10,8 +10,8 @@ import { loadSave, runSeason, saveJson } from "./season.js";
 import { seriesMvp } from "./series.js";
 import { openingWorld } from "./world.js";
 
-/** Canonical save for career seed 20261123, club juniper-rush. Moves when the world, sudden-death table, or tactics change. */
-const JUNIPER_SEASON_SHA256 = "b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c";
+/** Canonical save for career seed 20261123, club juniper-rush. Moves when fake match fields change. */
+const JUNIPER_SEASON_SHA256 = "23c624715c25b3229a687de70b078eee2a9b69599ae668c8f8f21b952ca9a1f9";
 
 function maps(playerId: string, count: number, stats: { rating?: number; dmg?: number; peels?: number; zone?: number; denies?: number; z?: number }): SeriesResult[] {
   const out: SeriesResult[] = [];
@@ -277,7 +277,15 @@ describe("C2 glicko, points, awards, contracts", () => {
     for (const contract of save.contracts) expect(contract.wage).toBe(wages.get(contract.player_id));
     const reloaded = loadSave(json + "");
     expect(reloaded.save_format).toBe(1);
+    expect(saveJson(reloaded)).toBe(json);
     expect(() => loadSave(JSON.stringify({ ...JSON.parse(json), extra: true, save_format: 1, contract_version: "career-match/1" }))).not.toThrow();
+    const tampered = JSON.parse(json) as { standings: Array<{ finish: number }> };
+    tampered.standings[0]!.finish = tampered.standings[0]!.finish === 1 ? 2 : 1;
+    expect(() => loadSave(JSON.stringify(tampered))).toThrow(/career save rejected/);
+    const mixed = JSON.parse(json) as { series: Array<{ games: Array<{ source: string; digest: string }> }> };
+    mixed.series[0]!.games[0]!.source = "sim";
+    mixed.series[0]!.games[0]!.digest = "simdigest";
+    expect(() => loadSave(JSON.stringify(mixed))).toThrow(/career save rejected/);
     expect(sha256Hex(json)).toBe(sha256Hex(saveJson(runSeason({ careerSeed: 20261123, playerClubId: "juniper-rush" }))));
   });
 

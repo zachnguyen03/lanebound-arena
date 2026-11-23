@@ -39,10 +39,10 @@ Career seed `20261123`, club `juniper-rush`, stand-in world seed `20261123` (the
 Two processes, `npx tsx apps/lab/career-season.ts --sha`:
 
 ```
-b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c
+23c624715c25b3229a687de70b078eee2a9b69599ae668c8f8f21b952ca9a1f9
 ```
 
-Before Appendix C-R2 the same command printed `d52abbc3d6fd7894f8a440abad03eefb0d36742fc6d73a210a83ce51d15d68a9`. That digest moved because three rulings change the canonical save: the paper opening world (rosters, mastery, wages, club following), sudden-death scores (no longer a coin, so later draws in those games move), and AI tactics (Hold/Hunt/Starve by opening index, so strengths and winners move). The rebase onto `2cdcf26` had left the earlier digest unchanged. `packages/career/src/c2.test.ts` pins the new digest.
+C-R2-8 moved this digest. `archetypes` is the composition tag (Dive, Peel, Poke, Balanced), and `tactics` is the additive hold / hunt / starve field. The previous pin was `b9493793a066bf72748f60e363b9e1318990ed4725401efd8611a468308a8b7c`. Before Appendix C-R2 the same command printed `d52abbc3d6fd7894f8a440abad03eefb0d36742fc6d73a210a83ce51d15d68a9`. That earlier move was the paper opening world, sudden-death scores, and AI tactics. `packages/career/src/c2.test.ts` pins the current digest.
 
 The two stdout bytes matched. The in-process canonical save hashes to the same value. The JSON is `canonicalString` of the save (sorted keys, no trailing newline).
 

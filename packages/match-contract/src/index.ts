@@ -3,8 +3,10 @@ export { FAKE_CONSTANTS_HASH, assertAcceptableSimReplay, fakeConstantsHash, fake
 export { sha256Hex } from "./sha256.js";
 export {
   CAREER_MATCH_VERSION,
+  COMP_ARCHETYPES,
   SLOTS,
   type CardInstance,
+  type CompArchetype,
   type CardMatchLog,
   type ContractPlayer,
   type ContractVersion,
