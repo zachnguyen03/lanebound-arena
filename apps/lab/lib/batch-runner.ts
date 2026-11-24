@@ -3,6 +3,7 @@
  * No renderer / canvas imports (B3).
  */
 import { createHash } from "node:crypto";
+import { CHAMPIONS, type Slot } from "../../../data/champions/defs.js";
 import { evenOvrConfig } from "../../../sim/match_config.js";
 import { simulate } from "../../../sim/simulate.js";
 import type { MatchConfig, PlayerAttrs } from "../../../sim/types.js";
@@ -17,6 +18,15 @@ import type {
   IsolationPin,
   MatchSummary,
 } from "./types.js";
+
+/** §7 / R7-11 slot order — picks[i] must match Position i. */
+export const DRAFT_SLOTS: readonly Slot[] = [
+  "top",
+  "jungle",
+  "mid",
+  "adc",
+  "support",
+] as const;
 
 export const ATTRS: AttrName[] = [
   "aim",
@@ -149,31 +159,11 @@ export function mirrorPicks(cfg: MatchConfig, from: "blue" | "red" = "blue"): Ma
   return out;
 }
 
-/** Full champ pool for lab quick-draft (14). Sit-out = 4 per match. */
-export const QUICK_DRAFT_POOL = [
-  "huntress",
-  "maelis",
-  "isra",
-  "sedge",
-  "torun",
-  "tolle",
-  "helvar",
-  "calder",
-  "kerrig",
-  "mirren",
-  "rhedan",
-  "brannoch",
-  "ysol",
-  "saelo",
-] as const;
-
 /**
  * Lab-local Mulberry32 stream mixed from `seed` + domain tag.
  * INVENTION: not sim RNG stream `draft` (or any sim stream). Deterministic per seed.
- * Domain tag + add-const step avalanche consecutive seeds so Fisher–Yates is uncorrelated.
  */
 export function labDraftUnit(seed: number): () => number {
-  // Mix seed with a lab-draft domain constant (≠ sim stream salts).
   let state =
     (Math.imul((seed >>> 0) ^ 0xd4a71c35, 0x9e3779b9) + 0x6d2b79f5) >>> 0;
   return () => {
@@ -186,28 +176,59 @@ export function labDraftUnit(seed: number): () => number {
 }
 
 /**
- * Quick draft: Fisher–Yates shuffle from a per-seed lab hash stream, then deal
- * blue = first 5, red = next 5 (4 sit out).
- *
- * Prior defects (do not restore):
- * - Bare xorshift on raw consecutive seeds parked `isra` in the sit-out seat
- *   (0/100 appearances) while six champs appeared in all 100.
- * - Role-preference slot fill forced both tops + both supports every game,
- *   making uniform ~143 appearances/champ (N≈200, p=10/14) impossible.
+ * Position pools from champion data (`default_slot`), sorted for stable indexing.
+ * R7-11 sizes: Top 2, Jungle 3, Mid 4, ADC 3, Support 2.
+ */
+export function positionPoolsFromData(): Record<Slot, string[]> {
+  const pools: Record<Slot, string[]> = {
+    top: [],
+    jungle: [],
+    mid: [],
+    adc: [],
+    support: [],
+  };
+  for (const def of Object.values(CHAMPIONS)) {
+    pools[def.default_slot].push(def.id);
+  }
+  for (const slot of DRAFT_SLOTS) {
+    pools[slot].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+  return pools;
+}
+
+/** Count of Positions where blue and red field the same champion (0–5). */
+export function mirroredPositionCount(
+  blue: readonly string[],
+  red: readonly string[],
+): number {
+  let n = 0;
+  for (let i = 0; i < DRAFT_SLOTS.length; i++) {
+    if (blue[i] === red[i]) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Role-random draft (R7-11 / M6 Scope): each team fields exactly one champion
+ * per Position in its matching slot; each slot drawn independently and
+ * uniformly from that Position's pool (from champion data). Cross-team
+ * duplicates allowed (lab only). Not a uniform 14-champion deal.
  */
 export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
   const next = labDraftUnit(seed);
-  const pool = QUICK_DRAFT_POOL.slice();
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1));
-    const tmp = pool[i]!;
-    pool[i] = pool[j]!;
-    pool[j] = tmp;
-  }
-  return {
-    blue: pool.slice(0, 5),
-    red: pool.slice(5, 10),
+  const pools = positionPoolsFromData();
+  const draw = (slot: Slot): string => {
+    const pool = pools[slot];
+    const j = Math.floor(next() * pool.length);
+    return pool[j]!;
   };
+  const blue: string[] = [];
+  const red: string[] = [];
+  for (const slot of DRAFT_SLOTS) {
+    blue.push(draw(slot));
+    red.push(draw(slot));
+  }
+  return { blue, red };
 }
 
 function configForGame(
