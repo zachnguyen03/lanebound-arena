@@ -173,7 +173,15 @@ export interface CastMemory {
   remAt: Record<string, number>;
   endedAt: Record<string, number>;
   hadDisable: Record<string, boolean>;
-  casts: Array<{ t: number; caster: UnitId; skill: SkillKey; target: UnitId | null; disable: boolean }>;
+  /** Perceived cast_start notes. `lock` marks Lock-category CC (R7-4). */
+  casts: Array<{
+    t: number;
+    caster: UnitId;
+    skill: SkillKey;
+    target: UnitId | null;
+    disable: boolean;
+    lock: boolean;
+  }>;
   readySince: Record<string, number>;
   castSeen: Record<string, number>;
 }
@@ -278,6 +286,7 @@ export function notePolicyCast(
     skill,
     target,
     disable: appliesDisable(u.champ, skill) || ccOf(u.champ, skill).some((c) => c.kind === "silence"),
+    lock: appliesLock(u.champ, skill),
   });
   delete mem.readySince[`${u.id}|${skill}`];
   const cutoff = t - 8;
@@ -478,13 +487,58 @@ function lastEnemy(ctx: Ctx): boolean {
   return ctx.perceived.length <= 1;
 }
 
+/** Seconds → whole ticks (match clock is tick/10). */
+function tickOf(tSec: number): number {
+  return Math.round(tSec * 10);
+}
+
+/**
+ * R7-4 / rule 4: Lock count on one unit at decision time.
+ * Applied Locks with apply tick > decision + lead − 50, plus perceived
+ * allied in-flight Lock casts on that target (ally-targeted excluded).
+ */
+function countedLocksOn(ctx: Ctx, target: UnitState, skill: SkillKey): number {
+  const cutoff = ctx.state.tick + leadTicks(ctx.u, skill) - 50;
+  let n = 0;
+  const w = target.status.dr.find((x) => x.category === "lock");
+  for (const t of w?.apply_times ?? []) {
+    if (tickOf(t) > cutoff) n += 1;
+  }
+  const react = reactionDelayS(ctx.u.attrs.reflexes);
+  const now = ctx.state.t;
+  for (const cast of ctx.memory?.casts ?? []) {
+    if (!cast.lock || cast.target !== target.id) continue;
+    if (now + 1e-9 < cast.t + react) continue;
+    const caster = ctx.state.units.find((u) => u.id === cast.caster);
+    if (!caster || caster.team !== ctx.u.team) continue;
+    const tgt = cast.target ? ctx.state.units.find((u) => u.id === cast.target) : null;
+    // Ally-targeted casts (Tolle W P1c) are not enemy Locks.
+    if (tgt && tgt.team === caster.team) continue;
+    const ab = abil(caster.champ, cast.skill);
+    const landAt = cast.t + (ab?.cast_s ?? 0) + (ab?.land_delay_s ?? 0);
+    // Landed casts are already in apply_times; only count in-flight.
+    if (landAt <= now + 1e-9) continue;
+    if (tickOf(cast.t) > cutoff || tickOf(landAt) > cutoff) n += 1;
+  }
+  return n;
+}
+
+/** Body already at 2 counted Locks — excluded from nE ≥ 2 (R7-4). */
+function lockCapFull(ctx: Ctx, target: UnitState, skill: SkillKey): boolean {
+  if (lockOwed(target.status, ctx.state.t, ctx.c.LOCK_BUDGET_S) >= ctx.c.LOCK_BUDGET_S - 1e-9) return true;
+  return countedLocksOn(ctx, target, skill) >= 2;
+}
+
 function lockCapBlocks(ctx: Ctx, target: UnitState, skill: SkillKey, tier: CastTier): boolean {
   if (!appliesLock(ctx.u.champ, skill)) return false;
   if (tier === "P1a" || tier === "P1b" || lastEnemy(ctx)) return false;
-  if (lockOwed(target.status, ctx.state.t, ctx.c.LOCK_BUDGET_S) >= ctx.c.LOCK_BUDGET_S - 1e-9) return true;
-  const w = target.status.dr.find((x) => x.category === "lock");
-  const n = (w?.apply_times ?? []).filter((t) => ctx.state.t - t <= ctx.c.DR_WINDOW_S + 1e-9).length;
-  return n >= 2;
+  return lockCapFull(ctx, target, skill);
+}
+
+/** nE for Lock-row triggers: bodies already at 2 counted Locks do not count. */
+function lockEligibleHits(ctx: Ctx, hits: UnitState[], skill: SkillKey): UnitState[] {
+  if (!appliesLock(ctx.u.champ, skill)) return hits;
+  return hits.filter((h) => !lockCapFull(ctx, h, skill));
 }
 
 function spellwardBlocks(ctx: Ctx, target: UnitState, skill: SkillKey): boolean {
@@ -1299,6 +1353,8 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       if (tier === "P1d" && (ctx.peeling || ctx.peelDiverId)) return null;
       const pick = bestCircle(ctx, 11, 3.8);
       if (!pick) return null;
+      const anchor = pick.who ?? ctx.F ?? ctx.T;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
       const nA = circleAt(ctx, pick.x, pick.y, 3.8, "ally").length;
       if (nA > 1) return null;
       return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
@@ -1306,8 +1362,11 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
     if (tier === "P3" || tier === "P4") {
       const pick = bestCircle(ctx, 11, 3.8);
       if (!pick) return null;
+      const anchor = pick.who ?? ctx.F ?? ctx.T;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
+      const nE = lockEligibleHits(ctx, pick.hits, "R").length;
       const nA = circleAt(ctx, pick.x, pick.y, 3.8, "ally").length;
-      if (!friendlyOk(pick.n, nA, ctx)) return null;
+      if (!friendlyOk(nE, nA, ctx)) return null;
       if (tier === "P3" && !engageOk(ctx, false)) return null;
       return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
     }
@@ -1379,7 +1438,12 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
     if (tier === "P3" || tier === "P4") {
       if (tier === "P3" && !engageOk(ctx, true)) return null;
       const pick = bestCircle(ctx, 6, 3.2);
-      if (pick && pick.n >= 2) return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
+      if (!pick) return null;
+      const anchor = pick.who ?? ctx.F ?? ctx.T;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
+      if (lockEligibleHits(ctx, pick.hits, "R").length >= 2) {
+        return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
+      }
     }
   }
 
@@ -1421,7 +1485,9 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       if (ally) return prop("W", "P1c", ally.id);
     }
     if (tier === "P1b" && pair && ctx.aTrue < 0.62 - 1e-9 && inRange(ctx.u, pair.diver, 6)) {
-      if (tolleBanOk(ctx, pair.diver)) return prop("W", "P1b", pair.diver.id);
+      if (tolleBanOk(ctx, pair.diver) && ccOk(ctx, pair.diver, "W", tier)) {
+        return prop("W", "P1b", pair.diver.id);
+      }
     }
   }
 
@@ -1451,15 +1517,17 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       if (tier === "P3" && !engageOk(ctx, true)) return null;
       let best: { e: UnitState; p: { x: number; y: number }; n: number } | null = null;
       for (const who of kCandidates(ctx, T)) {
+        if (!ccOk(ctx, who, "R", tier)) continue;
         const p = predict(who, delay);
         if (!inRange(ctx.u, p, 7)) continue;
         if (inOwnSanctuary(who.team, p.x, p.y, ctx.c)) continue;
-        let n = 0;
+        const hits: UnitState[] = [];
         for (const e of ctx.perceived) {
           if (!counts(e)) continue;
           const ep = predict(e, delay);
-          if (circleHitsUnit(p.x, p.y, 3.4, ep, ctx.c.BODY_RADIUS)) n += 1;
+          if (circleHitsUnit(p.x, p.y, 3.4, ep, ctx.c.BODY_RADIUS)) hits.push(e);
         }
+        const n = lockEligibleHits(ctx, hits, "R").length;
         if (!best || n > best.n || (n === best.n && who.index < best.e.index)) best = { e: who, p, n };
       }
       if (best && best.n >= 2) return prop("R", tier, best.e.id, best.p);
@@ -1577,8 +1645,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       const picks: Pick[] = [];
       for (const who of kCandidates(ctx, T)) {
         if (!inZone(who, ctx.c) || !inRange(ctx.u, who, 7)) continue;
+        if (!ccOk(ctx, who, "R", tier)) continue;
         const hits = circleAt(ctx, who.x, who.y, 3, "enemy").filter((e) => inZone(e, ctx.c));
-        picks.push({ x: who.x, y: who.y, who, n: hits.length, hits, score: hits.length });
+        const nE = lockEligibleHits(ctx, hits, "R").length;
+        picks.push({ x: who.x, y: who.y, who, n: nE, hits, score: nE });
       }
       const pick = choosePick(ctx, picks, true, null);
       if (!pick || pick.n < 2) return null;
@@ -1673,8 +1743,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       const picks: Pick[] = [];
       for (const who of kCandidates(ctx, T)) {
         if (!inRange(ctx.u, who, 8)) continue;
+        if (!ccOk(ctx, who, "R", tier)) continue;
         const hits = circleAt(ctx, who.x, who.y, 2.8, "enemy").filter((e) => !isLocked(e.status));
-        picks.push({ x: who.x, y: who.y, who, n: hits.length, hits, score: hits.length });
+        const nE = lockEligibleHits(ctx, hits, "R").length;
+        picks.push({ x: who.x, y: who.y, who, n: nE, hits, score: nE });
       }
       const pick = choosePick(ctx, picks, true, null);
       if (pick && pick.n >= 2) return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
@@ -1726,7 +1798,12 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
     }
     if (tier === "P3" || tier === "P4") {
       if (tier === "P3" && !engageOk(ctx, true)) return null;
-      if (T && inRange(ctx.u, T, 2.8) && circleAt(ctx, T.x, T.y, 2.4, "enemy").length >= 2 && ccOk(ctx, T, "R", tier)) {
+      if (
+        T &&
+        inRange(ctx.u, T, 2.8) &&
+        ccOk(ctx, T, "R", tier) &&
+        lockEligibleHits(ctx, circleAt(ctx, T.x, T.y, 2.4, "enemy"), "R").length >= 2
+      ) {
         return prop("R", tier, T.id);
       }
     }
@@ -1778,10 +1855,11 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
   }
 
   if (champ === "brannoch" && skill === "R") {
-    const nHere = circleAt(ctx, ctx.u.x, ctx.u.y, 2.6, "enemy").length;
+    const here = circleAt(ctx, ctx.u.x, ctx.u.y, 2.6, "enemy");
+    const nHere = lockEligibleHits(ctx, here, "R").length;
     if (tier === "P1a") {
       const e = interruptOf(ctx, "R", 2.6);
-      if (e && circleAt(ctx, ctx.u.x, ctx.u.y, 2.6, "enemy").some((h) => h.id === e.id)) return prop("R", "P1a", e.id);
+      if (e && here.some((h) => h.id === e.id)) return prop("R", "P1a", e.id);
     }
     if (tier === "P1b" && pair && d(ctx.u, pair.diver) <= 2.6 + 1e-9 && ccOk(ctx, pair.diver, "R", tier)) {
       return prop("R", "P1b", pair.diver.id);
@@ -1794,6 +1872,8 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
     }
     if ((tier === "P3" || tier === "P4") && nHere >= 2) {
       if (tier === "P3" && !engageOk(ctx, true)) return null;
+      const anchor = ctx.F ?? ctx.T ?? here[0] ?? null;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
       return prop("R", tier, null);
     }
   }
@@ -1883,7 +1963,12 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
     if (tier === "P3" || tier === "P4") {
       if (tier === "P3" && !engageOk(ctx, false)) return null;
       const pick = bestCircle(ctx, 6, 2.6);
-      if (pick && pick.n >= 2) return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
+      if (!pick) return null;
+      const anchor = pick.who ?? ctx.F ?? ctx.T;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
+      if (lockEligibleHits(ctx, pick.hits, "R").length >= 2) {
+        return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
+      }
     }
   }
 
@@ -1960,8 +2045,11 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       if (tier === "P3" && !engageOk(ctx, false)) return null;
       const pick = bestCircle(ctx, 8, 2.4);
       if (!pick) return null;
+      const anchor = pick.who ?? ctx.F ?? ctx.T;
+      if (anchor && !ccOk(ctx, anchor, "R", tier)) return null;
+      const nE = lockEligibleHits(ctx, pick.hits, "R").length;
       const nA = circleAt(ctx, pick.x, pick.y, 2.4, "ally").length;
-      if (!friendlyOk(pick.n, nA, ctx)) return null;
+      if (!friendlyOk(nE, nA, ctx)) return null;
       return prop("R", tier, pick.who?.id ?? null, { x: pick.x, y: pick.y });
     }
   }
