@@ -6,6 +6,9 @@
 **Spec:** Appendix R #6 / S5-R6-8 (build-spec)  
 **Date:** 24 Nov 2026  
 
+**Seat split (random-draft, N=1200):** unswapped blue **51.17%** (307/600) · swapped blue **49.33%** (296/600) · pooled blue **50.25%** (603/1200).  
+**Pair split (600 pairs):** **75%** decided by comp · **25%** by side.
+
 `sim/` and `tests/acceptance/**` were **not** edited. No balance knobs / constants changed.
 
 ## Gates
@@ -28,7 +31,7 @@
 | even-OVR Hold | 20261122 | `54cae20c950a238d5c06a8324076cf2febe429d8dfe8b2c2057232fdf33f6b0d` |
 | even-OVR Hold | 20261123 | `74d9794affef09962673f97a0ef1aaf934cc8f58116193c044ef6cad6f21f425` |
 
-## Blocked — skillshot isolation (S5-R6-1)
+## Blocked — skillshot isolation (S5-R6-1) / ENG-5
 
 **No skillshot-capable match preset without editing `sim/`.** Do not fake one.
 
@@ -40,6 +43,8 @@
 ```
 
 Only Kerrig/Huntress, gated R only (never Q/W). Hold/Hunt/Starve + poke/dive probes: `cast_start=0`, `skillshot_roll=0`. **Aim / Reflexes arms = BLOCKED** (ran as auto-only, Δ +0.0).
+
+**The skillshot arm and the Aim/Reflexes isolation stay unmet until AI casting (ENG-5) lands, and must be re-run then.**
 
 ## Isolation (S5-R6-7) — pair_swap + TW floor 40 + mastery_one
 
@@ -57,15 +62,30 @@ npm run isolation -- --n 400 --seed 20261122 --teamwork-floor 40 --pairing pair_
 
 | Attr | Δ pp (N=400) | Notes |
 |---|---:|---|
-| aim | **+0.00** | **BLOCKED** |
-| reflexes | **+0.00** | **BLOCKED** |
+| aim | **+0.00** | **BLOCKED** — unmet until ENG-5 |
+| reflexes | **+0.00** | **BLOCKED** — unmet until ENG-5 |
 | execution | **−2.50** | fail band |
 | decision | **−1.00** | fail band |
 | positioning | **−5.75** | fail band |
 | teamwork | **−0.25** | fail band |
-| mastery 50→90 (ADC) | **+0.50** | smaller than raw +30 (expected) |
+| mastery 50→90 (ADC) | **+0.50** | see comparability note below |
 
 Band +3…+6 / no Δ>2× another: **fail**. No knobs applied.
+
+**Comparability (mastery):** this lab’s mastery **+0.50** (one player — the blue ADC — under `pair_swap`, 50% control WR) is **NOT comparable** to S5’s **+28.75** (`mastery_all`, no side-swap). Different pin scope, different pairing, different control baseline.
+
+### Isolation control dashboard (N4)
+
+`isolation-tw40/isolation-control-dashboard.json` was **regenerated** from the current `apps/lab/lib/fight-quality.ts` (S5-R6-8) on the same control seeds/pins (pair_swap, attrs 60, TW 40, N=400). Prior file used stale F3 definitions (median 3).
+
+| Id | isolation-control (regen) | random-draft (fresh) |
+|---|---:|---:|
+| **F1** median | 1 | 1 |
+| **F2** median | 0 | 0 |
+| **F3** median | **1** (was 3 stale) | **1** |
+| **F4** close median | 0 | 0 |
+
+Definitions strings match random-draft. Medians for F1–F4 now agree with the fresh random-draft numbers (same formula path).
 
 ## Random-draft — auto-only baseline, side-swapped pairs
 
@@ -74,6 +94,9 @@ npm run batch -- --n 1200 --seed 20261122 --scheme random_draft --side-swap-pair
 ```
 
 600 pair-seeds × 2 = **1200 games**, Hold, even-OVR. Seeds/lineups: `random-draft-seeds.csv`.
+
+**Seat split (raw):** unswapped blue **51.17%** · swapped blue **49.33%** · pooled blue **50.25%**.  
+**Pair split:** **75%** of pairs decided by comp · **25%** by side. (Source: `pair-lean.json`.)
 
 **Draft inventions:** lab xorshift + **SplitMix32 avalanche** (consecutive seeds previously always parked `isra` last — fixed); role-preference slot fill.
 
@@ -87,7 +110,7 @@ npm run batch -- --n 1200 --seed 20261122 --scheme random_draft --side-swap-pair
 | Archetype | Dive 26% (512); Peel 48% (516); Poke 60% (822); Balanced 17% (78) | **under-powered** (Balanced n&lt;80) |
 | Auto-peel | **94.7%** (2443/2581 `dive_geom`) | **pass** |
 | Sanctuary | **0** | **pass** |
-| Side lean pooled | blue **50.2%** / red 49.8% | **report** |
+| Side lean pooled | blue **50.25%** / red 49.75% | **report** |
 
 ### Pair lean (comp vs side)
 
@@ -142,9 +165,19 @@ npm run batch -- --n 1200 --seed 20261122 --scheme random_draft --side-swap-pair
 
 F2 is 0 under auto-only (no hard CC / skill hits). Definitions live in `apps/lab/lib/fight-quality.ts`.
 
+### Known gaps — omitted R6-8 sub-metrics
+
+This report ships the headline F1–F4 counts only. The following Appendix R6-8 sub-metrics are **omitted** (not computed in this pass):
+
+- **F1** duration and decisive share
+- **F2** combo-kill
+- **F3** survival rate
+- **F4** triples / aces
+- **Pair-level rollup** of the above
+
 ## Recommended knobs (**not applied**)
 
-Per R6-4 / R6-6: **no constant changes in S5.** Prerequisite is §9.4.1 cast policy (sim). Then re-measure F1–F4, then zone/`SCORE_TO_WIN` only if still out of band.
+Per R6-4 / R6-6: **no constant changes in S5.** Prerequisite is §9.4.1 cast policy (sim) / **ENG-5**. Then re-measure F1–F4 (and re-run Aim/Reflexes + skillshot arms), then zone/`SCORE_TO_WIN` only if still out of band.
 
 ## Inventions
 

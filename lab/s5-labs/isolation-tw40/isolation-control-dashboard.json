@@ -1,5 +1,7 @@
 {
   "n_finished": 400,
+  "regenerated_at": "2026-11-24T01:03:17.522Z",
+  "note": "Regenerated with current apps/lab/lib/fight-quality.ts (S5-R6-8). Same control seeds/pins as isolation-tw40 (pair_swap, attrs 60, TW 40).",
   "dashboard": {
     "rows": [
       {
@@ -44,7 +46,7 @@
         "value": "aim +0.0pp (n=400); reflexes +0.0pp (n=400); execution -2.5pp (n=400); decision -1.0pp (n=400); positioning -5.7pp (n=400); teamwork -0.2pp (n=400)",
         "sample_size": 400,
         "mark": "fail",
-        "notes": "mastery 50→90 on blue ADC pick only (§8.5): +0.5pp (n=400); expect smaller than raw +30 attr"
+        "notes": "mastery 50→90 blue ADC pick only (§8.5): +0.5pp (n=400); aim/reflexes BLOCKED (brain.ts chooseExecutionCast)"
       },
       {
         "id": "auto_peel",
@@ -92,10 +94,10 @@
         "id": "fight_f1_teamfights",
         "metric": "F1 teamfights / game",
         "target": "— (values only; no band yet)",
-        "value": "median 1.00; p10 1.00; p90 2.00",
+        "value": "median 1.00; p10 1.00; p90 1.00",
         "sample_size": 400,
         "mark": "report",
-        "notes": "F1 (Appendix R6-8): teamfights per game = count of distinct fight_id values on fight_call events (§9.1 L1 Fight Call; 3+ / escalated fights emit a call; 1v1 do not)."
+        "notes": "F1 (S5-R6-8): engagement = maximal run of cross-team hit/status_apply with gap ≤ 3.0 s; teamfight = engagement lasting ≥ 3.0 s with ≥ 3 distinct units per side (dealt or took damage). Count per game."
       },
       {
         "id": "fight_f2_combo_chains",
@@ -104,16 +106,16 @@
         "value": "median 0.00; p10 0.00; p90 0.00",
         "sample_size": 400,
         "mark": "report",
-        "notes": "F2 (Appendix R6-8): combo chains = maximal sets of ability hits (skill_id present and ≠ \"auto\") on one target where consecutive lands are ≤ 1.5s apart, first→last ≤ 1.5s, and ≥2 distinct allied sources appear. Autos excluded."
+        "notes": "F2 (S5-R6-8): hard-CC status_apply by A on enemy X, then within min(CC duration+0.5 s, 2.0 s) damage on X from ≥ 2 distinct units of A's team (A counts), ≥ 1 skill hit (skill_id ≠ auto)."
       },
       {
         "id": "fight_f3_clutch_moments",
         "metric": "F3 clutch moments / game",
         "target": "— (values only; no band yet)",
-        "value": "median 3.00; p10 2.00; p90 10.00",
+        "value": "median 1.00; p10 0.00; p90 2.00",
         "sample_size": 400,
         "mark": "report",
-        "notes": "F3 (Appendix R6-8): clutch moments = (a) low-HP survives — a hit leaves hp_after/max_hp < 0.15 and that unit has no death within the next 2s (max_hp via statsAtLevel); plus (b) down-a-champ wins — a takedown_score whose scoring team has ≤4 living members at that instant."
+        "notes": "F3 (S5-R6-8): (a) low-HP escape — hit to ≤ 15% max HP during a teamfight, alive 5.0 s later, once per unit per 5 s; plus (b) outnumbered win — at a teamfight's first death, the side with fewer living involved ends that fight with more takedowns."
       },
       {
         "id": "fight_f4_close_finish",
@@ -122,7 +124,34 @@
         "value": "median 0.00; p10 0.00; p90 0.00",
         "sample_size": 400,
         "mark": "report",
-        "notes": "F4 (Appendix R6-8): close finish = 1 if final |score_blue − score_red| ∈ {1, 2}, else 0."
+        "notes": "F4 (S5-R6-8): close = 1 if final margin ≤ 2 or end_reason is sudden_death, else 0."
+      },
+      {
+        "id": "fight_f4_comeback",
+        "metric": "F4 comeback (0/1)",
+        "target": "— (values only; no band yet)",
+        "value": "median 0.00; p10 0.00; p90 0.00",
+        "sample_size": 400,
+        "mark": "report",
+        "notes": "F4 companion: 1 if winner trailed by ≥ 3 at some score point."
+      },
+      {
+        "id": "fight_f4_shutout",
+        "metric": "F4 shutout (0/1)",
+        "target": "— (values only; no band yet)",
+        "value": "median 0.50; p10 0.00; p90 1.00",
+        "sample_size": 400,
+        "mark": "report",
+        "notes": "F4 companion: 1 if loser score is 0."
+      },
+      {
+        "id": "fight_f4_multikills",
+        "metric": "F4 multikills / game",
+        "target": "— (values only; no band yet)",
+        "value": "median 0.00; p10 0.00; p90 0.00",
+        "sample_size": 400,
+        "mark": "report",
+        "notes": "F4 companion: count of double-kill windows (same killer ≥ 2 deaths within 6.0 s)."
       },
       {
         "id": "fight_lead_changes",
@@ -131,7 +160,7 @@
         "value": "median 1.00; p10 1.00; p90 1.00",
         "sample_size": 400,
         "mark": "report",
-        "notes": "Companion to F4 (reported): reconstruct score from takedown_score / zone_tick / claim_award; each change of sign(score_blue − score_red) among {−1,0,+1} counts one lead change."
+        "notes": "Companion: sign(score_blue−score_red) changes on takedown_score/zone_tick/claim_award."
       },
       {
         "id": "fight_contested_pit_share",
@@ -140,7 +169,7 @@
         "value": "median 100.0%; p10 97.2%; p90 100.0%",
         "sample_size": 400,
         "mark": "report",
-        "notes": "Contested-pit share (Appendix R6-8 companion): fraction of fight_call events whose centroid lies within ZONE_RADIUS of ZONE_CENTER (pit-centred Fight Calls / all Fight Calls). Lab derivation from the event log; not a sim export."
+        "notes": "R6-5 pit contest proxy from the event log: share of fight_call events whose centroid is within ZONE_RADIUS of ZONE_CENTER. True “owned time that is contested” needs occupancy ticks (not exported); this is the lab stand-in."
       }
     ],
     "aggregates": {
@@ -256,12 +285,11 @@
         }
       },
       "fight_quality": {
-        "combo_window_s": 1.5,
         "distributions": {
           "f1_teamfights": {
             "median": 1,
             "p10": 1,
-            "p90": 2
+            "p90": 1
           },
           "f2_combo_chains": {
             "median": 0,
@@ -269,11 +297,26 @@
             "p90": 0
           },
           "f3_clutch_moments": {
-            "median": 3,
-            "p10": 2,
-            "p90": 10
+            "median": 1,
+            "p10": 0,
+            "p90": 2
           },
           "f4_close_finish": {
+            "median": 0,
+            "p10": 0,
+            "p90": 0
+          },
+          "f4_comeback": {
+            "median": 0,
+            "p10": 0,
+            "p90": 0
+          },
+          "f4_shutout": {
+            "median": 0.5,
+            "p10": 0,
+            "p90": 1
+          },
+          "f4_multikills": {
             "median": 0,
             "p10": 0,
             "p90": 0
@@ -290,12 +333,15 @@
           }
         },
         "definitions": {
-          "f1_teamfights": "F1 (Appendix R6-8): teamfights per game = count of distinct fight_id values on fight_call events (§9.1 L1 Fight Call; 3+ / escalated fights emit a call; 1v1 do not).",
-          "f2_combo_chains": "F2 (Appendix R6-8): combo chains = maximal sets of ability hits (skill_id present and ≠ \"auto\") on one target where consecutive lands are ≤ 1.5s apart, first→last ≤ 1.5s, and ≥2 distinct allied sources appear. Autos excluded.",
-          "f3_clutch_moments": "F3 (Appendix R6-8): clutch moments = (a) low-HP survives — a hit leaves hp_after/max_hp < 0.15 and that unit has no death within the next 2s (max_hp via statsAtLevel); plus (b) down-a-champ wins — a takedown_score whose scoring team has ≤4 living members at that instant.",
-          "f4_close_finish": "F4 (Appendix R6-8): close finish = 1 if final |score_blue − score_red| ∈ {1, 2}, else 0.",
-          "lead_changes": "Companion to F4 (reported): reconstruct score from takedown_score / zone_tick / claim_award; each change of sign(score_blue − score_red) among {−1,0,+1} counts one lead change.",
-          "contested_pit_share": "Contested-pit share (Appendix R6-8 companion): fraction of fight_call events whose centroid lies within ZONE_RADIUS of ZONE_CENTER (pit-centred Fight Calls / all Fight Calls). Lab derivation from the event log; not a sim export."
+          "f1_teamfights": "F1 (S5-R6-8): engagement = maximal run of cross-team hit/status_apply with gap ≤ 3.0 s; teamfight = engagement lasting ≥ 3.0 s with ≥ 3 distinct units per side (dealt or took damage). Count per game.",
+          "f2_combo_chains": "F2 (S5-R6-8): hard-CC status_apply by A on enemy X, then within min(CC duration+0.5 s, 2.0 s) damage on X from ≥ 2 distinct units of A's team (A counts), ≥ 1 skill hit (skill_id ≠ auto).",
+          "f3_clutch_moments": "F3 (S5-R6-8): (a) low-HP escape — hit to ≤ 15% max HP during a teamfight, alive 5.0 s later, once per unit per 5 s; plus (b) outnumbered win — at a teamfight's first death, the side with fewer living involved ends that fight with more takedowns.",
+          "f4_close_finish": "F4 (S5-R6-8): close = 1 if final margin ≤ 2 or end_reason is sudden_death, else 0.",
+          "lead_changes": "Companion: sign(score_blue−score_red) changes on takedown_score/zone_tick/claim_award.",
+          "contested_pit_share": "R6-5 pit contest proxy from the event log: share of fight_call events whose centroid is within ZONE_RADIUS of ZONE_CENTER. True “owned time that is contested” needs occupancy ticks (not exported); this is the lab stand-in.",
+          "f4_comeback": "F4 companion: 1 if winner trailed by ≥ 3 at some score point.",
+          "f4_shutout": "F4 companion: 1 if loser score is 0.",
+          "f4_multikills": "F4 companion: count of double-kill windows (same killer ≥ 2 deaths within 6.0 s)."
         }
       }
     }
