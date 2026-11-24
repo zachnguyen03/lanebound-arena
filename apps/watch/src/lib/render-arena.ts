@@ -7,6 +7,7 @@ import {
 } from "./champ-atlas";
 import { sortDrawItems } from "./draw-order";
 import { ARENA_INTRINSIC } from "./hud-layout";
+import { renderVfx, ultShakeAt } from "./render-vfx";
 import { padGroundPx } from "./spawn";
 import type { MatchViewState, UnitView } from "./types";
 
@@ -84,6 +85,8 @@ export interface RenderArenaOpts {
   height?: number;
   /** View-only AI lines. Must not feed the sim. */
   overlays?: boolean;
+  /** Skill cast VFX from atlas art. Default on. */
+  vfx?: boolean;
 }
 
 /**
@@ -98,8 +101,16 @@ export function renderArena(
 ): void {
   const W = ARENA_INTRINSIC.w;
   const H = opts.height ?? ARENA_INTRINSIC.h;
+  const showVfx = opts.vfx !== false;
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, W, H);
+
+  const shake = showVfx ? ultShakeAt(state) : { shakeX: 0, shakeY: 0 };
+
+  ctx.save();
+  if (shake.shakeX || shake.shakeY) {
+    ctx.translate(Math.round(shake.shakeX), Math.round(shake.shakeY));
+  }
 
   // Terrain (source may be taller than crop height — blit top H rows only)
   blitNearest(ctx, assets.terrain, 0, 0, W, H, 0, 0, W, H);
@@ -209,6 +220,13 @@ export function renderArena(
       ctx.stroke();
     }
   }
+
+  // Skill VFX over bodies, under / with status plates; shake already applied.
+  if (showVfx) {
+    renderVfx(ctx, assets, state, { height: H });
+  }
+
+  ctx.restore();
 }
 
 function clipDuration(clip: BodyAnimClip | undefined, fallback: number): number {

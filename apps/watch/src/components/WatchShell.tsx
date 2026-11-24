@@ -18,6 +18,7 @@ import {
 } from "@watch/lib/hud-layout";
 import { parseJsonl } from "@watch/lib/parse-log";
 import { ReplayEngine } from "@watch/lib/replay";
+import { countActiveVfx } from "@watch/lib/render-vfx";
 import { CHAMP_ART, type Speed } from "@watch/lib/types";
 import { ArenaCanvas } from "./ArenaCanvas";
 import {
@@ -84,6 +85,7 @@ export function WatchShell({
   const drawerMode: DrawerMode = mode === "1080" ? "push" : "modal";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [overlays, setOverlays] = useState(false);
+  const [vfx, setVfx] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
   const [liveConfig, setLiveConfig] = useState<MatchConfig | null>(null);
   const [deathEvent, setDeathEvent] = useState<SimEvent | null>(null);
@@ -367,6 +369,8 @@ export function WatchShell({
       data-drawer-open={drawerOpen ? "true" : "false"}
       data-drawer-mode={drawerMode}
       data-overlays={overlays ? "true" : "false"}
+      data-vfx={vfx ? "true" : "false"}
+      data-vfx-count={state ? String(countActiveVfx(state)) : "0"}
       data-fit-scale={fitScale.toFixed(4)}
       data-match-end={
         (engine?.events.find((e) => e.type === "match_end")?.reason as
@@ -430,6 +434,8 @@ export function WatchShell({
             onToggleDrawer={() => setDrawerOpen((o) => !o)}
             overlays={overlays}
             onToggleOverlays={() => setOverlays((o) => !o)}
+            vfx={vfx}
+            onToggleVfx={() => setVfx((o) => !o)}
           />
 
           {phase === "boot" || phase === "loading" ? (
@@ -534,6 +540,7 @@ export function WatchShell({
                   state={state}
                   mode={mode}
                   overlays={overlays}
+                  vfx={vfx}
                 />
               </div>
 

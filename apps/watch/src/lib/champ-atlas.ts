@@ -131,13 +131,25 @@ export function collectAtlasFiles(slug: string, raw: unknown): string[] {
   const walk = (node: unknown) => {
     if (!node || typeof node !== "object") return;
     if (Array.isArray(node)) {
-      for (const item of node) walk(item);
+      for (const item of node) {
+        if (typeof item === "string") {
+          // files[] holds real paths (vfx/…, sheets/…). Bare skill ids belong
+          // under `file` and go through skillIconPath — skip them here.
+          if (!item.includes("/") && !item.includes(".")) continue;
+          const rel = resolveAtlasFile(slug, item);
+          if (rel) out.push(rel);
+        } else {
+          walk(item);
+        }
+      }
       return;
     }
     for (const [key, val] of Object.entries(node as Record<string, unknown>)) {
       if ((key === "file" || key === "sheet") && typeof val === "string") {
         const rel = resolveAtlasFile(slug, val);
         if (rel) out.push(rel);
+      } else if (key === "files" && Array.isArray(val)) {
+        walk(val);
       } else {
         walk(val);
       }

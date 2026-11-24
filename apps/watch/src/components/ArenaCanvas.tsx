@@ -10,13 +10,14 @@ interface Props {
   state: MatchViewState | null;
   mode: HudMode;
   overlays?: boolean;
+  vfx?: boolean;
 }
 
 /**
  * Always paints at CSS size === intrinsic buffer size (integer scale 1).
  * Never use max-width / height:auto — that caused fractional shrink.
  */
-export function ArenaCanvas({ assets, state, mode, overlays }: Props) {
+export function ArenaCanvas({ assets, state, mode, overlays, vfx }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const size = arenaDisplaySize(mode);
 
@@ -25,8 +26,12 @@ export function ArenaCanvas({ assets, state, mode, overlays }: Props) {
     if (!canvas || !assets || !state) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    renderArena(ctx, assets, state, { height: size.h, overlays: !!overlays });
-  }, [assets, state, size.h, overlays]);
+    renderArena(ctx, assets, state, {
+      height: size.h,
+      overlays: !!overlays,
+      vfx: vfx !== false,
+    });
+  }, [assets, state, size.h, overlays, vfx]);
 
   return (
     <canvas

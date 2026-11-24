@@ -12,6 +12,8 @@ interface Props {
   onToggleDrawer?: () => void;
   overlays?: boolean;
   onToggleOverlays?: () => void;
+  vfx?: boolean;
+  onToggleVfx?: () => void;
 }
 
 function clockCaption(state: MatchViewState | null): string {
@@ -44,6 +46,8 @@ export function TopBar({
   onToggleDrawer,
   overlays,
   onToggleOverlays,
+  vfx,
+  onToggleVfx,
 }: Props) {
   const t = state?.t ?? 0;
   return (
@@ -105,6 +109,17 @@ export function TopBar({
             {statusLine(state)}
           </div>
         </div>
+        {onToggleVfx ? (
+          <Button
+            data-testid="btn-toggle-vfx"
+            variant={vfx ? "active" : "outline"}
+            size="sm"
+            onClick={onToggleVfx}
+            title="Skill VFX"
+          >
+            FX
+          </Button>
+        ) : null}
         {onToggleOverlays ? (
           <Button
             data-testid="btn-toggle-overlays"

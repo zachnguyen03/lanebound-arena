@@ -1,16 +1,33 @@
 import { digestEvents } from "@sim/canonical";
 import { statsAtLevel } from "@sim/stats";
 import type { SimEvent as CoreSimEvent } from "@sim/types";
+import {
+  isStatusIconKind,
+  skillMetaByName,
+} from "./skill-meta";
+import { autoProjectileKey, skillVfxRecipe } from "./skill-vfx";
 import { DUMMY_MAX_HP, spawnPose, unitId } from "./spawn";
 import type {
+  HitFlashFx,
+  MatchEffects,
   MatchViewState,
+  ProjectileFx,
   SimEvent,
+  SkillTagFx,
   Slot,
+  StatusIconFx,
   Team,
+  TelegraphFx,
+  UltPulseFx,
   UnitId,
   UnitView,
 } from "./types";
 import { CHAMP_ART, SLOTS } from "./types";
+
+const SKILL_TAG_DUR = 0.8;
+const HIT_FLASH_DUR = 0.22;
+const ULT_PULSE_DUR = 0.28;
+const CASTER_FLASH_DUR = 0.22;
 
 /**
  * Pure replay: derive MatchViewState at tick T from the event log only.
@@ -93,6 +110,30 @@ export class ReplayEngine {
   }
 }
 
+function cloneEffects(e: MatchEffects): MatchEffects {
+  return {
+    telegraphs: e.telegraphs.map((x) => ({ ...x })),
+    projectiles: e.projectiles.map((x) => ({ ...x })),
+    hitFlashes: e.hitFlashes.map((x) => ({ ...x })),
+    statuses: e.statuses.map((x) => ({ ...x })),
+    skillTags: e.skillTags.map((x) => ({ ...x })),
+    ultPulses: e.ultPulses.map((x) => ({ ...x })),
+    casterFlashes: e.casterFlashes.map((x) => ({ ...x })),
+  };
+}
+
+function emptyEffects(): MatchEffects {
+  return {
+    telegraphs: [],
+    projectiles: [],
+    hitFlashes: [],
+    statuses: [],
+    skillTags: [],
+    ultPulses: [],
+    casterFlashes: [],
+  };
+}
+
 function cloneState(s: MatchViewState): MatchViewState {
   const units = {} as Record<UnitId, UnitView>;
   for (const id of Object.keys(s.units) as UnitId[]) {
@@ -108,6 +149,35 @@ function cloneState(s: MatchViewState): MatchViewState {
     buffs: s.buffs.map((o) => ({ ...o })),
     fightBlue: s.fightBlue ? { ...s.fightBlue } : null,
     fightRed: s.fightRed ? { ...s.fightRed } : null,
+    effects: cloneEffects(s.effects),
+  };
+}
+
+/** Active VFX intervals at sim time `t` (inclusive start, exclusive end). */
+export function activeEffectsAt(
+  effects: MatchEffects,
+  t: number,
+): {
+  telegraphs: TelegraphFx[];
+  projectiles: ProjectileFx[];
+  hitFlashes: HitFlashFx[];
+  statuses: StatusIconFx[];
+  skillTags: SkillTagFx[];
+  ultPulses: UltPulseFx[];
+  casterFlashes: import("./types").CasterFlashFx[];
+} {
+  const live = <T extends { startedAt: number; endsAt: number }>(list: T[]) =>
+    list.filter((x) => x.startedAt <= t && t < x.endsAt);
+  return {
+    telegraphs: live(effects.telegraphs),
+    projectiles: effects.projectiles.filter(
+      (p) => p.spawnT <= t && t < p.endedAt,
+    ),
+    hitFlashes: live(effects.hitFlashes),
+    statuses: live(effects.statuses),
+    skillTags: live(effects.skillTags),
+    ultPulses: live(effects.ultPulses),
+    casterFlashes: live(effects.casterFlashes),
   };
 }
 
@@ -164,6 +234,7 @@ function emptyState(): MatchViewState {
     buffs: [],
     fightBlue: null,
     fightRed: null,
+    effects: emptyEffects(),
   };
 }
 
@@ -233,6 +304,7 @@ function applyEvent(
       if (src?.alive && (ev.skill_id === "auto" || ev.skill_id === "attack")) {
         src.attackStartedAt = ev.t;
       }
+      applyHitFx(state, ev);
       break;
     }
     case "cast_start": {
@@ -241,6 +313,7 @@ function applyEvent(
       u.castStartedAt = ev.t;
       u.castSkill = typeof ev.skill_id === "string" ? ev.skill_id : "";
       u.castDur = typeof ev.cast_time === "number" ? ev.cast_time : 0.4;
+      applyCastStartFx(state, u, ev);
       break;
     }
     case "cast_cancel": {
@@ -249,6 +322,27 @@ function applyEvent(
       u.castStartedAt = null;
       u.castSkill = null;
       u.castDur = 0;
+      applyCastCancelFx(state, u.id, ev.t);
+      break;
+    }
+    case "cast_end": {
+      applyCastEndFx(state, ev);
+      break;
+    }
+    case "projectile_spawn": {
+      applyProjectileSpawnFx(state, ev);
+      break;
+    }
+    case "status_apply": {
+      applyStatusApplyFx(state, ev);
+      break;
+    }
+    case "status_expire": {
+      applyStatusExpireFx(state, ev);
+      break;
+    }
+    case "shield_apply": {
+      applyShieldFx(state, ev);
       break;
     }
     case "death": {
@@ -261,6 +355,8 @@ function applyEvent(
       u.respawnAt = typeof ev.respawn_at === "number" ? ev.respawn_at : null;
       u.deathStartedAt = ev.t;
       u.hitStartedAt = null;
+      endStatusesOnUnit(state, u.id, ev.t);
+      applyCastCancelFx(state, u.id, ev.t);
       break;
     }
     case "respawn": {
@@ -374,6 +470,378 @@ function applyEvent(
     }
     default:
       break;
+  }
+}
+
+function telegraphKindFromRecipe(
+  style: string,
+): TelegraphFx["kind"] {
+  switch (style) {
+    case "aoe":
+    case "cone":
+    case "self":
+    case "dash":
+    case "dotted-leash":
+    case "double-ring":
+      return style;
+    default:
+      return "line";
+  }
+}
+
+function applyCastStartFx(
+  state: MatchViewState,
+  u: UnitView,
+  ev: SimEvent,
+): void {
+  const skillId = typeof ev.skill_id === "string" ? ev.skill_id : "";
+  const meta = skillMetaByName(skillId);
+  const recipe = skillVfxRecipe(u.champ, skillId);
+  const castTime =
+    typeof ev.cast_time === "number" ? ev.cast_time : meta?.cast_s ?? 0.4;
+  const aimX =
+    typeof ev.x === "number"
+      ? ev.x
+      : typeof ev.target_id === "string"
+        ? (getUnit(state, ev.target_id)?.x ?? u.x)
+        : u.x;
+  const aimY =
+    typeof ev.y === "number"
+      ? ev.y
+      : typeof ev.target_id === "string"
+        ? (getUnit(state, ev.target_id)?.y ?? u.y)
+        : u.y;
+  const targetId = typeof ev.target_id === "string" ? ev.target_id : null;
+  const id = `cast:${u.id}:${ev.seq}`;
+  // Close any open telegraph for this caster.
+  applyCastCancelFx(state, u.id, ev.t);
+  state.effects.telegraphs.push({
+    id,
+    unitId: u.id,
+    champ: u.champ,
+    team: u.team,
+    skillId,
+    skillKey: meta?.key ?? "?",
+    kind: telegraphKindFromRecipe(recipe.telegraph),
+    isUlt: !!recipe.ultEmphasis || meta?.key === "R",
+    startedAt: ev.t,
+    endsAt: ev.t + Math.max(castTime, 0.05),
+    aimX,
+    aimY,
+    targetId,
+    radius: meta?.radius ?? 0,
+    width: meta?.width ?? 0.6,
+    groundFx: recipe.groundFx,
+  });
+  // At most one floating skill tag per caster.
+  for (const tag of state.effects.skillTags) {
+    if (tag.unitId === u.id && tag.endsAt > ev.t && tag.startedAt <= ev.t) {
+      tag.endsAt = ev.t;
+    }
+  }
+  state.effects.skillTags.push({
+    id: `tag:${id}`,
+    unitId: u.id,
+    team: u.team,
+    skillKey: meta?.key ?? "?",
+    skillName: skillId || meta?.name || "?",
+    startedAt: ev.t,
+    endsAt: ev.t + SKILL_TAG_DUR,
+  });
+  state.effects.casterFlashes.push({
+    id: `flash:${id}`,
+    unitId: u.id,
+    team: u.team,
+    isUlt: !!recipe.ultEmphasis || meta?.key === "R",
+    startedAt: ev.t,
+    endsAt: ev.t + CASTER_FLASH_DUR,
+  });
+  if (recipe.ultEmphasis || meta?.key === "R") {
+    state.effects.ultPulses.push({
+      id: `ult:${id}`,
+      unitId: u.id,
+      team: u.team,
+      x: u.x,
+      y: u.y,
+      startedAt: ev.t,
+      endsAt: ev.t + ULT_PULSE_DUR,
+    });
+  }
+}
+
+function applyCastCancelFx(
+  state: MatchViewState,
+  unitId: UnitId,
+  t: number,
+): void {
+  for (const tele of state.effects.telegraphs) {
+    if (tele.unitId === unitId && tele.endsAt > t && tele.startedAt <= t) {
+      tele.endsAt = t;
+    }
+  }
+}
+
+/**
+ * Instant skillshots do not emit projectile_spawn. After cast_end, fly the
+ * atlas projectile toward aim / target until a matching hit or a short cap.
+ */
+function applyCastEndFx(state: MatchViewState, ev: SimEvent): void {
+  const unit = getUnit(state, ev.unit_id);
+  if (!unit) return;
+  const skillId =
+    typeof ev.skill_id === "string"
+      ? ev.skill_id
+      : unit.castSkill ?? "";
+  if (!skillId || skillId === "auto") return;
+  const recipe = skillVfxRecipe(unit.champ, skillId);
+  const artKey =
+    recipe.projectile ??
+    (recipe.huntressProjectile
+      ? `projectile-${recipe.huntressProjectile}`
+      : null);
+  if (!artKey && !recipe.smear) return;
+  // Delayed lands already emitted projectile_spawn on this cast.
+  const recentSpawn = state.effects.projectiles.some(
+    (p) =>
+      p.unitId === unit.id &&
+      p.skillId === skillId &&
+      Math.abs(p.spawnT - ev.t) < 0.05,
+  );
+  if (recentSpawn) return;
+  if (!artKey) return;
+
+  const openTele = [...state.effects.telegraphs]
+    .reverse()
+    .find((t) => t.unitId === unit.id && t.skillId === skillId);
+  const aimX = openTele?.aimX ?? unit.x;
+  const aimY = openTele?.aimY ?? unit.y;
+  const target = openTele?.targetId
+    ? getUnit(state, openTele.targetId)
+    : null;
+  const toX = target?.x ?? aimX;
+  const toY = target?.y ?? aimY;
+  const dx = toX - unit.x;
+  const dy = toY - unit.y;
+  const dist = Math.hypot(dx, dy);
+  // Viewer flight only — sim resolved instantly. 18 tiles/s matches auto missiles.
+  const travel = Math.min(0.45, Math.max(0.08, dist / 18));
+  // Close telegraph at release.
+  applyCastCancelFx(state, unit.id, ev.t);
+  state.effects.projectiles.push({
+    projId: `castend:${unit.id}:${ev.seq}`,
+    unitId: unit.id,
+    champ: unit.champ,
+    team: unit.team,
+    skillId,
+    isAuto: false,
+    artKey,
+    trail: recipe.trail,
+    spawnT: ev.t,
+    landT: ev.t + travel,
+    fromX: unit.x,
+    fromY: unit.y,
+    toX,
+    toY,
+    endedAt: ev.t + travel,
+  });
+}
+
+function applyProjectileSpawnFx(state: MatchViewState, ev: SimEvent): void {
+  const unit = getUnit(state, ev.unit_id);
+  if (!unit) return;
+  const skillId = typeof ev.skill_id === "string" ? ev.skill_id : "auto";
+  const isAuto = skillId === "auto" || skillId === "attack";
+  const spawnT = ev.t;
+  const landT =
+    typeof ev.land_t === "number" ? ev.land_t : spawnT + 0.2;
+  const fromX = typeof ev.x === "number" ? ev.x : unit.x;
+  const fromY = typeof ev.y === "number" ? ev.y : unit.y;
+  let toX = fromX;
+  let toY = fromY;
+  const recipe = isAuto
+    ? null
+    : skillVfxRecipe(unit.champ, skillId);
+  if (isAuto) {
+    const tgt =
+      (unit.targetId ? getUnit(state, unit.targetId) : null) ?? null;
+    if (tgt) {
+      toX = tgt.x;
+      toY = tgt.y;
+    }
+  } else if (typeof ev.x === "number" && typeof ev.y === "number") {
+    // Delayed skill land: event x,y is the aim / land point.
+    // Travel from caster at spawn toward that point.
+    toX = ev.x;
+    toY = ev.y;
+    // from = caster feet at spawn
+  }
+  const fromCasterX = unit.x;
+  const fromCasterY = unit.y;
+  const artKey = isAuto
+    ? autoProjectileKey(unit.champ)
+    : recipe?.projectile ??
+      (recipe?.huntressProjectile
+        ? `projectile-${recipe.huntressProjectile}`
+        : null);
+  const projId =
+    typeof ev.proj_id === "string"
+      ? ev.proj_id
+      : `proj:${unit.id}:${ev.seq}`;
+  state.effects.projectiles.push({
+    projId,
+    unitId: unit.id,
+    champ: unit.champ,
+    team: unit.team,
+    skillId,
+    isAuto,
+    artKey,
+    trail: recipe?.trail,
+    spawnT,
+    landT,
+    fromX: isAuto ? fromX : fromCasterX,
+    fromY: isAuto ? fromY : fromCasterY,
+    toX,
+    toY,
+    endedAt: landT,
+  });
+}
+
+function applyHitFx(state: MatchViewState, ev: SimEvent): void {
+  const skillId = typeof ev.skill_id === "string" ? ev.skill_id : "";
+  const isAuto = skillId === "auto" || skillId === "attack";
+  const target = getUnit(state, ev.target_id);
+  const source = getUnit(state, ev.source_id);
+  if (!target) return;
+
+  // Retarget open projectiles from this source toward the hit.
+  if (source) {
+    for (const p of state.effects.projectiles) {
+      if (
+        p.unitId === source.id &&
+        p.skillId === skillId &&
+        p.spawnT <= ev.t &&
+        p.endedAt >= ev.t - 1e-9
+      ) {
+        p.toX = target.x;
+        p.toY = target.y;
+        p.endedAt = Math.min(p.endedAt, ev.t);
+      }
+    }
+  }
+
+  if (isAuto) return;
+
+  const recipe = source
+    ? skillVfxRecipe(source.champ, skillId)
+    : { impact: [] as string[] };
+  const id = `hit:${ev.seq}`;
+  state.effects.hitFlashes.push({
+    id,
+    targetId: target.id,
+    sourceId: source?.id ?? null,
+    champ: source?.champ ?? target.champ,
+    skillId,
+    impactKeys: recipe.impact ?? [],
+    startedAt: ev.t,
+    endsAt: ev.t + HIT_FLASH_DUR,
+  });
+}
+
+function applyStatusApplyFx(state: MatchViewState, ev: SimEvent): void {
+  const kind = typeof ev.kind === "string" ? ev.kind : "";
+  if (!kind) return;
+  // Show designer plates for known kinds; shield handled separately.
+  const show =
+    isStatusIconKind(kind) ||
+    [
+      "sleep",
+      "fear",
+      "hex",
+      "break",
+      "banish",
+      "timestop",
+      "petrify",
+      "knockup",
+      "leash",
+    ].includes(kind);
+  if (!show) return;
+  const target = getUnit(state, ev.target_id);
+  if (!target) return;
+  const dur =
+    typeof ev.applied_duration === "number"
+      ? ev.applied_duration
+      : typeof ev.raw_duration === "number"
+        ? ev.raw_duration
+        : 0.5;
+  const id = `status:${target.id}:${kind}:${ev.seq}`;
+  // Refresh same kind on target.
+  for (const s of state.effects.statuses) {
+    if (
+      s.targetId === target.id &&
+      s.kind === kind &&
+      s.endsAt > ev.t &&
+      s.startedAt <= ev.t
+    ) {
+      s.endsAt = ev.t;
+    }
+  }
+  state.effects.statuses.push({
+    id,
+    targetId: target.id,
+    kind,
+    startedAt: ev.t,
+    endsAt: ev.t + Math.max(dur, 0.05),
+  });
+}
+
+function applyStatusExpireFx(state: MatchViewState, ev: SimEvent): void {
+  const kind = typeof ev.kind === "string" ? ev.kind : "";
+  const targetId = typeof ev.target_id === "string" ? ev.target_id : null;
+  if (!targetId || !kind) return;
+  for (const s of state.effects.statuses) {
+    if (
+      s.targetId === targetId &&
+      s.kind === kind &&
+      s.endsAt > ev.t &&
+      s.startedAt <= ev.t
+    ) {
+      s.endsAt = ev.t;
+    }
+  }
+}
+
+function applyShieldFx(state: MatchViewState, ev: SimEvent): void {
+  const target = getUnit(state, ev.target_id);
+  if (!target) return;
+  const endsAt =
+    typeof ev.expires_at === "number" ? ev.expires_at : ev.t + 2.5;
+  const id = `shield:${target.id}:${ev.seq}`;
+  for (const s of state.effects.statuses) {
+    if (
+      s.targetId === target.id &&
+      s.kind === "shield" &&
+      s.endsAt > ev.t &&
+      s.startedAt <= ev.t
+    ) {
+      s.endsAt = ev.t;
+    }
+  }
+  state.effects.statuses.push({
+    id,
+    targetId: target.id,
+    kind: "shield",
+    startedAt: ev.t,
+    endsAt,
+  });
+}
+
+function endStatusesOnUnit(
+  state: MatchViewState,
+  unitId: UnitId,
+  t: number,
+): void {
+  for (const s of state.effects.statuses) {
+    if (s.targetId === unitId && s.endsAt > t) s.endsAt = t;
   }
 }
 
