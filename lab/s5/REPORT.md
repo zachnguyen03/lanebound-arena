@@ -3,9 +3,10 @@
 **Branch:** `s5`  
 **Base:** `cursor/s4-watch-f8c1` @ `e427530ed56e8a8d53939922460168332f28c562`  
 **Proof produced on:** `b140ab1dad358e7993d9cfeabe575adcaec8ac7b` (`b140ab1`)  
-*(A later docs-only commit on this branch may sit above that SHA; it cannot contain its own hash.)*
+**Docs / caption / isolation-N=400 tip:** `d691445df27ab35b80afb9fc89333e1df9039b30` (`d691445`)  
+*(Later commits on this branch are docs/UI only — REPORT wording, Watch HUD/Lab keep-alive, Content-Type headers — and cannot contain their own tip hash. Lab2000 digests and sim/ are unchanged.)*
 
-**Date:** 23 Nov 2026  
+**Date:** 23–24 Nov 2026  
 
 `sim/` and `tests/acceptance/**` were **not** edited. Digests below are byte-identical to the S4 tip.
 
@@ -139,6 +140,13 @@ Build-spec L1162 / L1737 / L1916 (and R #3 S2-4) define the auto-peel acceptance
 | No `cast_start` telegraph | Even Hold emits 0 `cast_start` on gold seeds; Watch cannot draw skill telegraphs from that event. Also blocks Aim/Reflexes isolation (above). |
 | Side lean (kit×side) | 2000-game blue kit win ~13% / red ~87%; see `lab/s3/side-lean/REPORT.md`. Isolation control blue win 4.5% at attrs=60 (N=400). |
 | `peeler_perceived` false at dive-begin | Spec denom wants perceived *at dive begin*; Hold tapes show it false then true ~0.6 s later (seed `20261622`). Forces the `dive_geom` peel denominator invention above. |
+
+## Full-game follow-ups (not implemented here)
+
+| ID | Follow-up |
+|---|---|
+| **S5-N1** | Re-run attribute isolation on a **skillshot-capable preset** (Hunt / poke comps) with **Teamwork floor 40** so Aim, Reflexes, and Teamwork arms can move. Keep the Hold N=400 zeros as the honest baseline for that setup. Do **not** retune constants to force a +3–6 pass. |
+| **S5-N3** | Optional in-browser batch runner (Start / Cancel / progress) in the Lab Batch panel. Sandbox plan allows Node CLI first; not required to close S5. |
 
 ## Inventories / assumptions
 
