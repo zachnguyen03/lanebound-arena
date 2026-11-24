@@ -56,8 +56,25 @@ export interface SideConfig {
   tactics: Tactics;
 }
 
+/**
+ * Experimental orb/buff cadence (branch exp/orb-buff-cadence). Not in the build
+ * spec. Absent (the default) = spec behaviour and unchanged digests.
+ */
+export interface Cadence {
+  /** AI: jungle + support rove to orbs/buffs; the carry takes its own-side buff. */
+  rovers?: boolean;
+  /** All orbs respawn together on this wave period in seconds (Dota rune-style). */
+  orb_wave_s?: number;
+  /** Allies within this radius (tiles) of the picker share the buff. */
+  buff_share_r?: number;
+  /** Emit `buff_soon` this many seconds before a buff spawns. */
+  buff_warn_s?: number;
+}
+
 export interface MatchConfig {
   seed: number;
+  /** Experimental, see {@link Cadence}. */
+  cadence?: Cadence;
   constants?: Partial<Record<string, unknown>>;
   blue: SideConfig;
   red: SideConfig;

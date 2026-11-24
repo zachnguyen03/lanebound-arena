@@ -1,0 +1,10 @@
+{
+  "name": "cadence-step1",
+  "parent": "default",
+  "overrides": {
+    "BUFF_FIRST_SPAWN_S": 35,
+    "BUFF_RESPAWN_S": 55,
+    "ORB_RESPAWN_S": 20
+  },
+  "created_note": "exp/orb-buff-cadence step 1: buffs on a ~1 min cadence, orbs every 20 s. Constants only, no AI change."
+}
