@@ -46,13 +46,14 @@ const HUD_CONTROLS = [
 async function assertControlHit(page: Page, testId: string): Promise<string | null> {
   const loc = page.getByTestId(testId);
   await expect(loc).toBeVisible();
+  await loc.scrollIntoViewIfNeeded();
   const b = await loc.boundingBox();
   if (!b) return `${testId} missing box`;
   const vp = page.viewportSize()!;
   const cx = b.x + b.width / 2;
   const cy = b.y + b.height / 2;
   if (cx < 0 || cy < 0 || cx > vp.width || cy > vp.height) {
-    return `${testId} centre outside viewport`;
+    return `${testId} centre outside viewport (${cx.toFixed(1)},${cy.toFixed(1)})`;
   }
   const top = await page.evaluate(
     ({ x, y, want }) => {
@@ -124,6 +125,73 @@ test.describe("Watch layout guards (desktop)", () => {
         if (err) hits.push(err);
       }
       expect(hits, hits.join("\n")).toEqual([]);
+    }
+  });
+
+  test("HUD controls hittable @390 / @1280 / @1920; banner pinned @390", async ({
+    page,
+  }) => {
+    const EMPTY_CONTROLS = [
+      "btn-start-live",
+      "btn-start-live-seed2",
+      "btn-start-clock-ai",
+      "btn-open-lab",
+      "btn-load-sample",
+    ] as const;
+
+    for (const vp of [
+      { width: 390, height: 844 },
+      { width: 1280, height: 720 },
+      { width: 1920, height: 1080 },
+    ]) {
+      await page.setViewportSize(vp);
+      await page.goto("/");
+      await expect(page.getByTestId("btn-load-sample")).toBeVisible({
+        timeout: 60_000,
+      });
+
+      if (vp.width < 1280) {
+        const notice = page.getByTestId("desktop-notice");
+        await expect(notice).toBeVisible();
+        const nb = await notice.boundingBox();
+        expect(nb, "banner box").toBeTruthy();
+        expect(nb!.x).toBeGreaterThanOrEqual(-0.5);
+        expect(nb!.y).toBeLessThanOrEqual(1);
+        expect(nb!.x + nb!.width).toBeLessThanOrEqual(vp.width + 0.5);
+      }
+
+      const emptyHits: string[] = [];
+      for (const id of EMPTY_CONTROLS) {
+        const err = await assertControlHit(page, id);
+        if (err) emptyHits.push(err);
+      }
+      expect(emptyHits, `empty @${vp.width}: ${emptyHits.join("\n")}`).toEqual(
+        [],
+      );
+
+      await page.getByTestId("btn-load-sample").click();
+      await expect(page.getByTestId("arena-canvas")).toBeVisible({
+        timeout: 60_000,
+      });
+      await expect(page.getByTestId("watch-transport")).toBeVisible();
+
+      if (vp.width < 1280) {
+        // Scroll the page body; banner must stay pinned in the viewport.
+        await page.evaluate(() => window.scrollTo(0, 400));
+        const notice = page.getByTestId("desktop-notice");
+        const nb = await notice.boundingBox();
+        expect(nb, "banner after scroll").toBeTruthy();
+        expect(nb!.y).toBeLessThanOrEqual(1);
+        expect(nb!.x).toBeGreaterThanOrEqual(-0.5);
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
+
+      const hits: string[] = [];
+      for (const id of HUD_CONTROLS) {
+        const err = await assertControlHit(page, id);
+        if (err) hits.push(err);
+      }
+      expect(hits, `match @${vp.width}: ${hits.join("\n")}`).toEqual([]);
     }
   });
 
