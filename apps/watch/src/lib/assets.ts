@@ -4,6 +4,7 @@ import {
   type ChampAtlas,
 } from "./champ-atlas";
 import { WATCH_CHAMP_SLUGS } from "./champ-assets";
+import { parseVfxBlock, type VfxEntry } from "./vfx-atlas";
 
 export interface PillarDef {
   id: "NW" | "NE" | "SW" | "SE";
@@ -68,6 +69,8 @@ export interface WatchAssets {
   portraits: Record<string, TeamPortraits>;
   /** Extra sheets (VFX, falcon, afterimages) keyed `${slug}/${relative}`. */
   artImages: Record<string, HTMLImageElement>;
+  /** Parsed atlas `vfx` blocks keyed by champ slug. */
+  vfxAtlases: Record<string, Record<string, VfxEntry>>;
 }
 
 const BASE = "/arena-sandbox";
@@ -99,6 +102,7 @@ async function loadChampion(slug: string): Promise<{
   sheet: HTMLImageElement;
   portraits: TeamPortraits;
   artImages: Record<string, HTMLImageElement>;
+  vfx: Record<string, VfxEntry>;
 } | null> {
   let res: Response;
   try {
@@ -120,8 +124,21 @@ async function loadChampion(slug: string): Promise<{
   if (!sheet) return null;
 
   const artImages: Record<string, HTMLImageElement> = {};
+  const rels = new Set(collectAtlasFiles(slug, raw));
+  // Ensure standalone huntress-style vfx pngs and sheet are present.
+  for (const extra of [
+    "vfx/vfx-sheet.png",
+    "vfx/projectile-basic-blue.png",
+    "vfx/projectile-basic-red.png",
+    "vfx/projectile-skill-blue.png",
+    "vfx/projectile-skill-red.png",
+    "vfx/impact-blue.png",
+    "vfx/impact-red.png",
+  ]) {
+    rels.add(extra);
+  }
   await Promise.all(
-    collectAtlasFiles(slug, raw).map(async (rel) => {
+    [...rels].map(async (rel) => {
       if (rel === sheetRel) return;
       const img = await loadImageOptional(`/champions/${slug}/${rel}`);
       if (img) artImages[`${slug}/${rel}`] = img;
@@ -138,7 +155,7 @@ async function loadChampion(slug: string): Promise<{
   if (painted || blue) portraits.blue = painted ?? blue ?? undefined;
   if (red || portraits.blue) portraits.red = red ?? portraits.blue;
   if (compact) portraits.compact = compact;
-  return { atlas, sheet, portraits, artImages };
+  return { atlas, sheet, portraits, artImages, vfx: parseVfxBlock(raw) };
 }
 
 export async function loadWatchAssets(): Promise<WatchAssets> {
@@ -177,6 +194,7 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
   const sheetScale: Record<string, number> = { dummy: 2 };
   const portraits: Record<string, TeamPortraits> = {};
   const artImages: Record<string, HTMLImageElement> = {};
+  const vfxAtlases: Record<string, Record<string, VfxEntry>> = {};
   champs.forEach((loaded, i) => {
     if (!loaded) return;
     const slug = champSlugs[i]!;
@@ -185,6 +203,7 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
     sheetScale[slug] = 1;
     portraits[slug] = loaded.portraits;
     Object.assign(artImages, loaded.artImages);
+    vfxAtlases[slug] = loaded.vfx;
   });
 
   return {
@@ -198,5 +217,6 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
     sheetScale,
     portraits,
     artImages,
+    vfxAtlases,
   };
 }
