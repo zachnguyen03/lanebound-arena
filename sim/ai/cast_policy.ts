@@ -1119,28 +1119,26 @@ function spillTarget(ctx: Ctx, skill: SkillKey): UnitState | null {
 }
 
 /**
- * R7-6 / R7-6b P1a interrupt gate (whole ticks):
- * lead_ticks < (cast_start_tick + ceil(cast_s×10)) − decision_tick.
- * Decision tick ≥ cast_start + ceil(mult × reaction_delay_s × 10 − 1e-9),
- * with mult = P1A_READ_MULT (0.5) for enemy **R** windups and 1.0 otherwise.
- * Non-P1a reactions keep the full delay (callers elsewhere).
+ * R7-6 P1a whole-tick inequality (no R7-6b P1A_READ_MULT):
+ * lead_ticks < (cast_start_tick + ceil(cast_s×10)) − decision_tick
+ * Decision tick ≥ cast_start + ceil(reaction_delay×10 − 1e-9). Strict.
  */
 function interruptOf(ctx: Ctx, skill: SkillKey, maxRange: number): UnitState | null {
   let best: UnitState | null = null;
   const decisionTick = ctx.state.tick;
-  const reactS = reactionDelayS(ctx.u.attrs.reflexes);
+  const reactTicks = Math.ceil(reactionDelayS(ctx.u.attrs.reflexes) * 10 - 1e-9);
   const ourLead = leadTicks(ctx.u, skill);
   for (const e of ctx.perceived) {
     if (!isInterruptibleCast(e) || !e.cast_skill) continue;
     if (!inRange(ctx.u, e, maxRange)) continue;
     const enemyAb = abil(e.champ, e.cast_skill);
     if (!enemyAb) continue;
-    // Reconstruct cast_start from remaining windup (cast_left drifts with DT).
-    const castStartT = ctx.state.t - (enemyAb.cast_s - e.cast_left);
+    const seenT = ctx.memory?.castSeen[`${e.id}|${e.cast_seq}`];
+    // Reconstruct cast_start from remaining windup when unseen in memory.
+    const castStartT =
+      seenT !== undefined ? seenT : ctx.state.t - (enemyAb.cast_s - e.cast_left);
     const castStartTick = tickOf(castStartT);
-    const mult = e.cast_skill === "R" ? ctx.c.P1A_READ_MULT : 1;
-    const gateTicks = Math.ceil(mult * reactS * 10 - 1e-9);
-    if (decisionTick < castStartTick + gateTicks) continue;
+    if (decisionTick < castStartTick + reactTicks) continue;
     const castEndTick = castStartTick + Math.ceil(enemyAb.cast_s * 10 - 1e-9);
     const castLeftTicks = castEndTick - decisionTick;
     if (!(ourLead < castLeftTicks)) continue;
