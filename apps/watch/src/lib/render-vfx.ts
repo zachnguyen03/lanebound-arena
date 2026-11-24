@@ -22,6 +22,8 @@ import type {
 const TILE_W = 44;
 const TILE_H = 32;
 const ANCHOR_Y = 46;
+/** Match body playfield scale — authored VFX cells are 1× bitmaps. */
+const VFX_SCALE = 2;
 
 function blitNearest(
   ctx: CanvasRenderingContext2D,
@@ -140,6 +142,7 @@ function blitSpriteAt(
   footY: number,
   sprite: ResolvedSprite,
   frameIndex = 0,
+  scale = VFX_SCALE,
 ): void {
   if (sprite.rect) {
     const [sx, sy, sw, sh] = sprite.rect;
@@ -151,10 +154,10 @@ function blitSpriteAt(
       sy,
       sw,
       sh,
-      Math.round(footX - ax),
-      Math.round(footY - ay),
-      sw,
-      sh,
+      Math.round(footX - ax * scale),
+      Math.round(footY - ay * scale),
+      sw * scale,
+      sh * scale,
     );
     return;
   }
@@ -169,18 +172,18 @@ function blitSpriteAt(
       0,
       fw,
       fh,
-      Math.round(footX - ox),
-      Math.round(footY - oy),
-      fw,
-      fh,
+      Math.round(footX - ox * scale),
+      Math.round(footY - oy * scale),
+      fw * scale,
+      fh * scale,
     );
     return;
   }
   if (sprite.cell && sprite.frames) {
     const [cw, ch] = sprite.cell;
     const fi = frameIndex % sprite.frames;
-    const dx = sprite.offset_from_foot?.[0] ?? -Math.floor(cw / 2);
-    const dy = sprite.offset_from_foot?.[1] ?? -ch;
+    const dx = (sprite.offset_from_foot?.[0] ?? -Math.floor(cw / 2)) * scale;
+    const dy = (sprite.offset_from_foot?.[1] ?? -ch) * scale;
     blitNearest(
       ctx,
       sheet,
@@ -190,16 +193,16 @@ function blitSpriteAt(
       ch,
       Math.round(footX + dx),
       Math.round(footY + dy),
-      cw,
-      ch,
+      cw * scale,
+      ch * scale,
     );
     return;
   }
   // Whole image, centered above feet slightly.
   const w = sheet.naturalWidth || sheet.width;
   const h = sheet.naturalHeight || sheet.height;
-  const dx = sprite.offset_from_foot?.[0] ?? -Math.floor(w / 2);
-  const dy = sprite.offset_from_foot?.[1] ?? -h + 2;
+  const dx = (sprite.offset_from_foot?.[0] ?? -Math.floor(w / 2)) * scale;
+  const dy = (sprite.offset_from_foot?.[1] ?? -h + 2) * scale;
   blitNearest(
     ctx,
     sheet,
@@ -209,8 +212,8 @@ function blitSpriteAt(
     h,
     Math.round(footX + dx),
     Math.round(footY + dy),
-    w,
-    h,
+    w * scale,
+    h * scale,
   );
 }
 
@@ -372,10 +375,10 @@ function drawProjectileSprite(
         0,
         w,
         h,
-        Math.round(px - 2),
-        Math.round(py - h / 2),
-        w,
-        h,
+        Math.round(px - (w * VFX_SCALE) / 2),
+        Math.round(py - (h * VFX_SCALE) / 2),
+        w * VFX_SCALE,
+        h * VFX_SCALE,
       );
       return true;
     }
@@ -413,6 +416,30 @@ function drawProjectiles(
     const y = lerp(p.fromY, p.toY, u);
     const { px, py } = world(x, y);
     const facing = facingFromDelta(p.toX - p.fromX);
+
+    // Delayed AoE lands: keep a ground ring at the aim while the shell travels.
+    if (!p.isAuto && Math.hypot(p.toX - p.fromX, p.toY - p.fromY) > 0.05) {
+      const meta = p.skillId;
+      // Ring at destination for mortar / upwelling style spawns.
+      if (p.landT - p.spawnT >= 0.4) {
+        const dest = world(p.toX, p.toY);
+        const rx = 1.4 * TILE_W;
+        const ry = 1.4 * TILE_H;
+        drawEllipseOutline(
+          ctx,
+          dest.px,
+          dest.py,
+          rx,
+          ry,
+          TEAM_HEX[p.team],
+          2,
+          true,
+          `${TEAM_HEX[p.team]}18`,
+        );
+        void meta;
+      }
+    }
+
     const drawn = drawProjectileSprite(ctx, assets, p, px, py, facing);
 
     if (p.trail === "bronze-leash") {
@@ -779,10 +806,10 @@ function drawMeleeSmears(
         0,
         w,
         h,
-        Math.round(px + ox - 9),
-        Math.round(py + oy - 23),
-        w,
-        h,
+        Math.round(px + ox * VFX_SCALE - 9 * VFX_SCALE),
+        Math.round(py + oy * VFX_SCALE - 23 * VFX_SCALE),
+        w * VFX_SCALE,
+        h * VFX_SCALE,
       );
     }
   }
