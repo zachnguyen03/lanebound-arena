@@ -1,0 +1,18 @@
+
+> lanebound-arena@0.0.0 batch
+> tsx apps/lab/batch.ts --n 1200 --seed 20261122 --scheme random_draft --side-swap-pairs --out lab/s5-labs/random-draft
+
+{
+  "cancelled": false,
+  "n_requested": 1200,
+  "n_finished": 1200,
+  "config_hash": "4b447047c9ca81412a0b6636606f2acf092947283d3666525532cc1347bfdffd",
+  "out": {
+    "jsonPath": "lab/s5-labs/random-draft/batch-results.json",
+    "csvPath": "lab/s5-labs/random-draft/batch-summaries.csv",
+    "dashPath": "lab/s5-labs/random-draft/batch-dashboard.csv"
+  },
+  "length_median_s": 108.35,
+  "peel_rate": 0.9465323518016273,
+  "sanctuary": 0
+}

@@ -3,6 +3,7 @@
  */
 import type { SimulateResult, SimEvent, UnitId } from "../../../sim/types.js";
 import { tagArchetype } from "./archetypes.js";
+import { computeFightQuality } from "./fight-quality.js";
 import type { KdaRow, MatchSummary, ScoreParts } from "./types.js";
 
 function emptyParts(): ScoreParts {
@@ -115,6 +116,15 @@ export function summarizeMatch(
   const bluePicks = result.state.config.blue.picks;
   const redPicks = result.state.config.red.picks;
 
+  const fight_quality = computeFightQuality(result.events, {
+    score_blue: result.state.score_blue,
+    score_red: result.state.score_red,
+    blue_picks: bluePicks,
+    red_picks: redPicks,
+    end_reason: result.state.end_reason,
+    duration_s: result.state.t,
+  });
+
   return {
     seed,
     digest: result.digest,
@@ -141,6 +151,7 @@ export function summarizeMatch(
     t_first_R,
     t_L7,
     kda,
+    fight_quality,
   };
 }
 

@@ -2,6 +2,7 @@
  * §6.5 results dashboard rows from a finished batch.
  * Preview (N < 400) and champ N < 200 → under-powered; never hide sample size.
  */
+import { FIGHT_QUALITY_DEFINITIONS } from "./fight-quality.js";
 import type {
   ArchetypeTag,
   BatchResult,
@@ -353,6 +354,83 @@ export function buildDashboard(
     mark: "report",
   });
 
+  // Side lean (blue vs red wins) — report only; no §6.5 band.
+  let blueWins = 0;
+  let redWins = 0;
+  let draws = 0;
+  for (const s of summaries) {
+    if (s.winner === "blue") blueWins += 1;
+    else if (s.winner === "red") redWins += 1;
+    else draws += 1;
+  }
+  const decided = blueWins + redWins;
+  const blueWr = decided > 0 ? (blueWins / decided) * 100 : NaN;
+  rows.push({
+    id: "side_lean",
+    metric: "Side lean (blue vs red wins)",
+    target: "Report only (no §6.5 band on side)",
+    value: Number.isFinite(blueWr)
+      ? `blue ${blueWins} (${blueWr.toFixed(1)}%) / red ${redWins} (${(100 - blueWr).toFixed(1)}%); draws/null=${draws}`
+      : `blue ${blueWins} / red ${redWins}; draws/null=${draws}`,
+    sample_size: n,
+    mark: "report",
+  });
+
+  // F1–F4 fight quality (Appendix R6-8) — values only, no targets marked.
+  const fqKeys = [
+    "f1_teamfights",
+    "f2_combo_chains",
+    "f3_clutch_moments",
+    "f4_close_finish",
+    "f4_comeback",
+    "f4_shutout",
+    "f4_multikills",
+    "lead_changes",
+    "contested_pit_share",
+  ] as const;
+  const fqDist: Record<string, { median: number; p10: number; p90: number }> =
+    {};
+  for (const key of fqKeys) {
+    const vals = summaries
+      .map((s) => Number(s.fight_quality?.[key] ?? 0))
+      .sort((a, b) => a - b);
+    const d = {
+      median: median(vals),
+      p10: percentile(vals, 0.1),
+      p90: percentile(vals, 0.9),
+    };
+    fqDist[key] = d;
+    const isShare = key === "contested_pit_share";
+    const fmt = (x: number) =>
+      isShare ? `${(x * 100).toFixed(1)}%` : x.toFixed(2);
+    rows.push({
+      id: `fight_${key}`,
+      metric:
+        key === "f1_teamfights"
+          ? "F1 teamfights / game"
+          : key === "f2_combo_chains"
+            ? "F2 combo chains / game"
+            : key === "f3_clutch_moments"
+              ? "F3 clutch moments / game"
+              : key === "f4_close_finish"
+                ? "F4 close finish (0/1)"
+                : key === "f4_comeback"
+                  ? "F4 comeback (0/1)"
+                  : key === "f4_shutout"
+                    ? "F4 shutout (0/1)"
+                    : key === "f4_multikills"
+                      ? "F4 multikills / game"
+                      : key === "lead_changes"
+                        ? "Lead changes / game"
+                        : "Contested-pit share",
+      target: "— (values only; no band yet)",
+      value: `median ${fmt(d.median)}; p10 ${fmt(d.p10)}; p90 ${fmt(d.p90)}`,
+      sample_size: n,
+      mark: "report",
+      notes: FIGHT_QUALITY_DEFINITIONS[key],
+    });
+  }
+
   const aggregates: Record<string, unknown> = {
     n,
     length_median_s: med,
@@ -369,6 +447,12 @@ export function buildDashboard(
     t_first_R_median: rMed,
     t_L7_median: l7Med,
     end_reasons: endReasonShare(summaries),
+    side_lean: {
+      blue_wins: blueWins,
+      red_wins: redWins,
+      draws,
+      blue_win_rate: decided > 0 ? blueWins / decided : null,
+    },
     champions: Object.fromEntries(
       champEntries.map(([id, v]) => [
         id,
@@ -381,6 +465,10 @@ export function buildDashboard(
     ),
     archetypes_vs_field: vsField,
     archetype_edges: edges,
+    fight_quality: {
+      distributions: fqDist,
+      definitions: FIGHT_QUALITY_DEFINITIONS,
+    },
   };
 
   return { rows, aggregates };

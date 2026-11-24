@@ -1,0 +1,49 @@
+{
+  "branch": "s5-labs",
+  "base_sha": "d691445df27ab35b80afb9fc89333e1df9039b30",
+  "label": "auto-only baseline (no AI casts)",
+  "blocked_skillshot": "chooseExecutionCast in sim/ai/brain.ts returns null unless champ is kerrig|huntress (gated R only; never Q/W). No skillshot isolation preset without sim edits.",
+  "random_draft": {
+    "n": 1200,
+    "seed_start": 20261122,
+    "pair_seeds": 600,
+    "scheme": "random_draft",
+    "side_swap_pairs": true,
+    "base": "evenOvrConfig(seed, hold_the_pit)",
+    "draft": "quickDraftPicks(seed) — lab xorshift, no duplicate champ in a match",
+    "inventions": [
+      "lab-local xorshift shuffle (not sim RNG stream `draft`)",
+      "role-preference fill (defaultSlot map) before leftover fill — INVENTION",
+      "side_swap_pairs: each seed runs twice with blue/red picks swapped"
+    ],
+    "command": "npm run batch -- --n 1200 --seed 20261122 --scheme random_draft --side-swap-pairs --out lab/s5-labs/random-draft"
+  },
+  "isolation": {
+    "n_per_arm": 400,
+    "seed_start": 20261122,
+    "attrs_all": 60,
+    "teamwork_floor": 40,
+    "pairing": "pair_swap",
+    "justification": "callFollowSlack(T)=1+0.01*max(0,50−T) is 1.0 for T≥50. Floor T=40 so +30 moves slack 1.10→1.00. Side-swapped pairs + mirror control target ~50% base WR (§8.5 / GD).",
+    "mastery": "mastery_one on blue ADC pick only (§8.5) — not mastery_all",
+    "command": "npm run isolation -- --n 400 --seed 20261122 --teamwork-floor 40 --pairing pair_swap --out lab/s5-labs/isolation-tw40"
+  },
+  "fight_quality": {
+    "source": "Appendix R #6 / S5-R6-8 (build-spec)",
+    "engagement_gap_s": 3,
+    "teamfight_min_s": 3,
+    "clutch_hp_frac": 0.15,
+    "clutch_survive_s": 5,
+    "definitions": {
+      "f1_teamfights": "F1 (S5-R6-8): engagement = maximal run of cross-team hit/status_apply with gap ≤ 3.0 s; teamfight = engagement lasting ≥ 3.0 s with ≥ 3 distinct units per side (dealt or took damage). Count per game.",
+      "f2_combo_chains": "F2 (S5-R6-8): hard-CC status_apply by A on enemy X, then within min(CC duration+0.5 s, 2.0 s) damage on X from ≥ 2 distinct units of A's team (A counts), ≥ 1 skill hit (skill_id ≠ auto).",
+      "f3_clutch_moments": "F3 (S5-R6-8): (a) low-HP escape — hit to ≤ 15% max HP during a teamfight, alive 5.0 s later, once per unit per 5 s; plus (b) outnumbered win — at a teamfight's first death, the side with fewer living involved ends that fight with more takedowns.",
+      "f4_close_finish": "F4 (S5-R6-8): close = 1 if final margin ≤ 2 or end_reason is sudden_death, else 0.",
+      "lead_changes": "Companion: sign(score_blue−score_red) changes on takedown_score/zone_tick/claim_award.",
+      "contested_pit_share": "R6-5 pit contest proxy from the event log: share of fight_call events whose centroid is within ZONE_RADIUS of ZONE_CENTER. True “owned time that is contested” needs occupancy ticks (not exported); this is the lab stand-in.",
+      "f4_comeback": "F4 companion: 1 if winner trailed by ≥ 3 at some score point.",
+      "f4_shutout": "F4 companion: 1 if loser score is 0.",
+      "f4_multikills": "F4 companion: count of double-kill windows (same killer ≥ 2 deaths within 6.0 s)."
+    }
+  }
+}

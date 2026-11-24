@@ -1,0 +1,30 @@
+{
+  "label": "auto-only baseline (no AI casts)",
+  "n_games": 1200,
+  "n_pairs": 600,
+  "side_lean_pooled": {
+    "blue_wins": 603,
+    "red_wins": 597,
+    "draws": 0,
+    "blue_win_rate": 0.5025
+  },
+  "side_lean_normal_only": {
+    "blue": 307,
+    "red": 293,
+    "blue_wr": 0.5116666666666667
+  },
+  "side_lean_swapped_only": {
+    "blue": 296,
+    "red": 304,
+    "blue_wr": 0.49333333333333335
+  },
+  "pair_outcomes": {
+    "kit_p1_wins_both": 231,
+    "kit_p2_wins_both": 220,
+    "side_blue_wins_both": 76,
+    "side_red_wins_both": 73,
+    "mixed": 0
+  },
+  "comp_decisive_rate": 0.7516666666666667,
+  "side_decisive_rate": 0.24833333333333332
+}

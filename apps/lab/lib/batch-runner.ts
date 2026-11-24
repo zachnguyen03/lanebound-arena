@@ -86,10 +86,32 @@ export function applyPins(
       for (const p of side.players) p.attrs = attrsAll(attrsValue);
     }
   }
+  const teamworkValue = pins?.teamwork_all;
+  if (teamworkValue !== undefined) {
+    for (const side of [cfg.blue, cfg.red]) {
+      for (const p of side.players) {
+        p.attrs = { ...p.attrs, teamwork: teamworkValue };
+      }
+    }
+  }
   if (masteryValue !== undefined) {
     const m = masteryAll(masteryValue);
     for (const side of [cfg.blue, cfg.red]) {
       for (const p of side.players) p.mastery = { ...m };
+    }
+  }
+  const masteryOne = pins?.mastery_one;
+  if (masteryOne) {
+    const side = masteryOne.side === "red" ? cfg.red : cfg.blue;
+    const idx = slotIndex(masteryOne.slot);
+    const player = side.players[idx];
+    const champ = side.picks[idx];
+    if (player && champ) {
+      const base = player.mastery ?? masteryAll(masteryValue ?? 50);
+      player.mastery = {
+        ...base,
+        [champ]: Math.min(100, Math.max(0, masteryOne.value)),
+      };
     }
   }
   const iso = isolation ?? pins?.isolation;
@@ -106,9 +128,41 @@ export function applyPins(
   return cfg;
 }
 
-/** Quick draft: deterministic xorshift shuffle from seed. */
+/** Swap blue/red picks (and draft_mode fixed). Same seed → side-swapped pair. */
+export function swapPicks(cfg: MatchConfig): MatchConfig {
+  const out = structuredClone(cfg);
+  const bluePicks = out.blue.picks.slice();
+  const redPicks = out.red.picks.slice();
+  out.blue = { ...out.blue, picks: redPicks };
+  out.red = { ...out.red, picks: bluePicks };
+  out.draft_mode = "fixed";
+  return out;
+}
+
+/** Mirror: both sides play the same five picks (blue's by default). */
+export function mirrorPicks(cfg: MatchConfig, from: "blue" | "red" = "blue"): MatchConfig {
+  const out = structuredClone(cfg);
+  const picks = (from === "red" ? out.red.picks : out.blue.picks).slice();
+  out.blue = { ...out.blue, picks: picks.slice() };
+  out.red = { ...out.red, picks: picks.slice() };
+  out.draft_mode = "fixed";
+  return out;
+}
+
+/**
+ * Quick draft: deterministic xorshift shuffle from seed.
+ * INVENTION: lab-local RNG (not sim stream `draft`). Seeds in a tight range
+ * (e.g. 20261122…) produced nearly identical first xorshift outputs, so the
+ * Fisher–Yates first swap always parked pool[2] (`isra`) in the sit-out seat.
+ * SplitMix32 avalanche before xorshift removes that seed-range correlation.
+ */
 export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
-  let s = seed >>> 0 || 1;
+  let s = seed >>> 0;
+  // SplitMix32 avalanche so consecutive seeds are uncorrelated.
+  s = Math.imul(s ^ (s >>> 16), 0x7feb352d);
+  s = Math.imul(s ^ (s >>> 15), 0x846ca68b);
+  s = (s ^ (s >>> 16)) >>> 0;
+  if (s === 0) s = 1;
   const next = () => {
     s ^= s << 13;
     s >>>= 0;
@@ -269,7 +323,11 @@ export function runBatch(
   const batch_id = `batch-${seedStart}-${n}-${batch.scheme}`;
   const started_at = new Date().toISOString();
 
-  for (let i = 0; i < n; i++) {
+  const pairMode = batch.side_swap_pairs === true;
+  const pairSeeds = pairMode ? Math.floor(n / 2) : n;
+  const totalGames = pairMode ? pairSeeds * 2 : n;
+
+  for (let i = 0; i < pairSeeds; i++) {
     if (opts.signal?.aborted || opts.shouldCancel?.()) {
       cancelled = true;
       break;
@@ -279,7 +337,28 @@ export function runBatch(
     const result = simulate(cfg);
     const summary = summarizeMatch(seed, result);
     summaries.push(summary);
-    opts.onProgress?.({ completed: summaries.length, total: n, last: summary });
+    opts.onProgress?.({
+      completed: summaries.length,
+      total: totalGames,
+      last: summary,
+    });
+
+    if (pairMode) {
+      if (opts.signal?.aborted || opts.shouldCancel?.()) {
+        cancelled = true;
+        break;
+      }
+      const swapped = applyPins(swapPicks(cfg), batch.pins, batch.isolation);
+      const r2 = simulate(swapped);
+      // Traceability: swapped twin encoded as seed + 1e9
+      const summary2 = summarizeMatch((seed + 1_000_000_000) >>> 0, r2);
+      summaries.push(summary2);
+      opts.onProgress?.({
+        completed: summaries.length,
+        total: totalGames,
+        last: summary2,
+      });
+    }
   }
 
   const dashboard = buildDashboard(summaries);

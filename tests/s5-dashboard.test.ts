@@ -6,7 +6,7 @@ import {
   defaultEvenBatchConfig,
   runBatch,
 } from "../apps/lab/lib/batch-runner.js";
-import { buildDashboard, attachIsolationToBatch } from "../apps/lab/lib/dashboard.js";
+import { buildDashboard } from "../apps/lab/lib/dashboard.js";
 import { runIsolation } from "../apps/lab/lib/isolation.js";
 import { dashboardToCsv, summariesToCsv, batchResultToJson } from "../apps/lab/lib/csv.js";
 import { parsePresetJson, serializePreset, createPreset } from "../apps/lab/lib/presets.js";
@@ -58,8 +58,13 @@ describe("S5 dashboard D1–D4", () => {
   }, 300_000);
 
   it("D2: isolation preset produces six attribute deltas", () => {
-    // Preview N=5 — still six deltas; mark under-powered for the claim band.
-    const iso = runIsolation({ nPerArm: 5, seedStart: 20261122 });
+    // Preview N=5 plain — still six deltas; mark under-powered for the claim band.
+    const iso = runIsolation({
+      nPerArm: 5,
+      seedStart: 20261122,
+      pairing: "plain",
+      includeMirrorControl: false,
+    });
     expect(iso.deltas).toHaveLength(6);
     const attrs = iso.deltas.map((d) => d.attr).sort();
     expect(attrs).toEqual([
@@ -74,8 +79,10 @@ describe("S5 dashboard D1–D4", () => {
       expect(d.n).toBe(5);
       expect(Number.isFinite(d.delta_pp)).toBe(true);
     }
-    const control = attachIsolationToBatch(iso.arms.control!, iso.dashboard);
-    const row = control.dashboard.rows.find((r) => r.id === "attribute_isolation");
+    const dash = buildDashboard(iso.arms.control!.summaries, {
+      isolation: iso.dashboard,
+    });
+    const row = dash.rows.find((r) => r.id === "attribute_isolation");
     expect(row).toBeTruthy();
     expect(row!.mark).toBe("under-powered");
     expect(row!.value).toMatch(/aim/);
@@ -106,6 +113,17 @@ describe("S5 dashboard D1–D4", () => {
         t_first_R: null,
         t_L7: null,
         kda: Array.from({ length: 10 }, () => ({ k: 0, d: 0, a: 0, dmg: 0 })),
+        fight_quality: {
+          f1_teamfights: 0,
+          f2_combo_chains: 0,
+          f3_clutch_moments: 0,
+          f4_close_finish: 0,
+          lead_changes: 0,
+          contested_pit_share: 0,
+          f4_comeback: 0,
+          f4_shutout: 0,
+          f4_multikills: 0,
+        },
       },
     ]);
     const sanc = rows.find((r) => r.id === "sanctuary");

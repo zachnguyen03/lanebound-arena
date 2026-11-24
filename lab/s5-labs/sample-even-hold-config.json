@@ -1,0 +1,23 @@
+{
+  "seed": 20261122,
+  "draft_mode": "fixed",
+  "ai_enabled": true,
+  "forced_clock_end": false,
+  "blue_picks": [
+    "brannoch",
+    "sedge",
+    "kerrig",
+    "huntress",
+    "ysol"
+  ],
+  "red_picks": [
+    "rhedan",
+    "tolle",
+    "helvar",
+    "maelis",
+    "saelo"
+  ],
+  "blue_tactic": "hold_the_pit",
+  "red_tactic": "hold_the_pit",
+  "label": "auto-only baseline (no AI casts)"
+}
