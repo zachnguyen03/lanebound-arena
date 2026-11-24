@@ -20,6 +20,9 @@ import {
   atPlannerWaypoint,
   isLabParked,
   planObjective,
+  roverPrey,
+  roverDetached,
+  roverOutnumbered,
 } from "./planner.js";
 import { pickUnitTarget } from "./target.js";
 
@@ -223,6 +226,14 @@ export function brainDecide(
     );
   let effectiveCommit: CommitKind = opts.commit;
   if (opts.commit === "hold" && opts.tactic === "hunt" && (nearEnemy || huntEnemy)) {
+    effectiveCommit = "engage";
+  }
+  // exp/orb-buff-cadence: a rover that meets an enemy it is not outnumbered by
+  // takes the skirmish instead of standing off under a Hold call.
+  if (opts.commit === "disengage" && roverDetached(state, u) && !roverOutnumbered(state, u)) {
+    effectiveCommit = "hold";
+  }
+  if (effectiveCommit === "hold" && nearEnemy && roverPrey(state, u)) {
     effectiveCommit = "engage";
   }
   // Hunt keeps engage while a far legal body exists; other presets drop to hold

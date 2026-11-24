@@ -131,8 +131,141 @@ function starveWaypoint(u: UnitState, state: MatchState, c: Constants): { x: num
   return { x: pad[0]!, y: pad[1]! };
 }
 
+// ---------------------------------------------------------------------------
+// Experimental cadence rovers (exp/orb-buff-cadence; not in the build spec).
+// Jungle + support leave the pit for orbs and buffs; the carry takes its
+// own-side buff. Off unless MatchConfig.cadence.rovers.
+// ---------------------------------------------------------------------------
+
+/** Walk to a buff pad this many seconds before it spawns (setup). */
+const BUFF_SETUP_S = 8;
+/** Rovers ignore pads farther than this (tiles). */
+const ROVE_MAX_D = 16;
+/** Carry only takes a buff this close (tiles). */
+const CARRY_BUFF_D = 7;
+/** A rover hunts an enemy this close when not outnumbered around it (tiles). */
+const ROVE_SEEK_R = 7;
+
+interface PadPick {
+  key: string;
+  x: number;
+  y: number;
+  buff: boolean;
+}
+
+function onOwnSide(team: Team, x: number): boolean {
+  return team === "blue" ? x < 12 : x > 12;
+}
+
+function buffReady(state: MatchState, b: { up: boolean; respawn_at?: number }): boolean {
+  return b.up || (b.respawn_at !== undefined && b.respawn_at - state.t <= BUFF_SETUP_S + 1e-9);
+}
+
+/** Carry's own-side buff, if ready and close. */
+function carryBuff(state: MatchState, u: UnitState): PadPick | null {
+  for (const b of state.buffs ?? []) {
+    if (!buffReady(state, b) || !onOwnSide(u.team, b.x)) continue;
+    if (dist(u.x, u.y, b.x, b.y) > CARRY_BUFF_D + 1e-9) continue;
+    return { key: b.buff_id, x: b.x, y: b.y, buff: true };
+  }
+  return null;
+}
+
+function bestRoverPad(state: MatchState, u: UnitState, taken: ReadonlySet<string>): PadPick | null {
+  const enemies = state.units.filter((e) => e.alive && e.team !== u.team && !isBanished(e.status));
+  const contested = (x: number, y: number) => enemies.some((e) => dist(e.x, e.y, x, y) <= 5);
+  let best: PadPick | null = null;
+  let bestScore = -Infinity;
+  const consider = (key: string, x: number, y: number, buff: boolean, value: number) => {
+    if (taken.has(key)) return;
+    const d = dist(u.x, u.y, x, y);
+    if (d > ROVE_MAX_D + 1e-9) return;
+    const own = onOwnSide(u.team, x);
+    // Role split: the jungle invades enemy-side pads; the support guards its own
+    // side and is pulled hard to a pad an enemy is contesting (counter-rotate).
+    const side = u.slot === "jungle" ? (own ? 0 : 3) : own ? (contested(x, y) ? 6 : 0) : -8;
+    const score = value * 2 - d + side;
+    if (score > bestScore + 1e-9) {
+      bestScore = score;
+      best = { key, x, y, buff };
+    }
+  };
+  for (const b of state.buffs ?? []) if (buffReady(state, b)) consider(b.buff_id, b.x, b.y, true, 10);
+  for (const o of state.orbs ?? []) if (o.up) consider(o.orb_id, o.x, o.y, false, 4);
+  return best;
+}
+
+/**
+ * Rover skirmish target: nearest enemy within ROVE_SEEK_R when this rover's side
+ * is not outnumbered inside that radius. Null when cadence rovers are off.
+ */
+export function roverPrey(state: MatchState, u: UnitState): UnitState | null {
+  if (!state.config?.cadence?.rovers) return null;
+  if (u.slot !== "jungle" && u.slot !== "support") return null;
+  const local = (team: Team) =>
+    state.units.filter(
+      (x) => x.alive && x.team === team && !isBanished(x.status) && dist(u.x, u.y, x.x, x.y) <= ROVE_SEEK_R + 1e-9,
+    );
+  const foes = local(u.team === "blue" ? "red" : "blue");
+  if (foes.length === 0 || local(u.team).length < foes.length) return null;
+  return foes.slice().sort((a, b) => dist(u.x, u.y, a.x, a.y) - dist(u.x, u.y, b.x, b.y) || a.index - b.index)[0]!;
+}
+
+/**
+ * A rover more than ROVE_DETACH_R from every top/mid/adc ally is on its own
+ * map: the pit group's disengage call does not recall it (it makes local calls).
+ */
+const ROVE_DETACH_R = 6;
+export function roverDetached(state: MatchState, u: UnitState): boolean {
+  if (!state.config?.cadence?.rovers) return false;
+  if (u.slot !== "jungle" && u.slot !== "support") return false;
+  return !state.units.some(
+    (a) =>
+      a.alive &&
+      a.team === u.team &&
+      (a.slot === "top" || a.slot === "mid" || a.slot === "adc") &&
+      dist(u.x, u.y, a.x, a.y) <= ROVE_DETACH_R + 1e-9,
+  );
+}
+
+/** Locally outnumbered inside ROVE_SEEK_R. */
+export function roverOutnumbered(state: MatchState, u: UnitState): boolean {
+  const count = (team: Team) =>
+    state.units.filter(
+      (x) => x.alive && x.team === team && !isBanished(x.status) && dist(u.x, u.y, x.x, x.y) <= ROVE_SEEK_R + 1e-9,
+    ).length;
+  return count(u.team === "blue" ? "red" : "blue") > count(u.team);
+}
+
+function roverPlan(state: MatchState, u: UnitState, _c: Constants): PlannerPlan | null {
+  const allies = livingAllies(state, u.team);
+  const enemiesAlive = state.units.filter((e) => e.alive && e.team !== u.team).length;
+  // Never leave the group when outnumbered.
+  if (allies.length < enemiesAlive) return null;
+  const byslot = (slot: string) => allies.find((a) => a.slot === slot) ?? null;
+  const carry = byslot("adc");
+  const carryPick = carry ? carryBuff(state, carry) : null;
+  if (u.slot === "adc") {
+    return carryPick ? { intent: "TakeBuff", waypoint: { x: carryPick.x, y: carryPick.y } } : null;
+  }
+  if (u.slot !== "jungle" && u.slot !== "support") return null;
+  // Skirmish: hunt a nearby enemy when not outnumbered locally (Dota rune fights).
+  const prey = roverPrey(state, u);
+  if (prey) return { intent: "Approach", waypoint: { x: prey.x, y: prey.y } };
+  const taken = new Set<string>(carryPick ? [carryPick.key] : []);
+  // Jungle picks first; support takes the next-best pad (stable order, no RNG).
+  const jungle = byslot("jungle");
+  if (u.slot === "support" && jungle) {
+    const jp = bestRoverPad(state, jungle, taken);
+    if (jp) taken.add(jp.key);
+  }
+  const pick = bestRoverPad(state, u, taken);
+  if (!pick) return null;
+  return { intent: pick.buff ? "TakeBuff" : "CollectOrb", waypoint: { x: pick.x, y: pick.y } };
+}
+
 export interface PlannerPlan {
-  intent: "HoldZone" | "Approach" | "CollectOrb";
+  intent: "HoldZone" | "Approach" | "CollectOrb" | "TakeBuff";
   waypoint: { x: number; y: number };
 }
 
@@ -147,6 +280,10 @@ export function planObjective(
   c: Constants,
 ): PlannerPlan | null {
   if (!u.alive || isLabParked(u)) return null;
+  if (state.config?.cadence?.rovers && tactic !== "hunt") {
+    const rove = roverPlan(state, u, c);
+    if (rove) return rove;
+  }
   if (tactic === "hold_the_pit") {
     return { intent: "HoldZone", waypoint: holdZoneWaypoint(u, state, c) };
   }
