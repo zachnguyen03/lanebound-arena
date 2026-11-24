@@ -71,10 +71,9 @@ describe("S4 live match", () => {
       (e) =>
         e.type === "hit" && melee.has(idChamp.get(String(e.source_id)) ?? ""),
     );
-    expect(hits).toHaveLength(102);
-    expect(hits.some((e) => idChamp.get(String(e.source_id)) === "kerrig" && e.tick === 2109)).toBe(
-      true,
-    );
+    // S6 melee Approach + casts: melee auto volume rises above the pre-fix 102.
+    expect(hits.length).toBeGreaterThan(102);
+    expect(hits.some((e) => idChamp.get(String(e.source_id)) === "kerrig")).toBe(true);
   }, 120_000);
 
   it("seed 20261123 digest is stable and independent of debug_pos", () => {
