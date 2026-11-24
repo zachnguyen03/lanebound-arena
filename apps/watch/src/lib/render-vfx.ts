@@ -768,6 +768,26 @@ function drawStatusIcons(
             const dy = Math.round(
               headY + (sprite.offset_from_foot?.[1] ?? -fh) * scale,
             );
+            const dw = fw * scale;
+            const dh = fh * scale;
+            // Bright team underlay so dark chevron strips contrast on the floor.
+            ctx.save();
+            ctx.fillStyle = TEAM_HEX[unit.team];
+            ctx.strokeStyle = OUTLINE;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.ellipse(
+              dx + dw / 2,
+              dy + dh / 2,
+              Math.max(dw / 2 + 4, 18),
+              Math.max(dh / 2 + 6, 10),
+              0,
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
             blitWithTeamCore(
               ctx,
               imgEl,
@@ -777,8 +797,8 @@ function drawStatusIcons(
               fh,
               dx,
               dy,
-              fw * scale,
-              fh * scale,
+              dw,
+              dh,
               unit.team,
             );
           } else {
@@ -872,7 +892,8 @@ function drawOutlinedText(
   y: number,
   color: string,
 ): void {
-  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 4;
   ctx.strokeStyle = OUTLINE;
   ctx.strokeText(text, x, y);
   ctx.fillStyle = color;
@@ -893,7 +914,7 @@ function drawSkillTags(
     return (ua?.y ?? 0) - (ub?.y ?? 0) || (ua?.x ?? 0) - (ub?.x ?? 0);
   });
   ctx.save();
-  ctx.font = "bold 12px Barlow Condensed, sans-serif";
+  ctx.font = "bold 14px Barlow, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "bottom";
   for (const tag of tags) {
