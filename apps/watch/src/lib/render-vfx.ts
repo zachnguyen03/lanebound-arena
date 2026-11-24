@@ -744,9 +744,7 @@ function drawStatusIcons(
           const age = state.t - st.startedAt;
           const fi = Math.floor(age * 8);
           const ground = st.kind === "root" || st.kind === "slow";
-          // Wide drag strips (e.g. 56×6 slow.png) stay readable without
-          // flooding the floor: 3× + team core instead of full 4×.
-          const scale = ground ? 3 : VFX_SCALE;
+          const scale = VFX_SCALE;
           const sprite = {
             ...resolved.sprite,
             offset_from_foot:
@@ -761,10 +759,15 @@ function drawStatusIcons(
             const imgEl = resolved.image;
             const w = imgEl.naturalWidth || imgEl.width;
             const h = imgEl.naturalHeight || imgEl.height;
-            const cell = sprite.cell;
+            // slow/root are one shared 4-frame strip; some atlases list it
+            // without its cell, which drew all four frames side by side.
+            const strip = sprite.cell
+              ? { cell: sprite.cell, frames: sprite.frames ?? 1 }
+              : sharedStripCell(assets, key);
+            const cell = strip?.cell;
             const fw = cell ? cell[0] : w;
             const fh = cell ? cell[1] : h;
-            const sx = cell ? (fi % (sprite.frames ?? 1)) * fw : 0;
+            const sx = cell ? (fi % (strip?.frames ?? 1)) * fw : 0;
             const dx = Math.round(
               headX + (sprite.offset_from_foot?.[0] ?? -fw / 2) * scale,
             );
@@ -835,6 +838,17 @@ function drawStatusIcons(
       slot += 1;
     }
   }
+}
+
+function sharedStripCell(
+  assets: WatchAssets,
+  key: string,
+): { cell: [number, number]; frames: number } | null {
+  for (const block of Object.values(assets.vfxAtlases)) {
+    const e = block[key] as { cell?: [number, number]; frames?: number } | undefined;
+    if (e?.cell && e.frames) return { cell: e.cell, frames: e.frames };
+  }
+  return null;
 }
 
 function drawProceduralStatus(
