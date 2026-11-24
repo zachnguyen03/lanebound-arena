@@ -1,6 +1,6 @@
 # S4 verify 5 — melee attack clip in the Watch
 
-**Code tip:** `829f769`
+**Code tip:** `e427530`
 
 **Preset:** S1 AI-on. Even lineup, `hold_the_pit`, AI on, `forced_clock_end: true`. The Watch builds this in `clockAiConfig` (note `Clock match`) and starts it from **Start clock AI 20261122**. The digest matches `defaultEvenConfig` with those two flags. No digest file was rewritten.
 
@@ -58,5 +58,5 @@ Preview for the stills used port 4174 after `ss -ltnp` showed 4173 and 4174 free
 |---|---|
 | `npm run purity` | 0 |
 | `npx tsc --noEmit` | 0 |
-| `npm test` | 0 (1404 passed, 11 skipped) |
-| `npm run watch:e2e` | 0 (29 passed) |
+| `npm test` | 0 (1405 passed, 11 skipped) |
+| `npm run watch:e2e` | 0 (31 passed) |
