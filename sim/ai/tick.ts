@@ -19,6 +19,7 @@ import { brainDecide, type ChaseState } from "./brain.js";
 import {
   canFlipCommit,
   chooseCommit,
+  commitThresholds,
   evaluateFight,
   fightIssuesCall,
   shouldRunL1,
@@ -259,11 +260,23 @@ export function tickAi(
         });
       }
       ai.focus[team] = focus;
+      // commit_r (§9.4.1.4 rule 6 / R7-5): engage ∧ A_commit ≥ engage+0.10 ∧ ≥3 enemies.
+      // Field path: fight_call.commit_r (boolean). Lifts nA≤1 only; nE≥2 still required.
+      const ownZone = state.zone?.owner === team;
+      const th = commitThresholds(ai.active_tactic[team], !!ownZone);
+      let enemiesInFight = 0;
+      for (const id of useSnap.participants) {
+        const eu = state.units.find((x) => x.id === id);
+        if (eu && eu.alive && eu.team !== team && !isBanished(eu.status)) enemiesInFight += 1;
+      }
+      const commit_r =
+        next === "engage" && a_commit + 1e-9 >= th.engage + 0.1 && enemiesInFight >= 3;
       emit("fight_call", {
         team,
         a_true: aTrue,
         a_commit,
         commit: next,
+        commit_r,
         focus_id: focus ?? null,
         shotcaller_id: sc?.id ?? null,
         reason: useSnap.escalate_2v2 ? "2v2_escalate" : "fight",

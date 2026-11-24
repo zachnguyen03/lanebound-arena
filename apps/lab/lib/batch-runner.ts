@@ -108,7 +108,9 @@ export function applyPins(
 
 /** Quick draft: deterministic xorshift shuffle from seed. */
 export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
-  let s = seed >>> 0 || 1;
+  // R7 lab tooling: decorrelate consecutive seeds so seed and seed+1 do not
+  // share the same low-bit shuffle trajectory (Isra 0/100 bias).
+  let s = (Math.imul((seed >>> 0) || 1, 0x9e3779b1) ^ 0x85ebca6b) >>> 0 || 1;
   const next = () => {
     s ^= s << 13;
     s >>>= 0;
@@ -223,6 +225,7 @@ export function configHashOf(batch: BatchConfig): string {
       blue: batch.base.blue.tactics.preset,
       red: batch.base.red.tactics.preset,
     },
+    side_swap_pairs: batch.side_swap_pairs === true,
   };
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
 }
@@ -259,35 +262,100 @@ export function runBatch(
   batch: BatchConfig,
   opts: RunBatchOptions = {},
 ): BatchResult {
-  const n = opts.allowAnyN ? batch.n : clampBatchN(batch.n);
-  if (!Number.isInteger(n) || n < 1) {
-    throw new Error(`Batch n must be a positive integer (got ${n})`);
+  const pairSeeds = opts.allowAnyN ? batch.n : clampBatchN(batch.n);
+  if (!Number.isInteger(pairSeeds) || pairSeeds < 1) {
+    throw new Error(`Batch n must be a positive integer (got ${pairSeeds})`);
   }
+  const sideSwap = batch.side_swap_pairs === true;
+  /** With --side-swap-pairs, n is pair-seeds → 2n games. */
+  const nGames = sideSwap ? pairSeeds * 2 : pairSeeds;
   const seedStart = (batch.seed_start ?? batch.base.seed) >>> 0;
   const summaries: MatchSummary[] = [];
   let cancelled = false;
-  const batch_id = `batch-${seedStart}-${n}-${batch.scheme}`;
+  const batch_id = `batch-${seedStart}-${pairSeeds}-${batch.scheme}${sideSwap ? "-swap" : ""}`;
   const started_at = new Date().toISOString();
 
-  for (let i = 0; i < n; i++) {
-    if (opts.signal?.aborted || opts.shouldCancel?.()) {
-      cancelled = true;
-      break;
+  const runOne = (seed: number, gameIndex: number, swapped: boolean): MatchSummary => {
+    const cfg = configForGame(batch, seed, gameIndex);
+    if (swapped) {
+      const bluePicks = [...cfg.red.picks];
+      const redPicks = [...cfg.blue.picks];
+      cfg.blue = { ...cfg.blue, picks: bluePicks };
+      cfg.red = { ...cfg.red, picks: redPicks };
     }
-    const seed = (seedStart + i) >>> 0;
-    const cfg = configForGame(batch, seed, i);
     const result = simulate(cfg);
     const summary = summarizeMatch(seed, result);
-    summaries.push(summary);
-    opts.onProgress?.({ completed: summaries.length, total: n, last: summary });
+    summary.side_swapped = swapped;
+    return summary;
+  };
+
+  if (sideSwap) {
+    for (let i = 0; i < pairSeeds; i++) {
+      if (opts.signal?.aborted || opts.shouldCancel?.()) {
+        cancelled = true;
+        break;
+      }
+      const seed = (seedStart + i) >>> 0;
+      const a = runOne(seed, i, false);
+      summaries.push(a);
+      opts.onProgress?.({ completed: summaries.length, total: nGames, last: a });
+      if (opts.signal?.aborted || opts.shouldCancel?.()) {
+        cancelled = true;
+        break;
+      }
+      const b = runOne(seed, i, true);
+      summaries.push(b);
+      opts.onProgress?.({ completed: summaries.length, total: nGames, last: b });
+    }
+  } else {
+    for (let i = 0; i < pairSeeds; i++) {
+      if (opts.signal?.aborted || opts.shouldCancel?.()) {
+        cancelled = true;
+        break;
+      }
+      const seed = (seedStart + i) >>> 0;
+      const summary = runOne(seed, i, false);
+      summaries.push(summary);
+      opts.onProgress?.({ completed: summaries.length, total: nGames, last: summary });
+    }
   }
 
   const dashboard = buildDashboard(summaries);
+  // Headline metrics for the official CLI (casts/game, flip rate, interrupts).
+  const castsMean =
+    summaries.length > 0
+      ? summaries.reduce((s, m) => s + (m.casts ?? 0), 0) / summaries.length
+      : 0;
+  let flip = 0;
+  let pairs = 0;
+  if (sideSwap) {
+    for (let i = 0; i + 1 < summaries.length; i += 2) {
+      const a = summaries[i]!;
+      const b = summaries[i + 1]!;
+      if (a.seed !== b.seed) continue;
+      pairs += 1;
+      if (a.winner && b.winner && a.winner !== b.winner) flip += 1;
+    }
+  }
+  const interruptsMean =
+    summaries.length > 0
+      ? summaries.reduce((s, m) => s + (m.interrupts ?? 0), 0) / summaries.length
+      : 0;
+  const intLow = summaries.reduce((s, m) => s + (m.interrupts_by_reflexes?.low ?? 0), 0);
+  const intMid = summaries.reduce((s, m) => s + (m.interrupts_by_reflexes?.mid ?? 0), 0);
+  const intHigh = summaries.reduce((s, m) => s + (m.interrupts_by_reflexes?.high ?? 0), 0);
+  dashboard.aggregates.casts_per_game = Math.round(castsMean * 1000) / 1000;
+  dashboard.aggregates.side_swap_pairs = pairs;
+  dashboard.aggregates.side_swap_flip = flip;
+  dashboard.aggregates.side_swap_flip_rate = pairs > 0 ? Math.round((flip / pairs) * 1000) / 1000 : null;
+  dashboard.aggregates.interrupts_per_game = Math.round(interruptsMean * 1000) / 1000;
+  dashboard.aggregates.interrupts_by_reflexes = { low: intLow, mid: intMid, high: intHigh };
+
   return {
     batch_id,
     started_at,
-    config_hash: configHashOf({ ...batch, n }),
-    n_requested: n,
+    config_hash: configHashOf({ ...batch, n: pairSeeds }),
+    n_requested: nGames,
     n_finished: summaries.length,
     summaries,
     dashboard,

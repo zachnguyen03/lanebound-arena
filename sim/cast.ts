@@ -898,6 +898,10 @@ export function beginCast(
     skill_id: ab.name,
     cast_time: ab.cast_s,
   };
+  // §4.4 / §9.4.1.4 rule 12: every cast_start carries target_id or x,y.
+  if (source.cast_target) payload.target_id = source.cast_target;
+  payload.x = source.cast_aim_x;
+  payload.y = source.cast_aim_y;
   // Additive lab field. Absent on scripted casts. digestEvents strips it.
   if (cast.tier) payload.tier = cast.tier;
   emit("cast_start", payload);

@@ -277,6 +277,7 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       if (o.range !== undefined) u.stats.range = o.range;
       if (o.as !== undefined) u.stats.as = o.as;
       if (o.ms !== undefined) u.stats.ms = o.ms;
+      if (o.ai_target_id !== undefined) u.ai_target_id = o.ai_target_id;
     }
   }
   return units;

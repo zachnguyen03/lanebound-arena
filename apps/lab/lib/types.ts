@@ -38,6 +38,11 @@ export interface BatchConfig {
   save_full_events?: boolean;
   /** Lab: emit sanctuary_violation on illegal centres (default true for batches). */
   assert_sanctuary?: boolean;
+  /**
+   * When true, each of the `n` seeds runs twice (original + kit side-swap),
+   * producing 2n games. Flip rate is computed across pairs.
+   */
+  side_swap_pairs?: boolean;
 }
 
 export interface ScoreParts {
@@ -73,6 +78,16 @@ export interface MatchSummary {
   t_first_R: number | null;
   t_L7: number | null;
   kda: KdaRow[];
+  /** Total cast_start events this game. */
+  casts?: number;
+  /** True when this row is the kit-swapped twin of `seed`. */
+  side_swapped?: boolean;
+  /**
+   * AI interrupts: cast_cancel reason lock|silence following a P1a cast_start
+   * (M2-33 / R7-6b, report-only). Split by the interrupter's Reflexes band.
+   */
+  interrupts?: number;
+  interrupts_by_reflexes?: { low: number; mid: number; high: number };
 }
 
 export interface DashboardRow {
