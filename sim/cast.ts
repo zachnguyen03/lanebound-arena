@@ -903,7 +903,7 @@ export function beginCast(
   emit("cast_start", payload);
 }
 
-function cancelCast(
+export function cancelCast(
   u: UnitState,
   reason: string,
   emit: (type: string, payload: Record<string, unknown>) => void,
@@ -916,6 +916,25 @@ function cancelCast(
   u.cast_target = null;
   u.cast_snapshot_ids = null;
   u.attack_reset_pending = false;
+}
+
+/**
+ * Same-tick interrupt cancel after status apply (M2-33 / R7-6b).
+ * tickCasts runs before applyPendingStatuses; silence/Lock applied this tick
+ * must still cancel an in-flight windup on the apply tick.
+ */
+export function cancelCastsInterruptedByStatus(
+  state: MatchState,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  for (const u of state.units) {
+    if (!u.alive || !u.cast_skill) continue;
+    if (isHardLocked(u.status) || isBanished(u.status)) {
+      cancelCast(u, "lock", emit);
+      continue;
+    }
+    if (isSilenced(u.status)) cancelCast(u, "silence", emit);
+  }
 }
 
 export function tickCasts(

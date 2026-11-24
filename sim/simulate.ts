@@ -16,6 +16,7 @@ import {
 import {
   applyPendingHealsShields,
   applyPendingStatuses,
+  cancelCastsInterruptedByStatus,
   landPendingSkills,
   processScriptedCasts,
   runScriptedSkillshots,
@@ -877,6 +878,8 @@ export function simulate(config: MatchConfig): SimulateResult {
     }
 
     applyPendingStatuses(state, c, emit);
+    // M2-33 / R7-6b: silence/Lock applied this tick cancel windups on the apply tick.
+    cancelCastsInterruptedByStatus(state, emit);
     applyScriptedCc(state, config, c, tick, emit);
 
     // 10. Deaths / kill+assist XP / time XP / level-ups (G2)
