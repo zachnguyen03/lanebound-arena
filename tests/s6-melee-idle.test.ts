@@ -101,7 +101,7 @@ function bare(
 }
 
 describe("S6 melee idle under Hold — engage gate", () => {
-  it(`brainDecide: Hold + melee with foe at ~4 tiles issues Approach/Chase (not Idle for ${N_S}s)`, () => {
+  it(`brainDecide: Hold + melee in a team fight (≥2 allies) with foe at ~4 tiles Approaches (not Idle)`, () => {
     const me = bare({
       id: "blue:top",
       team: "blue",
@@ -121,6 +121,14 @@ describe("S6 melee idle under Hold — engage gate", () => {
         range: 1.5,
         ms: 3.3,
       },
+    });
+    const ally = bare({
+      id: "blue:jungle",
+      team: "blue",
+      slot: "jungle",
+      champ: "sedge",
+      x: 10.5,
+      y: 8.5,
     });
     const foe = bare({
       id: "red:adc",
@@ -145,7 +153,7 @@ describe("S6 melee idle under Hold — engage gate", () => {
     const state = {
       t: 5,
       tick: 50,
-      units: [me, foe],
+      units: [me, ally, foe],
     } as MatchState;
 
     const d = brainDecide(state, me, {
@@ -156,21 +164,63 @@ describe("S6 melee idle under Hold — engage gate", () => {
       peeling: false,
       chase: null,
       tactic: "hold_the_pit",
-      fightIds: [me.id, foe.id],
+      fightIds: [me.id, ally.id, foe.id],
       intentTarget: {},
       comboStyle: "auto",
       aTrue: 0.5,
     });
 
-    expect(d.intent === "Approach" || d.intent === "Chase" || d.intent === "Engage").toBe(true);
-    expect(d.intent).not.toBe("Idle");
+    expect(d.intent).toBe("Approach");
     expect(d.target_id).toBe(foe.id);
-    // Out of AA range → must name a waypoint toward the foe (closing the gap).
     const dist = Math.hypot(me.x - foe.x, me.y - foe.y);
     expect(dist).toBeGreaterThan(me.stats.range + 0.3);
-    if (d.intent !== "Engage") {
-      expect(d.waypoint).not.toBeNull();
-    }
+    expect(d.waypoint).not.toBeNull();
+  });
+
+  it("brainDecide: Hold + melee 1v1 still Idles out of range (preserves Positioning)", () => {
+    const me = bare({
+      id: "blue:mid",
+      team: "blue",
+      slot: "mid",
+      champ: "kerrig",
+      x: 12,
+      y: 4,
+    });
+    const foe = bare({
+      id: "blue:adc",
+      team: "red",
+      slot: "adc",
+      champ: "huntress",
+      x: 10,
+      y: 4,
+      stats: {
+        hp: 900,
+        regen: 4,
+        atk: 72,
+        pow: 8,
+        pres: 26,
+        mres: 24,
+        as: 1.2,
+        crit: 0.08,
+        range: 6.25,
+        ms: 3.3,
+      },
+    });
+    // Fix foe team after bare defaults
+    foe.team = "red";
+    const state = { t: 5, tick: 50, units: [me, foe] } as MatchState;
+    const d = brainDecide(state, me, {
+      c,
+      commit: "hold",
+      focusId: foe.id,
+      peelDiverId: null,
+      peeling: false,
+      chase: null,
+      tactic: "hold_the_pit",
+      fightIds: [me.id, foe.id],
+      intentTarget: {},
+    });
+    expect(d.intent).toBe("Idle");
   });
 
   it(`even-OVR Hold: melee champions land auto hits within ${N_S}s (seeds 20261122 / 20261123)`, () => {

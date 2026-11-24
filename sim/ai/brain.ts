@@ -466,11 +466,11 @@ export function brainDecide(
     const a = state.units.find((x) => x.id === id);
     return a && a.team === u.team;
   }).length;
-  // Hold + melee: close into AA range (Approach), then Engage. Do not Idle out
-  // of range — that left frontliners stuck at the ring in even-Hold (S4/S5).
-  // Use Approach (not Chase) so the §9.4 ttk leash cannot Idle them before
-  // they ever reach range. Allies-in-fight and no-fight share this gate.
-  if (effectiveCommit === "hold" && u.stats.range <= 2) {
+  // Hold + melee in a team fight (≥2 allies in fightIds): close into AA range.
+  // Approach (not Chase) so the §9.4 ttk leash cannot Idle them at the ring
+  // (S4/S5 even-Hold melee idling). Do NOT Approach in 1v1 / no-fight — that
+  // collapses Positioning hold_dist on a kiting backliner (§8.4 L1025).
+  if (effectiveCommit === "hold" && alliesInFight >= 2 && u.stats.range <= 2) {
     if (d <= u.stats.range + 0.3) {
       return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
     }
@@ -504,6 +504,14 @@ export function brainDecide(
       };
     }
     return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+  }
+
+  // Melee under Hold outside a team fight: AA if in range, otherwise stand.
+  if (effectiveCommit === "hold" && u.stats.range <= 2) {
+    if (d <= u.stats.range + 0.3) {
+      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+    }
+    return { intent: "Idle", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
   }
 
   if (d > hd + 0.3) {
