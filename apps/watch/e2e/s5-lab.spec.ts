@@ -248,7 +248,10 @@ test.describe("S5 lab dashboard + tuning", () => {
     await input.fill("10");
     await input.blur();
     await expect(page.getByTestId("diff-ZONE_TICK_S")).toBeVisible();
-    await expect(page.getByTestId("preset-dirty")).toBeVisible();
+    // Watch stays mounted under Lab, so both shells may show the dirty chip.
+    await expect(
+      page.getByTestId("lab-shell").getByTestId("preset-dirty"),
+    ).toBeVisible();
   });
 
   test("match survives Lab round-trip (Watch stays mounted)", async ({
