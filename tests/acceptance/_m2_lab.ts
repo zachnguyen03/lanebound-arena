@@ -399,12 +399,13 @@ export function isTimestopKind(kind: unknown): boolean {
 }
 
 /**
- * COMMIT-R PATH TBD.
- * Spec §9.4.1.4 rule 6 L1204 / M2-32 L1950: Fight Call carries a commit-R flag
+ * COMMIT-R PATH TBD (R7-5).
+ * Spec §9.4.1.4 rule 6 L1205 / M2-32 L1951: Fight Call carries a commit-R flag
  * (`engage`, `A_commit ≥ engage threshold + 0.10`, ≥ 3 enemies in the fight).
+ * R7-5: the flag lifts **only** `nA ≤ 1`; `nE ≥ 2` always applies.
  * The build is adding an explicit field on the fight decision — path not frozen
  * yet. This helper is the single read site: prefer an explicit boolean when
- * present; otherwise derive from L1204 using fight_call fields.
+ * present; otherwise derive from L1205 using fight_call fields.
  *
  * Engage threshold by tactic (§9.1 L1105–1108). Lab default is hold_the_pit;
  * without zone ownership on the event we use the "do not own" 0.50 threshold
@@ -427,7 +428,7 @@ export function readCommitRFlag(
   for (const v of explicit) {
     if (typeof v === "boolean") return v;
   }
-  // Derive per L1204 until the explicit path is published.
+  // Derive per L1205 until the explicit path is published.
   if (call.commit !== "engage") return false;
   const aCommit = Number(call.a_commit ?? call.A_commit);
   if (!Number.isFinite(aCommit)) return false;
@@ -437,6 +438,31 @@ export function readCommitRFlag(
   if (Number.isFinite(nE)) return nE >= 3;
   // Without an enemy count on the event, do not invent commit-R.
   return false;
+}
+
+/** Minimum lab sample for M2-25b / M2-26b R gates (R7-3 / R7-7). */
+export const MIN_SAMPLE = 30;
+
+/**
+ * Intended target of a cast for rule-4 / M2-26d (R7-4 L1203):
+ * `cast_start.target_id` when present; else the first Lock `status_apply` from
+ * that cast (hooks / area anchors without an explicit target_id).
+ */
+export function intendedLockTarget(game: LabGame, cast: Ev): string | null {
+  if (typeof cast.target_id === "string" && cast.target_id.length > 0) {
+    return cast.target_id as string;
+  }
+  const src = String(cast.unit_id);
+  const land = game.events.find(
+    (e) =>
+      e.type === "status_apply" &&
+      LOCK_KINDS.has(String(e.kind)) &&
+      e.source_id === src &&
+      (e.t as number) >= (cast.t as number) - 1e-9 &&
+      (e.t as number) <= (cast.t as number) + 3.0 &&
+      (e.seq as number) > (cast.seq as number),
+  );
+  return land ? String(land.target_id) : null;
 }
 
 /**

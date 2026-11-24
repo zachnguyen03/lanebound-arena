@@ -31,14 +31,15 @@ import {
   LOCK_KINDS,
   appearances,
   castIs,
+  MIN_SAMPLE,
   castTier,
   castsByUnitSkill,
   combosOf,
   getCastPolicyLab,
+  intendedLockTarget,
   isConditional,
   isTimestopKind,
   livingEnemiesAt,
-  lockApplies,
   lockStretches,
   logRate,
   mean,
@@ -72,6 +73,14 @@ function comboFollowS(effE: number): number {
 }
 function chainErrS(effE: number): number {
   return Math.min(0.5, Math.max(0.1, 0.3 - 0.005 * (effE - 50)));
+}
+/** R7-6b / §15: P1a wind-up read multiplier on enemy R cast_start only. */
+const P1A_READ_MULT = 0.5;
+function p1aReadDelayTicks(reflexes: number): number {
+  return Math.ceil(P1A_READ_MULT * reactionDelay(reflexes) * 10 - 1e-9);
+}
+function reactionDelayTicks(reflexes: number): number {
+  return Math.ceil(reactionDelay(reflexes) * 10 - 1e-9);
 }
 
 describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L1941–1953)", () => {
@@ -123,7 +132,7 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
         }
       });
 
-      it("(b) R cast_start in ≥ 80% of games where champ is L5 for ≥ 60 s", () => {
+      it("(b) R cast_start in ≥ 80% of games where champ is L5 for ≥ 60 s (R7-3: ≥30 sample)", () => {
         for (const champ of [
           "huntress",
           "maelis",
@@ -143,9 +152,16 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
           const apps = appearances(lab, champ).filter(
             (a) => timeAliveAtLeastLevel(a.game, a.unitId, 5) >= 60,
           );
-          // L1943: gate is over the L5≥60s subsample. Empty sample → no assert (do not fail).
+          // R7-3 / L1944: empty never fails; gate only when den ≥ 30.
           if (apps.length === 0) {
-            logRate(`M2-25b ${champ} R (empty L5≥60s sample — skip)`, 0, 0, lab.n);
+            logRate(`M2-25b ${champ} R (empty sample — skip)`, 0, 0, lab.n);
+            continue;
+          }
+          if (apps.length < MIN_SAMPLE) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `[M2 lab] M2-25b ${champ} R: insufficient sample den=${apps.length} (need ≥${MIN_SAMPLE}) N=${lab.n}`,
+            );
             continue;
           }
           const num = apps.filter(
@@ -224,10 +240,28 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
         expect(m).toBeGreaterThan(0);
       });
 
-      it("(b) every §9.4.1.4 rule-1 disable skill applies ≥ 1 status in ≥ 90% of champ games ≥ 60 s", () => {
+      it("(b) every §9.4.1.4 rule-1 disable skill applies ≥ 1 status in ≥ 90% (R7-7 Rs: L5≥60s ∩ R cast)", () => {
         for (const [champ, key] of DISABLE_SKILLS_RULE1) {
-          const apps = appearances(lab, champ).filter((a) => a.game.duration_s >= 60);
-          expect(apps.length).toBeGreaterThan(0);
+          // R7-7 / L1945: Rs use M2-25b filter ∩ at least one R cast; basics keep games ≥ 60 s.
+          const apps =
+            key === "R"
+              ? appearances(lab, champ).filter(
+                  (a) =>
+                    timeAliveAtLeastLevel(a.game, a.unitId, 5) >= 60 &&
+                    castsByUnitSkill(a.game, a.unitId, champ, "R").length > 0,
+                )
+              : appearances(lab, champ).filter((a) => a.game.duration_s >= 60);
+          if (apps.length === 0) {
+            logRate(`M2-26b ${champ} ${key} (empty sample — skip)`, 0, 0, lab.n);
+            continue;
+          }
+          if (apps.length < MIN_SAMPLE) {
+            // eslint-disable-next-line no-console
+            console.log(
+              `[M2 lab] M2-26b ${champ} ${key}: insufficient sample den=${apps.length} (need ≥${MIN_SAMPLE}) N=${lab.n}`,
+            );
+            continue;
+          }
           const num = apps.filter((a) => {
             const casts = castsByUnitSkill(a.game, a.unitId, champ, key);
             if (casts.length === 0) return false;
@@ -253,54 +287,80 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
         if (all.length > 0) expect(over30 / all.length).toBeLessThanOrEqual(0.02);
       });
 
-      it("(d) AI third Locks on same target inside 5.0 s (excl. P1a/P1b / last-enemy) = 0", () => {
+      it("(d) AI third Locks on intended target inside 5.0 s (R7-4 / rule 4) = 0", () => {
+        // R7-4 / L1947 / L1204: count only the cast's intended target at decision
+        // time (applied Lock status_apply in the window + perceived allied Lock
+        // casts). Incidental area bodies excluded; ally-targeted casts excluded;
+        // a third that arrives only via an unperceived allied cast is excluded.
+        // M2-26c still counts every Lock (continuous > 4.5 s) — unchanged.
         let violations = 0;
         let den = 0;
+        const reaction = reactionDelay(70); // lab attrs 70
         for (const g of lab.games) {
-          const locks = lockApplies(g).slice().sort((a, b) => (a.t as number) - (b.t as number));
-          const byTarget = new Map<string, Ev[]>();
-          for (const e of locks) {
-            const id = String(e.target_id);
-            const arr = byTarget.get(id) ?? [];
-            arr.push(e);
-            byTarget.set(id, arr);
-          }
-          for (const [target, arr] of byTarget) {
-            for (let i = 0; i < arr.length; i++) {
-              const e = arr[i]!;
-              const window = arr.filter(
-                (x) =>
-                  (x.t as number) <= (e.t as number) + 1e-9 &&
-                  (e.t as number) - (x.t as number) <= 5.0 + 1e-9,
+          for (const cast of g.events.filter((e) => e.type === "cast_start")) {
+            const src = String(cast.unit_id);
+            const intended = intendedLockTarget(g, cast);
+            if (!intended) continue;
+            // Ally-targeted Lock casts (e.g. Tolle W P1c) excluded — R7-4.
+            if (teamOf(intended) === teamOf(src)) continue;
+            // This cast must actually land a Lock on its intended target.
+            const land = g.events.find(
+              (e) =>
+                e.type === "status_apply" &&
+                LOCK_KINDS.has(String(e.kind)) &&
+                e.source_id === src &&
+                e.target_id === intended &&
+                (e.t as number) >= (cast.t as number) - 1e-9 &&
+                (e.t as number) <= (cast.t as number) + 3.0 &&
+                (e.seq as number) > (cast.seq as number),
+            );
+            if (!land) continue; // incidental / miss — not a counted AI Lock start
+
+            const decisionT = cast.t as number;
+            // lead_ticks unknown per skill here; window is the 5.0 s DR window
+            // ending at decision (apply tick > decision + lead − 50 ≈ decision − 5 s).
+            const windowStart = decisionT - 5.0;
+            const applied = g.events.filter(
+              (e) =>
+                e.type === "status_apply" &&
+                LOCK_KINDS.has(String(e.kind)) &&
+                e.target_id === intended &&
+                (e.t as number) > windowStart + 1e-12 &&
+                ((e.t as number) < decisionT - 1e-12 ||
+                  ((e.t as number) <= decisionT + 1e-9 && (e.seq as number) < (cast.seq as number))),
+            );
+            // Perceived allied Lock casts on intended whose land is not yet in `applied`.
+            const alliedPerceived = g.events.filter((c) => {
+              if (c.type !== "cast_start") return false;
+              if (teamOf(String(c.unit_id)) !== teamOf(src)) return false;
+              if (String(c.unit_id) === src) return false;
+              if ((c.t as number) + reaction > decisionT + 1e-9) return false; // unperceived
+              if ((c.t as number) <= windowStart + 1e-12) return false;
+              if (intendedLockTarget(g, c) !== intended) return false;
+              const allyLand = g.events.find(
+                (e) =>
+                  e.type === "status_apply" &&
+                  LOCK_KINDS.has(String(e.kind)) &&
+                  e.source_id === c.unit_id &&
+                  e.target_id === intended &&
+                  (e.seq as number) > (c.seq as number),
               );
-              if (window.length < 3) continue;
-              den += 1;
-              // Third lock in window = this event if it is the 3rd+.
-              const prior = window.filter((x) => (x.seq as number) <= (e.seq as number));
-              if (prior.length < 3) continue;
-              const src = String(e.source_id);
-              const cast = g.events
-                .filter(
-                  (c) =>
-                    c.type === "cast_start" &&
-                    c.unit_id === src &&
-                    (c.t as number) <= (e.t as number) + 1e-9 &&
-                    (e.t as number) - (c.t as number) <= 2.0,
-                )
-                .pop();
-              const tier = cast ? castTier(cast) : undefined;
-              // L1944 / rule 4 L1202: P1a/P1b + last-enemy. Ally-targeted P1c
-              // (Ally save, L1191) is also excluded — P1c Locks land on allies
-              // (e.g. Tolle W), not the enemy chain-lock the rule brakes.
-              if (tier === "P1a" || tier === "P1b") continue;
-              if (tier === "P1c" && teamOf(src) === teamOf(target)) continue;
-              const living = livingEnemiesAt(g, teamOf(src), e.t as number);
-              if (living.length === 1 && living[0] === target) continue;
-              violations += 1;
-            }
+              if (!allyLand) return false;
+              // Already counted via applied → don't double-count.
+              if ((allyLand.t as number) <= decisionT + 1e-9) return false;
+              return true;
+            });
+            const counted = applied.length + alliedPerceived.length;
+            if (counted < 2) continue; // this cast is not a third
+            den += 1;
+            const tier = castTier(cast);
+            if (tier === "P1a" || tier === "P1b") continue;
+            const living = livingEnemiesAt(g, teamOf(src), decisionT);
+            if (living.length === 1 && living[0] === intended) continue;
+            violations += 1;
           }
         }
-        logRate("M2-26d third-Lock violations", violations, den, lab.n);
+        logRate("M2-26d third-Lock violations (intended-target)", violations, den, lab.n);
         expect(violations).toBe(0);
       });
     });
@@ -527,9 +587,10 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
     });
 
     // ── M2-32 ──────────────────────────────────────────────────────────────
-    describe("M2-32 Friendly-fire Rs (spec L1948)", () => {
-      it("Sedge R / Saelo R with nA ≥ 2 = 0 unless commit-R; ≥ 70% hit nE ≥ 2", () => {
-        let illegal = 0;
+    describe("M2-32 Friendly-fire Rs (spec L1953 / R7-5)", () => {
+      it("Sedge R / Saelo R: nA≥2 = 0 unless commit-R; nE≥2 always (commit-R lifts nA only); ≥70% hit nE≥2", () => {
+        let illegalNA = 0;
+        let illegalNE = 0;
         let total = 0;
         let multiE = 0;
         for (const champ of ["sedge", "saelo"] as Champ[]) {
@@ -543,8 +604,7 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
                   (e.type === "hit" || e.type === "status_apply") &&
                   e.source_id === a.unitId &&
                   (e.t as number) >= (c.t as number) - 1e-9 &&
-                  (e.t as number) <= (c.t as number) + 2.0 &&
-                  (e.skill_id == null || castIs({ ...c, skill_id: e.skill_id } as never, champ, "R") || true),
+                  (e.t as number) <= (c.t as number) + 2.0,
               );
               const allyHits = new Set(
                 landHits
@@ -559,33 +619,40 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
               const nA = allyHits.size;
               const nE = enemyHits.size;
               if (nE >= 2) multiE += 1;
-              if (nA >= 2) {
-                const call = a.game.events
-                  .filter(
-                    (e) =>
-                      e.type === "fight_call" &&
-                      e.team === team &&
-                      (e.t as number) <= (c.t as number) + 1e-9,
-                  )
-                  .pop();
-                // Single read site — see readCommitRFlag (COMMIT-R PATH TBD).
-                const enemiesInFight = livingEnemiesAt(a.game, team, c.t as number).length;
-                if (!readCommitRFlag(call, { enemiesInFight })) illegal += 1;
-              }
+              const tier = castTier(c);
+              const isP1 =
+                tier === "P1a" || tier === "P1b" || tier === "P1c" || tier === "P1d";
+              const call = a.game.events
+                .filter(
+                  (e) =>
+                    e.type === "fight_call" &&
+                    e.team === team &&
+                    (e.t as number) <= (c.t as number) + 1e-9,
+                )
+                .pop();
+              const enemiesInFight = livingEnemiesAt(a.game, team, c.t as number).length;
+              // Single read site — see readCommitRFlag (COMMIT-R PATH TBD, R7-5).
+              const commitR = readCommitRFlag(call, { enemiesInFight });
+              // R7-5: commit-R lifts only nA ≤ 1; nE ≥ 2 always applies (P1 row triggers exempt).
+              if (!isP1 && nE < 2) illegalNE += 1;
+              if (nA >= 2 && !commitR) illegalNA += 1;
             }
           }
         }
-        logRate("M2-32 illegal friendly-fire R", illegal, total, lab.n);
+        logRate("M2-32 illegal nA≥2 without commit-R", illegalNA, total, lab.n);
+        logRate("M2-32 illegal nE<2 (non-P1)", illegalNE, total, lab.n);
         logRate("M2-32 nE≥2", multiE, total, lab.n);
-        expect(illegal).toBe(0);
+        expect(illegalNA).toBe(0);
+        expect(illegalNE).toBe(0);
         expect(total).toBeGreaterThan(0);
         expect(multiE / total).toBeGreaterThanOrEqual(0.7);
       });
     });
 
     // ── M2-33 lab report ───────────────────────────────────────────────────
-    describe("M2-33 Lab: interrupts reported (spec L1949)", () => {
-      it("AI interrupts (cast_cancel lock|silence after P1a) are reported per game; no gate", () => {
+    describe("M2-33 Lab: interrupts reported by Reflexes band (spec L1954)", () => {
+      it("AI interrupts (cast_cancel lock|silence after P1a) reported per game, split by Reflexes band; no gate", () => {
+        const bands = { low: 0, mid: 0, high: 0, other: 0 };
         const perGame = lab.games.map((g) => {
           let n = 0;
           const cancels = g.events.filter(
@@ -602,14 +669,26 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
                 (c.t as number) - (e.t as number) <= 2.0 &&
                 teamOf(String(e.unit_id)) !== teamOf(String(c.unit_id)),
             );
-            if (prior) n += 1;
+            if (!prior) continue;
+            n += 1;
+            // Lab attrs are flat 70; band from cast attrs when present, else mid.
+            const refl = Number(
+              (prior as { attrs?: { reflexes?: number } }).attrs?.reflexes ??
+                (prior as { reflexes?: number }).reflexes ??
+                70,
+            );
+            if (refl < 60) bands.low += 1;
+            else if (refl < 80) bands.mid += 1;
+            else if (refl <= 99) bands.high += 1;
+            else bands.other += 1;
           }
           return n;
         });
         const total = perGame.reduce((s, x) => s + x, 0);
         // eslint-disable-next-line no-console
         console.log(
-          `[M2 lab] M2-33 interrupts reported: total=${total} mean_per_game=${mean(perGame).toFixed(3)} N=${lab.n} (no gate)`,
+          `[M2 lab] M2-33 interrupts reported: total=${total} mean_per_game=${mean(perGame).toFixed(3)} ` +
+            `bands Reflexes<60=${bands.low} 60–79=${bands.mid} 80–99=${bands.high} other=${bands.other} N=${lab.n} (no gate)`,
         );
         expect(perGame.length).toBe(lab.n);
       });
@@ -1196,50 +1275,385 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
     }
   });
 
-  describe("M2-33 Interrupts exist and are honest (unit) (spec L1949)", () => {
-    it("Ysol Reflexes 90 silences Huntress R (tier P1a) and cast_cancel reason silence; Reflexes 50 does not start P1a", () => {
+  describe("M2-33 Interrupts exist and are honest (unit) (spec L1954 / R7-6 / R7-6b)", () => {
+    // Tick math (L1954): enemy R at cast_start tick c completes c+ceil(cast_s×10).
+    // P1a earliest decision d = c + ceil(P1A_READ_MULT × reaction_delay_s × 10 − 1e-9)
+    // for R windups only. Non-R keep full reaction_delay_s.
+    const SEED = 20261122;
+    const C_TICK = 10;
+
+    function replayDigest(run: () => ReturnType<typeof runAi>): string {
+      const a = run();
+      const b = run();
+      expect(a.digest).toBe(b.digest);
+      return a.digest;
+    }
+
+    function ysolVsEnemyR(opts: {
+      refl: number;
+      enemyChamp: Champ;
+      enemySkill: Key;
+      enemyX?: number;
+    }) {
+      const Y = "blue:support" as UId;
+      const E = "red:mid" as UId;
+      return runAi({
+        seed: SEED,
+        T: 3.0,
+        units: {
+          [Y]: {
+            champ: "ysol",
+            level: 7,
+            x: 12,
+            y: 4,
+            auto: false,
+            attrs: { reflexes: opts.refl, decision: 70, execution: 70 },
+          },
+          ["blue:adc" as UId]: { champ: "maelis", level: 7, x: 11.5, y: 4.2, auto: false },
+          [E]: {
+            champ: opts.enemyChamp,
+            level: 7,
+            x: opts.enemyX ?? 14,
+            y: 4,
+            auto: false,
+          },
+        },
+        casts: [
+          {
+            tick: C_TICK,
+            by: E,
+            skill: opts.enemySkill,
+            aim: [12, 4],
+            target: Y,
+            force_hit: true,
+          },
+        ],
+      });
+    }
+
+    it("(a) Ysol Q vs Kerrig R: no P1a at Reflexes 50; P1a+cancel silence at 70 (c+3/c+6) and 90 (c+2/c+5); Kerrig R never hits", () => {
+      expect(p1aReadDelayTicks(50)).toBe(4);
+      expect(p1aReadDelayTicks(70)).toBe(3);
+      expect(p1aReadDelayTicks(90)).toBe(2);
+
       const scene = (refl: number) =>
+        ysolVsEnemyR({ refl, enemyChamp: "kerrig", enemySkill: "R", enemyX: 14 });
+
+      replayDigest(() => scene(50));
+      const r50 = scene(50);
+      expect(
+        r50.of(
+          "cast_start",
+          (e) => e.unit_id === "blue:support" && castIs(e, "ysol", "Q") && castTier(e) === "P1a",
+        ),
+      ).toHaveLength(0);
+
+      replayDigest(() => scene(70));
+      const r70 = scene(70);
+      const q70 = r70.of(
+        "cast_start",
+        (e) => e.unit_id === "blue:support" && castIs(e, "ysol", "Q") && castTier(e) === "P1a",
+      );
+      expect(q70.length).toBeGreaterThan(0);
+      expect(q70[0]!.tick).toBe(C_TICK + 3);
+      const cancel70 = r70.of(
+        "cast_cancel",
+        (e) => e.unit_id === "red:mid" && e.reason === "silence",
+      );
+      expect(cancel70.length).toBeGreaterThan(0);
+      expect(cancel70[0]!.tick).toBe(C_TICK + 6);
+      // Kerrig R never lands a hit (windup cancelled by silence).
+      expect(
+        r70.of(
+          "hit",
+          (e) =>
+            e.source_id === "red:mid" &&
+            (e.tick as number) >= C_TICK &&
+            String(e.skill_id ?? "")
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "")
+              .includes("reeling"),
+        ),
+      ).toHaveLength(0);
+
+      replayDigest(() => scene(90));
+      const r90 = scene(90);
+      const q90 = r90.of(
+        "cast_start",
+        (e) => e.unit_id === "blue:support" && castIs(e, "ysol", "Q") && castTier(e) === "P1a",
+      );
+      expect(q90.length).toBeGreaterThan(0);
+      expect(q90[0]!.tick).toBe(C_TICK + 2);
+      const cancel90 = r90.of(
+        "cast_cancel",
+        (e) => e.unit_id === "red:mid" && e.reason === "silence",
+      );
+      expect(cancel90.length).toBeGreaterThan(0);
+      expect(cancel90[0]!.tick).toBe(C_TICK + 5);
+    });
+
+    it("(b) Ysol Q vs Huntress R: no P1a at Reflexes 70; at 90 P1a with cancel silence on c+5", () => {
+      const scene = (refl: number) =>
+        ysolVsEnemyR({ refl, enemyChamp: "huntress", enemySkill: "R", enemyX: 14 });
+
+      replayDigest(() => scene(70));
+      expect(
+        scene(70).of(
+          "cast_start",
+          (e) => e.unit_id === "blue:support" && castTier(e) === "P1a",
+        ),
+      ).toHaveLength(0);
+
+      replayDigest(() => scene(90));
+      const r90 = scene(90);
+      const q90 = r90.of(
+        "cast_start",
+        (e) => e.unit_id === "blue:support" && castIs(e, "ysol", "Q") && castTier(e) === "P1a",
+      );
+      expect(q90.length).toBeGreaterThan(0);
+      const cancel90 = r90.of(
+        "cast_cancel",
+        (e) => e.unit_id === "red:mid" && e.reason === "silence",
+      );
+      expect(cancel90.length).toBeGreaterThan(0);
+      expect(cancel90[0]!.tick).toBe(C_TICK + 5);
+    });
+
+    it("(c) Brannoch W vs Kerrig R at 3.0 tiles, Reflexes 50: P1a with cast_cancel{reason:'lock'} on c+6", () => {
+      const B = "blue:top" as UId;
+      const K = "red:mid" as UId;
+      const scene = () =>
         runAi({
-          seed: 20261122,
+          seed: SEED,
           T: 3.0,
           units: {
-            ["blue:support" as UId]: {
-              champ: "ysol",
+            [B]: {
+              champ: "brannoch",
               level: 7,
               x: 12,
               y: 4,
               auto: false,
-              attrs: { reflexes: refl, decision: 70 },
+              attrs: { reflexes: 50, decision: 70, execution: 70 },
             },
-            ["blue:adc" as UId]: { champ: "maelis", level: 7, x: 11.5, y: 4.2, auto: false },
-            ["red:adc" as UId]: {
-              champ: "huntress",
+            ["blue:support" as UId]: { champ: "ysol", level: 7, x: 11.5, y: 4.2, auto: false },
+            [K]: { champ: "kerrig", level: 7, x: 15, y: 4, auto: false }, // 3.0 tiles
+          },
+          casts: [{ tick: C_TICK, by: K, skill: "R", target: B, force_hit: true }],
+        });
+      expect(p1aReadDelayTicks(50)).toBe(4);
+      replayDigest(scene);
+      const r = scene();
+      const w = r.of(
+        "cast_start",
+        (e) => e.unit_id === B && castIs(e, "brannoch", "W") && castTier(e) === "P1a",
+      );
+      expect(w.length).toBeGreaterThan(0);
+      const cancel = r.of("cast_cancel", (e) => e.unit_id === K && e.reason === "lock");
+      expect(cancel.length).toBeGreaterThan(0);
+      expect(cancel[0]!.tick).toBe(C_TICK + 6);
+    });
+
+    it("(d) Ysol Reflexes 90 vs Helvar W (non-R): full 0.38 s delay, no P1a", () => {
+      expect(reactionDelay(90)).toBeCloseTo(0.38, 5);
+      expect(reactionDelayTicks(90)).toBe(4);
+      expect(p1aReadDelayTicks(90)).toBe(2); // R-only; Helvar W must NOT use this
+      const scene = () =>
+        ysolVsEnemyR({ refl: 90, enemyChamp: "helvar", enemySkill: "W", enemyX: 14 });
+      replayDigest(scene);
+      const r = scene();
+      expect(
+        r.of(
+          "cast_start",
+          (e) => e.unit_id === "blue:support" && castTier(e) === "P1a",
+        ),
+      ).toHaveLength(0);
+    });
+  });
+
+  // ── R7 unit checks (Appendix R #7 binding clarifications) ─────────────────
+  describe("R7-1 P2 follow-up timing (combo_follow_s at eff_E 20/60/90) (spec L2287 / L1005)", () => {
+    it("combo_follow_s is 0.50 / 0.30 / 0.15 s at eff_E 20 / 60 / 90", () => {
+      expect(comboFollowS(20)).toBeCloseTo(0.5, 5);
+      expect(comboFollowS(60)).toBeCloseTo(0.3, 5);
+      expect(comboFollowS(90)).toBeCloseTo(0.15, 5);
+    });
+
+    for (const [effE, follow] of [
+      [20, 0.5],
+      [60, 0.3],
+      [90, 0.15],
+    ] as const) {
+      it(`Kerrig W P2 lands at a + round(${follow}×10) ±1 (eff_E ${effE})`, () => {
+        const K = "blue:mid" as UId;
+        const X = "red:adc" as UId;
+        const r = runAi({
+          seed: 20261122,
+          T: 5.0,
+          units: {
+            [K]: {
+              champ: "kerrig",
               level: 7,
-              x: 14,
+              x: 12,
               y: 4,
               auto: false,
+              attrs: { execution: effE, reflexes: 50, decision: 70 },
+              mastery: 50,
             },
+            [X]: { champ: "maelis", level: 7, x: 13.5, y: 4, auto: false },
           },
-          casts: [{ tick: 10, by: "red:adc", skill: "R", aim: [12, 4], force_hit: true }],
+          casts: [{ tick: 5, by: K, skill: "Q", target: X, force_hit: true }],
         });
-      const fast = scene(90);
-      const ysolQ = fast.of(
-        "cast_start",
-        (e) => e.unit_id === "blue:support" && castIs(e, "ysol", "Q") && castTier(e) === "P1a",
-      );
-      expect(ysolQ.length).toBeGreaterThan(0);
-      const cancel = fast.of(
-        "cast_cancel",
-        (e) => e.unit_id === "red:adc" && e.reason === "silence",
-      );
-      expect(cancel.length).toBeGreaterThan(0);
+        const leash = r.of(
+          "status_apply",
+          (e) => e.target_id === X && e.kind === "leash" && e.source_id === K,
+        );
+        expect(leash.length).toBeGreaterThan(0);
+        const a = leash[0]!.tick as number;
+        const expected = a + Math.round(follow * 10);
+        const w = r
+          .of("cast_start", (e) => e.unit_id === K && castIs(e, "kerrig", "W"))
+          .find((e) => (e.tick as number) >= a);
+        expect(w).toBeTruthy();
+        expect(Math.abs((w!.tick as number) - expected)).toBeLessThanOrEqual(1);
+        expect(castTier(w!)).toBe("P2");
+      });
+    }
+  });
 
-      const slow = scene(50);
-      const late = slow.of(
+  describe("R7-2 Saelo W P1b peel (spec L2288 / L1327)", () => {
+    it("auto-peel Saelo casts W tier P1b on a dived carry within 6.5 with a basic-dispellable Handicap", () => {
+      const SAE = "blue:support" as UId;
+      const CARRY = "blue:adc" as UId;
+      const DIVER = "red:mid" as UId;
+      const r = runAi({
+        seed: 20261122,
+        T: 4.0,
+        units: {
+          [SAE]: {
+            champ: "saelo",
+            level: 7,
+            x: 12,
+            y: 4,
+            auto: false,
+            attrs: { reflexes: 70, decision: 70, teamwork: 90 },
+          },
+          [CARRY]: {
+            champ: "huntress",
+            level: 7,
+            x: 13,
+            y: 4,
+            hp: 80,
+            auto: false,
+          },
+          ["blue:jungle" as UId]: { champ: "torun", level: 7, x: 11.5, y: 4.5, auto: false },
+          [DIVER]: { champ: "kerrig", level: 7, x: 13.5, y: 4, auto: true },
+          ["red:adc" as UId]: { champ: "maelis", level: 7, x: 16, y: 4.5, auto: false },
+          ["red:jungle" as UId]: { champ: "sedge", level: 7, x: 16, y: 3.5, auto: false },
+        },
+        // Basic-dispellable Handicap on the carry (silence).
+        cc: [{ tick: 5, target: CARRY, kind: "silence", duration: 1.5, source: DIVER }],
+        tactics: { blue: { preset: "hold_the_pit", aggression: 0 }, red: { preset: "hunt", aggression: 1 } },
+      });
+      const peel = r.of("peel_start", (e) => e.peeler_id === SAE || e.unit_id === SAE);
+      // Peel assignment may log peeler on peel_start; either way Saelo W P1b must fire.
+      const w = r.of(
         "cast_start",
-        (e) => e.unit_id === "blue:support" && castTier(e) === "P1a",
+        (e) => e.unit_id === SAE && castIs(e, "saelo", "W") && castTier(e) === "P1b",
       );
-      expect(late).toHaveLength(0);
+      expect(w.length).toBeGreaterThan(0);
+      void peel;
+    });
+  });
+
+  describe("R7-8 Kerrig Q isolated under Hunt (spec L2303 / L1286)", () => {
+    it("under Hunt, Kerrig Q on an isolated squishy (no ally within 4.0) logs tier P3", () => {
+      const K = "blue:mid" as UId;
+      const X = "red:adc" as UId;
+      const r = runAi({
+        seed: 20261122,
+        T: 4.0,
+        units: {
+          [K]: {
+            champ: "kerrig",
+            level: 7,
+            x: 12,
+            y: 4,
+            auto: false,
+            attrs: { reflexes: 50, decision: 70, teamwork: 70 },
+          },
+          // Isolated squishy: no red ally within 4.0 tiles.
+          [X]: { champ: "maelis", level: 7, x: 12 + 5.0, y: 4, auto: false },
+          ["red:support" as UId]: { champ: "ysol", level: 7, x: 20, y: 4, auto: false },
+        },
+        tactics: { blue: { preset: "hunt", aggression: 1 }, red: { preset: "hold_the_pit" } },
+      });
+      const q = r.of(
+        "cast_start",
+        (e) => e.unit_id === K && castIs(e, "kerrig", "Q") && castTier(e) === "P3",
+      );
+      expect(q.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("R7-9 Isra W spacing reset is P1d (spec L2304 / L1239)", () => {
+    it("perceived enemy melee (Range ≤ 2.0) within 1.5 tiles → Isra W cast_start tier P1d", () => {
+      const I = "blue:adc" as UId;
+      const M = "red:mid" as UId;
+      const r = runAi({
+        seed: 20261122,
+        T: 3.0,
+        units: {
+          [I]: {
+            champ: "isra",
+            level: 7,
+            x: 12,
+            y: 4,
+            auto: false,
+            attrs: { reflexes: 70, decision: 70 },
+          },
+          // Kerrig is melee (Range ≤ 2.0); place within 1.5 tiles.
+          [M]: { champ: "kerrig", level: 7, x: 12 + 1.2, y: 4, auto: false },
+        },
+        tactics: { blue: { preset: "hold_the_pit" }, red: { preset: "hunt", aggression: 1 } },
+      });
+      const w = r.of(
+        "cast_start",
+        (e) => e.unit_id === I && castIs(e, "isra", "W") && castTier(e) === "P1d",
+      );
+      expect(w.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("R7-10 Torun W taunt applies and logs status_apply (spec L2309 / L1255)", () => {
+    it("diver inside r 1.2 of the shielded ally receives taunt status_apply from Torun W", () => {
+      const TOR = "blue:jungle" as UId;
+      const CARRY = "blue:adc" as UId;
+      const DIVER = "red:mid" as UId;
+      const r = runAi({
+        seed: 20261122,
+        T: 4.0,
+        units: {
+          [TOR]: {
+            champ: "torun",
+            level: 7,
+            x: 12,
+            y: 4,
+            auto: false,
+            attrs: { reflexes: 70, decision: 70, teamwork: 90 },
+          },
+          [CARRY]: { champ: "huntress", level: 7, x: 12.5, y: 4, hp: 90, auto: false },
+          [DIVER]: { champ: "kerrig", level: 7, x: 12.5 + 0.8, y: 4, auto: true },
+          ["red:adc" as UId]: { champ: "maelis", level: 7, x: 18, y: 4, auto: false },
+        },
+        tactics: { blue: { preset: "hold_the_pit" }, red: { preset: "hunt", aggression: 1 } },
+      });
+      const w = r.of("cast_start", (e) => e.unit_id === TOR && castIs(e, "torun", "W"));
+      expect(w.length).toBeGreaterThan(0);
+      const taunt = r.of(
+        "status_apply",
+        (e) => e.kind === "taunt" && e.target_id === DIVER && e.source_id === TOR,
+      );
+      expect(taunt.length).toBeGreaterThan(0);
     });
   });
 
