@@ -23,10 +23,11 @@ const TILE_W = 44;
 const TILE_H = 32;
 const ANCHOR_Y = 46;
 /**
- * Authored VFX cells are 1×. Bodies blit at 2×; effects need 2× that (4×)
- * to read at 1280×800. Integer nearest-neighbour only — art is not redrawn.
+ * Authored VFX cells are 1×. Bodies blit at 2×. Effects were 4× for the
+ * clumped pit fights; 3× once fights spread out (formation) so glyphs stop
+ * covering whole units. Integer nearest-neighbour only — art is not redrawn.
  */
-const VFX_SCALE = 4;
+const VFX_SCALE = 3;
 const LINE_MIN = 3;
 const OUTLINE = "#0B0E14";
 
