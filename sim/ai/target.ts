@@ -199,10 +199,20 @@ export function pickUnitTarget(
 ): UnitId | null {
   if (opts.peeling && opts.peelDiverId) return opts.peelDiverId;
 
-  const legal = enemies.filter(
+  let legal = enemies.filter(
     (e) => e.alive && !isBanished(e.status) && !inOwnSanctuary(e.team, e.x, e.y, opts.c),
   );
   if (legal.length === 0) return null;
+  // Round 3 `target_cap`: skip enemies that already have `cap` allies on them.
+  const cap = opts.tf?.target_cap;
+  if (cap) {
+    const on = (e: UnitState) =>
+      Object.entries(opts.intentTarget).filter(
+        ([id, t]) => t === e.id && id !== self.id && id.startsWith(self.team),
+      ).length;
+    const open = legal.filter((e) => on(e) < cap);
+    if (open.length > 0) legal = open;
+  }
 
   const scoreOf = (e: UnitState, asFocus: boolean): number =>
     targetingScore(self, e, {

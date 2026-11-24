@@ -221,6 +221,7 @@ export function tickAi(
           side.tactics.aggression,
           bandHalf,
           deathForL1,
+          config.teamfight?.disengage ? 0.07 : 0,
         );
       }
       if (next !== ai.commit[team]) {
@@ -308,10 +309,11 @@ export function tickAi(
   for (const team of ["blue", "red"] as Team[]) {
     const side = team === "blue" ? config.blue : config.red;
     const aTrue = team === "blue" ? snap.a_true_blue : snap.a_true_red;
-    const dives = detectDives(state.units, c, {
+    const peelWide = config.teamfight?.peel === true;
+    const dives = detectDives(state.units, peelWide ? { ...c, PEEL_DIVE_R: 4.5 } : c, {
       a_true: aTrue,
       tactic: ai.active_tactic[team],
-      ignore_perception: config.ai_ignore_perception === true,
+      ignore_perception: config.ai_ignore_perception === true || peelWide,
       now: state.t,
       seenAt: ai.seen_at,
       diveStartAt: ai.dive_start_at,

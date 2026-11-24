@@ -90,6 +90,23 @@ export interface Teamfight {
   combo_target?: boolean;
   /** Fight shape: front line leads, backline holds behind it, divers flank wide. */
   formation?: boolean;
+  // Round 3 (lab/teamfight3).
+  /** Ally separation 1.2 tiles in fight intents, 1.5× push for the backline. */
+  spread?: boolean;
+  /** Backliners take their own row (1.5 tiles apart) on fight waypoints. */
+  lanes?: boolean;
+  /** Ranged units stop at ~0.9× range instead of walking onto the target; step away from close melee. */
+  ranged_hold?: boolean;
+  /** At most this many allies on one target; overflow picks the next best. */
+  target_cap?: number;
+  /** Disengage call fires 0.07 A_true earlier; units under 30% HP near an enemy retreat. */
+  disengage?: boolean;
+  /** R only when an area ult catches ≥2 enemies, or a single-target ult hits a locked / <50% HP target. */
+  ult_timing?: boolean;
+  /** Step out of an enemy's ground-area cast while it winds up. */
+  dodge?: boolean;
+  /** Peel triggers at 4.5 tiles (spec 3) without the perception delay. */
+  peel?: boolean;
 }
 
 export interface MatchConfig {

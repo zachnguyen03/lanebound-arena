@@ -17,8 +17,20 @@ const FLANK_FROM = 4;
 const FLANK_Y = 3;
 
 const FIGHT_INTENTS = new Set(["Chase", "Approach", "Engage"]);
+/** Round 3 `lanes`: row gap (tiles) between backliners. */
+const LANE_GAP = 1.5;
+const SLOT_ORDER = ["top", "jungle", "mid", "adc", "support"];
 
-function isBackliner(u: UnitState): boolean {
+/** Backliner's row offset: centred spread over the team's living backliners, by slot. */
+function laneOffset(state: MatchState, u: UnitState): number {
+  const back = state.units
+    .filter((a) => a.alive && a.team === u.team && isBackliner(a))
+    .sort((a, b) => SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot));
+  const k = back.findIndex((a) => a.id === u.id);
+  return k < 0 ? 0 : (k - (back.length - 1) / 2) * LANE_GAP;
+}
+
+export function isBackliner(u: UnitState): boolean {
   const c = CHAMPIONS[u.champ]?.class ?? "Fighter";
   return (c === "Marksman" || c === "Mage" || c === "Enchanter") && !isDiver(u);
 }
@@ -29,7 +41,12 @@ export function shapeFormation(
   intent: string,
   waypoint: { x: number; y: number } | null,
 ): { x: number; y: number } | null {
-  if (!state.config?.teamfight?.formation || !waypoint || !FIGHT_INTENTS.has(intent)) return waypoint;
+  const tf = state.config?.teamfight;
+  if (!(tf?.formation || tf?.lanes) || !waypoint || !FIGHT_INTENTS.has(intent)) return waypoint;
+  if (tf.lanes && isBackliner(u)) {
+    waypoint = { x: waypoint.x, y: Math.min(15, Math.max(1, waypoint.y + laneOffset(state, u))) };
+  }
+  if (!tf.formation) return waypoint;
   const dir = u.team === "blue" ? 1 : -1;
   if (isBackliner(u)) {
     // Only front-liners actually with this backliner count (a respawned tank at

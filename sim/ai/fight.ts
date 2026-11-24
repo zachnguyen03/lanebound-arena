@@ -168,11 +168,13 @@ export function chooseCommit(
   aggression: -1 | 0 | 1,
   mistakeBandHalf = 0,
   deathThisTick = false,
+  /** Round 3 `disengage`: raise the disengage threshold (pull out earlier). */
+  disengageShift = 0,
 ): CommitKind {
   const th = commitThresholds(tactic, ownZone);
   const adj = aggression * 0.03;
   const engageAt = th.engage + adj;
-  const disengageAt = th.disengage + adj;
+  const disengageAt = th.disengage + adj + disengageShift;
   let next: CommitKind;
   if (aTrue >= engageAt) next = "engage";
   else if (aTrue <= disengageAt) next = "disengage";

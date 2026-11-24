@@ -26,6 +26,7 @@ import {
   roverOutnumbered,
 } from "./planner.js";
 import { pickUnitTarget } from "./target.js";
+import { dodgeWaypoint, lowHpRetreat, rangedHoldWaypoint, ultWorthIt } from "./round3.js";
 
 export type IntentName =
   | "HoldZone"
@@ -322,6 +323,17 @@ export function brainDecide(
     };
   }
 
+  // Round 3: dodge a winding-up enemy area cast; low-HP units walk home.
+  const dodge = dodgeWaypoint(state, u);
+  if (dodge) {
+    return { intent: "Kite", target_id: null, waypoint: dodge, chase: null, cast: chooseExecutionCast(state, u, opts) };
+  }
+  if (lowHpRetreat(state, u)) {
+    const pad = u.team === "blue" ? opts.c.BLUE_SPAWN : opts.c.RED_SPAWN;
+    const cast = chooseExecutionCast(state, u, opts, true);
+    return { intent: "Retreat", target_id: cast?.target_id ?? null, waypoint: { x: pad[0]!, y: pad[1]! }, chase: null, cast };
+  }
+
   // Casts ride the movement intent. Replacing it with Cast dropped the chase
   // leash (§9.4) and the Hold melee Approach. beginCast still fires because
   // the tick compares intent to this same decision.
@@ -466,6 +478,11 @@ export function brainDecide(
     }
   }
 
+  const hold = rangedHoldWaypoint(state, u, target, effectiveCommit === "engage");
+  if (hold) {
+    return { intent: d > u.stats.range ? "Approach" : "Kite", target_id: targetId, waypoint: hold, chase, cast };
+  }
+
   if (effectiveCommit === "engage" && d > u.stats.range) {
     if (chase) {
       return {
@@ -596,7 +613,7 @@ function chooseExecutionCast(
   p1Only = false,
 ): CastProposal | null {
   if (!castGatesClear(u, opts.c)) return null;
-  return evaluateCastPolicy(state, u, {
+  const p = evaluateCastPolicy(state, u, {
     c: opts.c,
     focusId: opts.focusId,
     peelDiverId: opts.peelDiverId ?? null,
@@ -614,4 +631,5 @@ function chooseExecutionCast(
     currentTarget: opts.chase?.target_id ?? null,
     p1Only,
   });
+  return p && !ultWorthIt(state, u, p) ? null : p;
 }

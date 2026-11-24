@@ -20,6 +20,8 @@ const STEP1 = JSON.parse(
 
 /** Round 1 chase + round 2 levers (combo/roles off: no measurable effect in round 1). */
 const TF2 = TEAMFIGHT_EXPERIMENT;
+const SPACING = { spread: true, lanes: true, ranged_hold: true };
+const TF3 = { ...TF2, ...SPACING, target_cap: 3, disengage: true, ult_timing: true, dodge: true, peel: true };
 
 export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   baseline: (cfg) => cfg,
@@ -38,6 +40,21 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   formation: (cfg) => ({ ...cfg, teamfight: { formation: true } }),
   tf2: (cfg) => ({ ...cfg, teamfight: { ...TF2 } }),
   tf2_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF2 } }),
+  // round 3 (exp/teamfight-r3): each lever on top of tf2, then all of them.
+  spread: (cfg) => ({ ...cfg, teamfight: { ...TF2, spread: true } }),
+  lanes: (cfg) => ({ ...cfg, teamfight: { ...TF2, lanes: true } }),
+  ranged_hold: (cfg) => ({ ...cfg, teamfight: { ...TF2, ranged_hold: true } }),
+  spacing: (cfg) => ({ ...cfg, teamfight: { ...TF2, ...SPACING } }),
+  cap: (cfg) => ({ ...cfg, teamfight: { ...TF2, target_cap: 3 } }),
+  disengage: (cfg) => ({ ...cfg, teamfight: { ...TF2, disengage: true } }),
+  ult_timing: (cfg) => ({ ...cfg, teamfight: { ...TF2, ult_timing: true } }),
+  dodge: (cfg) => ({ ...cfg, teamfight: { ...TF2, dodge: true } }),
+  peel: (cfg) => ({ ...cfg, teamfight: { ...TF2, peel: true } }),
+  tf3: (cfg) => ({ ...cfg, teamfight: { ...TF3 } }),
+  // tf3 minus `disengage` (its low-HP retreat dominated the combined arm).
+  tf3_keep: (cfg) => ({ ...cfg, teamfight: { ...TF3, disengage: false } }),
+  // Split objectives: the cadence experiment's rovers already send 1-2 units to orbs/buffs.
+  tf3_roam: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF3 } }),
 };
 
 type Ev = Record<string, any>;
@@ -59,7 +76,44 @@ export function measure(ev: Ev[]) {
   const lockOn: Record<string, { t: number; src: string }> = {};
   let followups = 0, rIntoLock = 0;
   const rSkills = new Set<string>(ev.filter((e) => e.type === "cast_end" && e.skill === "R").map((e) => e.skill_id));
+  // Round 3 spacing metrics, sampled every 0.5 s from debug pos.
+  const alive: Record<string, boolean> = {};
+  let sampleTick = -1, spreadSum = 0, spreadN = 0, fightSamples = 0, fightCount = 0, runS = 0, disengages = 0;
+  const runs: number[] = [];
+  const lastIntent: Record<string, string> = {};
+  const sample = () => {
+    const ids = Object.keys(pos).filter((id) => alive[id] !== false);
+    const engaged = ids.filter((a) => ids.some((b) => a[0] !== b[0] && dist(pos[a]!, pos[b]!) <= 5));
+    for (const team of ["b", "r"]) {
+      const g = engaged.filter((id) => id[0] === team);
+      if (g.length < 2) continue;
+      let s = 0, n = 0;
+      for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) { s += dist(pos[g[i]!]!, pos[g[j]!]!); n++; }
+      spreadSum += s / n; spreadN++;
+    }
+    // Fights = connected groups of engaged units (link ≤ 5 tiles) holding both teams.
+    const seen = new Set<string>();
+    let fights = 0;
+    for (const start of engaged) {
+      if (seen.has(start)) continue;
+      const stack = [start], teams = new Set<string>();
+      seen.add(start);
+      while (stack.length) {
+        const a = stack.pop()!; teams.add(a[0]!);
+        for (const b of engaged) if (!seen.has(b) && dist(pos[a]!, pos[b]!) <= 5) { seen.add(b); stack.push(b); }
+      }
+      if (teams.size === 2) fights++;
+    }
+    if (fights > 0) { fightSamples++; fightCount += fights; runS += 0.5; } else if (runS > 0) { runs.push(runS); runS = 0; }
+  };
   for (const e of ev) {
+    if (e.tick !== sampleTick && e.tick % 5 === 0) { if (sampleTick >= 0) sample(); sampleTick = e.tick; }
+    if (e.type === "death") alive[e.unit_id] = false;
+    if (e.type === "respawn") alive[e.unit_id] = true;
+    if (e.type === "intent") {
+      if (e.intent === "Retreat" && ["Chase", "Approach", "Engage", "Kite", "Peel"].includes(lastIntent[e.unit_id] ?? "")) disengages++;
+      lastIntent[e.unit_id] = e.intent;
+    }
     if (e.type === "pos") { pos[e.unit_id] = { x: e.x, y: e.y }; continue; }
     if (e.type === "hit" || e.type === "death") {
       const g = e.t - lastAction; if (g > maxGap) maxGap = g; if (g > 3) quiet += g; lastAction = e.t;
@@ -119,6 +173,10 @@ export function measure(ev: Ev[]) {
     topKillerShare: deaths.length ? Math.max(...Object.values(killCount)) / deaths.length : 0,
     backlinePct: deaths.length ? backline / deaths.length : 0,
     followups, rIntoLock,
+    allySpread: spreadN ? spreadSum / spreadN : 0,
+    fightLen: runs.length ? runs.reduce((a, b) => a + b, 0) / runs.length : 0,
+    concurrent: fightSamples ? fightCount / fightSamples : 0,
+    disengages,
   };
 }
 
@@ -156,6 +214,10 @@ export function summarize(rows: Row[]) {
     backline_death_pct: pct(mean(rows.map((r) => r.backlinePct))),
     combo_followup_hits_mean: r1(mean(rows.map((r) => r.followups))),
     r_into_cc_mean: r1(mean(rows.map((r) => r.rIntoLock))),
+    ally_spread_tiles: Math.round(mean(rows.map((r) => r.allySpread)) * 100) / 100,
+    fight_len_mean_s: r1(mean(rows.map((r) => r.fightLen))),
+    concurrent_fights: Math.round(mean(rows.map((r) => r.concurrent)) * 100) / 100,
+    disengages_mean: r1(mean(rows.map((r) => r.disengages))),
   };
 }
 
