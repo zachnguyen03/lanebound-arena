@@ -8,6 +8,12 @@ import { hasKind, isBanished, isLocked, isTimeStopped } from "../status.js";
 import type { MatchState, UnitId, UnitState } from "../types.js";
 import { retreatImmobile } from "../retreat_combat.js";
 import { effExecution, holdDist, kiteSlackTiles, rHoldA, rHoldHp } from "./attributes.js";
+import {
+  castGatesClear,
+  evaluateCastPolicy,
+  type CastProposal,
+  type KitCastPolicy,
+} from "./cast_policy.js";
 import { estTtk } from "./dps.js";
 import type { CommitKind } from "./fight.js";
 import {
@@ -86,6 +92,8 @@ export function brainDecide(
     comboStyle?: "auto" | "hold_R";
     /** Fight A_true for this unit's team (hold_R gate, §12 L1357). */
     aTrue?: number;
+    /** Test-only policy table override; production omits (uses CAST_POLICIES). */
+    castPolicyTable?: Readonly<Record<string, KitCastPolicy>>;
   },
 ): {
   intent: IntentName;
@@ -512,9 +520,9 @@ export function brainDecide(
 }
 
 /**
- * Authored setup→finisher: Kerrig / Huntress follow mark before R when eff_Execution ≥ 45.
- * hold_R: suppress R while a_true < 0.55 (§12 L1357 / suite) and focus HP% > rHoldHp;
- * also respects Execution rHoldA when A_true is provided.
+ * Execution casts: data-driven §9.4 policy first (stubbed empty until §9.4.1),
+ * then Kerrig / Huntress mark-gated R. Universal gates — no cast during skill
+ * windup, banish, or own sanctuary.
  */
 function chooseExecutionCast(
   state: MatchState,
@@ -522,14 +530,27 @@ function chooseExecutionCast(
   opts: {
     c: Constants;
     focusId: UnitId | null;
+    peelDiverId?: UnitId | null;
     comboStyle?: "auto" | "hold_R";
     commit?: CommitKind;
     aTrue?: number;
     fightIds?: UnitId[];
+    castPolicyTable?: Readonly<Record<string, KitCastPolicy>>;
   },
-): { skill: "Q" | "W" | "R"; target_id: UnitId | null } | null {
+): CastProposal | null {
+  if (!castGatesClear(u, opts.c)) return null;
+
+  const fromPolicy = evaluateCastPolicy(state, u, {
+    c: opts.c,
+    focusId: opts.focusId,
+    peelDiverId: opts.peelDiverId ?? null,
+    commit: opts.commit,
+    table: opts.castPolicyTable,
+  });
+  if (fromPolicy) return fromPolicy;
+
+  // Legacy mark-gated R until §9.4.1 supersedes Kerrig / Huntress entries.
   if (u.champ !== "kerrig" && u.champ !== "huntress") return null;
-  if (u.cast_left > 0) return null;
   const ex = effExecution(u.attrs, u.mastery, opts.c);
   const focusFoe =
     opts.focusId && state.units.find((x) => x.id === opts.focusId && x.alive && !isBanished(x.status));
