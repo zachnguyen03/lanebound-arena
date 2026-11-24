@@ -1,0 +1,2915 @@
+{
+ "effect": "Reeling Cut",
+ "champion": "Kerrig",
+ "slug": "kerrig-reeling-cut",
+ "shape": "streak (dash)",
+ "layers": {
+  "ground": {
+   "files": {
+    "blue": "kerrig-reeling-cut-ground-blue-1x.png",
+    "red": "kerrig-reeling-cut-ground-red-1x.png"
+   },
+   "cell": [
+    196,
+    68
+   ],
+   "anchor": [
+    153,
+    34
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      196,
+      68
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      198,
+      1,
+      196,
+      68
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      395,
+      1,
+      196,
+      68
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      592,
+      1,
+      196,
+      68
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      789,
+      1,
+      196,
+      68
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      986,
+      1,
+      196,
+      68
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1183,
+      1,
+      196,
+      68
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1380,
+      1,
+      196,
+      68
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1577,
+      1,
+      196,
+      68
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1774,
+      1,
+      196,
+      68
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1971,
+      1,
+      196,
+      68
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2168,
+      1,
+      196,
+      68
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      2365,
+      1,
+      196,
+      68
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      2562,
+      1,
+      196,
+      68
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      2759,
+      1,
+      196,
+      68
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 15,
+     "phase": "linger",
+     "phase_i": 3,
+     "rect": [
+      2956,
+      1,
+      196,
+      68
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  },
+  "air": {
+   "files": {
+    "blue": "kerrig-reeling-cut-air-blue-1x.png",
+    "red": "kerrig-reeling-cut-air-red-1x.png"
+   },
+   "cell": [
+    84,
+    96
+   ],
+   "anchor": [
+    42,
+    68
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      84,
+      96
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      86,
+      1,
+      84,
+      96
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      171,
+      1,
+      84,
+      96
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      256,
+      1,
+      84,
+      96
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      341,
+      1,
+      84,
+      96
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      426,
+      1,
+      84,
+      96
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      511,
+      1,
+      84,
+      96
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      596,
+      1,
+      84,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      681,
+      1,
+      84,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      766,
+      1,
+      84,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      851,
+      1,
+      84,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      936,
+      1,
+      84,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      1021,
+      1,
+      84,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      1106,
+      1,
+      84,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      1191,
+      1,
+      84,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ],
+   "draw": "full air (back + front) = preview / fallback"
+  }
+ },
+ "radius_tiles": null,
+ "cast_s": 0.7,
+ "land_delay_s": 0,
+ "footprint_1x_px": [
+  66,
+  48
+ ],
+ "tile_1x_px": [
+  22,
+  16
+ ],
+ "scale_in_play": 2,
+ "scale_rule": "integer nearest-neighbour only",
+ "anchor_rule": "both layers anchor on the DASH END = the marked target's foot. The trail runs back to the dash start (cast origin). Kerrig body arrives at the end at impact f2.",
+ "team_swap": {
+  "dk": {
+   "blue": "#245CB4",
+   "red": "#A8204A"
+  },
+  "mid": {
+   "blue": "#4DA3FF",
+   "red": "#F5477A"
+  },
+  "lt": {
+   "blue": "#A0CCFF",
+   "red": "#FF96B0"
+  }
+ },
+ "phases": {
+  "windup": {
+   "frames": 5,
+   "ms_each": 140,
+   "loop": true,
+   "runs": "from cast start until 60 ms before the hit (640 ms), looping"
+  },
+  "impact": {
+   "frames": 7,
+   "ms": [
+    60,
+    100,
+    80,
+    80,
+    80,
+    90,
+    90
+   ],
+   "hit_frame": "impact f2 (strip index 6)",
+   "note": "f1 = 60 ms hold-off that starts 60 ms before the hit; f2 = biggest frame, the sim hit/CC lands at its first ms. Renderer may add a 100 ms freeze on f2 for R casts."
+  },
+  "linger_air": {
+   "frames": 3,
+   "ms": [
+    100,
+    100,
+    100
+   ]
+  },
+  "linger_ground": {
+   "frames": 4,
+   "ms": [
+    200,
+    200,
+    150,
+    150
+   ],
+   "note": "ground keeps going after the air strip ends; total ground linger 700 ms"
+  }
+ },
+ "durations_ms": {
+  "air_after_hit": 820,
+  "ground_after_hit": 1220
+ },
+ "directions": {
+  "authored": {
+   "e": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "kerrig-reeling-cut-ground-blue-1x.png",
+       "red": "kerrig-reeling-cut-ground-red-1x.png"
+      },
+      "cell": [
+       196,
+       68
+      ],
+      "anchor": [
+       153,
+       34
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         196,
+         68
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         198,
+         1,
+         196,
+         68
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         395,
+         1,
+         196,
+         68
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         592,
+         1,
+         196,
+         68
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         789,
+         1,
+         196,
+         68
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         986,
+         1,
+         196,
+         68
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1183,
+         1,
+         196,
+         68
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1380,
+         1,
+         196,
+         68
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1577,
+         1,
+         196,
+         68
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1774,
+         1,
+         196,
+         68
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         1971,
+         1,
+         196,
+         68
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2168,
+         1,
+         196,
+         68
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2365,
+         1,
+         196,
+         68
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2562,
+         1,
+         196,
+         68
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         2759,
+         1,
+         196,
+         68
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         2956,
+         1,
+         196,
+         68
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "kerrig-reeling-cut-air-blue-1x.png",
+       "red": "kerrig-reeling-cut-air-red-1x.png"
+      },
+      "cell": [
+       84,
+       96
+      ],
+      "anchor": [
+       42,
+       68
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         86,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         171,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         256,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         341,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         426,
+         1,
+         84,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         511,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         596,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         681,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         766,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         851,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         936,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1021,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1106,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1191,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     }
+    },
+    "note": "main files (no suffix) = facing e"
+   },
+   "se": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-se-ground-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-se-ground-red-1x.png"
+      },
+      "cell": [
+       164,
+       124
+      ],
+      "anchor": [
+       120,
+       90
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         166,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         331,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         496,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         661,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         826,
+         1,
+         164,
+         124
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         991,
+         1,
+         164,
+         124
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1156,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1321,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1486,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         1651,
+         1,
+         164,
+         124
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         1816,
+         1,
+         164,
+         124
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1981,
+         1,
+         164,
+         124
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2146,
+         1,
+         164,
+         124
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         2311,
+         1,
+         164,
+         124
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         2476,
+         1,
+         164,
+         124
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-se-air-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-se-air-red-1x.png"
+      },
+      "cell": [
+       84,
+       96
+      ],
+      "anchor": [
+       42,
+       68
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         86,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         171,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         256,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         341,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         426,
+         1,
+         84,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         511,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         596,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         681,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         766,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         851,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         936,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1021,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1106,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1191,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     }
+    }
+   },
+   "s": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-s-ground-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-s-ground-red-1x.png"
+      },
+      "cell": [
+       86,
+       148
+      ],
+      "anchor": [
+       43,
+       114
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         88,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         175,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         262,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         349,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         436,
+         1,
+         86,
+         148
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         523,
+         1,
+         86,
+         148
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         610,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         697,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         784,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         871,
+         1,
+         86,
+         148
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         958,
+         1,
+         86,
+         148
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1045,
+         1,
+         86,
+         148
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1132,
+         1,
+         86,
+         148
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1219,
+         1,
+         86,
+         148
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         1306,
+         1,
+         86,
+         148
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-s-air-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-s-air-red-1x.png"
+      },
+      "cell": [
+       84,
+       96
+      ],
+      "anchor": [
+       42,
+       68
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         86,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         171,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         256,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         341,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         426,
+         1,
+         84,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         511,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         596,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         681,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         766,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         851,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         936,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1021,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1106,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1191,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     }
+    }
+   },
+   "ne": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-ne-ground-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-ne-ground-red-1x.png"
+      },
+      "cell": [
+       164,
+       124
+      ],
+      "anchor": [
+       120,
+       34
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         166,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         331,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         496,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         661,
+         1,
+         164,
+         124
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         826,
+         1,
+         164,
+         124
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         991,
+         1,
+         164,
+         124
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1156,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1321,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1486,
+         1,
+         164,
+         124
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         1651,
+         1,
+         164,
+         124
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         1816,
+         1,
+         164,
+         124
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1981,
+         1,
+         164,
+         124
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2146,
+         1,
+         164,
+         124
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         2311,
+         1,
+         164,
+         124
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         2476,
+         1,
+         164,
+         124
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-ne-air-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-ne-air-red-1x.png"
+      },
+      "cell": [
+       84,
+       96
+      ],
+      "anchor": [
+       42,
+       68
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         86,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         171,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         256,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         341,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         426,
+         1,
+         84,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         511,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         596,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         681,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         766,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         851,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         936,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1021,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1106,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1191,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     }
+    }
+   },
+   "n": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-n-ground-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-n-ground-red-1x.png"
+      },
+      "cell": [
+       86,
+       148
+      ],
+      "anchor": [
+       43,
+       34
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         88,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         175,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         262,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         349,
+         1,
+         86,
+         148
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         436,
+         1,
+         86,
+         148
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         523,
+         1,
+         86,
+         148
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         610,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         697,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         784,
+         1,
+         86,
+         148
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         871,
+         1,
+         86,
+         148
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         958,
+         1,
+         86,
+         148
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1045,
+         1,
+         86,
+         148
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1132,
+         1,
+         86,
+         148
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1219,
+         1,
+         86,
+         148
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         1306,
+         1,
+         86,
+         148
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "kerrig-reeling-cut-dir-n-air-blue-1x.png",
+       "red": "kerrig-reeling-cut-dir-n-air-red-1x.png"
+      },
+      "cell": [
+       84,
+       96
+      ],
+      "anchor": [
+       42,
+       68
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         86,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         171,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         256,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         341,
+         1,
+         84,
+         96
+        ],
+        "ms": 140,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         426,
+         1,
+         84,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         511,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         596,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         681,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         766,
+         1,
+         84,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         851,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         936,
+         1,
+         84,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         1021,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1106,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1191,
+         1,
+         84,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     }
+    }
+   }
+  },
+  "mirrored": {
+   "w": "e",
+   "sw": "se",
+   "nw": "ne"
+  },
+  "rule": "pick the facing nearest the cast vector (8-way). For w/sw/nw use the e/se/ne strips flipped horizontally AND mirror the anchor x: anchor_x' = cell_w - anchor_x. n and s are authored because the air elements stand upright (a vertical flip would put them upside down)."
+ },
+ "assumed_end_zone_radius_tiles": 1.5,
+ "dash_tiles": 5.0
+}

@@ -4,6 +4,7 @@ import {
   type ChampAtlas,
 } from "./champ-atlas";
 import { WATCH_CHAMP_SLUGS } from "./champ-assets";
+import { loadUltArt, type UltArtSet } from "./ult-vfx";
 import { parseVfxBlock, type VfxEntry } from "./vfx-atlas";
 
 export interface PillarDef {
@@ -71,6 +72,8 @@ export interface WatchAssets {
   artImages: Record<string, HTMLImageElement>;
   /** Parsed atlas `vfx` blocks keyed by champ slug. */
   vfxAtlases: Record<string, Record<string, VfxEntry>>;
+  /** Signature ult strips + kill burst (public/ults). Optional in tests. */
+  ults?: UltArtSet;
 }
 
 const BASE = "/arena-sandbox";
@@ -162,7 +165,7 @@ async function loadChampion(slug: string): Promise<{
 
 export async function loadWatchAssets(): Promise<WatchAssets> {
   const champSlugs = [...WATCH_CHAMP_SLUGS, ...EXTRA_SLUGS];
-  const [terrain, pillarsSheet, propsSheet, tilesJson, propsJson, dummySheet, dummyAtlas, champs] =
+  const [terrain, pillarsSheet, propsSheet, tilesJson, propsJson, dummySheet, dummyAtlas, champs, ults] =
     await Promise.all([
       loadImage(`${BASE}/terrain/layoutB-terrain-2x.png`),
       loadImage(`${BASE}/terrain/layoutB-pillars-2x.png`),
@@ -172,6 +175,7 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
       loadImage(`${BASE}/dummy/dummy-2x.png`),
       fetch(`${BASE}/dummy/atlas.json`).then((r) => r.json()) as Promise<ChampAtlas>,
       Promise.all(champSlugs.map((slug) => loadChampion(slug))),
+      loadUltArt(),
     ]);
 
   const rawPillars = tilesJson.pillars as Record<
@@ -220,5 +224,6 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
     portraits,
     artImages,
     vfxAtlases,
+    ults,
   };
 }

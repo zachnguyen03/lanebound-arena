@@ -4,6 +4,8 @@
  */
 import type { WatchAssets } from "./assets";
 import { activeEffectsAt } from "./replay";
+import { skillMetaByName } from "./skill-meta";
+import { drawCasterRing, hasUltArt, ultForStatus } from "./ult-vfx";
 import {
   lookupVfx,
   smearFrames,
@@ -803,6 +805,21 @@ function drawStatusIcons(
             );
           } else {
             blitSpriteAt(ctx, resolved.image, headX, headY, sprite, fi, scale);
+            const ult = ultForStatus(state, st.sourceId, st.startedAt);
+            if (ult) {
+              const im = resolved.image;
+              const w = (sprite.cell?.[0] ?? im.naturalWidth ?? im.width) * scale;
+              const h = (sprite.cell?.[1] ?? im.naturalHeight ?? im.height) * scale;
+              const ox = sprite.offset_from_foot?.[0] ?? -w / scale / 2;
+              const oy = sprite.offset_from_foot?.[1] ?? -h / scale + 2;
+              drawCasterRing(
+                ctx,
+                ult.team,
+                headX + ox * scale + w / 2,
+                headY + oy * scale + h / 2,
+                Math.max(w, h) / 2,
+              );
+            }
           }
           drawn = true;
           break;
@@ -1084,6 +1101,11 @@ export function renderVfx(
   opts: RenderVfxOpts,
 ): void {
   const active = activeEffectsAt(state.effects, state.t);
+  // Signature ult art replaces the generic R telegraph / smear / projectile.
+  const isNewUlt = (champ: string, skillId: string) =>
+    hasUltArt(assets.ults, champ) && skillMetaByName(skillId)?.key === "R";
+  active.telegraphs = active.telegraphs.filter((x) => !isNewUlt(x.champ, x.skillId));
+  active.projectiles = active.projectiles.filter((x) => !isNewUlt(x.champ, x.skillId));
   drawUltPulses(ctx, state, active, opts.height);
   drawCasterFlashes(ctx, state, active);
   drawTelegraphs(ctx, state, active);

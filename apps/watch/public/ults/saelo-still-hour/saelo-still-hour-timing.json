@@ -1,0 +1,548 @@
+{
+ "effect": "Still Hour",
+ "champion": "Saelo",
+ "slug": "saelo-still-hour",
+ "shape": "circle_point",
+ "layers": {
+  "ground": {
+   "files": {
+    "blue": "saelo-still-hour-ground-blue-1x.png",
+    "red": "saelo-still-hour-ground-red-1x.png"
+   },
+   "cell": [
+    122,
+    92
+   ],
+   "anchor": [
+    61,
+    46
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      122,
+      92
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      124,
+      1,
+      122,
+      92
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      247,
+      1,
+      122,
+      92
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      370,
+      1,
+      122,
+      92
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      493,
+      1,
+      122,
+      92
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      616,
+      1,
+      122,
+      92
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      739,
+      1,
+      122,
+      92
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      862,
+      1,
+      122,
+      92
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      985,
+      1,
+      122,
+      92
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1108,
+      1,
+      122,
+      92
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1231,
+      1,
+      122,
+      92
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      1354,
+      1,
+      122,
+      92
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      1477,
+      1,
+      122,
+      92
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      1600,
+      1,
+      122,
+      92
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      1723,
+      1,
+      122,
+      92
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 15,
+     "phase": "linger",
+     "phase_i": 3,
+     "rect": [
+      1846,
+      1,
+      122,
+      92
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  },
+  "air": {
+   "files": {
+    "blue": "saelo-still-hour-air-blue-1x.png",
+    "red": "saelo-still-hour-air-red-1x.png"
+   },
+   "cell": [
+    132,
+    136
+   ],
+   "anchor": [
+    66,
+    88
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      132,
+      136
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      134,
+      1,
+      132,
+      136
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      267,
+      1,
+      132,
+      136
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      400,
+      1,
+      132,
+      136
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      533,
+      1,
+      132,
+      136
+     ],
+     "ms": 140,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      666,
+      1,
+      132,
+      136
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      799,
+      1,
+      132,
+      136
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      932,
+      1,
+      132,
+      136
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1065,
+      1,
+      132,
+      136
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1198,
+      1,
+      132,
+      136
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1331,
+      1,
+      132,
+      136
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      1464,
+      1,
+      132,
+      136
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      1597,
+      1,
+      132,
+      136
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      1730,
+      1,
+      132,
+      136
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      1863,
+      1,
+      132,
+      136
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ],
+   "draw": "full air (back + front) = preview / fallback"
+  }
+ },
+ "radius_tiles": 2.4,
+ "cast_s": 0.7,
+ "land_delay_s": 0,
+ "footprint_1x_px": [
+  106,
+  76
+ ],
+ "tile_1x_px": [
+  22,
+  16
+ ],
+ "scale_in_play": 2,
+ "scale_rule": "integer nearest-neighbour only",
+ "anchor_rule": "both layers anchor on the ult target point on the floor (sim aim x,y). Blit at (world_px - anchor*2) at 2x.",
+ "team_swap": {
+  "dk": {
+   "blue": "#245CB4",
+   "red": "#A8204A"
+  },
+  "mid": {
+   "blue": "#4DA3FF",
+   "red": "#F5477A"
+  },
+  "lt": {
+   "blue": "#A0CCFF",
+   "red": "#FF96B0"
+  }
+ },
+ "phases": {
+  "windup": {
+   "frames": 5,
+   "ms_each": 140,
+   "loop": true,
+   "runs": "from cast start until 60 ms before the hit (640 ms), looping"
+  },
+  "impact": {
+   "frames": 7,
+   "ms": [
+    60,
+    100,
+    80,
+    80,
+    80,
+    90,
+    90
+   ],
+   "hit_frame": "impact f2 (strip index 6)",
+   "note": "f1 = 60 ms hold-off that starts 60 ms before the hit; f2 = biggest frame, the sim hit/CC lands at its first ms. Renderer may add a 100 ms freeze on f2 for R casts."
+  },
+  "linger_air": {
+   "frames": 3,
+   "ms": [
+    100,
+    100,
+    100
+   ]
+  },
+  "linger_ground": {
+   "frames": 4,
+   "ms": [
+    200,
+    200,
+    150,
+    150
+   ],
+   "note": "ground keeps going after the air strip ends; total ground linger 700 ms"
+  }
+ },
+ "durations_ms": {
+  "air_after_hit": 820,
+  "ground_after_hit": 1220
+ },
+ "hits_allies": "timestop hits every unit in the circle including allies: plates on all of them, caster ring = Saelo's team"
+}

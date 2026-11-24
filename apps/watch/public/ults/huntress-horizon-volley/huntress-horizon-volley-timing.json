@@ -1,0 +1,545 @@
+{
+ "effect": "Horizon Volley",
+ "champion": "Huntress",
+ "slug": "huntress-horizon-volley",
+ "layers": {
+  "ground": {
+   "files": {
+    "blue": "huntress-horizon-volley-ground-blue-1x.png",
+    "red": "huntress-horizon-volley-ground-red-1x.png"
+   },
+   "cell": [
+    138,
+    116
+   ],
+   "anchor": [
+    69,
+    62
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      138,
+      116
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      140,
+      1,
+      138,
+      116
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      279,
+      1,
+      138,
+      116
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      418,
+      1,
+      138,
+      116
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      557,
+      1,
+      138,
+      116
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      696,
+      1,
+      138,
+      116
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      835,
+      1,
+      138,
+      116
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      974,
+      1,
+      138,
+      116
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1113,
+      1,
+      138,
+      116
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1252,
+      1,
+      138,
+      116
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1391,
+      1,
+      138,
+      116
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      1530,
+      1,
+      138,
+      116
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      1669,
+      1,
+      138,
+      116
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      1808,
+      1,
+      138,
+      116
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      1947,
+      1,
+      138,
+      116
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 15,
+     "phase": "linger",
+     "phase_i": 3,
+     "rect": [
+      2086,
+      1,
+      138,
+      116
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  },
+  "air": {
+   "files": {
+    "blue": "huntress-horizon-volley-air-blue-1x.png",
+    "red": "huntress-horizon-volley-air-red-1x.png"
+   },
+   "cell": [
+    142,
+    146
+   ],
+   "anchor": [
+    71,
+    93
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      142,
+      146
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      144,
+      1,
+      142,
+      146
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      287,
+      1,
+      142,
+      146
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      430,
+      1,
+      142,
+      146
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      573,
+      1,
+      142,
+      146
+     ],
+     "ms": 120,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      716,
+      1,
+      142,
+      146
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      859,
+      1,
+      142,
+      146
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1002,
+      1,
+      142,
+      146
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1145,
+      1,
+      142,
+      146
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1288,
+      1,
+      142,
+      146
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1431,
+      1,
+      142,
+      146
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      1574,
+      1,
+      142,
+      146
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      1717,
+      1,
+      142,
+      146
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      1860,
+      1,
+      142,
+      146
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      2003,
+      1,
+      142,
+      146
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  }
+ },
+ "radius_tiles": 2.6,
+ "cast_s": 0.6,
+ "land_delay_s": 0,
+ "footprint_1x_px": [
+  114,
+  84
+ ],
+ "tile_1x_px": [
+  22,
+  16
+ ],
+ "scale_in_play": 2,
+ "scale_rule": "integer nearest-neighbour only",
+ "anchor_rule": "both layers anchor on the ult target point on the floor (sim aim x,y). Blit at (world_px - anchor*2) at 2x.",
+ "team_swap": {
+  "dk": {
+   "blue": "#245CB4",
+   "red": "#A8204A"
+  },
+  "mid": {
+   "blue": "#4DA3FF",
+   "red": "#F5477A"
+  },
+  "lt": {
+   "blue": "#A0CCFF",
+   "red": "#FF96B0"
+  }
+ },
+ "phases": {
+  "windup": {
+   "frames": 5,
+   "ms_each": 120,
+   "loop": true,
+   "runs": "from cast start until 60 ms before the hit (540 ms), looping"
+  },
+  "impact": {
+   "frames": 7,
+   "ms": [
+    60,
+    100,
+    80,
+    80,
+    80,
+    90,
+    90
+   ],
+   "hit_frame": "impact f2 (strip index 6)",
+   "note": "f1 = 60 ms hold-off that starts 60 ms before the hit; f2 = biggest frame, the sim hit/CC lands at its first ms. Renderer may add a 100 ms freeze on f2 for R casts."
+  },
+  "linger_air": {
+   "frames": 3,
+   "ms": [
+    100,
+    100,
+    100
+   ]
+  },
+  "linger_ground": {
+   "frames": 4,
+   "ms": [
+    200,
+    200,
+    150,
+    150
+   ],
+   "note": "ground keeps going after the air strip ends; total ground linger 700 ms"
+  }
+ },
+ "durations_ms": {
+  "air_after_hit": 820,
+  "ground_after_hit": 1220
+ }
+}
