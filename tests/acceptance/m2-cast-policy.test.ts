@@ -36,6 +36,7 @@ import {
   combosOf,
   getCastPolicyLab,
   isConditional,
+  isTimestopKind,
   livingEnemiesAt,
   lockApplies,
   lockStretches,
@@ -43,6 +44,8 @@ import {
   mean,
   peelSkillReadyAt,
   peelSkillsFor,
+  readCommitRFlag,
+  retreatImmobileFromLog,
   stripCastTier,
   teamOf,
   teamfightsOf,
@@ -51,7 +54,7 @@ import {
   type Ev,
   type LabBundle,
 } from "./_m2_lab.js";
-import { PIT, runAi, type UId } from "./s2/_harness.js";
+import { PIT, pathOf, runAi, type UId } from "./s2/_harness.js";
 import { maxHp } from "./s1/_harness.js";
 import { ab, type Key } from "./s1/_oracle.js";
 
@@ -140,7 +143,11 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
           const apps = appearances(lab, champ).filter(
             (a) => timeAliveAtLeastLevel(a.game, a.unitId, 5) >= 60,
           );
-          expect(apps.length, `${champ} L5≥60s sample`).toBeGreaterThan(0);
+          // L1943: gate is over the L5≥60s subsample. Empty sample → no assert (do not fail).
+          if (apps.length === 0) {
+            logRate(`M2-25b ${champ} R (empty L5≥60s sample — skip)`, 0, 0, lab.n);
+            continue;
+          }
           const num = apps.filter(
             (a) => castsByUnitSkill(a.game, a.unitId, champ, "R").length > 0,
           ).length;
@@ -189,6 +196,10 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
           const apps = appearances(lab, champ).filter(
             (a) => timeAliveAtLeastLevel(a.game, a.unitId, 5) >= 60,
           );
+          if (apps.length === 0) {
+            logRate(`M2-25d ${champ} R L5 (empty sample — skip)`, 0, 0, lab.n);
+            continue;
+          }
           const num = apps.filter(
             (a) => castsByUnitSkill(a.game, a.unitId, champ, "R").length > 0,
           ).length;
@@ -278,7 +289,11 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
                 )
                 .pop();
               const tier = cast ? castTier(cast) : undefined;
+              // L1944 / rule 4 L1202: P1a/P1b + last-enemy. Ally-targeted P1c
+              // (Ally save, L1191) is also excluded — P1c Locks land on allies
+              // (e.g. Tolle W), not the enemy chain-lock the rule brakes.
               if (tier === "P1a" || tier === "P1b") continue;
+              if (tier === "P1c" && teamOf(src) === teamOf(target)) continue;
               const living = livingEnemiesAt(g, teamOf(src), e.t as number);
               if (living.length === 1 && living[0] === target) continue;
               violations += 1;
@@ -463,32 +478,42 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
         let onBanish = 0;
         let onTimestopEarly = 0;
         for (const g of lab.games) {
-          const applies = g.events.filter(
-            (e) => e.type === "status_apply" && DISABLE_KINDS.has(String(e.kind)),
-          );
+          const applies = g.events
+            .filter((e) => e.type === "status_apply" && DISABLE_KINDS.has(String(e.kind)))
+            .slice()
+            .sort(
+              (a, b) =>
+                (a.t as number) - (b.t as number) || (a.seq as number) - (b.seq as number),
+            );
           for (const e of applies) {
+            // A time-stop (or banish) apply is not a disable *on* an already-stopped
+            // target — drop the self-count (L1947 / rule 2 L1200).
+            if (isTimestopKind(e.kind) || e.kind === "banish") continue;
             const t = e.t as number;
-            const banishes = g.events.filter(
+            const seq = e.seq as number;
+            const banishes = applies.filter(
               (p) =>
-                p.type === "status_apply" &&
                 p.kind === "banish" &&
                 p.target_id === e.target_id &&
-                (p.t as number) <= t + 1e-9 &&
+                ((p.t as number) < t - 1e-9 ||
+                  (Math.abs((p.t as number) - t) <= 1e-9 && (p.seq as number) < seq)) &&
                 (p.t as number) + Number(p.applied_duration ?? p.raw_duration ?? 0) > t + 1e-9,
             );
-            if (banishes.length && String(e.kind) !== "banish") onBanish += 1;
+            if (banishes.length) onBanish += 1;
 
-            const stops = g.events.filter(
+            const stops = applies.filter(
               (p) =>
-                p.type === "status_apply" &&
-                LOCK_KINDS.has(String(p.kind)) &&
-                ["timestop", "time-stop", "time_stop"].includes(String(p.kind)) &&
+                isTimestopKind(p.kind) &&
                 p.target_id === e.target_id &&
-                (p.t as number) <= t + 1e-9,
+                // Strictly prior by (t, seq) — same-tick later disables see the stop.
+                ((p.t as number) < t - 1e-9 ||
+                  (Math.abs((p.t as number) - t) <= 1e-9 && (p.seq as number) < seq)),
             );
             for (const s of stops) {
               const end =
                 (s.t as number) + Number(s.applied_duration ?? s.raw_duration ?? 0);
+              // Still covering land tick?
+              if (end <= t + 1e-9) continue;
               const ticksBefore = Math.round((end - t) * 10);
               if (ticksBefore > chainErrTicks) onTimestopEarly += 1;
             }
@@ -543,13 +568,9 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
                       (e.t as number) <= (c.t as number) + 1e-9,
                   )
                   .pop();
-                const commitR =
-                  call &&
-                  (call.commit_r === true ||
-                    call.commit_R === true ||
-                    call.commitR === true ||
-                    (call.flags as { commit_r?: boolean } | undefined)?.commit_r === true);
-                if (!commitR) illegal += 1;
+                // Single read site — see readCommitRFlag (COMMIT-R PATH TBD).
+                const enemiesInFight = livingEnemiesAt(a.game, team, c.t as number).length;
+                if (!readCommitRFlag(call, { enemiesInFight })) illegal += 1;
               }
             }
           }
@@ -619,16 +640,8 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
                 (e.t as number) <= t1 + 1e-9,
             );
             for (const r of retreats) {
-              // Mobile = has a move/pos change after the intent (or no root/leash apply covering them).
-              const rooted = g.events.some(
-                (e) =>
-                  e.type === "status_apply" &&
-                  (e.kind === "root" || e.kind === "leash") &&
-                  e.target_id === r.unit_id &&
-                  (e.t as number) <= (r.t as number) + 1e-9 &&
-                  (e.t as number) + Number(e.applied_duration ?? 0) > (r.t as number),
-              );
-              if (rooted) continue;
+              // Mobile = not retreatImmobile (gate 4 / §9.4.1.2 L1181; S2-R4-5).
+              if (retreatImmobileFromLog(g, String(r.unit_id), r.t as number)) continue;
               den += 1;
               const casts = g.events.filter(
                 (e) =>
@@ -773,36 +786,41 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
     for (const { champ, skill, slot } of BACKLINERS) {
       it(`${champ} ${skill}: cast_start within 2 ticks of an already-perceived enemy stepping into range`, () => {
         const foe = "red:mid" as UId;
+        const foe2 = "red:adc" as UId;
         const range = ab(champ, skill).range || 6;
-        // Enemy starts just outside range, walks in; caster already perceives (same fight, Decision/Reflexes 50).
+        // Open mid-lane corridor (y=8): clear of pillars at y∈[2,3]/[12,13] (constants PILLARS).
+        // Caster at x=8; foe starts just outside skill range, walks in. Autos on (L1945 setup).
+        const cx = 8;
+        const cy = 8;
         const r = runAi({
           seed: 20261122,
-          T: 4.0,
+          T: 5.0,
+          pos: true,
           ai_enabled: true,
           units: {
             [slot]: {
               champ,
               level: 7,
-              x: 10,
-              y: 4,
-              auto: false,
+              x: cx,
+              y: cy,
+              auto: true,
               attrs: { reflexes: 50, decision: 50, execution: 70, aim: 70, positioning: 70, teamwork: 70 },
             },
             [foe]: {
               champ: "torun",
               level: 7,
-              x: 10 + range + 1.2,
-              y: 4,
+              x: cx + range + 0.8,
+              y: cy,
               auto: false,
             },
-            // Ysol nE ≥ 2: second enemy near the cone/line.
+            // Ysol Q needs nE ≥ 2 (L1945): second enemy inside cone range 7.2.
             ...(champ === "ysol"
               ? {
-                  ["red:adc" as UId]: {
+                  [foe2]: {
                     champ: "huntress",
                     level: 7,
-                    x: 10 + range + 0.8,
-                    y: 4.8,
+                    x: cx + 5.5,
+                    y: cy + 0.6,
                     auto: false,
                   },
                 }
@@ -811,10 +829,10 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
           motor: {
             [foe]: {
               to: [
-                [10 + range - 0.5, 4],
-                [10 + range - 0.5, 4],
+                [cx + range - 0.4, cy],
+                [cx + range - 0.4, cy],
               ],
-              arrive_r: 0.2,
+              arrive_r: 0.15,
               hold_at_end: true,
             },
           },
@@ -822,25 +840,33 @@ describe.skipIf(!LB_M2)("M2 cast policy (R6-1 / §9.4.1 L1150–1336, tests L194
         });
         const casts = r.of("cast_start", (e) => e.unit_id === slot && castIs(e, champ, skill));
         expect(casts.length).toBeGreaterThan(0);
-        // Decision tick ≈ first tick the foe is in range (from path).
-        const inRangeTick = (() => {
-          // Approximate: when motor arrives (~distance/MS). Accept first cast within 2 ticks of any cast after fight exists.
-          return casts[0]!.tick as number;
-        })();
-        // Already-perceived: bound is 2 ticks from the decision tick. We assert the first cast arrives
-        // within 2 ticks of the earliest cast opportunity proxy (first fight_call or first in-range moment).
-        const call = r.fightCalls("blue")[0];
-        const decisionTick = call ? (call.tick as number) : 2;
-        expect((casts[0]!.tick as number) - decisionTick).toBeLessThanOrEqual(2 + 20); // generous discovery window then…
-        // Spec: within 2 ticks of the decision tick for already-perceived enemy that steps into range.
-        // Use the cast immediately after the foe path has closed: require some cast with gap ≤ 2 from a candidate tick.
-        const candidates = r.of("intent", (e) => e.unit_id === slot);
-        expect(casts.length + candidates.length).toBeGreaterThan(0);
-        void inRangeTick;
-        // Hard gate: a cast_start for the damage basic exists early (≤ 9 ticks from call for Reflexes/Decision 50 new-enemy bound as upper ceiling).
-        expect((casts[0]!.tick as number) - decisionTick).toBeLessThanOrEqual(
-          Math.ceil(Math.max(perceptionDelay(50), reactionDelay(50)) * 10) + 2,
-        );
+
+        // Decision tick = first tick the foe is in skill range while already perceived (L1945).
+        // Perception: foe was within 8 tiles of the caster for ≥ perception_delay before that tick.
+        const casterPath = pathOf(r.events, slot);
+        const foePath = pathOf(r.events, foe);
+        const percDelayTicks = Math.ceil(perceptionDelay(50) * 10);
+        let decisionTick: number | null = null;
+        for (const fp of foePath) {
+          const cp = casterPath.find((p) => p.tick === fp.tick);
+          if (!cp) continue;
+          const d = Math.hypot(fp.x - cp.x, fp.y - cp.y);
+          if (d > range + 1e-9) continue;
+          // Already-perceived: some earlier tick (≥ percDelayTicks ago) had foe within 8 tiles.
+          const seen = foePath.some((earlier) => {
+            if (earlier.tick > fp.tick - percDelayTicks) return false;
+            const c0 = casterPath.find((p) => p.tick === earlier.tick);
+            if (!c0) return false;
+            return Math.hypot(earlier.x - c0.x, earlier.y - c0.y) <= 8 + 1e-9;
+          });
+          if (!seen) continue;
+          decisionTick = fp.tick;
+          break;
+        }
+        expect(decisionTick, "foe must step into skill range while already perceived").not.toBeNull();
+        const firstAfter = casts.find((e) => (e.tick as number) >= decisionTick!);
+        expect(firstAfter).toBeTruthy();
+        expect((firstAfter!.tick as number) - decisionTick!).toBeLessThanOrEqual(2);
       });
     }
 

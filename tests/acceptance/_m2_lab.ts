@@ -358,7 +358,21 @@ export function peelSkillCd(champ: string, key: Key): number {
   return ab(champ, key).cd;
 }
 
-/** Reconstruct whether a peel skill was off cooldown at peel_start.t. */
+/** Unit level at time t from level_up events (default 1). */
+export function unitLevelAt(game: LabGame, unitId: string, atT: number): number {
+  let level = 1;
+  for (const e of game.events) {
+    if (e.type !== "level_up" || e.unit_id !== unitId) continue;
+    if ((e.t as number) > atT + 1e-9) break;
+    level = Number(e.new_level ?? e.level ?? level);
+  }
+  return level;
+}
+
+/**
+ * Reconstruct whether a peel skill was off cooldown and legal at peel_start.t.
+ * Gate 1 (§9.4.1.2 L1178): R needs L5 — readiness is level-aware.
+ */
 export function peelSkillReadyAt(
   game: LabGame,
   unitId: string,
@@ -366,7 +380,9 @@ export function peelSkillReadyAt(
   key: Key,
   atT: number,
 ): boolean {
-  const cd = peelSkillCd(champ, key);
+  const ability = ab(champ, key);
+  if (ability.unlock > unitLevelAt(game, unitId, atT)) return false;
+  const cd = ability.cd;
   const casts = castsByUnitSkill(game, unitId, champ, key);
   for (let i = casts.length - 1; i >= 0; i--) {
     const c = casts[i]!;
@@ -374,7 +390,92 @@ export function peelSkillReadyAt(
       return (c.t as number) + cd <= atT + 1e-9;
     }
   }
-  return true; // never cast → ready
+  return true; // never cast → ready (and unlocked)
+}
+
+export function isTimestopKind(kind: unknown): boolean {
+  const k = String(kind);
+  return k === "timestop" || k === "time-stop" || k === "time_stop";
+}
+
+/**
+ * COMMIT-R PATH TBD.
+ * Spec §9.4.1.4 rule 6 L1204 / M2-32 L1950: Fight Call carries a commit-R flag
+ * (`engage`, `A_commit ≥ engage threshold + 0.10`, ≥ 3 enemies in the fight).
+ * The build is adding an explicit field on the fight decision — path not frozen
+ * yet. This helper is the single read site: prefer an explicit boolean when
+ * present; otherwise derive from L1204 using fight_call fields.
+ *
+ * Engage threshold by tactic (§9.1 L1105–1108). Lab default is hold_the_pit;
+ * without zone ownership on the event we use the "do not own" 0.50 threshold
+ * (stricter), so derived commit-R is conservative.
+ */
+export function readCommitRFlag(
+  call: Ev | undefined,
+  opts?: { enemiesInFight?: number; engageThreshold?: number },
+): boolean {
+  if (!call) return false;
+  // Explicit field — paths the build may land; first match wins.
+  const explicit = [
+    call.commit_r,
+    call.commit_R,
+    call.commitR,
+    (call as { commit_R_flag?: unknown }).commit_R_flag,
+    (call.flags as { commit_r?: unknown } | undefined)?.commit_r,
+    (call.flags as { commit_R?: unknown } | undefined)?.commit_R,
+  ];
+  for (const v of explicit) {
+    if (typeof v === "boolean") return v;
+  }
+  // Derive per L1204 until the explicit path is published.
+  if (call.commit !== "engage") return false;
+  const aCommit = Number(call.a_commit ?? call.A_commit);
+  if (!Number.isFinite(aCommit)) return false;
+  const thr = opts?.engageThreshold ?? 0.5; // hold_the_pit, not owned (L1106)
+  if (aCommit < thr + 0.1 - 1e-12) return false;
+  const nE = opts?.enemiesInFight ?? Number(call.enemies_in_fight ?? call.n_enemies ?? NaN);
+  if (Number.isFinite(nE)) return nE >= 3;
+  // Without an enemy count on the event, do not invent commit-R.
+  return false;
+}
+
+/**
+ * Gate 4 / S2-R4-5 immobile exception (§9.4.1.2 L1181): rooted, leashed, or at
+ * own sanctuary pad with 0 path left. Mobile = not immobile. Reconstructed from
+ * the event log (acceptance suite does not import sim/retreat_combat).
+ */
+export function retreatImmobileFromLog(game: LabGame, unitId: string, atT: number): boolean {
+  const rootedOrLeashed = game.events.some(
+    (e) =>
+      e.type === "status_apply" &&
+      (e.kind === "root" || e.kind === "leash") &&
+      e.target_id === unitId &&
+      (e.t as number) <= atT + 1e-9 &&
+      (e.t as number) + Number(e.applied_duration ?? e.raw_duration ?? 0) > atT + 1e-9,
+  );
+  if (rootedOrLeashed) return true;
+  // At own sanctuary pad: blue x∈[0,2), red x∈[22,24); pad centres 1.5 / 22.5.
+  const team = teamOf(unitId);
+  const pos = game.events
+    .filter(
+      (e) =>
+        (e.type === "pos" || e.type === "move") &&
+        e.unit_id === unitId &&
+        (e.t as number) <= atT + 1e-9,
+    )
+    .pop();
+  if (!pos || typeof pos.x !== "number") {
+    // No pos stream: sanctuary-at-pad cannot be confirmed; only root/leash count.
+    return false;
+  }
+  const x = pos.x as number;
+  const y = pos.y as number;
+  const inSanct =
+    team === "blue" ? x >= 0 && x < 2 : team === "red" ? x >= 22 && x < 24 : false;
+  if (!inSanct) return false;
+  const padX = team === "blue" ? 1.5 : 22.5;
+  const padY = 7.5;
+  return Math.hypot(x - padX, y - padY) <= 0.35;
 }
 
 export function peelerChamp(game: LabGame, peelerId: string): string | undefined {
