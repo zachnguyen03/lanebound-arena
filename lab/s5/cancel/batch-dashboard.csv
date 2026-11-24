@@ -1,0 +1,10 @@
+id,metric,target,value,sample_size,mark,notes
+match_length,Match length (median / p10 / p90),Median 3:30–4:30 (210–270 s),median 1:22.7 (82.7s); p10 1:17.2; p90 2:56.7,20,under-powered,"Ends: {""first_to_10"":1}"
+zone_share,Zone share of winner's score,30–40% (ticks+claims),54.5%,20,under-powered,
+per_champion,Per-champion win / pick / KDA,"Win rate 45–55%, min 200 games / champ (random-draft even)","brannoch:10%(n=20), helvar:90%(n=20), huntress:10%(n=20), kerrig:10%(n=20), maelis:90%(n=20), rhedan:90%(n=20), saelo:90%(n=20), sedge:10%(n=20)…",20,under-powered,min picks among champs=20
+archetype_matrix,Comp archetype matrix,No archetype >55% vs field; triangle edges 55–65% (min 80/200),Dive 10%(n=20); Peel 0%(n=0); Poke 90%(n=20); Balanced 0%(n=0),20,under-powered,Peel_vs_Dive: —%(n=0); Dive_vs_Poke: 10%(n=20); Poke_vs_Peel: —%(n=0)
+attribute_isolation,Attribute isolation (+30 one attr),"+3 to +6 pp team win%, min 400/arm; no delta >2× another",not run — use npm run isolation,0,under-powered,See apps/lab/isolation.ts
+auto_peel,Auto-peel fire rate,≥ 70% of geometrically reachable dives (dive_geom),"95.7% (fired=22, eligible=23)",23,pass,Denominator = dive_geom (all geometrically reachable dives; not filtered on peeler_perceived)
+sanctuary,Spawn-pad entries (illegal enemy-sanctuary centres),0,0,20,pass,
+claim_deny,Claim deny rate,Reported (opened / denied / paid); warn if 0% or 100%,"opened=4, denied=2, paid=2, rate=50.0%",4,report,ok
+level_timings,Level timings (first R / L7),"Flavour R ~1:20, L7 ~2:40 (report misses; XP table is P)",R median — (n=0); L7 median — (n=0),0,report,

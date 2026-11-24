@@ -24,6 +24,7 @@ const types = {
   ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
+  ".jsonl": "application/x-ndjson",
   ".ico": "image/x-icon",
 };
 

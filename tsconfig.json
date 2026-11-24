@@ -18,7 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@sim/*": ["sim/*"],
-      "@data/*": ["data/*"]
+      "@data/*": ["data/*"],
+      "@lab/*": ["apps/lab/lib/*"]
     }
   },
   "include": [

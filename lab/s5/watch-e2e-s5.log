@@ -1,0 +1,14 @@
+
+> lanebound-arena@0.0.0 watch:e2e
+> playwright test --config apps/watch/playwright.config.ts apps/watch/e2e/s5-lab.spec.ts
+
+
+Running 3 tests using 1 worker
+
+(node:5522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 apps/watch/e2e/s5-lab.spec.ts:20:5 › S5 lab dashboard + tuning › dashboard 1280x720 (335ms)
+  ✓  2 apps/watch/e2e/s5-lab.spec.ts:20:5 › S5 lab dashboard + tuning › dashboard 1920x1080 (394ms)
+  ✓  3 apps/watch/e2e/s5-lab.spec.ts:236:3 › S5 lab dashboard + tuning › tuning rejects ZONE_TICK_S=7 and saves preset (278ms)
+
+  3 passed (4.6s)

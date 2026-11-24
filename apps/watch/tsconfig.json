@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@sim/*": ["../../sim/*"],
-      "@watch/*": ["src/*"]
+      "@watch/*": ["src/*"],
+      "@lab/*": ["../lab/lib/*"]
     },
     "types": ["vite/client"]
   },

@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const STATIC = "http://127.0.0.1:4175";
+const distDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../dist",
+);
 
 /**
  * Cloudflare static assets 404 unknown paths. Vite preview does not:
@@ -67,4 +74,24 @@ test.describe("asset requests against a 404 static server", () => {
       await context.close();
     });
   }
+
+  test("samples/*.jsonl served as application/x-ndjson; _headers in dist", async ({
+    request,
+  }) => {
+    const headersFile = path.join(distDir, "_headers");
+    expect(fs.existsSync(headersFile), "_headers missing from dist").toBe(true);
+    const headersBody = fs.readFileSync(headersFile, "utf8");
+    expect(headersBody).toMatch(/\/samples\/\*\.jsonl/);
+    expect(headersBody).toMatch(/Content-Type:\s*application\/x-ndjson/);
+
+    for (const sample of [
+      "/samples/seed-20261122.jsonl",
+      "/samples/handmade-deaths.jsonl",
+    ]) {
+      const res = await request.get(`${STATIC}${sample}`);
+      expect(res.status(), sample).toBe(200);
+      const ct = (res.headers()["content-type"] ?? "").toLowerCase();
+      expect(ct, sample).toContain("application/x-ndjson");
+    }
+  });
 });

@@ -102,6 +102,17 @@ function requireClockEnd(raw: unknown): MatchConfig {
   return { ...(rec as unknown as MatchConfig) };
 }
 
+export function withConstants(
+  config: MatchConfig,
+  constants?: Record<string, unknown>,
+): MatchConfig {
+  if (!constants || Object.keys(constants).length === 0) return config;
+  return {
+    ...config,
+    constants: { ...(config.constants ?? {}), ...constants },
+  };
+}
+
 export function runFromConfig(config: MatchConfig) {
   const canonical = requireClockEnd({
     ...config,
@@ -116,12 +127,18 @@ export function runFromConfig(config: MatchConfig) {
   return { config: canonical, result: tape, digest: auth.digest };
 }
 
-export function runWatchMatch(seed: number) {
-  return runFromConfig(canonicalConfig(seed));
+export function runWatchMatch(
+  seed: number,
+  constants?: Record<string, unknown>,
+) {
+  return runFromConfig(withConstants(canonicalConfig(seed), constants));
 }
 
-export function runClockAiMatch(seed: number) {
-  return runFromConfig(clockAiConfig(seed));
+export function runClockAiMatch(
+  seed: number,
+  constants?: Record<string, unknown>,
+) {
+  return runFromConfig(withConstants(clockAiConfig(seed), constants));
 }
 
 export function cliDigest(seed: number): string {

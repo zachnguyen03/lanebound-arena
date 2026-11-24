@@ -1,0 +1,56 @@
+{
+  "n_per_arm": 50,
+  "seed_start": 20261122,
+  "control_blue_win_pp": 2,
+  "deltas": [
+    {
+      "attr": "aim",
+      "control_win_pp": 2,
+      "arm_win_pp": 2,
+      "delta_pp": 0,
+      "n": 50
+    },
+    {
+      "attr": "reflexes",
+      "control_win_pp": 2,
+      "arm_win_pp": 2,
+      "delta_pp": 0,
+      "n": 50
+    },
+    {
+      "attr": "execution",
+      "control_win_pp": 2,
+      "arm_win_pp": 2,
+      "delta_pp": 0,
+      "n": 50
+    },
+    {
+      "attr": "decision",
+      "control_win_pp": 2,
+      "arm_win_pp": 2,
+      "delta_pp": 0,
+      "n": 50
+    },
+    {
+      "attr": "positioning",
+      "control_win_pp": 2,
+      "arm_win_pp": 4,
+      "delta_pp": 2,
+      "n": 50
+    },
+    {
+      "attr": "teamwork",
+      "control_win_pp": 2,
+      "arm_win_pp": 2,
+      "delta_pp": 0,
+      "n": 50
+    }
+  ],
+  "mastery_50_to_90": {
+    "control_blue_win_pp": 2,
+    "arm_blue_win_pp": 44,
+    "delta_pp": 42,
+    "n": 50
+  },
+  "elapsed_ms": 45593
+}

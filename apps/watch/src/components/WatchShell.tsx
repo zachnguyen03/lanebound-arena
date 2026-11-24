@@ -66,7 +66,18 @@ function useViewport() {
   return size;
 }
 
-export function WatchShell() {
+interface WatchShellProps {
+  /** Staged §15 overrides from the Lab tuning panel — applied on next run only. */
+  stagedConstants?: Record<string, unknown>;
+  onOpenLab?: () => void;
+  dirty?: boolean;
+}
+
+export function WatchShell({
+  stagedConstants = {},
+  onOpenLab,
+  dirty = false,
+}: WatchShellProps = {}) {
   const vp = useViewport();
   const mode: HudMode = pickHudMode(vp.w);
   const belowMin = vp.w < MIN_VIEWPORT.w || vp.h < MIN_VIEWPORT.h;
@@ -146,7 +157,9 @@ export function WatchShell() {
       setPlaying(false);
       try {
         const { config, result, digest } =
-          preset === "clock_ai" ? runClockAiMatch(seed) : runWatchMatch(seed);
+          preset === "clock_ai"
+            ? runClockAiMatch(seed, stagedConstants)
+            : runWatchMatch(seed, stagedConstants);
         const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
         setLiveDigest(digest);
@@ -167,7 +180,7 @@ export function WatchShell() {
         setPhase("empty");
       }
     },
-    [assets],
+    [assets, stagedConstants],
   );
 
   const importConfig = useCallback((text: string) => {
@@ -325,6 +338,10 @@ export function WatchShell() {
   };
 
   const [stageW, stageH] = layout.canvas;
+  // Below the desktop minimum, scale the 1280 HUD to the viewport width so
+  // every control stays hittable without horizontal scroll. Banner is fixed.
+  const fitScale = belowMin ? Math.min(1, vp.w / stageW) : 1;
+  const scaled = fitScale < 1;
 
   const mapSize = arenaDisplaySize(mode);
   const mapSlot = layout.arena_map;
@@ -350,6 +367,7 @@ export function WatchShell() {
       data-drawer-open={drawerOpen ? "true" : "false"}
       data-drawer-mode={drawerMode}
       data-overlays={overlays ? "true" : "false"}
+      data-fit-scale={fitScale.toFixed(4)}
       data-match-end={
         (engine?.events.find((e) => e.type === "match_end")?.reason as
           | string
@@ -358,27 +376,40 @@ export function WatchShell() {
       data-digest={liveDigest ?? engine?.digest ?? ""}
       data-art-checked={artChecked ? "true" : "false"}
     >
+      {belowMin ? (
+        <div
+          data-testid="desktop-notice"
+          className="fixed left-0 right-0 top-0 z-50 border-b border-line bg-panel px-4 py-2 text-center text-sm text-dim"
+        >
+          Best viewed on desktop (minimum 1280×720)
+        </div>
+      ) : null}
+
       <div
         className={
           pushOpen
             ? "flex min-w-0 flex-1 flex-col items-center overflow-hidden"
             : "min-w-0 flex-1"
         }
-        style={
-          pushOpen
-            ? { overflowX: "hidden", overflowY: "auto" }
-            : { overflowX: "auto", overflowY: "auto" }
-        }
+        style={{
+          overflowX: pushOpen || scaled ? "hidden" : "auto",
+          overflowY: "auto",
+          paddingTop: belowMin ? 40 : 0,
+        }}
       >
-        {belowMin ? (
-          <div
-            data-testid="desktop-notice"
-            className="sticky top-0 z-50 w-full border-b border-line bg-panel px-4 py-2 text-center text-sm text-dim"
-          >
-            Best viewed on desktop (minimum 1280×720)
-          </div>
-        ) : null}
-
+        <div
+          data-testid="hud-fit"
+          style={
+            scaled
+              ? {
+                  width: stageW * fitScale,
+                  // Stage only; utilities sit in a second scaled block below.
+                  height: stageH * fitScale,
+                  overflow: "hidden",
+                }
+              : undefined
+          }
+        >
         <div
           data-testid="hud-stage"
           className="relative bg-field"
@@ -387,6 +418,8 @@ export function WatchShell() {
             height: stageH,
             minWidth: stageW,
             minHeight: stageH,
+            transform: scaled ? `scale(${fitScale})` : undefined,
+            transformOrigin: "top left",
           }}
         >
           <TopBar
@@ -438,6 +471,8 @@ export function WatchShell() {
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onImportText={importConfig}
+                onOpenLab={onOpenLab}
+                dirty={dirty}
               />
               {configError ? (
                 <p
@@ -556,14 +591,15 @@ export function WatchShell() {
             </>
           ) : null}
         </div>
+        </div>
 
         {engine ? (
           <div
             data-testid="below-stage-utilities"
-            style={{ width: stageW }}
+            style={{ width: scaled ? vp.w : stageW }}
             className="border-t border-line bg-field"
           >
-            {vp.h > stageH ? (
+            {!scaled && vp.h > stageH ? (
               <div
                 data-testid="under-hud-spacer"
                 aria-hidden
@@ -586,6 +622,8 @@ export function WatchShell() {
                 }}
                 onImportText={importConfig}
                 canExport={!!liveConfig}
+                onOpenLab={onOpenLab}
+                dirty={dirty}
               />
               {exportedJson ? (
                 <pre

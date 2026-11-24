@@ -3,20 +3,20 @@
 **Branch:** `cursor/s4-watch-f8c1`  
 **Base:** `s0` @ `1caa5eb`  
 **sim merged from:** `origin/s3` @ `34f488b`  
-**Code tip:** `829f769`  
+**Code tip:** `e427530` (`e427530ed56e8a8d53939922460168332f28c562`)  
 **Date:** 23 Nov 2026  
 
-Desktop-only Watch. `sim/` is the `34f488b` tree. The bundled sample digest is the current quiet gold `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f`.
+Desktop-only Watch. `sim/` is the `34f488b` tree. The bundled sample digest is the current quiet gold `7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f`. Tip `e427530` adds skill icons (replacing skill ids) on top of the earlier `829f769` Watch pass.
 
 ## Gates
 
 | Command | Exit |
 |---|---|
 | `npx tsc --noEmit` | 0 |
-| `npm test` | 0 (1404 passed, 11 skipped) |
+| `npm test` | 0 (1405 passed, 11 skipped) |
 | `npm run purity` | 0 |
 | `npm run watch:build` | 0 |
-| `npm run watch:e2e` | 0 (29 passed) |
+| `npm run watch:e2e` | 0 (31 passed) |
 
 ## QA of 3ae791e
 
