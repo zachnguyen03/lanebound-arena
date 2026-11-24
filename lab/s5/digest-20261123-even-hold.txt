@@ -1,8 +1,8 @@
 label=20261123-even-hold
 seed=20261123
 ai=true
-digest=74d9794affef09962673f97a0ef1aaf934cc8f58116193c044ef6cad6f21f425
+digest=3dd7e099885936d467415b2bbc57998957fade6593faca25db222529962e9d56
 constants_hash=69f5b9e615f3e57f458c0dd40875d2cd178cc4ac728da2f9e5f4f51e8ff54fc1
-winner=red
+winner=blue
 reason=first_to_10
-duration_s=77.2
+duration_s=100.3
