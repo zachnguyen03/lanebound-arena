@@ -25,11 +25,11 @@ const TILE_W = 44;
 const TILE_H = 32;
 const ANCHOR_Y = 46;
 /**
- * Authored VFX cells are 1×. Bodies blit at 2×. Effects were 4× for the
- * clumped pit fights; 3× once fights spread out (formation) so glyphs stop
- * covering whole units. Integer nearest-neighbour only — art is not redrawn.
+ * Authored VFX cells are 1×. Bodies blit at 2× and so do effects (same pixel
+ * scale as the champions). Was 4× for clumped pit fights; outlines, tags and
+ * underlays carry legibility. Integer nearest-neighbour only — art is not redrawn.
  */
-const VFX_SCALE = 3;
+const VFX_SCALE = 2;
 const LINE_MIN = 3;
 const OUTLINE = "#0B0E14";
 
