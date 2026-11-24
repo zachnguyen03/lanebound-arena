@@ -1118,15 +1118,30 @@ function spillTarget(ctx: Ctx, skill: SkillKey): UnitState | null {
   return best;
 }
 
+/**
+ * R7-6 P1a whole-tick inequality (no R7-6b P1A_READ_MULT):
+ * lead_ticks < (cast_start_tick + ceil(cast_s×10)) − decision_tick
+ * Decision tick ≥ cast_start + ceil(reaction_delay×10 − 1e-9). Strict.
+ */
 function interruptOf(ctx: Ctx, skill: SkillKey, maxRange: number): UnitState | null {
   let best: UnitState | null = null;
+  const decisionTick = ctx.state.tick;
+  const reactTicks = Math.ceil(reactionDelayS(ctx.u.attrs.reflexes) * 10 - 1e-9);
+  const ourLead = leadTicks(ctx.u, skill);
   for (const e of ctx.perceived) {
-    if (!isInterruptibleCast(e)) continue;
+    if (!isInterruptibleCast(e) || !e.cast_skill) continue;
     if (!inRange(ctx.u, e, maxRange)) continue;
-    const seen = ctx.memory?.castSeen[`${e.id}|${e.cast_seq}`];
-    const seenT = seen ?? ctx.state.t;
-    if (ctx.state.t + 1e-9 < seenT + reactionDelayS(ctx.u.attrs.reflexes)) continue;
-    if (!(leadTicks(ctx.u, skill) < e.cast_left * 10 - 1e-9)) continue;
+    const enemyAb = abil(e.champ, e.cast_skill);
+    if (!enemyAb) continue;
+    const seenT = ctx.memory?.castSeen[`${e.id}|${e.cast_seq}`];
+    // Reconstruct cast_start from remaining windup when unseen in memory.
+    const castStartT =
+      seenT !== undefined ? seenT : ctx.state.t - (enemyAb.cast_s - e.cast_left);
+    const castStartTick = tickOf(castStartT);
+    if (decisionTick < castStartTick + reactTicks) continue;
+    const castEndTick = castStartTick + Math.ceil(enemyAb.cast_s * 10 - 1e-9);
+    const castLeftTicks = castEndTick - decisionTick;
+    if (!(ourLead < castLeftTicks)) continue;
     if (!ccOk(ctx, e, skill, "P1a")) continue;
     const ab = abil(ctx.u.champ, skill);
     if (!ab) continue;
