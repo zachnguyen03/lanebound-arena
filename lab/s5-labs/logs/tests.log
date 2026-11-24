@@ -1,0 +1,134 @@
+
+> lanebound-arena@0.0.0 test
+> npm run typecheck && vitest run
+
+
+> lanebound-arena@0.0.0 typecheck
+> tsc --noEmit && tsc -p apps/watch/tsconfig.json --noEmit
+
+
+ RUN  v2.1.9 /agent/repos/lanebound-arena
+
+ ✓ tests/m1-sim-behavior.test.ts (16 tests) 272ms
+ ✓ tests/acceptance/s3/10-gd-rulings-r5.test.ts (50 tests) 660ms
+ ✓ tests/acceptance/s1/05-status-engine.test.ts (30 tests) 423ms
+ ✓ tests/acceptance/s2/09-gd-rulings-r3.test.ts (17 tests | 1 skipped) 251ms
+ ✓ tests/acceptance/s1/06-heals-shields.test.ts (23 tests) 219ms
+ ✓ tests/acceptance/s3/03-zone.test.ts (17 tests) 249ms
+ ✓ tests/acceptance/s1/10-shape-range-geometry.test.ts (108 tests) 607ms
+ ✓ tests/acceptance/s1/13-gd-rulings.test.ts (52 tests) 2463ms
+   ✓ OQ-7 (Appendix R #2 L1903): AUTO_WINDUP 0.25/AS and missile speed 18 are locked defaults (tunable 0.15–0.35 / 12–24) > constants_hash changes when AUTO_WINDUP or MISSILE_SPEED is overridden (they belong in the constants table) 614ms
+   ✓ S0 constants (Appendix R #2 L1905): SEPARATION_STRENGTH=2.0 joins the constants table (tunable 0–4, allies only, steering only); SCRIPTED_ARRIVE_R=0.15 is lab-only and stays out of constants_hash > overriding SEPARATION_STRENGTH changes constants_hash (it is in the table, default 2.0) 615ms
+   ✓ S0 constants (Appendix R #2 L1905): SEPARATION_STRENGTH=2.0 joins the constants table (tunable 0–4, allies only, steering only); SCRIPTED_ARRIVE_R=0.15 is lab-only and stays out of constants_hash > overriding SCRIPTED_ARRIVE_R does NOT change constants_hash (lab-only, out of the table) 771ms
+ ✓ tests/acceptance/s3/05-orbs-buffs.test.ts (21 tests) 714ms
+ ✓ tests/acceptance/s1/04-cc-enforcement.test.ts (43 tests) 650ms
+ ✓ tests/acceptance/s3/04-claims.test.ts (20 tests) 183ms
+ ✓ tests/acceptance/s2/12-survivor-gaps.test.ts (9 tests) 249ms
+ ✓ tests/acceptance/s1/07-petrify-passives.test.ts (23 tests) 306ms
+ ✓ tests/acceptance/s1/03-marks-finishers.test.ts (15 tests) 397ms
+ ✓ tests/acceptance/s3/01-match-end.test.ts (13 tests) 222ms
+ ✓ tests/acceptance/s2/10-gd-rulings-r4.test.ts (7 tests) 175ms
+ ✓ tests/acceptance/s2/13-anti-tuning.test.ts (5 tests | 1 skipped) 156ms
+ ✓ tests/acceptance/s2/03-auto-peel.test.ts (9 tests | 1 skipped) 244ms
+ ✓ tests/s2-ai-fight.test.ts (14 tests) 954ms
+   ✓ S2 simulate digests > AI-off quiet match matches S1 digest for seed 20261122 351ms
+ ✓ tests/acceptance/s2/02-chase-stops.test.ts (4 tests) 133ms
+ ✓ tests/s1-behaviour-coverage.test.ts (7 tests) 81ms
+ ✓ tests/acceptance/s1/kiln-cured.test.ts (12 tests) 140ms
+ ✓ tests/acceptance/s2/01-fight-call.test.ts (10 tests) 115ms
+ ✓ tests/s3-mutation-survivors.test.ts (6 tests) 81ms
+ ✓ tests/acceptance/s1/02-ability-numbers.test.ts (447 tests) 983ms
+ ✓ tests/acceptance/s3/06-xp-respawn.test.ts (11 tests) 521ms
+ ✓ tests/s2-mutation-survivors.test.ts (9 tests) 6ms
+ ✓ tests/acceptance/s2/05-attribute-hooks.test.ts (5 tests) 172ms
+ ✓ tests/m1-gates-assist-windup.test.ts (4 tests) 32ms
+ ✓ tests/s0.test.ts (15 tests) 2233ms
+   ✓ S0 M0 acceptance > 1. same config → byte-identical digest; seed+1 differs 1163ms
+   ✓ S0 M0 acceptance > 3. scripted shove into enemy sanctuary: 0 centres inside; clip logged; no violation 310ms
+ ✓ tests/m1-10-15-kit-status.test.ts (6 tests) 4ms
+ ✓ tests/acceptance/s2/11-probe-gaps.test.ts (3 tests | 1 skipped) 70ms
+ ✓ tests/s2-r25-follow-focus.test.ts (4 tests) 5ms
+ ✓ tests/acceptance/s1/08-casting-rules.test.ts (51 tests) 3074ms
+ ✓ tests/acceptance/s3/02-scoring.test.ts (6 tests) 154ms
+ ✓ tests/acceptance/s1/11-aim-skillshots.test.ts (35 tests) 2755ms
+   ✓ Real skillshots use the same roll (no force_hit): Huntress Q at a stationary target, aim 60 vs reflexes 60 → ≈55% over 400 seeds (spec L513, L934) > hit rate within ±7 points of 55% (σ≈2.5 pts) 1113ms
+ ✓ tests/s2-retreat-immobile.test.ts (2 tests) 63ms
+ ✓ apps/watch/src/lib/live-match.test.ts (8 tests) 4360ms
+   ✓ S4 live match > exports the Watch note and matches the even preset digest 1084ms
+   ✓ S4 live match > seed 20261122 evenOvr reaches first_to_10 and matches CLI digest with overlays/debug_pos 698ms
+   ✓ S4 live match > clock AI seed 20261122 matches S1 AI-on and melee autos land 1745ms
+   ✓ S4 live match > seed 20261123 digest is stable and independent of debug_pos 476ms
+   ✓ S4 live match > export then import replays a byte-identical digest 354ms
+ ✓ tests/acceptance/s1/09-assists-xp.test.ts (8 tests) 55ms
+ ✓ tests/acceptance/s1/kiln-cured-ruled.test.ts (6 tests) 160ms
+ ✓ tests/spawn-slots.test.ts (5 tests) 60ms
+ ✓ tests/s3-r5-11-phase9.test.ts (2 tests) 40ms
+ ✓ tests/m1-19b-aim-reflexes.test.ts (6 tests) 1373ms
+   ✓ M1-19b Aim vs Reflexes (sim skillshots + HIT_* constants) > info: pass rate over 100 seeds at 60vs60 within ±2 of 55% 920ms
+ ✓ tests/acceptance/s2/04-digest-ai.test.ts (6 tests) 2267ms
+   ✓ Digest still stable with AI on (M2-24 L1737, G10 L1891) > two in-process simulate() calls on defaultEvenConfig(seed) have a byte-identical digest 630ms
+   ✓ Digest still stable with AI on (M2-24 L1737, G10 L1891) > seed+1 produces a different digest 586ms
+   ✓ Digest still stable with AI on (M2-24 L1737, G10 L1891) > two separate Node processes agree on the default-match digest for seed 20261122 1001ms
+ ✓ tests/s5-tuning.test.ts (6 tests) 823ms
+   ✓ S5 tuning T1–T4 > T1: staged mid-match edit does not change the current digest; next run applies 811ms
+ ✓ tests/acceptance/s2/06-unit-brain.test.ts (3 tests) 72ms
+ ↓ tests/acceptance/s2/08-deferred-s3.test.ts (6 tests | 6 skipped)
+ ✓ tests/acceptance/s1/12-brawl-gold.test.ts (7 tests) 263ms
+ ✓ tests/acceptance/s1/01-stats.test.ts (100 tests) 329ms
+ ✓ tests/m1-16-19-shield-heal-dr-lock.test.ts (5 tests) 3ms
+ ✓ tests/s0-g2-death-xp.test.ts (1 test) 37ms
+ ✓ tests/acceptance/s3/07-determinism.test.ts (9 tests) 7491ms
+   ✓ Two-process / two-call digest identity — seeds 20261122 and 20261123 (G10 L1891, §4.4 L196) > two in-process simulate() calls on the full S3 even match agree for seed 20261122 799ms
+   ✓ Two-process / two-call digest identity — seeds 20261122 and 20261123 (G10 L1891, §4.4 L196) > two in-process simulate() calls on the full S3 even match agree for seed 20261123 619ms
+   ✓ Two-process / two-call digest identity — seeds 20261122 and 20261123 (G10 L1891, §4.4 L196) > two separate Node processes agree on the full S3 even-match digest for seed 20261122 1398ms
+   ✓ Two-process / two-call digest identity — seeds 20261122 and 20261123 (G10 L1891, §4.4 L196) > two separate Node processes agree on the full S3 even-match digest for seed 20261123 1540ms
+   ✓ Two-process / two-call digest identity — seeds 20261122 and 20261123 (G10 L1891, §4.4 L196) > seed 20261123 differs from seed 20261122 on the full S3 even match 608ms
+   ✓ plan §8.4 S3 L366 / sandbox L629 — a full match ends with a digest and S3 events > a full even match emits the first orb wave at t=8.0 (S3 is live; M3-28 L1750) 414ms
+   ✓ plan §8.4 S3 L366 / sandbox L629 — a full match ends with a digest and S3 events > one additional random-seed full match (4242) ends with match_end and a digest (plan L366) 904ms
+   ✓ plan §8.4 S3 L366 / sandbox L629 — a full match ends with a digest and S3 events > digestEvents(events) equals result.digest; move and pos stay out (G10 L1891, §4.4 L196) 930ms
+ ✓ apps/watch/src/lib/replay.test.ts (3 tests) 1371ms
+   ✓ Watch determinism guard > loading and replaying a log leaves its digest unchanged 1123ms
+ ✓ tests/hex-steer.test.ts (4 tests) 3ms
+ ✓ tests/acceptance/s2/07-targeting-ward.test.ts (2 tests) 75ms
+ ✓ tests/s0-gold-hash.test.ts (4 tests) 533ms
+ ↓ tests/s3-side-neutral.test.ts (1 test | 1 skipped)
+ ✓ apps/watch/src/lib/champ-atlas.test.ts (3 tests) 21ms
+ ✓ tests/acceptance/s3/08-s1-regression.test.ts (3 tests) 1512ms
+   ✓ AI-off S1 digest regression (defaultEvenConfig, forced_clock_end true) > seed 20261122: digest of events with S3 types stripped equals the official S1 gold 571ms
+   ✓ AI-off S1 digest regression (defaultEvenConfig, forced_clock_end true) > seed 20261123: digest of events with S3 types stripped equals the official S1 gold 564ms
+   ✓ AI-off S1 digest regression (defaultEvenConfig, forced_clock_end true) > on the S1 tip (no S3 events) the unfiltered digest is already the gold — the strip is a no-op 376ms
+ ✓ tests/m1-07-08-finishers.test.ts (3 tests) 4ms
+ ✓ tests/purity-scan.test.ts (4 tests) 6ms
+ ✓ apps/watch/src/lib/kill-feed-format.test.ts (4 tests) 4ms
+ ✓ tests/s0-auto-windup.test.ts (1 test) 33ms
+ ✓ tests/acceptance/s3/09-sanctuary.test.ts (2 tests) 493ms
+   ✓ M3-25 20-seed AI-off preview (sandbox L705 preview; 400 / 2,000 deferred) > 20 defaultEvenConfig seeds with assert_sanctuary emit 0 sanctuary_violation events 432ms
+ ✓ tests/s3-r5-12-config.test.ts (5 tests) 5ms
+ ✓ tests/s5-isolation-mastery.test.ts (2 tests) 3339ms
+   ✓ S5 isolation mastery_one (§8.5) > runIsolation mastery arm does not set mastery_all=90 3332ms
+ ✓ tests/m1-kits-authored.test.ts (17 tests) 6ms
+ ✓ tests/s5-draft-mix.test.ts (2 tests) 4ms
+ ✓ tests/s5-dashboard.test.ts (5 tests) 24409ms
+   ✓ S5 dashboard D1–D4 > D1: 100-game even batch writes every §6.5 row with mark + sample size; CSV/JSON parse 18678ms
+   ✓ S5 dashboard D1–D4 > D2: isolation preset produces six attribute deltas 5723ms
+ ✓ tests/m1-05-stats.test.ts (43 tests) 16ms
+ ✓ apps/watch/src/lib/hud-layout.test.ts (2 tests) 6ms
+ ✓ tests/s2-intent-dwell.test.ts (2 tests) 1566ms
+   ✓ §9.2 intent dwell — no Retreat→HoldZone trickle within 1 s > seed 20261122: zero Retreat→HoldZone flips inside 1 s 912ms
+   ✓ §9.2 intent dwell — no Retreat→HoldZone trickle within 1 s > seed 20261123: zero Retreat→HoldZone flips inside 1 s 653ms
+ ✓ tests/s0-two-process.test.ts (1 test) 1188ms
+   ✓ M0.1 two-process determinism > seed 20261122 digest matches across two separate Node processes 1187ms
+ ✓ apps/watch/src/lib/draw-order.test.ts (3 tests) 2ms
+ ✓ tests/m1-09-sanctuary-clip.test.ts (2 tests) 2ms
+ ✓ tests/m1-06-huntress-q.test.ts (2 tests) 2ms
+ ✓ apps/watch/src/lib/spawn.test.ts (3 tests) 3ms
+ ✓ tests/watch-sample.test.ts (1 test) 341ms
+   ✓ bundled Watch sample > matches a fresh generate from the current default config 339ms
+ ✓ tests/s5-batch.test.ts (3 tests) 35653ms
+   ✓ S5 batch B1–B3 > B1: cancel at ~20 keeps partial; full 100 digests are stable on rerun 35649ms
+
+ Test Files  77 passed | 2 skipped (79)
+      Tests  1423 passed | 11 skipped (1434)
+   Start at  01:57:16
+   Duration  54.22s (transform 1.34s, setup 0ms, collect 6.20s, tests 107.95s, environment 13ms, prepare 3.78s)
+

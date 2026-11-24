@@ -24,7 +24,7 @@ const outRoot = path.resolve("lab/s5-labs");
 fs.mkdirSync(outRoot, { recursive: true });
 
 const SEED_START = 20261122;
-/** 600 pair-seeds × 2 = 1200 games; rarest champ ~28.6% → ~343 appearances. */
+/** 600 pair-seeds × 2 = 1200 games; uniform deal → ~857 appearances/champ (10/14). */
 const RANDOM_DRAFT_N = 1200;
 const ISOLATION_N = 400;
 
@@ -41,10 +41,10 @@ const config = {
     scheme: "random_draft",
     side_swap_pairs: true,
     base: "evenOvrConfig(seed, hold_the_pit)",
-    draft: "quickDraftPicks(seed) — lab xorshift, no duplicate champ in a match",
+    draft: "quickDraftPicks(seed) — lab Mulberry32 hash stream, Fisher–Yates, deal 5+5",
     inventions: [
-      "lab-local xorshift shuffle (not sim RNG stream `draft`)",
-      "role-preference fill (defaultSlot map) before leftover fill — INVENTION",
+      "lab-local Mulberry32 stream mixed from seed⊕domain (not sim RNG stream `draft`)",
+      "Fisher–Yates then blue=first5 / red=next5 (no role-preference fill — that forced both tops+supports every game)",
       "side_swap_pairs: each seed runs twice with blue/red picks swapped",
     ],
     command: `npm run batch -- --n ${RANDOM_DRAFT_N} --seed ${SEED_START} --scheme random_draft --side-swap-pairs --out lab/s5-labs/random-draft`,

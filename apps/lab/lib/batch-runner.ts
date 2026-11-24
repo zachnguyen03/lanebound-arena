@@ -149,85 +149,65 @@ export function mirrorPicks(cfg: MatchConfig, from: "blue" | "red" = "blue"): Ma
   return out;
 }
 
+/** Full champ pool for lab quick-draft (14). Sit-out = 4 per match. */
+export const QUICK_DRAFT_POOL = [
+  "huntress",
+  "maelis",
+  "isra",
+  "sedge",
+  "torun",
+  "tolle",
+  "helvar",
+  "calder",
+  "kerrig",
+  "mirren",
+  "rhedan",
+  "brannoch",
+  "ysol",
+  "saelo",
+] as const;
+
 /**
- * Quick draft: deterministic xorshift shuffle from seed.
- * INVENTION: lab-local RNG (not sim stream `draft`). Seeds in a tight range
- * (e.g. 20261122…) produced nearly identical first xorshift outputs, so the
- * Fisher–Yates first swap always parked pool[2] (`isra`) in the sit-out seat.
- * SplitMix32 avalanche before xorshift removes that seed-range correlation.
+ * Lab-local Mulberry32 stream mixed from `seed` + domain tag.
+ * INVENTION: not sim RNG stream `draft` (or any sim stream). Deterministic per seed.
+ * Domain tag + add-const step avalanche consecutive seeds so Fisher–Yates is uncorrelated.
+ */
+export function labDraftUnit(seed: number): () => number {
+  // Mix seed with a lab-draft domain constant (≠ sim stream salts).
+  let state =
+    (Math.imul((seed >>> 0) ^ 0xd4a71c35, 0x9e3779b9) + 0x6d2b79f5) >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Quick draft: Fisher–Yates shuffle from a per-seed lab hash stream, then deal
+ * blue = first 5, red = next 5 (4 sit out).
+ *
+ * Prior defects (do not restore):
+ * - Bare xorshift on raw consecutive seeds parked `isra` in the sit-out seat
+ *   (0/100 appearances) while six champs appeared in all 100.
+ * - Role-preference slot fill forced both tops + both supports every game,
+ *   making uniform ~143 appearances/champ (N≈200, p=10/14) impossible.
  */
 export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
-  let s = seed >>> 0;
-  // SplitMix32 avalanche so consecutive seeds are uncorrelated.
-  s = Math.imul(s ^ (s >>> 16), 0x7feb352d);
-  s = Math.imul(s ^ (s >>> 15), 0x846ca68b);
-  s = (s ^ (s >>> 16)) >>> 0;
-  if (s === 0) s = 1;
-  const next = () => {
-    s ^= s << 13;
-    s >>>= 0;
-    s ^= s >>> 17;
-    s >>>= 0;
-    s ^= s << 5;
-    s >>>= 0;
-    return (s >>> 0) / 0x100000000;
-  };
-  const pool = [
-    "huntress",
-    "maelis",
-    "isra",
-    "sedge",
-    "torun",
-    "tolle",
-    "helvar",
-    "calder",
-    "kerrig",
-    "mirren",
-    "rhedan",
-    "brannoch",
-    "ysol",
-    "saelo",
-  ];
+  const next = labDraftUnit(seed);
+  const pool = QUICK_DRAFT_POOL.slice();
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(next() * (i + 1));
     const tmp = pool[i]!;
     pool[i] = pool[j]!;
     pool[j] = tmp;
   }
-  const slots = ["top", "jungle", "mid", "adc", "support"] as const;
-  const defaultSlot: Record<string, string> = {
-    huntress: "adc",
-    maelis: "adc",
-    isra: "adc",
-    sedge: "jungle",
-    torun: "jungle",
-    tolle: "jungle",
-    helvar: "mid",
-    calder: "mid",
-    kerrig: "mid",
-    mirren: "mid",
-    rhedan: "top",
-    brannoch: "top",
-    ysol: "support",
-    saelo: "support",
+  return {
+    blue: pool.slice(0, 5),
+    red: pool.slice(5, 10),
   };
-  const takeFor = (want: string, remaining: string[]): string => {
-    const hit = remaining.findIndex((id) => defaultSlot[id] === want);
-    if (hit >= 0) {
-      const [id] = remaining.splice(hit, 1);
-      return id!;
-    }
-    const [id] = remaining.splice(0, 1);
-    return id!;
-  };
-  const rem = pool.slice();
-  const blue: string[] = [];
-  const red: string[] = [];
-  for (const slot of slots) {
-    blue.push(takeFor(slot, rem));
-    red.push(takeFor(slot, rem));
-  }
-  return { blue, red };
 }
 
 function configForGame(

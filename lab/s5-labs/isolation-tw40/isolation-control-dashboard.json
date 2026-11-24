@@ -1,7 +1,7 @@
 {
   "n_finished": 400,
-  "regenerated_at": "2026-11-24T01:03:17.522Z",
-  "note": "Regenerated with current apps/lab/lib/fight-quality.ts (S5-R6-8). Same control seeds/pins as isolation-tw40 (pair_swap, attrs 60, TW 40).",
+  "regenerated_at": "2026-11-24T01:56:08.548Z",
+  "note": "Control arm pair_swap TW40; fight-quality S5-R6-8. Isolation uses fixed even-OVR lineups (not quickDraftPicks).",
   "dashboard": {
     "rows": [
       {
