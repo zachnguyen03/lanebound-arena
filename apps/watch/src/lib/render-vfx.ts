@@ -740,22 +740,50 @@ function drawStatusIcons(
           const headX = st.kind === "sleep" ? px + 22 : px + ox;
           const age = state.t - st.startedAt;
           const fi = Math.floor(age * 8);
-          blitSpriteAt(
-            ctx,
-            resolved.image,
-            headX,
-            headY,
-            {
-              ...resolved.sprite,
-              offset_from_foot:
-                st.kind === "root"
-                  ? [-6, -2]
-                  : st.kind === "slow"
-                    ? [-6, -2]
-                    : resolved.sprite.offset_from_foot ?? [-8, -14],
-            },
-            fi,
-          );
+          const ground = st.kind === "root" || st.kind === "slow";
+          // Wide drag strips (e.g. 56×6 slow.png) stay readable without
+          // flooding the floor: 3× + team core instead of full 4×.
+          const scale = ground ? 3 : VFX_SCALE;
+          const sprite = {
+            ...resolved.sprite,
+            offset_from_foot:
+              st.kind === "root"
+                ? ([-6, -2] as [number, number])
+                : st.kind === "slow"
+                  ? ([-6, -2] as [number, number])
+                  : resolved.sprite.offset_from_foot ??
+                    ([-8, -14] as [number, number]),
+          };
+          if (ground) {
+            const imgEl = resolved.image;
+            const w = imgEl.naturalWidth || imgEl.width;
+            const h = imgEl.naturalHeight || imgEl.height;
+            const cell = sprite.cell;
+            const fw = cell ? cell[0] : w;
+            const fh = cell ? cell[1] : h;
+            const sx = cell ? (fi % (sprite.frames ?? 1)) * fw : 0;
+            const dx = Math.round(
+              headX + (sprite.offset_from_foot?.[0] ?? -fw / 2) * scale,
+            );
+            const dy = Math.round(
+              headY + (sprite.offset_from_foot?.[1] ?? -fh) * scale,
+            );
+            blitWithTeamCore(
+              ctx,
+              imgEl,
+              sx,
+              0,
+              fw,
+              fh,
+              dx,
+              dy,
+              fw * scale,
+              fh * scale,
+              unit.team,
+            );
+          } else {
+            blitSpriteAt(ctx, resolved.image, headX, headY, sprite, fi, scale);
+          }
           drawn = true;
           break;
         }
@@ -880,17 +908,23 @@ function drawSkillTags(
     const tw = metrics.width;
     let ty = py - ANCHOR_Y - 14;
     // Nudge up while overlapping another tag's box.
-    for (let guard = 0; guard < 8; guard++) {
+    for (let guard = 0; guard < 10; guard++) {
       const hit = placed.some(
         (p) =>
-          Math.abs(p.y - ty) < 14 &&
-          Math.abs(p.x - px) < (p.w + tw) / 2 + 6,
+          Math.abs(p.y - ty) < 16 &&
+          Math.abs(p.x - px) < (p.w + tw) / 2 + 8,
       );
       if (!hit) break;
-      ty -= 14;
+      ty -= 16;
     }
     placed.push({ x: px, y: ty, w: tw });
     ctx.globalAlpha = alpha;
+    // Stem from caster head to tag so attribution stays obvious in a clump.
+    strokeOutlined(ctx, TEAM_HEX[tag.team], 3, null, () => {
+      ctx.beginPath();
+      ctx.moveTo(px, py - ANCHOR_Y + 2);
+      ctx.lineTo(px, ty + 2);
+    });
     drawOutlinedText(ctx, label, px, ty, TEAM_HEX[tag.team]);
   }
   ctx.restore();
