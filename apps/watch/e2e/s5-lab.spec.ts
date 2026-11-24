@@ -250,4 +250,50 @@ test.describe("S5 lab dashboard + tuning", () => {
     await expect(page.getByTestId("diff-ZONE_TICK_S")).toBeVisible();
     await expect(page.getByTestId("preset-dirty")).toBeVisible();
   });
+
+  test("match survives Lab round-trip (Watch stays mounted)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto("/");
+    await page.getByTestId("btn-load-sample").click();
+    await expect(page.getByTestId("arena-canvas")).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByTestId("watch-transport")).toBeVisible();
+
+    // Advance a few ticks so we are mid-match, then pause.
+    await page.getByTestId("btn-play-pause").click();
+    await page.waitForTimeout(400);
+    await page.getByTestId("btn-play-pause").click();
+
+    const digestBefore = await page
+      .getByTestId("watch-root")
+      .getAttribute("data-digest");
+    expect(digestBefore).toBeTruthy();
+    const tickText = await page.getByTestId("watch-transport").innerText();
+    const tickMatch = tickText.match(/(\d+)\//);
+    expect(tickMatch).toBeTruthy();
+    const tickBefore = tickMatch![1];
+    expect(Number(tickBefore)).toBeGreaterThan(0);
+
+    await page.getByTestId("btn-open-lab").click();
+    await expect(page.getByTestId("lab-shell")).toBeVisible();
+    // Watch keep-alive wrapper stays in the DOM while Lab is open.
+    await expect(page.getByTestId("watch-keep-alive")).toHaveCount(1);
+    await expect(page.getByTestId("watch-root")).toBeHidden();
+
+    await page.getByTestId("btn-back-watch").click();
+    await expect(page.getByTestId("lab-shell")).toHaveCount(0);
+    await expect(page.getByTestId("watch-root")).toBeVisible();
+    await expect(page.getByTestId("arena-canvas")).toBeVisible();
+
+    const digestAfter = await page
+      .getByTestId("watch-root")
+      .getAttribute("data-digest");
+    expect(digestAfter).toBe(digestBefore);
+    await expect(page.getByTestId("watch-transport")).toContainText(
+      `${tickBefore}/`,
+    );
+  });
 });

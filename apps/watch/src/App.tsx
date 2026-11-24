@@ -14,22 +14,28 @@ export default function App() {
     [stagedOverrides],
   );
 
-  if (mode === "lab") {
-    return (
-      <LabShell
-        onBackToWatch={() => setMode("watch")}
-        stagedOverrides={stagedOverrides}
-        onStagedOverrides={setStagedOverrides}
-        dirty={dirty}
-      />
-    );
-  }
-
   return (
-    <WatchShell
-      stagedConstants={stagedOverrides}
-      onOpenLab={() => setMode("lab")}
-      dirty={dirty}
-    />
+    <>
+      {/* Keep Watch mounted (hidden) while Lab is open so a live match survives. */}
+      <div
+        data-testid="watch-keep-alive"
+        style={{ display: mode === "watch" ? "contents" : "none" }}
+        aria-hidden={mode !== "watch"}
+      >
+        <WatchShell
+          stagedConstants={stagedOverrides}
+          onOpenLab={() => setMode("lab")}
+          dirty={dirty}
+        />
+      </div>
+      {mode === "lab" ? (
+        <LabShell
+          onBackToWatch={() => setMode("watch")}
+          stagedOverrides={stagedOverrides}
+          onStagedOverrides={setStagedOverrides}
+          dirty={dirty}
+        />
+      ) : null}
+    </>
   );
 }
