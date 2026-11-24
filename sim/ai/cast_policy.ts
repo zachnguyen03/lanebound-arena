@@ -133,7 +133,8 @@ export const CAST_POLICIES: Readonly<Record<string, readonly PolicySkill[]>> = O
   ],
   rhedan: [
     { skill: "Q", tiers: ["P2", "P4"] },
-    { skill: "W", tiers: ["P1b", "P3"] },
+    // R7: Wake Hook is a rule-1 disable basic → P4s spill after 4 s.
+    { skill: "W", tiers: ["P1b", "P3", "P4s"] },
     { skill: "R", tiers: ["P1a", "P2c", "P3", "P4"] },
   ],
   brannoch: [
@@ -1713,13 +1714,35 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
   }
 
   if (champ === "kerrig" && skill === "W") {
+    const ownSetup = (e: UnitState) =>
+      hasMark(e.marks, "kerrig", ctx.state.t) ||
+      e.status.effects.some((f) => f.kind === "leash" && f.source_id === ctx.u.id && f.remaining > 1e-9);
     if (tier === "P2") {
+      // Prefer own Q mark/leash target within 1.8 after combo_follow.
+      const marked = ctx.perceived.filter((e) => ownSetup(e) && inRange(ctx.u, e, 1.8) && comboReady(ctx, e));
+      if (marked.length > 0) {
+        marked.sort((a, b) => d(ctx.u, a) - d(ctx.u, b) || a.index - b.index);
+        return prop("W", "P2", marked[0]!.id);
+      }
       const x = followX(ctx, 1.8);
       if (x) return prop("W", "P2", x.id);
     }
-    if (tier === "P4" && T && inRange(ctx.u, T, 1.8)) {
-      if (p4BlockedByComboFollow(ctx, "W", T)) return null;
-      return prop("W", "P4", T.id);
+    if (tier === "P4") {
+      // Prefer T in 1.8; else own mark/leash in range; else nearest perceived in 1.8.
+      let aim: UnitState | null = T && inRange(ctx.u, T, 1.8) ? T : null;
+      if (!aim) {
+        const marked = ctx.perceived.filter((e) => ownSetup(e) && inRange(ctx.u, e, 1.8));
+        marked.sort((a, b) => d(ctx.u, a) - d(ctx.u, b) || a.index - b.index);
+        aim = marked[0] ?? null;
+      }
+      if (!aim) {
+        const near = ctx.perceived.filter((e) => inRange(ctx.u, e, 1.8));
+        near.sort((a, b) => d(ctx.u, a) - d(ctx.u, b) || a.index - b.index);
+        aim = near[0] ?? null;
+      }
+      if (!aim) return null;
+      if (p4BlockedByComboFollow(ctx, "W", aim)) return null;
+      return prop("W", "P4", aim.id);
     }
   }
 
@@ -1816,6 +1839,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       if (distPts(nx, ny, pair.carry.x, pair.carry.y) > d(pair.diver, pair.carry) + 1e-6) {
         return prop("W", "P1b", pair.diver.id, { x: pair.diver.x, y: pair.diver.y });
       }
+    }
+    if (tier === "P4s") {
+      const e = spillTarget(ctx, "W");
+      if (e && firstOnLine(ctx, e, "W")?.id === e.id) return prop("W", "P4s", e.id, { x: e.x, y: e.y });
     }
   }
 
