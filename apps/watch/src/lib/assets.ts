@@ -5,6 +5,7 @@ import {
 } from "./champ-atlas";
 import { WATCH_CHAMP_SLUGS } from "./champ-assets";
 import { loadUltArt, type UltArtSet } from "./ult-vfx";
+import { loadVfxTuning } from "./vfx-tuning";
 import { parseVfxBlock, type VfxEntry } from "./vfx-atlas";
 
 export interface PillarDef {
@@ -176,6 +177,7 @@ export async function loadWatchAssets(): Promise<WatchAssets> {
       fetch(`${BASE}/dummy/atlas.json`).then((r) => r.json()) as Promise<ChampAtlas>,
       Promise.all(champSlugs.map((slug) => loadChampion(slug))),
       loadUltArt(),
+      loadVfxTuning(),
     ]);
 
   const rawPillars = tilesJson.pillars as Record<

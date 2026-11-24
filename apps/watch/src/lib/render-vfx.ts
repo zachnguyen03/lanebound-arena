@@ -4,6 +4,7 @@
  */
 import type { WatchAssets } from "./assets";
 import { activeEffectsAt } from "./replay";
+import { tuneFor } from "./vfx-tuning";
 import { skillMetaByName } from "./skill-meta";
 import { drawCasterRing, hasUltArt, ultForStatus } from "./ult-vfx";
 import {
@@ -464,6 +465,7 @@ function drawProjectileSprite(
   px: number,
   py: number,
   facing: Facing,
+  scale = VFX_SCALE,
 ): boolean {
   const team = p.team;
   const champ = p.champ;
@@ -482,10 +484,10 @@ function drawProjectileSprite(
         0,
         w,
         h,
-        Math.round(px - (w * VFX_SCALE) / 2),
-        Math.round(py - (h * VFX_SCALE) / 2),
-        w * VFX_SCALE,
-        h * VFX_SCALE,
+        Math.round(px - (w * scale) / 2),
+        Math.round(py - (h * scale) / 2),
+        w * scale,
+        h * scale,
       );
       return true;
     }
@@ -497,7 +499,7 @@ function drawProjectileSprite(
       facing,
     );
     if (resolved?.image && resolved.sprite.rect) {
-      blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite);
+      blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite, 0, scale);
       return true;
     }
   }
@@ -520,14 +522,14 @@ function drawProjectileSprite(
         0,
         w,
         h,
-        Math.round(px - (w * VFX_SCALE) / 2),
-        Math.round(py - (h * VFX_SCALE) / 2),
-        w * VFX_SCALE,
-        h * VFX_SCALE,
+        Math.round(px - (w * scale) / 2),
+        Math.round(py - (h * scale) / 2),
+        w * scale,
+        h * scale,
         team,
       );
     } else {
-      blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite);
+      blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite, 0, scale);
     }
     return true;
   }
@@ -571,7 +573,13 @@ function drawProjectiles(
       }
     }
 
-    const drawn = drawProjectileSprite(ctx, assets, p, px, py, facing);
+    const tn = tuneFor(p.champ, p.skillId, p.isAuto);
+    ctx.save();
+    ctx.globalAlpha *= tn.alpha;
+    const drawn = drawProjectileSprite(
+      ctx, assets, p, px + tn.dx, py + tn.dy, facing, VFX_SCALE * tn.scale,
+    );
+    ctx.restore();
 
     if (p.trail === "bronze-leash") {
       const caster = state.units[p.unitId];
@@ -629,7 +637,8 @@ function drawHitFlashes(
     if (!unit) continue;
     const { px, py } = world(unit.x, unit.y);
     const age = state.t - flash.startedAt;
-    const frame = Math.floor(age * 20);
+    const tn = tuneFor(flash.champ, flash.skillId);
+    const frame = Math.floor(age * 20 * tn.timeMul);
 
     // Skill hit ring (distinct from auto hit anim).
     ctx.save();
@@ -656,14 +665,18 @@ function drawHitFlashes(
         casterFacing,
       );
       if (resolved?.image) {
+        ctx.save();
+        ctx.globalAlpha *= tn.alpha;
         blitSpriteAt(
           ctx,
           resolved.image,
-          px,
-          py - 8,
+          px + tn.dx,
+          py - 8 + tn.dy,
           resolved.sprite,
           frame,
+          VFX_SCALE * tn.scale,
         );
+        ctx.restore();
       }
     }
 
@@ -1064,7 +1077,8 @@ function drawMeleeSmears(
           (key.includes("shell") && skillLower.includes("shell"));
         if (!ok) continue;
       }
-      const elapsed = state.t - tele.startedAt;
+      const tn = tuneFor(unit.champ, tele.skillId);
+      const elapsed = (state.t - tele.startedAt) * tn.timeMul;
       // Approximate body frame from cast progress (atlas ms ~100).
       const bodyFrame = Math.floor(elapsed * 10);
       const hit = frames.find((f) => f.frame === bodyFrame) ??
@@ -1076,12 +1090,16 @@ function drawMeleeSmears(
       const [ox, oy] = hit.offset_from_anchor ?? [0, -12];
       const w = image.naturalWidth || image.width;
       const h = image.naturalHeight || image.height;
-      const dx = Math.round(px + ox * VFX_SCALE - 9 * VFX_SCALE);
-      const dy = Math.round(py + oy * VFX_SCALE - 23 * VFX_SCALE);
-      const dw = w * VFX_SCALE;
-      const dh = h * VFX_SCALE;
+      const sc = VFX_SCALE * tn.scale;
+      const dx = Math.round(px + tn.dx + ox * sc - 9 * sc);
+      const dy = Math.round(py + tn.dy + oy * sc - 23 * sc);
+      const dw = w * sc;
+      const dh = h * sc;
       // Melee smear strips are dark checkered — lift with team core + additive.
+      ctx.save();
+      ctx.globalAlpha *= tn.alpha;
       blitWithTeamCore(ctx, image, 0, 0, w, h, dx, dy, dw, dh, unit.team);
+      ctx.restore();
     }
   }
 }

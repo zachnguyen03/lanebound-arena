@@ -10,6 +10,7 @@
  *   air     — after bodies (Helvar `air-front`), then ult CC snap lines
  */
 import type { MatchViewState, Team, UltFx } from "./types";
+import { tuneFor } from "./vfx-tuning";
 
 const TILE_W = 44;
 const TILE_H = 32;
@@ -299,7 +300,9 @@ function drawUlt(
   keys: Array<keyof Layers>,
   sanctuaries: SanctuaryRect[],
 ): void {
-  const hitT = ultHitT(fx, art);
+  // "R" is not a kit skill name, so tuneKey lands on "<champ>:R".
+  const tn = tuneFor(fx.champ, "R");
+  const hitT = ultHitT(fx, art) + tn.leadS;
   const { layers, flip } = ultOrientation(fx, art);
   const clip =
     fx.champ === "isra"
@@ -317,7 +320,14 @@ function drawUlt(
       ctx.rect(clip.x, clip.y, clip.w, clip.h);
       ctx.clip("evenodd");
     }
-    blitFrame(ctx, layer, frame, fx.team, fx.anchorX * TILE_W, fx.anchorY * TILE_H, art.scale, flip);
+    ctx.save();
+    ctx.globalAlpha *= tn.alpha;
+    blitFrame(
+      ctx, layer, frame, fx.team,
+      fx.anchorX * TILE_W + tn.dx, fx.anchorY * TILE_H + tn.dy,
+      art.scale * tn.scale, flip,
+    );
+    ctx.restore();
     if (clip) ctx.restore();
   }
 }
