@@ -1119,26 +1119,28 @@ function spillTarget(ctx: Ctx, skill: SkillKey): UnitState | null {
 }
 
 /**
- * R7-6 P1a whole-tick inequality (no R7-6b P1A_READ_MULT):
- * lead_ticks < (cast_start_tick + ceil(cast_s×10)) − decision_tick
- * Decision tick ≥ cast_start + ceil(reaction_delay×10 − 1e-9). Strict.
+ * R7-6 / R7-6b P1a interrupt gate (whole ticks):
+ * lead_ticks < (cast_start_tick + ceil(cast_s×10)) − decision_tick.
+ * Decision tick ≥ cast_start + ceil(mult × reaction_delay_s × 10 − 1e-9),
+ * with mult = P1A_READ_MULT (0.5) for enemy **R** windups and 1.0 otherwise.
+ * Non-P1a reactions keep the full delay (callers elsewhere).
  */
 function interruptOf(ctx: Ctx, skill: SkillKey, maxRange: number): UnitState | null {
   let best: UnitState | null = null;
   const decisionTick = ctx.state.tick;
-  const reactTicks = Math.ceil(reactionDelayS(ctx.u.attrs.reflexes) * 10 - 1e-9);
+  const reactS = reactionDelayS(ctx.u.attrs.reflexes);
   const ourLead = leadTicks(ctx.u, skill);
   for (const e of ctx.perceived) {
     if (!isInterruptibleCast(e) || !e.cast_skill) continue;
     if (!inRange(ctx.u, e, maxRange)) continue;
     const enemyAb = abil(e.champ, e.cast_skill);
     if (!enemyAb) continue;
-    const seenT = ctx.memory?.castSeen[`${e.id}|${e.cast_seq}`];
-    // Reconstruct cast_start from remaining windup when unseen in memory.
-    const castStartT =
-      seenT !== undefined ? seenT : ctx.state.t - (enemyAb.cast_s - e.cast_left);
+    // Reconstruct cast_start from remaining windup (cast_left drifts with DT).
+    const castStartT = ctx.state.t - (enemyAb.cast_s - e.cast_left);
     const castStartTick = tickOf(castStartT);
-    if (decisionTick < castStartTick + reactTicks) continue;
+    const mult = e.cast_skill === "R" ? ctx.c.P1A_READ_MULT : 1;
+    const gateTicks = Math.ceil(mult * reactS * 10 - 1e-9);
+    if (decisionTick < castStartTick + gateTicks) continue;
     const castEndTick = castStartTick + Math.ceil(enemyAb.cast_s * 10 - 1e-9);
     const castLeftTicks = castEndTick - decisionTick;
     if (!(ourLead < castLeftTicks)) continue;
@@ -1309,9 +1311,15 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
   }
 
   if (champ === "isra" && skill === "W" && tier === "P1d") {
-    if (!(threatWithin(ctx, ctx.u, 3) && (ctx.u.hp / ctx.u.max_hp <= 0.6 + 1e-9 || doomed(ctx.u, ctx.state.t)))) {
-      return null;
-    }
+    // R7-9: spacing reset when a perceived enemy melee (range ≤ 2.0) is within
+    // 1.5 tiles, any HP — still P1d (no P5). Else classic threat/HP escape.
+    const meleeClose = ctx.perceived.some(
+      (e) => e.stats.range <= 2 + 1e-9 && d(ctx.u, e) <= 1.5 + 1e-9,
+    );
+    const escapeHp =
+      threatWithin(ctx, ctx.u, 3) &&
+      (ctx.u.hp / ctx.u.max_hp <= 0.6 + 1e-9 || doomed(ctx.u, ctx.state.t));
+    if (!meleeClose && !escapeHp) return null;
     const aim = escapeAim(ctx, ab.dash_tiles ?? 2.5);
     if (!aim) return null;
     return prop("W", "P1d", null, aim);
@@ -1706,23 +1714,41 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
   if (champ === "kerrig" && skill === "Q") {
     const hookOk = (e: UnitState) =>
       inRange(ctx.u, e, 6.5) && firstOnLine(ctx, e, "Q")?.id === e.id && ccOk(ctx, e, "Q", tier);
+    /** R7-8: isolated = no perceived living non-banished ally of target within 4.0. */
+    const isolated = (e: UnitState) => {
+      for (const a of ctx.state.units) {
+        if (!a.alive || a.team !== e.team || a.id === e.id || isBanished(a.status)) continue;
+        if (!perceivedBy(ctx.u, a, ctx.state.t, ctx.seenAt, ctx.ignorePerception)) continue;
+        if (d(e, a) <= 4 + 1e-9) return false;
+      }
+      return true;
+    };
     if (tier === "P2") {
       const x = followX(ctx, 6.5);
       if (x && hookOk(x)) return prop("Q", "P2", x.id, { x: x.x, y: x.y });
     }
-    if (tier === "P3" && engageOk(ctx, true)) {
-      const pool = ctx.perceived.filter((e) => isSquishy(e) && hookOk(e) && openerClean(ctx, e));
-      pool.sort((a, b) => {
-        const aF = ctx.F && a.id === ctx.F.id ? 0 : 1;
-        const bF = ctx.F && b.id === ctx.F.id ? 0 : 1;
-        if (aF !== bF) return aF - bF;
-        const ah = a.hp / a.max_hp;
-        const bh = b.hp / b.max_hp;
-        if (Math.abs(ah - bh) > 1e-9) return ah - bh;
-        return a.index - b.index;
-      });
-      const e = pool[0];
-      if (e) return prop("Q", "P3", e.id, { x: e.x, y: e.y });
+    if (tier === "P3") {
+      const engage = engageOk(ctx, true);
+      // R7-8: under Hunt, also outside a Fight Call on an isolated squishy.
+      const huntIso = ctx.tactic === "hunt" && ctx.commit !== "engage";
+      if (engage || huntIso) {
+        const pool = ctx.perceived.filter((e) => {
+          if (!isSquishy(e) || !hookOk(e) || !openerClean(ctx, e)) return false;
+          if (engage) return true;
+          return isolated(e);
+        });
+        pool.sort((a, b) => {
+          const aF = ctx.F && a.id === ctx.F.id ? 0 : 1;
+          const bF = ctx.F && b.id === ctx.F.id ? 0 : 1;
+          if (aF !== bF) return aF - bF;
+          const ah = a.hp / a.max_hp;
+          const bh = b.hp / b.max_hp;
+          if (Math.abs(ah - bh) > 1e-9) return ah - bh;
+          return a.index - b.index;
+        });
+        const e = pool[0];
+        if (e) return prop("Q", "P3", e.id, { x: e.x, y: e.y });
+      }
     }
     if (tier === "P4s") {
       const e = spillTarget(ctx, "Q");
