@@ -86,14 +86,14 @@ function bare(
 
 describe("R7-5 commit-R lifts only nA ≤ 1", () => {
   it("commit-R true + nE=1 → no Saelo R", () => {
-    const me = bare({ id: "blue:sup", team: "blue", slot: "sup", champ: "saelo", x: 10, y: 8, level: 7 });
+    const me = bare({ id: "blue:support", team: "blue", slot: "support", champ: "saelo", x: 10, y: 8, level: 7 });
     const foe = bare({ id: "red:adc", team: "red", slot: "adc", champ: "huntress", x: 14, y: 8, index: 1 });
     const ally1 = bare({ id: "blue:adc", team: "blue", slot: "adc", champ: "maelis", x: 13.5, y: 8, index: 2 });
     const ally2 = bare({ id: "blue:mid", team: "blue", slot: "mid", champ: "helvar", x: 14.2, y: 8.5, index: 3 });
     // Three fight enemies listed so commitR's ≥3 check can pass, but only one is
     // in the circle (nE=1). Extra fight foes sit far away.
     const far1 = bare({ id: "red:top", team: "red", slot: "top", champ: "torun", x: 2, y: 2, index: 4 });
-    const far2 = bare({ id: "red:jgl", team: "red", slot: "jgl", champ: "sedge", x: 2, y: 14, index: 5 });
+    const far2 = bare({ id: "red:jungle", team: "red", slot: "jungle", champ: "sedge", x: 2, y: 14, index: 5 });
     const state = { t: 10, tick: 100, units: [me, foe, ally1, ally2, far1, far2] } as MatchState;
     const got = evaluateCastPolicy(state, me, {
       c,
@@ -108,9 +108,9 @@ describe("R7-5 commit-R lifts only nA ≤ 1", () => {
 
   it("commit-R true + nE=2 + nA=2 → allowed (nA cap lifted)", () => {
     const me = bare({
-      id: "blue:sup",
+      id: "blue:support",
       team: "blue",
-      slot: "sup",
+      slot: "support",
       champ: "saelo",
       x: 10,
       y: 8,

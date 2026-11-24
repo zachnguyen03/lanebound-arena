@@ -147,7 +147,7 @@ describe("R7-4 chain cap on intended target", () => {
       remaining: 0.25,
       raw_duration: 0.9,
       applied_duration: 0.9,
-      source_id: "blue:sup",
+      source_id: "blue:support",
     });
     const state = { t: 10, tick: 100, units: [me, foe, other] } as MatchState;
     const got = evaluateCastPolicy(state, me, {
@@ -164,9 +164,9 @@ describe("R7-4 chain cap on intended target", () => {
 
   it("incidental AoE body at 2 Locks does not block a clean intended, but does not count toward nE", () => {
     const me = bare({
-      id: "blue:sup",
+      id: "blue:support",
       team: "blue",
-      slot: "sup",
+      slot: "support",
       champ: "saelo",
       x: 10,
       y: 8,

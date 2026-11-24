@@ -95,13 +95,13 @@ function withTimestop(u: UnitState, rem: number): void {
     remaining: rem,
     raw_duration: rem,
     applied_duration: rem,
-    source_id: "blue:sup",
+    source_id: "blue:support",
   });
 }
 
 describe("Rule 2 — never waste on time-stopped intended", () => {
   it("blocks P3/P4 AoE disable when intended is time-stopped with rem ≫ chain_err", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "sedge", x: 10, y: 8, level: 7 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "sedge", x: 10, y: 8, level: 7 });
     const intended = bare({
       id: "red:adc",
       team: "red",

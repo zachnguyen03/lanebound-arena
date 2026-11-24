@@ -149,9 +149,9 @@ describe("R7-6 P1a whole-tick inequality", () => {
     const castStart = 10.0;
     const foe = kerrigRWindup(castStart);
     const me = bare({
-      id: "blue:sup",
+      id: "blue:support",
       team: "blue",
-      slot: "sup",
+      slot: "support",
       champ: "ysol",
       x: 10,
       y: 8,

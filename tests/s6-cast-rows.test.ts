@@ -115,12 +115,15 @@ describe("§9.4.1 damage basics fire on CD", () => {
     const me = bare({ id: "blue:mid", team: "blue", slot: "mid", champ, x: 11, y: 8 });
     // Huntress W is a P1d dash when a melee diver is inside PEEL_DIVE_R.
     // Keep that foe ranged and outside 3 tiles so Q is the cast.
+    // Isra W R7-9 spacing-resets vs melee ≤1.5; Huntress W peels melee dive —
+    // keep those foes ranged / farther so the damage basic is the cast under test.
+    const rangedFoe = champ === "huntress" || champ === "isra";
     const foe = bare({
       id: "red:mid",
       team: "red",
       slot: "mid",
-      champ: champ === "huntress" ? "maelis" : "helvar",
-      x: champ === "huntress" ? 14.6 : 12.4,
+      champ: rangedFoe ? "maelis" : "helvar",
+      x: rangedFoe ? 14.6 : 12.4,
       y: 8,
       index: 1,
       stats: {
@@ -132,7 +135,7 @@ describe("§9.4.1 damage basics fire on CD", () => {
         mres: 28,
         as: 0.9,
         crit: 0.05,
-        range: champ === "huntress" ? 6.5 : 1.5,
+        range: rangedFoe ? 6.5 : 1.5,
         ms: 3.3,
       },
     });

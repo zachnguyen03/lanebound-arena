@@ -86,7 +86,7 @@ function bare(
 
 describe("R7-2 Saelo W P1b", () => {
   it("peels the dived carry when assigned and carry has a basic-dispellable Handicap", () => {
-    const me = bare({ id: "blue:sup", team: "blue", slot: "sup", champ: "saelo", x: 10, y: 8, cd_q: 5 });
+    const me = bare({ id: "blue:support", team: "blue", slot: "support", champ: "saelo", x: 10, y: 8, cd_q: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -138,7 +138,7 @@ describe("R7-2 Saelo W P1b", () => {
   });
 
   it("peels when the diver dealt incoming_1s damage to the carry", () => {
-    const me = bare({ id: "blue:sup", team: "blue", slot: "sup", champ: "saelo", x: 10, y: 8, cd_q: 5 });
+    const me = bare({ id: "blue:support", team: "blue", slot: "support", champ: "saelo", x: 10, y: 8, cd_q: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",

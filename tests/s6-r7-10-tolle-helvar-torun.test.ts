@@ -92,7 +92,7 @@ function bare(
 
 describe("R7-10 Tolle W guards", () => {
   it("blocks enemy banish on winning commit when the diver is the only hit-able enemy", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "tolle", x: 11, y: 8, cd_q: 5 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "tolle", x: 11, y: 8, cd_q: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -140,7 +140,7 @@ describe("R7-10 Tolle W guards", () => {
   });
 
   it("blocks last-denier banish when banish would end before resolve_at", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "tolle", x: 11, y: 8, cd_q: 5 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "tolle", x: 11, y: 8, cd_q: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -190,7 +190,7 @@ describe("R7-10 Tolle W guards", () => {
   });
 
   it("allows last-denier banish when banish covers resolve_at", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "tolle", x: 11, y: 8, cd_q: 5 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "tolle", x: 11, y: 8, cd_q: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -301,7 +301,7 @@ describe("R7-10 Helvar R zone-break", () => {
 
 describe("R7-10 Torun W policy + kit taunt", () => {
   it("policy still issues Torun W P1b when diver is inside r 1.2 of the carry", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "torun", x: 10, y: 8, cd_q: 5, cd_r: 5 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "torun", x: 10, y: 8, cd_q: 5, cd_r: 5 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -344,7 +344,7 @@ describe("R7-10 Torun W policy + kit taunt", () => {
   });
 
   it("resolve applies the kit 2.0 s taunt on a diver inside r 1.2", () => {
-    const me = bare({ id: "blue:jgl", team: "blue", slot: "jgl", champ: "torun", x: 10, y: 8 });
+    const me = bare({ id: "blue:jungle", team: "blue", slot: "jungle", champ: "torun", x: 10, y: 8 });
     const carry = bare({
       id: "blue:adc",
       team: "blue",
@@ -373,11 +373,11 @@ describe("R7-10 Torun W policy + kit taunt", () => {
       pending_heals: [],
       pending_shields: [],
       event_seq: 1,
-      config: evenOvrConfig(),
+      config: evenOvrConfig(1),
       forced_clock_end: false,
       ended: false,
       winner: null,
-    } as MatchState;
+    } as unknown as MatchState;
     const events: Array<{ type: string; [k: string]: unknown }> = [];
     const emit = (type: string, payload: Record<string, unknown>) => {
       events.push({ type, ...payload });
@@ -385,12 +385,20 @@ describe("R7-10 Torun W policy + kit taunt", () => {
     const rng = { next: () => 0.01 } as unknown as RngBank;
     beginCast(
       state,
-      { source_id: me.id, skill: "W", target_id: carry.id, aim_x: carry.x, aim_y: carry.y, force_hit: true },
+      {
+        tick: 10,
+        source_id: me.id,
+        skill: "W",
+        target_id: carry.id,
+        aim_x: carry.x,
+        aim_y: carry.y,
+        force_hit: true,
+      },
       c,
       emit,
     );
     // Drain windup and resolve.
-    const pendingLands: never[] = [];
+    const pendingLands: import("../sim/types.js").PendingSkillLand[] = [];
     while (me.cast_left > 1e-12) {
       tickCasts(state, pendingLands, c, rng, emit);
     }
