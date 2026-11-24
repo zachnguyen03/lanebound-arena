@@ -82,6 +82,14 @@ export interface Teamfight {
   roles?: boolean;
   /** Chase stays on low-HP / ally-supported targets longer. */
   chase?: boolean;
+  /** Level at which R unlocks (spec: 5). */
+  r_min_level?: number;
+  /** Multiplier on R cooldown after a cast (spec: 1). */
+  r_cd_mult?: number;
+  /** Cast policy aims at an enemy an ally has locked, so per-kit rules (incl. chain windows) follow up on CC. */
+  combo_target?: boolean;
+  /** Fight shape: front line leads, backline holds behind it, divers flank wide. */
+  formation?: boolean;
 }
 
 export interface MatchConfig {

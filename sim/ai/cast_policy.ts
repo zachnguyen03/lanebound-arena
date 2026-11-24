@@ -428,7 +428,8 @@ function inRange(u: UnitState, e: { x: number; y: number }, range: number): bool
 
 function skillReady(u: UnitState, skill: SkillKey): boolean {
   if (!KITS[u.champ]) return false;
-  if (skill === "R" && u.level < 5) return false;
+  // R level gate: canCastSkill (always called with this) owns it, so the
+  // exp/teamfight-dynamics r_min_level override applies in one place.
   const cd = skill === "Q" ? u.cd_q : skill === "W" ? u.cd_w : u.cd_r;
   return cd <= 1e-9;
 }
@@ -2299,7 +2300,22 @@ function buildCtx(state: MatchState, u: UnitState, opts: CastPolicyOpts): Ctx {
     commitDisengage: opts.commit === "disengage",
     tf: state.config?.teamfight,
   });
-  const T = tid ? state.units.find((x) => x.id === tid) ?? null : null;
+  let T = tid ? state.units.find((x) => x.id === tid) ?? null : null;
+  // exp/teamfight-dynamics combo_target: per-kit rules aim at the nearest
+  // enemy an ally has locked, so chain windows and burst follow the CC.
+  if (state.config?.teamfight?.combo_target && !(opts.peeling === true)) {
+    let best: UnitState | null = null;
+    let bestD = 8 + 1e-9;
+    for (const e of usePool) {
+      if (disableRemaining(e) <= 1e-9) continue;
+      const dd = d(u, e);
+      if (dd < bestD) {
+        bestD = dd;
+        best = e;
+      }
+    }
+    if (best) T = best;
+  }
   return {
     state,
     u,

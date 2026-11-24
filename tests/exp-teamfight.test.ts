@@ -39,3 +39,30 @@ describe("exp teamfight", () => {
     expect(simulate(cfg).digest).toBe(a);
   });
 });
+
+import { shapeFormation } from "../sim/ai/formation.js";
+
+describe("exp teamfight round 2", () => {
+  it("r_min_level lets ults fire before level 5", () => {
+    const cfg = { ...evenOvrConfig(20261122), teamfight: { r_min_level: 3 } };
+    const ev = simulate(cfg).events as Array<Record<string, any>>;
+    const level: Record<string, number> = {};
+    let early = 0;
+    for (const e of ev) {
+      if (e.type === "level_up") level[e.unit_id] = e.new_level;
+      if (e.type === "cast_end" && e.skill === "R" && (level[e.unit_id] ?? 1) < 5) early++;
+    }
+    expect(early).toBeGreaterThan(0);
+  });
+
+  it("formation keeps the backline behind its front line and flanks divers", () => {
+    const tank = unit({ id: "blue:top", champ: "brannoch", slot: "top", x: 10, y: 8 });
+    const adc = unit({ id: "blue:adc", champ: "huntress", slot: "adc", x: 6, y: 8 });
+    const jg = unit({ id: "blue:jungle", champ: "kerrig", slot: "jungle", x: 4, y: 9 });
+    const state = { config: { teamfight: { formation: true } }, units: [tank, adc, jg] } as unknown as MatchState;
+    expect(shapeFormation(state, adc, "Chase", { x: 14, y: 8 })).toEqual({ x: 8.5, y: 8 });
+    expect(shapeFormation(state, jg, "Approach", { x: 16, y: 8 })).toEqual({ x: 16, y: 11 });
+    const off = { config: {}, units: [tank, adc] } as unknown as MatchState;
+    expect(shapeFormation(off, adc, "Chase", { x: 14, y: 8 })).toEqual({ x: 14, y: 8 });
+  });
+});

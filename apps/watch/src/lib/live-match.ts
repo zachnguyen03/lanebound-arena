@@ -1,5 +1,5 @@
 import { simulate } from "@sim/simulate";
-import { CADENCE_EXPERIMENT } from "@sim/cadence";
+import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT } from "@sim/cadence";
 import type { MatchConfig, PlayerAttrs, SideConfig } from "@sim/types";
 
 /**
@@ -135,12 +135,16 @@ export function runWatchMatch(
   return runFromConfig(withConstants(canonicalConfig(seed), constants));
 }
 
-/** exp/orb-buff-cadence: even match with the step-3 orb/buff cadence. */
+/** exp: even match with the orb/buff cadence and the round-2 teamfight changes. */
 export function runCadenceMatch(
   seed: number,
   constants?: Record<string, unknown>,
 ) {
-  const base = { ...evenMatch(seed, "hold_the_pit", "Cadence match (experimental)"), ...CADENCE_EXPERIMENT };
+  const base = {
+    ...evenMatch(seed, "hold_the_pit", "Cadence + teamfight match (experimental)"),
+    ...CADENCE_EXPERIMENT,
+    teamfight: { ...TEAMFIGHT_EXPERIMENT },
+  };
   return runFromConfig(withConstants(base, constants));
 }
 

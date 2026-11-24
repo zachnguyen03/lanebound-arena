@@ -5,6 +5,7 @@ import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
 import { hasKind, isBanished, isLocked, isTimeStopped } from "../status.js";
 import type { MatchState, UnitId, UnitState } from "../types.js";
+import { isFrontline } from "./target.js";
 import { retreatImmobile } from "../retreat_combat.js";
 import { effExecution, holdDist, kiteSlackTiles } from "./attributes.js";
 import {
@@ -64,8 +65,12 @@ function dist(ax: number, ay: number, bx: number, by: number): number {
  * within 4 tiles of the target. 1 when the flag is off.
  */
 export function chaseRelax(state: MatchState, u: UnitState, target: UnitState): number {
-  if (!state.config?.teamfight?.chase) return 1;
-  let m = 1;
+  const tf = state.config?.teamfight;
+  // Formation: the front line's job is to walk in first; a tank-vs-tank TTK
+  // stop would idle it and deadlock a backline that waits behind it.
+  const front = tf?.formation && isFrontline(u) ? Number.POSITIVE_INFINITY : 1;
+  if (!tf?.chase) return front;
+  let m = front;
   if (target.hp / Math.max(1, target.max_hp) < 0.35) m *= 2;
   const ally = state.units.some(
     (a) => a.alive && a.team === u.team && a.id !== u.id && dist(a.x, a.y, target.x, target.y) <= 4 + 1e-9,

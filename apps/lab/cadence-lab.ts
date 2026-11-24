@@ -10,13 +10,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { simulate } from "../../sim/index.js";
 import { evenOvrConfig, type TacticPreset } from "../../sim/match_config.js";
-import { CADENCE_EXPERIMENT } from "../../sim/cadence.js";
+import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT } from "../../sim/cadence.js";
 import { DEFAULT_CONSTANTS } from "../../sim/constants.js";
 import type { MatchConfig } from "../../sim/types.js";
 
 const STEP1 = JSON.parse(
   fs.readFileSync(path.resolve(import.meta.dirname, "../../lab/presets/cadence-step1.json"), "utf8"),
 ).overrides as Record<string, number>;
+
+/** Round 1 chase + round 2 levers (combo/roles off: no measurable effect in round 1). */
+const TF2 = TEAMFIGHT_EXPERIMENT;
 
 export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   baseline: (cfg) => cfg,
@@ -29,6 +32,12 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   chase: (cfg) => ({ ...cfg, teamfight: { chase: true } }),
   tf: (cfg) => ({ ...cfg, teamfight: { combo: true, roles: true, chase: true } }),
   tf_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { combo: true, roles: true, chase: true } }),
+  // round 2: earlier/more ults, per-kit combo targeting, formation
+  ults: (cfg) => ({ ...cfg, teamfight: { r_min_level: 3, r_cd_mult: 0.7 } }),
+  combo_target: (cfg) => ({ ...cfg, teamfight: { combo_target: true } }),
+  formation: (cfg) => ({ ...cfg, teamfight: { formation: true } }),
+  tf2: (cfg) => ({ ...cfg, teamfight: { ...TF2 } }),
+  tf2_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF2 } }),
 };
 
 type Ev = Record<string, any>;

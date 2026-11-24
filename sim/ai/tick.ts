@@ -8,6 +8,7 @@
  * - OQ-S2-7: intent only when it changes (first-class digest event).
  */
 import { beginCast } from "../cast.js";
+import { shapeFormation } from "./formation.js";
 import { createCastMemory, notePolicyCast, observeCastMemory } from "./cast_policy.js";
 import type { Constants } from "../constants.js";
 import type { RngBank } from "../rng.js";
@@ -396,7 +397,7 @@ export function tickAi(
     // the window after Retreat (Idle intermediates still count). HoldZone →
     // Retreat (follow a disengage call) is always allowed.
     let intent = decision.intent;
-    let waypoint = decision.waypoint;
+    let waypoint = shapeFormation(state, u, decision.intent, decision.waypoint);
     let targetId = decision.target_id;
     if (
       intent === "HoldZone" &&

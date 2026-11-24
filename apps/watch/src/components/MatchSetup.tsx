@@ -68,7 +68,7 @@ export function MatchSetup({
             disabled={busy}
             onClick={() => onStartCadence(20261122)}
           >
-            Cadence (exp) 20261122
+            Cadence + teamfight (exp) 20261122
           </Button>
         ) : null}
         {onExport ? (

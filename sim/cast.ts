@@ -3,6 +3,7 @@
  * Reads AbilityDef from kits.ts — no per-champ numeric branches.
  */
 import { KITS, type AbilityDef, type AbilityShape } from "../data/champions/kits.js";
+import { rMinLevel } from "./teamfight.js";
 import type { Constants } from "./constants.js";
 import { cancelAutoWindup, recordAssistCredit } from "./combat.js";
 import { abilityBaseRaw } from "./formula.js";
@@ -119,7 +120,7 @@ export function canCastSkill(
   if (isSilenced(unit.status)) return false;
   if (isTaunted(unit.status)) return false;
   const ab = abilityOf(unit.champ, skill);
-  if (skill === "R" && unit.level < 5) return false;
+  if (skill === "R" && unit.level < rMinLevel(state)) return false;
   const cd = skill === "Q" ? unit.cd_q : skill === "W" ? unit.cd_w : unit.cd_r;
   if (cd > 1e-9) return false;
 
@@ -857,7 +858,7 @@ export function beginCast(
   source.attack_reset_pending = true;
 
   const cdKey = cast.skill === "Q" ? "cd_q" : cast.skill === "W" ? "cd_w" : "cd_r";
-  source[cdKey] = ab.CD_s;
+  source[cdKey] = cast.skill === "R" ? ab.CD_s * (state.config?.teamfight?.r_cd_mult ?? 1) : ab.CD_s;
 
   source.cast_left = ab.cast_s;
   source.cast_skill = cast.skill;
