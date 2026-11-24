@@ -3,14 +3,14 @@
  */
 import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
-import { hasMark } from "../marks.js";
 import { hasKind, isBanished, isLocked, isTimeStopped } from "../status.js";
 import type { MatchState, UnitId, UnitState } from "../types.js";
 import { retreatImmobile } from "../retreat_combat.js";
-import { effExecution, holdDist, kiteSlackTiles, rHoldA, rHoldHp } from "./attributes.js";
+import { effExecution, holdDist, kiteSlackTiles } from "./attributes.js";
 import {
   castGatesClear,
   evaluateCastPolicy,
+  type CastMemory,
   type CastProposal,
   type KitCastPolicy,
 } from "./cast_policy.js";
@@ -94,13 +94,16 @@ export function brainDecide(
     aTrue?: number;
     /** Test-only policy table override; production omits (uses CAST_POLICIES). */
     castPolicyTable?: Readonly<Record<string, KitCastPolicy>>;
+    seenAt?: Partial<Record<string, number>>;
+    ignorePerception?: boolean;
+    castMemory?: CastMemory;
   },
 ): {
   intent: IntentName;
   target_id: UnitId | null;
   waypoint: { x: number; y: number } | null;
   chase: ChaseState | null;
-  cast: { skill: "Q" | "W" | "R"; target_id: UnitId | null } | null;
+  cast: CastProposal | null;
 } {
   if (!u.alive) return { intent: "Dead", target_id: null, waypoint: null, chase: null, cast: null };
 
@@ -182,12 +185,14 @@ export function brainDecide(
   if (opts.peeling && opts.peelDiverId) {
     const diver = state.units.find((x) => x.id === opts.peelDiverId);
     if (diver && diver.alive) {
+      const p1Only = opts.commit === "disengage" && !retreatImmobile(u, opts.c);
+      const cast = chooseExecutionCast(state, u, opts, p1Only);
       return {
         intent: "Peel",
         target_id: diver.id,
         waypoint: { x: diver.x, y: diver.y },
         chase: null,
-        cast: null,
+        cast,
       };
     }
   }
@@ -245,12 +250,23 @@ export function brainDecide(
       return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
     }
     if (!retreatImmobile(u, opts.c)) {
+      const cast = chooseExecutionCast(state, u, opts, true);
       return {
         intent: "Retreat",
-        target_id: null,
+        target_id: cast?.target_id ?? null,
         waypoint: { x: pad[0]!, y: pad[1]! },
         chase: null,
-        cast: null,
+        cast,
+      };
+    }
+    const immobileCast = chooseExecutionCast(state, u, opts, false);
+    if (immobileCast) {
+      return {
+        intent: "Retreat",
+        target_id: immobileCast.target_id,
+        waypoint: { x: pad[0]!, y: pad[1]! },
+        chase: null,
+        cast: immobileCast,
       };
     }
     let inRange: UnitState | null = null;
@@ -273,18 +289,10 @@ export function brainDecide(
     };
   }
 
-  // Execution casts run even when not yet "near" by senseR (scripted setup fixtures).
+  // Casts ride the movement intent. Replacing it with Cast dropped the chase
+  // leash (§9.4) and the Hold melee Approach. beginCast still fires because
+  // the tick compares intent to this same decision.
   const cast = chooseExecutionCast(state, u, opts);
-  if (cast) {
-    const tgt = cast.target_id ? state.units.find((x) => x.id === cast.target_id) : null;
-    return {
-      intent: "Cast",
-      target_id: cast.target_id,
-      waypoint: tgt ? { x: tgt.x, y: tgt.y } : null,
-      chase: null,
-      cast,
-    };
-  }
 
   if (!opts.peeling && !nearEnemy && !huntEnemy) {
     const plan = planObjective(state, u, opts.tactic, opts.c);
@@ -297,11 +305,11 @@ export function brainDecide(
           target_id: null,
           waypoint: plan.waypoint,
           chase: null,
-          cast: null,
+          cast,
         };
       }
     }
-    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast };
   }
 
   // Hold pose while an auto windup is in progress (missile spawns from fire pose).
@@ -311,7 +319,7 @@ export function brainDecide(
       target_id: u.auto_windup_target,
       waypoint: null,
       chase: opts.chase,
-      cast: null,
+      cast,
     };
   }
 
@@ -324,7 +332,7 @@ export function brainDecide(
     const huntOrEngage = opts.tactic === "hunt" || effectiveCommit === "engage";
     if (!huntOrEngage) {
       if (isLabParked(u)) {
-        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast };
       }
       if (!u.ai_first_auto_done) {
         const aa = state.units.find(
@@ -340,10 +348,10 @@ export function brainDecide(
             target_id: aa.id,
             waypoint: null,
             chase: null,
-            cast: null,
+            cast,
           };
         }
-        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+        return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast };
       }
     }
   }
@@ -373,7 +381,7 @@ export function brainDecide(
   });
 
   if (!targetId) {
-    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast: null };
+    return { intent: "Idle", target_id: null, waypoint: null, chase: null, cast };
   }
 
   const target = state.units.find((x) => x.id === targetId)!;
@@ -388,7 +396,7 @@ export function brainDecide(
   // until the chase state is cleared externally.
   if (chase?.leashed) {
     if (chase.target_id === targetId || !targetId) {
-      return { intent: "Idle", target_id: targetId, waypoint: null, chase, cast: null };
+      return { intent: "Idle", target_id: targetId, waypoint: null, chase, cast };
     }
   }
   // Open chase tracking only inside FIGHT_RADIUS (or an active fight). Far Hunt
@@ -420,7 +428,7 @@ export function brainDecide(
         start_t: chase.start_t,
         leashed: true,
       };
-      return { intent: "Idle", target_id: targetId, waypoint: null, chase: stopped, cast: null };
+      return { intent: "Idle", target_id: targetId, waypoint: null, chase: stopped, cast };
     }
   }
 
@@ -431,7 +439,7 @@ export function brainDecide(
         target_id: targetId,
         waypoint: { x: target.x, y: target.y },
         chase,
-        cast: null,
+        cast,
       };
     }
     // Hunt / engage acquisition outside the chase band — walk in (reach never 0).
@@ -440,7 +448,7 @@ export function brainDecide(
       target_id: targetId,
       waypoint: { x: target.x, y: target.y },
       chase: null,
-      cast: null,
+      cast,
     };
   }
 
@@ -472,14 +480,14 @@ export function brainDecide(
   // collapses Positioning hold_dist on a kiting backliner (§8.4 L1025).
   if (effectiveCommit === "hold" && alliesInFight >= 2 && u.stats.range <= 2) {
     if (d <= u.stats.range + 0.3) {
-      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast };
     }
     return {
       intent: "Approach",
       target_id: targetId,
       waypoint: { x: target.x, y: target.y },
       chase: keepChase,
-      cast: null,
+      cast,
     };
   }
 
@@ -491,7 +499,7 @@ export function brainDecide(
         target_id: targetId,
         waypoint: ringWaypoint(),
         chase: keepChase,
-        cast: null,
+        cast,
       };
     }
     if (d > hd + Math.max(0.25, slack * 0.5)) {
@@ -500,18 +508,18 @@ export function brainDecide(
         target_id: targetId,
         waypoint: ringWaypoint(),
         chase: keepChase,
-        cast: null,
+        cast,
       };
     }
-    return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+    return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast };
   }
 
   // Melee under Hold outside a team fight: AA if in range, otherwise stand.
   if (effectiveCommit === "hold" && u.stats.range <= 2) {
     if (d <= u.stats.range + 0.3) {
-      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+      return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast };
     }
-    return { intent: "Idle", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+    return { intent: "Idle", target_id: targetId, waypoint: null, chase: keepChase, cast };
   }
 
   if (d > hd + 0.3) {
@@ -520,17 +528,16 @@ export function brainDecide(
       target_id: targetId,
       waypoint: { x: target.x, y: target.y },
       chase: keepChase,
-      cast: null,
+      cast,
     };
   }
 
-  return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast: null };
+  return { intent: "Engage", target_id: targetId, waypoint: null, chase: keepChase, cast };
 }
 
 /**
- * Execution casts: data-driven §9.4 policy first (stubbed empty until §9.4.1),
- * then Kerrig / Huntress mark-gated R. Universal gates — no cast during skill
- * windup, banish, or own sanctuary.
+ * §9.4.1 casts. A test `table` keeps the old Q→W→R stub. Production uses
+ * CAST_POLICIES, including the Kerrig / Huntress mark gate.
  */
 function chooseExecutionCast(
   state: MatchState,
@@ -543,67 +550,34 @@ function chooseExecutionCast(
     commit?: CommitKind;
     aTrue?: number;
     fightIds?: UnitId[];
+    tactic?: "hold_the_pit" | "hunt" | "starve";
+    intentTarget?: Partial<Record<UnitId, UnitId | null>>;
+    peeling?: boolean;
+    chase?: ChaseState | null;
     castPolicyTable?: Readonly<Record<string, KitCastPolicy>>;
+    seenAt?: Partial<Record<string, number>>;
+    ignorePerception?: boolean;
+    castMemory?: CastMemory;
   },
+  p1Only = false,
 ): CastProposal | null {
   if (!castGatesClear(u, opts.c)) return null;
-
-  const fromPolicy = evaluateCastPolicy(state, u, {
+  return evaluateCastPolicy(state, u, {
     c: opts.c,
     focusId: opts.focusId,
     peelDiverId: opts.peelDiverId ?? null,
     commit: opts.commit,
     table: opts.castPolicyTable,
+    aTrue: opts.aTrue,
+    tactic: opts.tactic,
+    fightIds: opts.fightIds,
+    intentTarget: opts.intentTarget,
+    comboStyle: opts.comboStyle,
+    seenAt: opts.seenAt,
+    ignorePerception: opts.ignorePerception,
+    memory: opts.castMemory,
+    peeling: opts.peeling,
+    currentTarget: opts.chase?.target_id ?? null,
+    p1Only,
   });
-  if (fromPolicy) return fromPolicy;
-
-  // Legacy mark-gated R until §9.4.1 supersedes Kerrig / Huntress entries.
-  if (u.champ !== "kerrig" && u.champ !== "huntress") return null;
-  const ex = effExecution(u.attrs, u.mastery, opts.c);
-  const focusFoe =
-    opts.focusId && state.units.find((x) => x.id === opts.focusId && x.alive && !isBanished(x.status));
-  // Prefer focus; else nearest living non-sanctuary enemy (not "first in unit array").
-  let foe = focusFoe || null;
-  if (!foe) {
-    let bestD = Infinity;
-    for (const x of state.units) {
-      if (!x.alive || x.team === u.team || isBanished(x.status)) continue;
-      if (inOwnSanctuary(x.team, x.x, x.y, opts.c)) continue;
-      const d = dist(u.x, u.y, x.x, x.y);
-      if (d < bestD) {
-        bestD = d;
-        foe = x;
-      }
-    }
-  }
-  if (!foe) return null;
-
-  const aTrue = opts.aTrue ?? 0.5;
-  const focusHpFrac = foe.hp / Math.max(1, foe.max_hp);
-
-  // §12 L1357 / L1007: coach hold_R holds until A_true ≥ 0.55 or Focus below 40%.
-  if (opts.comboStyle === "hold_R" && u.cd_r <= 1e-9 && u.level >= 5) {
-    if (aTrue < 0.55 - 1e-9 && focusHpFrac > 0.4 - 1e-9) {
-      return null;
-    }
-  }
-
-  const marked = hasMark(foe.marks, u.champ === "kerrig" ? "kerrig" : "huntress", state.t);
-  if (u.cd_r <= 1e-9 && u.level >= 5) {
-    if (ex >= 45) {
-      // §8.4 L1007: auto holds the mark-gated finisher until A_true / Focus HP gates.
-      if (
-        (opts.comboStyle === "auto" || opts.comboStyle === undefined) &&
-        aTrue < rHoldA(ex) - 1e-9 &&
-        focusHpFrac > rHoldHp(ex) - 1e-9
-      ) {
-        return null;
-      }
-      if (marked) return { skill: "R", target_id: foe.id };
-      return null;
-    }
-    // L998: low Execution fires R without a mark once Q is on CD (may fizzle).
-    if (u.cd_q > 0.5) return { skill: "R", target_id: foe.id };
-  }
-  return null;
 }

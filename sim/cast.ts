@@ -857,11 +857,14 @@ export function beginCast(
     source.cast_snapshot_ids = snap.units.map((u) => u.id);
   }
 
-  emit("cast_start", {
+  const payload: Record<string, unknown> = {
     unit_id: source.id,
     skill_id: ab.name,
     cast_time: ab.cast_s,
-  });
+  };
+  // Additive lab field. Absent on scripted casts. digestEvents strips it.
+  if (cast.tier) payload.tier = cast.tier;
+  emit("cast_start", payload);
 }
 
 function cancelCast(

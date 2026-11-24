@@ -192,6 +192,12 @@ export function digestEvents(events: SimEvent[]): string {
   });
   for (const ev of sorted) {
     if (ev.type === "move" || ev.type === "pos") continue;
+    // §9.4.1.4 rule 12: cast_start.tier is lab-only, excluded like pos.
+    if (ev.tier !== undefined) {
+      const { tier: _tier, ...rest } = ev;
+      lines.push(canonicalJSON(rest));
+      continue;
+    }
     lines.push(canonicalJSON(ev));
   }
   return sha256Hex(lines.join("\n") + "\n");

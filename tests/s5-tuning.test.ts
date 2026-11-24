@@ -83,7 +83,7 @@ describe("S5 tuning T1–T4", () => {
     const rStill = simulate(cfg);
     expect(rStill.digest).toBe(r0.digest);
     expect(r0.digest).toBe(
-      "54cae20c950a238d5c06a8324076cf2febe429d8dfe8b2c2057232fdf33f6b0d",
+      "65fbf598b086661a6b3bbf783173928984d9ba60f151bc8185beb0cc28abef93",
     );
     // Next run with staged constants → new hash + digest
     const next = withConstants(cfg, staged);

@@ -14,8 +14,17 @@ const PEEL_CC_KINDS = new Set([
   "root",
   "slow",
   "knockback",
+  "knockup",
   "pull",
   "pull-away",
+  "silence",
+  "hex",
+  "banish",
+  "sleep",
+  "leash",
+  "taunt",
+  "timestop",
+  "petrify",
 ]);
 
 function dist(ax: number, ay: number, bx: number, by: number): number {

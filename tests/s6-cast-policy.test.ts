@@ -104,12 +104,29 @@ const BRANNOCH_Q_STUB: Readonly<Record<string, KitCastPolicy>> = {
   },
 };
 
-describe("S6 cast policy table (stubbed)", () => {
-  it("CAST_POLICIES is empty — no invented per-kit firing choices", () => {
-    expect(Object.keys(CAST_POLICIES)).toHaveLength(0);
+describe("S6 cast policy table", () => {
+  it("CAST_POLICIES lists every kit", () => {
+    expect(Object.keys(CAST_POLICIES).sort()).toEqual(
+      [
+        "brannoch",
+        "calder",
+        "helvar",
+        "huntress",
+        "isra",
+        "kerrig",
+        "maelis",
+        "mirren",
+        "rhedan",
+        "saelo",
+        "sedge",
+        "tolle",
+        "torun",
+        "ysol",
+      ].sort(),
+    );
   });
 
-  it("empty table: evaluateCastPolicy returns null for every champion", () => {
+  it("an empty override table still casts nothing", () => {
     const me = bare({ id: "blue:top", team: "blue", slot: "top", champ: "brannoch", x: 11, y: 8 });
     const foe = bare({ id: "red:mid", team: "red", slot: "mid", champ: "helvar", x: 13, y: 8 });
     const state = { t: 1, tick: 10, units: [me, foe] } as MatchState;
@@ -130,10 +147,7 @@ describe("S6 cast policy table (stubbed)", () => {
       "calder",
     ] as const) {
       me.champ = champ;
-      expect(
-        evaluateCastPolicy(state, me, { c, focusId: foe.id }),
-        champ,
-      ).toBeNull();
+      expect(evaluateCastPolicy(state, me, { c, focusId: foe.id, table: {} }), champ).toBeNull();
     }
   });
 });
@@ -204,7 +218,7 @@ describe("S6 cast gates — windup / banish / sanctuary", () => {
 });
 
 describe("S6 Cast intent path + cast_start + status_apply", () => {
-  it("stub policy → brainDecide Cast intent for a non-Kerrig/Huntress kit", () => {
+  it("stub policy → brainDecide attaches Q without dropping the movement intent", () => {
     const me = bare({ id: "blue:top", team: "blue", slot: "top", champ: "brannoch", x: 11, y: 8 });
     const foe = bare({ id: "red:mid", team: "red", slot: "mid", champ: "helvar", x: 12.2, y: 8 });
     const state = { t: 5, tick: 50, units: [me, foe] } as MatchState;
@@ -220,7 +234,7 @@ describe("S6 Cast intent path + cast_start + status_apply", () => {
       intentTarget: {},
       castPolicyTable: BRANNOCH_Q_STUB,
     });
-    expect(d.intent).toBe("Cast");
+    expect(d.intent).toBe("Engage");
     expect(d.cast).toEqual({ skill: "Q", target_id: foe.id });
   });
 
