@@ -1,0 +1,4807 @@
+[
+  {
+    "preset": "hold_the_pit",
+    "seed": 20261122,
+    "sum": {
+      "control_blue": 29.2,
+      "control_red": 48,
+      "zone_tick_blue": 2,
+      "zone_tick": 6,
+      "captures": [
+        {
+          "t": 42.7,
+          "team": "blue"
+        },
+        {
+          "t": 75.5,
+          "team": "red"
+        }
+      ],
+      "orbs_blue": 0,
+      "orbs_red": 1,
+      "orbs": 1,
+      "fight_calls": 284,
+      "end": "first_to_10",
+      "winner": "red",
+      "score": [
+        6,
+        10
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.1,8.0)",
+          "blue:adc@(8.6,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.1,8.0)",
+          "blue:adc@(8.6,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.1,7.1)",
+          "blue:jungle@(8.6,7.5)",
+          "blue:mid@(17.9,8.4)",
+          "blue:adc@(13.4,11.8)",
+          "red:top@(15.9,6.6)",
+          "red:jungle@(16.2,7.4)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 1,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.3,6.9)",
+          "blue:jungle@(9.3,7.4)",
+          "blue:mid@(17.9,8.4)",
+          "blue:adc@(13.8,11.3)",
+          "red:top@(15.9,6.6)",
+          "red:jungle@(16.2,7.4)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 1,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.3,6.9)",
+          "blue:jungle@(10.7,7.3)",
+          "blue:mid@(8.8,7.8)",
+          "blue:adc@(13.6,11.5)",
+          "red:top@(21.1,6.3)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 1,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(3.8,6.5)",
+          "blue:jungle@(10.7,7.3)",
+          "blue:mid@(8.8,7.8)",
+          "blue:adc@(13.6,11.5)",
+          "red:top@(19.6,6.8)",
+          "red:jungle@(15.9,7.8)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(9.8,7.4)",
+          "blue:jungle@(11.0,7.3)",
+          "blue:mid@(9.2,7.8)",
+          "blue:adc@(13.9,11.3)",
+          "red:top@(19.6,6.8)",
+          "red:jungle@(15.9,7.8)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(1.8,7.7)",
+          "blue:jungle@(2.3,7.5)",
+          "blue:mid@(2.2,7.2)",
+          "blue:adc@(13.9,11.3)",
+          "red:top@(12.1,8.1)",
+          "red:jungle@(12.2,7.9)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(1.8,7.9)",
+          "blue:jungle@(2.3,7.4)",
+          "blue:mid@(2.1,7.1)",
+          "blue:adc@(2.0,7.3)",
+          "red:top@(12.4,8.0)",
+          "red:jungle@(12.0,7.7)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(2.1,7.2)",
+          "blue:jungle@(2.0,8.1)",
+          "blue:mid@(2.1,7.4)",
+          "blue:adc@(2.1,7.8)",
+          "red:top@(12.2,7.7)",
+          "red:jungle@(11.8,7.8)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(1.8,7.4)",
+          "blue:jungle@(1.9,7.8)",
+          "blue:mid@(1.9,7.5)",
+          "blue:adc@(2.0,7.9)",
+          "red:top@(11.8,7.6)",
+          "red:jungle@(11.7,8.1)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(1.8,7.5)",
+          "blue:jungle@(1.8,7.7)",
+          "blue:mid@(2.0,7.6)",
+          "blue:adc@(1.8,7.9)",
+          "red:top@(11.6,8.0)",
+          "red:jungle@(11.9,8.3)"
+        ]
+      },
+      {
+        "tick": 1234,
+        "t": 123.4,
+        "blueIn": 0,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(2.0,7.7)",
+          "blue:jungle@(1.8,7.4)",
+          "blue:mid@(2.1,7.1)",
+          "blue:adc@(2.1,8.1)",
+          "red:top@(11.8,8.1)",
+          "red:jungle@(12.1,8.5)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:mid→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.5,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.5,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.7)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,7.9)",
+      "t=2.2 blue:top→Chase @(15.8,8.1)",
+      "t=2.2 blue:jungle→Chase @(15.8,8.1)",
+      "t=2.2 blue:mid→Chase @(15.8,8.1)",
+      "t=2.2 blue:adc→Chase @(15.8,8.1)",
+      "t=2.2 blue:support→Chase @(15.8,8.1)",
+      "t=2.3 blue:top→Idle",
+      "t=2.3 blue:jungle→Idle",
+      "t=2.3 blue:mid→Idle",
+      "t=2.3 blue:adc→Idle",
+      "t=2.3 blue:support→Idle",
+      "t=2.5 blue:adc→Engage",
+      "t=2.8 blue:adc→Idle",
+      "t=3.1 blue:jungle→Engage",
+      "t=3.2 blue:support→Engage",
+      "t=3.5 blue:jungle→Idle",
+      "t=3.6 blue:support→Idle",
+      "t=3.7 blue:adc→Engage",
+      "t=4 blue:adc→Idle",
+      "t=4.5 blue:jungle→Engage",
+      "t=4.7 blue:support→Engage",
+      "t=4.9 blue:jungle→Idle",
+      "t=4.9 blue:adc→Engage",
+      "t=5.1 blue:support→Idle",
+      "t=5.2 blue:adc→Idle",
+      "t=5.9 blue:jungle→Engage",
+      "t=6.1 blue:adc→Engage",
+      "t=6.2 blue:support→Engage",
+      "t=6.3 blue:jungle→Idle",
+      "t=6.4 blue:adc→Idle",
+      "t=6.6 blue:support→Idle",
+      "t=7.3 blue:jungle→Engage",
+      "t=7.3 blue:adc→Engage"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 1.95,
+        "y": 7.71,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 1.8,
+        "y": 7.42,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 2.05,
+        "y": 7.14,
+        "alive": true,
+        "intent": "HoldZone",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 2.1,
+        "y": 8.06,
+        "alive": true,
+        "intent": "HoldZone",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 2.07,
+        "y": 7.11,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 11.83,
+        "y": 8.06,
+        "alive": true,
+        "intent": "HoldZone",
+        "inZone": true
+      },
+      {
+        "id": "red:jungle",
+        "x": 12.08,
+        "y": 8.46,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      },
+      {
+        "id": "red:mid",
+        "x": 12.39,
+        "y": 7.91,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      },
+      {
+        "id": "red:adc",
+        "x": 15.82,
+        "y": 8.03,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 11.89,
+        "y": 7.67,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      }
+    ],
+    "captures": [
+      {
+        "t": 42.7,
+        "tick": 427,
+        "seq": 13325,
+        "type": "zone_capture",
+        "team": "blue"
+      },
+      {
+        "t": 75.5,
+        "tick": 755,
+        "seq": 23313,
+        "type": "zone_capture",
+        "team": "red"
+      }
+    ],
+    "zoneTicks": [
+      {
+        "t": 54.6,
+        "tick": 546,
+        "seq": 16959,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 4
+      },
+      {
+        "t": 66.6,
+        "tick": 666,
+        "seq": 20600,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 6
+      },
+      {
+        "t": 87.4,
+        "tick": 874,
+        "seq": 27459,
+        "type": "zone_tick",
+        "team": "red",
+        "score_after": 7
+      },
+      {
+        "t": 99.4,
+        "tick": 994,
+        "seq": 31787,
+        "type": "zone_tick",
+        "team": "red",
+        "score_after": 8
+      },
+      {
+        "t": 111.4,
+        "tick": 1114,
+        "seq": 36105,
+        "type": "zone_tick",
+        "team": "red",
+        "score_after": 9
+      },
+      {
+        "t": 123.4,
+        "tick": 1234,
+        "seq": 40413,
+        "type": "zone_tick",
+        "team": "red",
+        "score_after": 10
+      }
+    ],
+    "orbs": [
+      {
+        "t": 32.8,
+        "tick": 328,
+        "seq": 10241,
+        "type": "orb_pickup",
+        "orb_id": "orb:2",
+        "unit_id": "red:adc",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "preset": "hold_the_pit",
+    "seed": 20261123,
+    "sum": {
+      "control_blue": 45,
+      "control_red": 0,
+      "zone_tick_blue": 3,
+      "zone_tick": 3,
+      "captures": [
+        {
+          "t": 28.4,
+          "team": "blue"
+        }
+      ],
+      "orbs_blue": 0,
+      "orbs_red": 2,
+      "orbs": 2,
+      "fight_calls": 340,
+      "end": "first_to_10",
+      "winner": "blue",
+      "score": [
+        10,
+        5
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.1,8.0)",
+          "blue:adc@(8.6,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.1,8.0)",
+          "blue:adc@(8.6,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 2,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(15.9,6.4)",
+          "blue:jungle@(8.6,7.4)",
+          "blue:mid@(16.6,8.2)",
+          "blue:adc@(14.6,7.2)",
+          "red:top@(15.9,6.5)",
+          "red:jungle@(16.1,7.4)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 2,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.2,7.6)",
+          "blue:jungle@(9.0,7.4)",
+          "blue:mid@(16.6,8.2)",
+          "blue:adc@(10.3,6.6)",
+          "red:top@(15.9,6.5)",
+          "red:jungle@(16.1,7.4)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.0,6.7)",
+          "blue:jungle@(15.4,6.5)",
+          "blue:mid@(13.1,7.3)",
+          "blue:adc@(10.0,7.3)",
+          "red:top@(15.6,6.5)",
+          "red:jungle@(16.1,7.4)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.8,6.3)",
+          "blue:jungle@(15.8,6.5)",
+          "blue:mid@(13.1,7.3)",
+          "blue:adc@(10.1,7.0)",
+          "red:top@(15.3,6.6)",
+          "red:jungle@(16.4,6.6)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(15.7,6.7)",
+          "blue:jungle@(4.2,7.1)",
+          "blue:mid@(13.4,7.2)",
+          "blue:adc@(9.7,6.9)",
+          "red:top@(15.2,6.6)",
+          "red:jungle@(15.8,6.7)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(20.7,7.4)",
+          "blue:jungle@(16.3,6.9)",
+          "blue:mid@(16.7,7.5)",
+          "blue:adc@(15.5,6.9)",
+          "red:top@(19.9,7.2)",
+          "red:jungle@(20.6,7.3)"
+        ]
+      },
+      {
+        "tick": 874,
+        "t": 87.4,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(20.7,7.4)",
+          "blue:jungle@(16.3,6.9)",
+          "blue:mid@(16.7,7.5)",
+          "blue:adc@(15.5,6.9)",
+          "red:top@(21.8,6.2)",
+          "red:jungle@(20.6,7.3)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:mid→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.5,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.5,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.7)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,7.9)",
+      "t=2.2 blue:top→Chase @(15.8,8.1)",
+      "t=2.2 blue:jungle→Chase @(15.8,8.1)",
+      "t=2.2 blue:mid→Chase @(15.8,8.1)",
+      "t=2.2 blue:adc→Chase @(15.8,8.1)",
+      "t=2.2 blue:support→Chase @(15.8,8.1)",
+      "t=2.3 blue:top→Idle",
+      "t=2.3 blue:jungle→Idle",
+      "t=2.3 blue:mid→Idle",
+      "t=2.3 blue:adc→Idle",
+      "t=2.3 blue:support→Idle",
+      "t=2.5 blue:adc→Engage",
+      "t=2.8 blue:adc→Idle",
+      "t=3.1 blue:jungle→Engage",
+      "t=3.2 blue:support→Engage",
+      "t=3.5 blue:jungle→Idle",
+      "t=3.6 blue:support→Idle",
+      "t=3.7 blue:adc→Engage",
+      "t=4 blue:adc→Idle",
+      "t=4.5 blue:jungle→Engage",
+      "t=4.7 blue:support→Engage",
+      "t=4.9 blue:jungle→Idle",
+      "t=4.9 blue:adc→Engage",
+      "t=5.1 blue:support→Idle",
+      "t=5.2 blue:adc→Idle",
+      "t=5.9 blue:jungle→Engage",
+      "t=6.1 blue:adc→Engage",
+      "t=6.2 blue:support→Engage",
+      "t=6.3 blue:jungle→Idle",
+      "t=6.4 blue:adc→Idle",
+      "t=6.6 blue:support→Idle",
+      "t=7.3 blue:jungle→Engage",
+      "t=7.3 blue:adc→Engage"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 20.73,
+        "y": 7.38,
+        "alive": false,
+        "intent": "Dead",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 16.34,
+        "y": 6.94,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 16.73,
+        "y": 7.49,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 15.53,
+        "y": 6.95,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 16.07,
+        "y": 8.18,
+        "alive": true,
+        "intent": "Engage",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 21.79,
+        "y": 6.21,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 20.63,
+        "y": 7.29,
+        "alive": false,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 20.59,
+        "y": 11.1,
+        "alive": true,
+        "intent": "Kite",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 20.45,
+        "y": 11.68,
+        "alive": true,
+        "intent": "Engage",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 20.56,
+        "y": 3.82,
+        "alive": true,
+        "intent": "Kite",
+        "inZone": false
+      }
+    ],
+    "captures": [
+      {
+        "t": 28.4,
+        "tick": 284,
+        "seq": 8954,
+        "type": "zone_capture",
+        "team": "blue"
+      }
+    ],
+    "zoneTicks": [
+      {
+        "t": 40.3,
+        "tick": 403,
+        "seq": 12577,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 3
+      },
+      {
+        "t": 52.3,
+        "tick": 523,
+        "seq": 16403,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 5
+      },
+      {
+        "t": 64.3,
+        "tick": 643,
+        "seq": 20102,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 6
+      }
+    ],
+    "orbs": [
+      {
+        "t": 74.7,
+        "tick": 747,
+        "seq": 23388,
+        "type": "orb_pickup",
+        "orb_id": "orb:2",
+        "unit_id": "red:support",
+        "xp": 120
+      },
+      {
+        "t": 74.7,
+        "tick": 747,
+        "seq": 23390,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:adc",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "preset": "hold_the_pit",
+    "seed": 20261130,
+    "sum": {
+      "control_blue": 44.3,
+      "control_red": 10.9,
+      "zone_tick_blue": 3,
+      "zone_tick": 3,
+      "captures": [
+        {
+          "t": 31.4,
+          "team": "blue"
+        },
+        {
+          "t": 80.5,
+          "team": "red"
+        },
+        {
+          "t": 116.4,
+          "team": "blue"
+        }
+      ],
+      "orbs_blue": 1,
+      "orbs_red": 3,
+      "orbs": 4,
+      "fight_calls": 464,
+      "end": "first_to_10",
+      "winner": "blue",
+      "score": [
+        10,
+        6
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.1,8.0)",
+          "blue:adc@(8.6,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(8.3,7.1)",
+          "blue:jungle@(9.1,7.3)",
+          "blue:mid@(9.4,8.0)",
+          "blue:adc@(9.0,7.6)",
+          "red:top@(15.9,6.7)",
+          "red:jungle@(16.1,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 1,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.2,7.3)",
+          "blue:jungle@(10.0,7.7)",
+          "blue:mid@(21.0,4.8)",
+          "blue:adc@(21.6,6.1)",
+          "red:top@(15.9,6.5)",
+          "red:jungle@(16.2,7.4)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 1,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(16.5,7.3)",
+          "blue:jungle@(11.0,7.7)",
+          "blue:mid@(21.0,4.8)",
+          "blue:adc@(22.0,2.8)",
+          "red:top@(16.0,6.8)",
+          "red:jungle@(16.4,7.7)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(20.6,7.7)",
+          "blue:jungle@(15.2,7.4)",
+          "blue:mid@(15.1,7.9)",
+          "blue:adc@(22.0,2.8)",
+          "red:top@(20.6,7.6)",
+          "red:jungle@(16.4,7.7)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(20.8,7.9)",
+          "blue:jungle@(17.6,7.5)",
+          "blue:mid@(18.2,8.1)",
+          "blue:adc@(22.0,3.1)",
+          "red:top@(20.2,8.2)",
+          "red:jungle@(16.6,7.5)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(20.8,7.6)",
+          "blue:jungle@(17.7,7.2)",
+          "blue:mid@(18.3,7.8)",
+          "blue:adc@(22.0,3.2)",
+          "red:top@(20.8,7.4)",
+          "red:jungle@(17.2,7.3)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 2,
+        "sample": [
+          "blue:top@(1.7,5.7)",
+          "blue:jungle@(6.9,7.1)",
+          "blue:mid@(6.9,8.2)",
+          "blue:adc@(19.0,3.9)",
+          "red:top@(14.6,7.9)",
+          "red:jungle@(14.1,7.5)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(5.6,6.8)",
+          "blue:jungle@(6.9,7.1)",
+          "blue:mid@(6.9,8.2)",
+          "blue:adc@(19.0,3.9)",
+          "red:top@(11.6,7.2)",
+          "red:jungle@(11.3,6.6)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 2,
+        "redIn": 4,
+        "sample": [
+          "blue:top@(11.1,6.0)",
+          "blue:jungle@(10.4,6.8)",
+          "blue:mid@(7.2,8.0)",
+          "blue:adc@(9.1,1.5)",
+          "red:top@(10.1,7.0)",
+          "red:jungle@(10.4,6.5)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 2,
+        "redIn": 3,
+        "sample": [
+          "blue:top@(11.1,6.0)",
+          "blue:jungle@(10.4,6.8)",
+          "blue:mid@(7.2,8.0)",
+          "blue:adc@(9.0,1.1)",
+          "red:top@(10.3,6.9)",
+          "red:jungle@(10.5,6.4)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 3,
+        "redIn": 1,
+        "sample": [
+          "blue:top@(11.9,7.6)",
+          "blue:jungle@(12.3,8.0)",
+          "blue:mid@(11.8,8.3)",
+          "blue:adc@(8.6,7.8)",
+          "red:top@(10.2,6.9)",
+          "red:jungle@(21.9,7.4)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(11.9,7.6)",
+          "blue:jungle@(12.3,8.0)",
+          "blue:mid@(11.8,8.3)",
+          "blue:adc@(8.6,7.8)",
+          "red:top@(21.8,7.1)",
+          "red:jungle@(21.9,7.4)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(11.9,7.6)",
+          "blue:jungle@(12.3,8.0)",
+          "blue:mid@(11.8,8.3)",
+          "blue:adc@(8.6,7.8)",
+          "red:top@(22.0,7.1)",
+          "red:jungle@(22.0,7.4)"
+        ]
+      },
+      {
+        "tick": 1403,
+        "t": 140.3,
+        "blueIn": 3,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(11.9,7.6)",
+          "blue:jungle@(12.3,8.0)",
+          "blue:mid@(11.8,8.3)",
+          "blue:adc@(8.6,7.8)",
+          "red:top@(22.2,7.1)",
+          "red:jungle@(22.3,7.4)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:mid→HoldZone @(12.0,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.5,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.5,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.7)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,7.9)",
+      "t=2.2 blue:top→Chase @(15.8,8.1)",
+      "t=2.2 blue:jungle→Chase @(15.8,8.1)",
+      "t=2.2 blue:mid→Chase @(15.8,8.1)",
+      "t=2.2 blue:adc→Chase @(15.8,8.1)",
+      "t=2.2 blue:support→Chase @(15.8,8.1)",
+      "t=2.3 blue:top→Idle",
+      "t=2.3 blue:jungle→Idle",
+      "t=2.3 blue:mid→Idle",
+      "t=2.3 blue:adc→Idle",
+      "t=2.3 blue:support→Idle",
+      "t=2.5 blue:adc→Engage",
+      "t=2.8 blue:adc→Idle",
+      "t=3.1 blue:jungle→Engage",
+      "t=3.2 blue:support→Engage",
+      "t=3.5 blue:jungle→Idle",
+      "t=3.6 blue:support→Idle",
+      "t=3.7 blue:adc→Engage",
+      "t=4 blue:adc→Idle",
+      "t=4.5 blue:jungle→Engage",
+      "t=4.7 blue:support→Engage",
+      "t=4.9 blue:jungle→Idle",
+      "t=4.9 blue:adc→Engage",
+      "t=5.1 blue:support→Idle",
+      "t=5.2 blue:adc→Idle",
+      "t=5.9 blue:jungle→Engage",
+      "t=6.1 blue:adc→Engage",
+      "t=6.2 blue:support→Engage",
+      "t=6.3 blue:jungle→Idle",
+      "t=6.4 blue:adc→Idle",
+      "t=6.6 blue:support→Idle",
+      "t=7.3 blue:jungle→Engage",
+      "t=7.3 blue:adc→Engage"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 11.88,
+        "y": 7.62,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      },
+      {
+        "id": "blue:jungle",
+        "x": 12.33,
+        "y": 8.03,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      },
+      {
+        "id": "blue:mid",
+        "x": 11.77,
+        "y": 8.26,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": true
+      },
+      {
+        "id": "blue:adc",
+        "x": 8.64,
+        "y": 7.85,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 8.19,
+        "y": 8.24,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 22.24,
+        "y": 7.11,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 22.25,
+        "y": 7.43,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 21.96,
+        "y": 7.72,
+        "alive": true,
+        "intent": "HoldZone",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 21.89,
+        "y": 8.01,
+        "alive": true,
+        "intent": "HoldZone",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 22.07,
+        "y": 7.39,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      }
+    ],
+    "captures": [
+      {
+        "t": 31.4,
+        "tick": 314,
+        "seq": 9873,
+        "type": "zone_capture",
+        "team": "blue"
+      },
+      {
+        "t": 80.5,
+        "tick": 805,
+        "seq": 25006,
+        "type": "zone_capture",
+        "team": "red"
+      },
+      {
+        "t": 116.4,
+        "tick": 1164,
+        "seq": 36072,
+        "type": "zone_capture",
+        "team": "blue"
+      }
+    ],
+    "zoneTicks": [
+      {
+        "t": 43.3,
+        "tick": 433,
+        "seq": 13572,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 4
+      },
+      {
+        "t": 128.3,
+        "tick": 1283,
+        "seq": 39949,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 9
+      },
+      {
+        "t": 140.3,
+        "tick": 1403,
+        "seq": 44039,
+        "type": "zone_tick",
+        "team": "blue",
+        "score_after": 10
+      }
+    ],
+    "orbs": [
+      {
+        "t": 23.7,
+        "tick": 237,
+        "seq": 7514,
+        "type": "orb_pickup",
+        "orb_id": "orb:2",
+        "unit_id": "red:adc",
+        "xp": 120
+      },
+      {
+        "t": 64.2,
+        "tick": 642,
+        "seq": 19991,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:adc",
+        "xp": 120
+      },
+      {
+        "t": 77.4,
+        "tick": 774,
+        "seq": 24070,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 99.7,
+        "tick": 997,
+        "seq": 30957,
+        "type": "orb_pickup",
+        "orb_id": "orb:4",
+        "unit_id": "blue:adc",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "preset": "hunt",
+    "seed": 20261122,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 0,
+      "orbs_red": 0,
+      "orbs": 0,
+      "fight_calls": 1132,
+      "end": "coin_flip",
+      "winner": "red",
+      "score": [
+        0,
+        0
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.5)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.9,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.5)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2500,
+        "t": 250,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2600,
+        "t": 260,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2700,
+        "t": 270,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2800,
+        "t": 280,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2850,
+        "t": 285,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→Approach @(22.5,7.5)",
+      "t=0.1 blue:jungle→Approach @(22.5,7.5)",
+      "t=0.1 blue:mid→Approach @(22.5,7.5)",
+      "t=0.1 blue:adc→Approach @(22.5,7.5)",
+      "t=0.1 blue:support→Approach @(22.5,7.5)",
+      "t=0.3 blue:top→Approach @(21.9,8.5)",
+      "t=0.3 blue:jungle→Approach @(21.9,8.5)",
+      "t=0.3 blue:mid→Approach @(21.9,8.5)",
+      "t=0.3 blue:adc→Approach @(21.9,8.5)",
+      "t=0.3 blue:support→Approach @(21.9,8.5)",
+      "t=2.1 blue:top→Chase @(16.0,8.5)",
+      "t=2.1 blue:jungle→Chase @(16.0,8.5)",
+      "t=2.1 blue:mid→Chase @(16.0,8.5)",
+      "t=2.1 blue:adc→Chase @(16.0,8.5)",
+      "t=2.1 blue:support→Chase @(16.0,8.5)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:jungle→Idle",
+      "t=2.2 blue:mid→Idle",
+      "t=2.2 blue:adc→Idle",
+      "t=2.2 blue:support→Idle"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 8.12,
+        "y": 6.64,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 8.7,
+        "y": 7.32,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 8.84,
+        "y": 7.91,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 8.43,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 8.37,
+        "y": 9.06,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.57,
+        "y": 6.7,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.72,
+        "y": 7.28,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 15.9,
+        "y": 7.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 15.68,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 15.69,
+        "y": 9.07,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": []
+  },
+  {
+    "preset": "hunt",
+    "seed": 20261123,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 0,
+      "orbs_red": 0,
+      "orbs": 0,
+      "fight_calls": 1132,
+      "end": "coin_flip",
+      "winner": "red",
+      "score": [
+        0,
+        0
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.5)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.9,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.5)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2500,
+        "t": 250,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2600,
+        "t": 260,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2700,
+        "t": 270,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2800,
+        "t": 280,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2850,
+        "t": 285,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→Approach @(22.5,7.5)",
+      "t=0.1 blue:jungle→Approach @(22.5,7.5)",
+      "t=0.1 blue:mid→Approach @(22.5,7.5)",
+      "t=0.1 blue:adc→Approach @(22.5,7.5)",
+      "t=0.1 blue:support→Approach @(22.5,7.5)",
+      "t=0.3 blue:top→Approach @(21.9,8.5)",
+      "t=0.3 blue:jungle→Approach @(21.9,8.5)",
+      "t=0.3 blue:mid→Approach @(21.9,8.5)",
+      "t=0.3 blue:adc→Approach @(21.9,8.5)",
+      "t=0.3 blue:support→Approach @(21.9,8.5)",
+      "t=2.1 blue:top→Chase @(16.0,8.5)",
+      "t=2.1 blue:jungle→Chase @(16.0,8.5)",
+      "t=2.1 blue:mid→Chase @(16.0,8.5)",
+      "t=2.1 blue:adc→Chase @(16.0,8.5)",
+      "t=2.1 blue:support→Chase @(16.0,8.5)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:jungle→Idle",
+      "t=2.2 blue:mid→Idle",
+      "t=2.2 blue:adc→Idle",
+      "t=2.2 blue:support→Idle"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 8.12,
+        "y": 6.64,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 8.7,
+        "y": 7.32,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 8.84,
+        "y": 7.91,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 8.43,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 8.37,
+        "y": 9.06,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.57,
+        "y": 6.7,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.72,
+        "y": 7.28,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 15.9,
+        "y": 7.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 15.68,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 15.69,
+        "y": 9.07,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": []
+  },
+  {
+    "preset": "hunt",
+    "seed": 20261130,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 0,
+      "orbs_red": 0,
+      "orbs": 0,
+      "fight_calls": 1132,
+      "end": "coin_flip",
+      "winner": "blue",
+      "score": [
+        0,
+        0
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.5)",
+          "blue:jungle@(1.8,6.5)",
+          "blue:mid@(1.9,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.5)",
+          "red:jungle@(22.2,6.5)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2500,
+        "t": 250,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2600,
+        "t": 260,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2700,
+        "t": 270,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2800,
+        "t": 280,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      },
+      {
+        "tick": 2850,
+        "t": 285,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.1,6.6)",
+          "blue:jungle@(8.7,7.3)",
+          "blue:mid@(8.8,7.9)",
+          "blue:adc@(8.4,8.5)",
+          "red:top@(15.6,6.7)",
+          "red:jungle@(15.7,7.3)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→Approach @(22.5,7.5)",
+      "t=0.1 blue:jungle→Approach @(22.5,7.5)",
+      "t=0.1 blue:mid→Approach @(22.5,7.5)",
+      "t=0.1 blue:adc→Approach @(22.5,7.5)",
+      "t=0.1 blue:support→Approach @(22.5,7.5)",
+      "t=0.3 blue:top→Approach @(21.9,8.5)",
+      "t=0.3 blue:jungle→Approach @(21.9,8.5)",
+      "t=0.3 blue:mid→Approach @(21.9,8.5)",
+      "t=0.3 blue:adc→Approach @(21.9,8.5)",
+      "t=0.3 blue:support→Approach @(21.9,8.5)",
+      "t=2.1 blue:top→Chase @(16.0,8.5)",
+      "t=2.1 blue:jungle→Chase @(16.0,8.5)",
+      "t=2.1 blue:mid→Chase @(16.0,8.5)",
+      "t=2.1 blue:adc→Chase @(16.0,8.5)",
+      "t=2.1 blue:support→Chase @(16.0,8.5)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:jungle→Idle",
+      "t=2.2 blue:mid→Idle",
+      "t=2.2 blue:adc→Idle",
+      "t=2.2 blue:support→Idle"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 8.12,
+        "y": 6.64,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 8.7,
+        "y": 7.32,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 8.84,
+        "y": 7.91,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 8.43,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 8.37,
+        "y": 9.06,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.57,
+        "y": 6.7,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.72,
+        "y": 7.28,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 15.9,
+        "y": 7.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 15.68,
+        "y": 8.47,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 15.69,
+        "y": 9.07,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": []
+  },
+  {
+    "preset": "starve",
+    "seed": 20261122,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 25,
+      "orbs_red": 12,
+      "orbs": 37,
+      "fight_calls": 134,
+      "end": "clock",
+      "winner": "red",
+      "score": [
+        1,
+        3
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.6)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.6)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(16.2,7.1)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(16.0,8.5)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.7)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.7)",
+          "red:top@(16.2,7.2)",
+          "red:jungle@(16.0,7.8)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.5,11.2)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:mid→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.8,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.9)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,8.0)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:support→Kite @(11.3,8.1)",
+      "t=2.4 blue:adc→Engage",
+      "t=2.6 blue:jungle→Engage",
+      "t=2.7 blue:adc→Kite @(10.0,7.7)",
+      "t=2.7 blue:support→Engage",
+      "t=3 blue:jungle→Kite @(10.9,7.6)",
+      "t=3 blue:adc→Engage",
+      "t=3.1 blue:adc→Kite @(10.4,7.7)",
+      "t=3.1 blue:support→Kite @(11.1,8.2)",
+      "t=3.5 blue:top→HoldZone @(8.8,8.0)",
+      "t=3.6 blue:top→Idle",
+      "t=3.6 blue:adc→Engage",
+      "t=3.8 blue:jungle→Engage",
+      "t=3.9 blue:adc→Kite @(12.1,7.8)",
+      "t=4 blue:adc→Engage",
+      "t=4 blue:support→Engage",
+      "t=4.1 blue:adc→Kite @(12.4,7.8)",
+      "t=4.1 blue:support→Kite @(13.0,8.4)",
+      "t=4.2 blue:support→Engage",
+      "t=4.4 blue:jungle→Kite @(13.8,7.9)",
+      "t=4.4 blue:adc→Engage",
+      "t=4.5 blue:adc→Kite @(13.3,8.0)",
+      "t=4.6 blue:support→Kite @(14.3,8.6)",
+      "t=4.8 blue:adc→Engage",
+      "t=5.1 blue:jungle→Engage",
+      "t=5.1 blue:adc→Kite @(14.6,8.2)",
+      "t=5.3 blue:jungle→Peel @(16.1,7.5)",
+      "t=5.3 blue:adc→Engage",
+      "t=5.3 blue:support→Engage",
+      "t=5.4 blue:adc→Kite @(14.9,8.2)",
+      "t=5.4 blue:support→Peel @(16.3,6.9)"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 8.16,
+        "y": 7.78,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 2.46,
+        "y": 4.77,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 8.78,
+        "y": 8.5,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 2.45,
+        "y": 11.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 2.51,
+        "y": 11.27,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.88,
+        "y": 7.28,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.7,
+        "y": 7.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 21.9,
+        "y": 11.67,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 21.26,
+        "y": 11.68,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 21.51,
+        "y": 11.3,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": [
+      {
+        "t": 18.7,
+        "tick": 187,
+        "seq": 5905,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 32.5,
+        "tick": 325,
+        "seq": 10123,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 35.9,
+        "tick": 359,
+        "seq": 11200,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:support",
+        "xp": 120
+      },
+      {
+        "t": 36.8,
+        "tick": 368,
+        "seq": 11469,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 50.6,
+        "tick": 506,
+        "seq": 15735,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 54,
+        "tick": 540,
+        "seq": 16810,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 54.9,
+        "tick": 549,
+        "seq": 17098,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 68.7,
+        "tick": 687,
+        "seq": 21453,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 72.1,
+        "tick": 721,
+        "seq": 22529,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 73,
+        "tick": 730,
+        "seq": 22817,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 86.8,
+        "tick": 868,
+        "seq": 27172,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 90.2,
+        "tick": 902,
+        "seq": 28250,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 91.1,
+        "tick": 911,
+        "seq": 28537,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 104.9,
+        "tick": 1049,
+        "seq": 32893,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 108.3,
+        "tick": 1083,
+        "seq": 33970,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "preset": "starve",
+    "seed": 20261123,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 13,
+      "orbs_red": 24,
+      "orbs": 37,
+      "fight_calls": 118,
+      "end": "clock",
+      "winner": "red",
+      "score": [
+        1,
+        4
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.6)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.6)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(16.2,7.1)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(16.0,8.5)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.4)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.4)",
+          "red:top@(16.2,7.2)",
+          "red:jungle@(16.0,7.8)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.2,5.5)",
+          "blue:jungle@(2.0,5.4)",
+          "blue:mid@(2.0,6.7)",
+          "blue:adc@(1.9,6.2)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.5)",
+          "blue:jungle@(2.0,5.4)",
+          "blue:mid@(2.0,6.3)",
+          "blue:adc@(2.0,6.8)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.9,5.7)",
+          "blue:jungle@(1.9,6.9)",
+          "blue:mid@(1.9,5.8)",
+          "blue:adc@(2.1,5.3)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.9,5.8)",
+          "blue:jungle@(2.1,5.0)",
+          "blue:mid@(2.0,6.5)",
+          "blue:adc@(2.1,6.0)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.1,6.0)",
+          "blue:jungle@(2.3,6.1)",
+          "blue:mid@(1.9,5.7)",
+          "blue:adc@(2.0,6.6)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.2,6.2)",
+          "blue:jungle@(2.1,5.0)",
+          "blue:mid@(2.0,5.7)",
+          "blue:adc@(2.0,6.7)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.9,5.6)",
+          "blue:jungle@(1.9,7.0)",
+          "blue:mid@(2.0,5.6)",
+          "blue:adc@(1.9,6.2)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.6)",
+          "blue:jungle@(2.0,6.9)",
+          "blue:mid@(2.0,6.4)",
+          "blue:adc@(2.0,5.6)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.2,5.9)",
+          "blue:jungle@(2.0,5.3)",
+          "blue:mid@(2.1,5.2)",
+          "blue:adc@(2.0,6.5)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.6)",
+          "blue:jungle@(2.1,6.1)",
+          "blue:mid@(1.9,5.7)",
+          "blue:adc@(2.0,6.1)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.2)",
+          "blue:jungle@(1.9,5.8)",
+          "blue:mid@(2.0,6.5)",
+          "blue:adc@(2.1,5.5)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.9,6.8)",
+          "blue:jungle@(2.0,5.0)",
+          "blue:mid@(2.0,5.7)",
+          "blue:adc@(2.0,6.6)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.2)",
+          "blue:jungle@(2.2,5.3)",
+          "blue:mid@(1.8,5.9)",
+          "blue:adc@(1.9,5.2)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,5.9)",
+          "blue:jungle@(1.8,6.3)",
+          "blue:mid@(2.1,6.8)",
+          "blue:adc@(2.1,5.2)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.6)",
+          "blue:jungle@(2.1,5.8)",
+          "blue:mid@(1.9,5.6)",
+          "blue:adc@(1.9,7.0)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,6.0)",
+          "blue:jungle@(2.0,5.2)",
+          "blue:mid@(2.0,6.8)",
+          "blue:adc@(2.0,6.8)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,5.3)",
+          "blue:jungle@(1.9,5.6)",
+          "blue:mid@(2.2,5.9)",
+          "blue:adc@(1.9,6.2)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.1,5.2)",
+          "blue:jungle@(1.8,7.1)",
+          "blue:mid@(2.1,5.9)",
+          "blue:adc@(1.8,6.0)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,5.3)",
+          "blue:jungle@(2.0,5.3)",
+          "blue:mid@(2.1,6.4)",
+          "blue:adc@(1.8,6.0)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(2.0,5.7)",
+          "blue:jungle@(2.2,6.8)",
+          "blue:mid@(2.1,6.0)",
+          "blue:adc@(2.0,5.4)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.7,6.0)",
+          "blue:jungle@(2.0,6.9)",
+          "blue:mid@(2.0,5.9)",
+          "blue:adc@(2.1,6.1)",
+          "red:top@(15.5,1.3)",
+          "red:jungle@(15.5,1.9)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:mid→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.8,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.9)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,8.0)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:support→Kite @(11.3,8.1)",
+      "t=2.4 blue:adc→Engage",
+      "t=2.6 blue:jungle→Engage",
+      "t=2.7 blue:adc→Kite @(10.0,7.7)",
+      "t=2.7 blue:support→Engage",
+      "t=3 blue:jungle→Kite @(10.9,7.6)",
+      "t=3 blue:adc→Engage",
+      "t=3.1 blue:adc→Kite @(10.4,7.7)",
+      "t=3.1 blue:support→Kite @(11.1,8.2)",
+      "t=3.5 blue:top→HoldZone @(8.8,8.0)",
+      "t=3.6 blue:top→Idle",
+      "t=3.6 blue:adc→Engage",
+      "t=3.8 blue:jungle→Engage",
+      "t=3.9 blue:adc→Kite @(12.1,7.8)",
+      "t=4 blue:adc→Engage",
+      "t=4 blue:support→Engage",
+      "t=4.1 blue:adc→Kite @(12.4,7.8)",
+      "t=4.1 blue:support→Kite @(13.0,8.4)",
+      "t=4.2 blue:support→Engage",
+      "t=4.4 blue:jungle→Kite @(13.8,7.9)",
+      "t=4.4 blue:adc→Engage",
+      "t=4.5 blue:adc→Kite @(13.3,8.0)",
+      "t=4.6 blue:support→Kite @(14.3,8.6)",
+      "t=4.8 blue:adc→Engage",
+      "t=5.1 blue:jungle→Engage",
+      "t=5.1 blue:adc→Kite @(14.6,8.2)",
+      "t=5.3 blue:jungle→Peel @(16.1,7.5)",
+      "t=5.3 blue:adc→Engage",
+      "t=5.3 blue:support→Engage",
+      "t=5.4 blue:adc→Kite @(14.9,8.2)",
+      "t=5.4 blue:support→Peel @(16.3,6.9)"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 1.74,
+        "y": 6.02,
+        "alive": true,
+        "intent": "CollectOrb",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 1.99,
+        "y": 6.88,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 2.01,
+        "y": 5.92,
+        "alive": true,
+        "intent": "Retreat",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 2.09,
+        "y": 6.13,
+        "alive": true,
+        "intent": "CollectOrb",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 2.11,
+        "y": 4.95,
+        "alive": true,
+        "intent": "CollectOrb",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.5,
+        "y": 1.29,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.51,
+        "y": 1.89,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 21.59,
+        "y": 11.6,
+        "alive": true,
+        "intent": "CollectOrb",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 21.1,
+        "y": 11.6,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 21.59,
+        "y": 11.21,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": [
+      {
+        "t": 18.9,
+        "tick": 189,
+        "seq": 5973,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 30.6,
+        "tick": 306,
+        "seq": 9561,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:support",
+        "xp": 120
+      },
+      {
+        "t": 31.9,
+        "tick": 319,
+        "seq": 9986,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:top",
+        "xp": 120
+      },
+      {
+        "t": 37,
+        "tick": 370,
+        "seq": 11653,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:top",
+        "xp": 120
+      },
+      {
+        "t": 48.7,
+        "tick": 487,
+        "seq": 15586,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 50,
+        "tick": 500,
+        "seq": 16028,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:top",
+        "xp": 120
+      },
+      {
+        "t": 55.3,
+        "tick": 553,
+        "seq": 17825,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 66.8,
+        "tick": 668,
+        "seq": 21707,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 68.1,
+        "tick": 681,
+        "seq": 22156,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:top",
+        "xp": 120
+      },
+      {
+        "t": 73.4,
+        "tick": 734,
+        "seq": 23956,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:top",
+        "xp": 120
+      },
+      {
+        "t": 84.9,
+        "tick": 849,
+        "seq": 27830,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 86.2,
+        "tick": 862,
+        "seq": 28266,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:top",
+        "xp": 120
+      },
+      {
+        "t": 91.6,
+        "tick": 916,
+        "seq": 30090,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 103,
+        "tick": 1030,
+        "seq": 33944,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 104.3,
+        "tick": 1043,
+        "seq": 34387,
+        "type": "orb_pickup",
+        "orb_id": "orb:5",
+        "unit_id": "red:top",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "preset": "starve",
+    "seed": 20261130,
+    "sum": {
+      "control_blue": 0,
+      "control_red": 0,
+      "zone_tick_blue": 0,
+      "zone_tick": 0,
+      "captures": [],
+      "orbs_blue": 25,
+      "orbs_red": 12,
+      "orbs": 37,
+      "fight_calls": 134,
+      "end": "clock",
+      "winner": "red",
+      "score": [
+        1,
+        3
+      ]
+    },
+    "timeline": [
+      {
+        "tick": 1,
+        "t": 0.1,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(1.8,5.6)",
+          "blue:jungle@(1.8,6.6)",
+          "blue:mid@(1.8,7.5)",
+          "blue:adc@(1.8,8.5)",
+          "red:top@(22.2,5.6)",
+          "red:jungle@(22.2,6.6)"
+        ]
+      },
+      {
+        "tick": 100,
+        "t": 10,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(16.2,7.1)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(16.0,8.5)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 200,
+        "t": 20,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.7)",
+          "red:top@(16.3,6.9)",
+          "red:jungle@(16.1,7.5)"
+        ]
+      },
+      {
+        "tick": 300,
+        "t": 30,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(15.2,12.7)",
+          "red:top@(16.2,7.2)",
+          "red:jungle@(16.0,7.8)"
+        ]
+      },
+      {
+        "tick": 400,
+        "t": 40,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.5,11.2)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 500,
+        "t": 50,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 600,
+        "t": 60,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 700,
+        "t": 70,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 800,
+        "t": 80,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 900,
+        "t": 90,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1000,
+        "t": 100,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1100,
+        "t": 110,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1200,
+        "t": 120,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1300,
+        "t": 130,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1400,
+        "t": 140,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1500,
+        "t": 150,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1600,
+        "t": 160,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1700,
+        "t": 170,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1800,
+        "t": 180,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 1900,
+        "t": 190,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2000,
+        "t": 200,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2100,
+        "t": 210,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2200,
+        "t": 220,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2300,
+        "t": 230,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      },
+      {
+        "tick": 2400,
+        "t": 240,
+        "blueIn": 0,
+        "redIn": 0,
+        "sample": [
+          "blue:top@(8.2,7.8)",
+          "blue:jungle@(2.5,4.8)",
+          "blue:mid@(8.8,8.5)",
+          "blue:adc@(2.4,11.9)",
+          "red:top@(15.9,7.3)",
+          "red:jungle@(15.7,7.9)"
+        ]
+      }
+    ],
+    "intents": [
+      "t=0.1 blue:top→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:jungle→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:mid→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:adc→HoldZone @(8.8,8.0)",
+      "t=0.1 blue:support→HoldZone @(8.8,8.0)",
+      "t=2.1 blue:jungle→Kite @(11.8,7.9)",
+      "t=2.1 blue:mid→Idle",
+      "t=2.1 blue:adc→Kite @(11.0,8.0)",
+      "t=2.2 blue:top→Idle",
+      "t=2.2 blue:support→Kite @(11.3,8.1)",
+      "t=2.4 blue:adc→Engage",
+      "t=2.6 blue:jungle→Engage",
+      "t=2.7 blue:adc→Kite @(10.0,7.7)",
+      "t=2.7 blue:support→Engage",
+      "t=3 blue:jungle→Kite @(10.9,7.6)",
+      "t=3 blue:adc→Engage",
+      "t=3.1 blue:adc→Kite @(10.4,7.7)",
+      "t=3.1 blue:support→Kite @(11.1,8.2)",
+      "t=3.5 blue:top→HoldZone @(8.8,8.0)",
+      "t=3.6 blue:top→Idle",
+      "t=3.6 blue:adc→Engage",
+      "t=3.8 blue:jungle→Engage",
+      "t=3.9 blue:adc→Kite @(12.1,7.8)",
+      "t=4 blue:adc→Engage",
+      "t=4 blue:support→Engage",
+      "t=4.1 blue:adc→Kite @(12.4,7.8)",
+      "t=4.1 blue:support→Kite @(13.0,8.4)",
+      "t=4.2 blue:support→Engage",
+      "t=4.4 blue:jungle→Kite @(13.8,7.9)",
+      "t=4.4 blue:adc→Engage",
+      "t=4.5 blue:adc→Kite @(13.3,8.0)",
+      "t=4.6 blue:support→Kite @(14.3,8.6)",
+      "t=4.8 blue:adc→Engage",
+      "t=5.1 blue:jungle→Engage",
+      "t=5.1 blue:adc→Kite @(14.6,8.2)",
+      "t=5.3 blue:jungle→Peel @(16.1,7.5)",
+      "t=5.3 blue:adc→Engage",
+      "t=5.3 blue:support→Engage",
+      "t=5.4 blue:adc→Kite @(14.9,8.2)",
+      "t=5.4 blue:support→Peel @(16.3,6.9)"
+    ],
+    "finals": [
+      {
+        "id": "blue:top",
+        "x": 8.16,
+        "y": 7.78,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:jungle",
+        "x": 2.46,
+        "y": 4.77,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:mid",
+        "x": 8.78,
+        "y": 8.5,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:adc",
+        "x": 2.45,
+        "y": 11.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "blue:support",
+        "x": 2.51,
+        "y": 11.27,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:top",
+        "x": 15.88,
+        "y": 7.28,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:jungle",
+        "x": 15.7,
+        "y": 7.86,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:mid",
+        "x": 21.62,
+        "y": 11.56,
+        "alive": true,
+        "intent": "CollectOrb",
+        "inZone": false
+      },
+      {
+        "id": "red:adc",
+        "x": 21.16,
+        "y": 11.74,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      },
+      {
+        "id": "red:support",
+        "x": 21.48,
+        "y": 11.19,
+        "alive": true,
+        "intent": "Idle",
+        "inZone": false
+      }
+    ],
+    "captures": [],
+    "zoneTicks": [],
+    "orbs": [
+      {
+        "t": 18.9,
+        "tick": 189,
+        "seq": 5970,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 32.5,
+        "tick": 325,
+        "seq": 10124,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 35.9,
+        "tick": 359,
+        "seq": 11201,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:support",
+        "xp": 120
+      },
+      {
+        "t": 37,
+        "tick": 370,
+        "seq": 11533,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 50.6,
+        "tick": 506,
+        "seq": 15738,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 54,
+        "tick": 540,
+        "seq": 16813,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 55.1,
+        "tick": 551,
+        "seq": 17164,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 68.7,
+        "tick": 687,
+        "seq": 21455,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 72.1,
+        "tick": 721,
+        "seq": 22532,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 73.2,
+        "tick": 732,
+        "seq": 22882,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 86.8,
+        "tick": 868,
+        "seq": 27174,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 90.2,
+        "tick": 902,
+        "seq": 28253,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      },
+      {
+        "t": 91.3,
+        "tick": 913,
+        "seq": 28602,
+        "type": "orb_pickup",
+        "orb_id": "orb:0",
+        "unit_id": "blue:jungle",
+        "xp": 120
+      },
+      {
+        "t": 104.9,
+        "tick": 1049,
+        "seq": 32897,
+        "type": "orb_pickup",
+        "orb_id": "orb:1",
+        "unit_id": "blue:adc",
+        "xp": 120
+      },
+      {
+        "t": 108.3,
+        "tick": 1083,
+        "seq": 33972,
+        "type": "orb_pickup",
+        "orb_id": "orb:3",
+        "unit_id": "red:mid",
+        "xp": 120
+      }
+    ]
+  }
+]
