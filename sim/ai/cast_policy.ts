@@ -1039,8 +1039,10 @@ function commitR(ctx: Ctx): boolean {
   return ctx.aTrue + 1e-9 >= th.engage + 0.1 && n >= 3;
 }
 
+/** R7-5: commit-R lifts only nA ≤ 1; nE ≥ 2 always holds. */
 function friendlyOk(nE: number, nA: number, ctx: Ctx): boolean {
-  return (nE >= 2 && nA <= 1) || commitR(ctx);
+  if (nE < 2) return false;
+  return nA <= 1 || commitR(ctx);
 }
 
 function fearSafe(ctx: Ctx, hits: UnitState[]): boolean {
