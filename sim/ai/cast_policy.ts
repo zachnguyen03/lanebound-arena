@@ -1762,7 +1762,8 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
   }
 
   if (champ === "rhedan" && skill === "W") {
-    const hook = (e: UnitState) => inRange(ctx.u, e, 5.5) && firstOnLine(ctx, e, "W")?.id === e.id;
+    const hook = (e: UnitState) =>
+      inRange(ctx.u, e, 5.5) && firstOnLine(ctx, e, "W")?.id === e.id && ccOk(ctx, e, "W", tier);
     if (tier === "P3" && engageOk(ctx, true)) {
       const pool = ctx.perceived.filter((e) => isBackliner(e) && hook(e) && openerClean(ctx, e));
       for (const e of pool) {
