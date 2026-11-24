@@ -714,6 +714,39 @@ function resolveOnTargets(
       if (ab.heal && ab.shape !== "self") queueHeal(state, source, v, ab);
       if (ab.shield) queueShield(state, source, v, ab);
     }
+
+    // R7-10 / Torun W: AI class is shield-only, but the kit's 2.0 s taunt on a
+    // diver inside r 1.2 must still apply, emit status_apply, and count as hard CC.
+    if (
+      source.champ === "torun" &&
+      skill === "W" &&
+      ab.shape === "circle_ally" &&
+      primary &&
+      ab.special?.some((s) => s.toLowerCase().includes("taunt"))
+    ) {
+      const r = ab.radius ?? 1.2;
+      const shielded = new Set(recipients.map((a) => a.id));
+      const divers = state.units.filter((e) => {
+        if (!e.alive || e.team === source.team || isBanished(e.status)) return false;
+        if (dist(e.x, e.y, primary.x, primary.y) > r + c.BODY_RADIUS + 1e-9) return false;
+        const tid = e.ai_target_id;
+        return tid != null && shielded.has(tid);
+      });
+      divers.sort((a, b) => a.index - b.index);
+      const diver = divers[0];
+      if (diver) {
+        state.pending_status.push({
+          seq: state.event_seq,
+          source_id: source.id,
+          target_id: diver.id,
+          kind: "taunt",
+          category: "handicap",
+          raw_duration: 2.0,
+          school: "magic",
+          skill_id,
+        });
+      }
+    }
   }
 
   void skill;

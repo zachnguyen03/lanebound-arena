@@ -91,6 +91,8 @@ export interface MatchConfig {
         /** Lab: move-speed override (tiles/s). */
         ms?: number;
         as?: number;
+        /** Lab/test: seed AI focus target (e.g. Torun W taunt diver). */
+        ai_target_id?: UnitId | null;
       }
     >
   >;
