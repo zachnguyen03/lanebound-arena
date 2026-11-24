@@ -1,0 +1,41 @@
+{
+  "seat": {
+    "unswapped_blue": 51.17,
+    "swapped_blue": 49.33,
+    "pooled_blue": 50.25
+  },
+  "pair": {
+    "comp": 75.2,
+    "side": 24.8
+  },
+  "length_median_s": 108.35,
+  "zone_share_winner": 52.5,
+  "end_reasons": {
+    "first_to_10": 94.42,
+    "zone_time": 1.67,
+    "clock": 3.83,
+    "sudden_death": 0.08
+  },
+  "f1_f4_median": {
+    "f1_teamfights": 1,
+    "f2_combo_chains": 0,
+    "f3_clutch_moments": 1,
+    "f4_close_finish": 0
+  },
+  "champ_picks": {
+    "brannoch": 1200,
+    "calder": 616,
+    "helvar": 584,
+    "huntress": 804,
+    "isra": 788,
+    "kerrig": 578,
+    "maelis": 808,
+    "mirren": 622,
+    "rhedan": 1200,
+    "saelo": 1200,
+    "sedge": 844,
+    "tolle": 782,
+    "torun": 774,
+    "ysol": 1200
+  }
+}

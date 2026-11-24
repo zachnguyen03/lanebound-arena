@@ -1,0 +1,4 @@
+label=ai-off-20261122
+digest=7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f
+expect=7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f
+ok=true

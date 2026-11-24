@@ -39,9 +39,19 @@ export function summariesToCsv(summaries: MatchSummary[]): string {
     "claim_paid",
     "t_first_R",
     "t_L7",
+    "f1_teamfights",
+    "f2_combo_chains",
+    "f3_clutch_moments",
+    "f4_close_finish",
+    "f4_comeback",
+    "f4_shutout",
+    "f4_multikills",
+    "lead_changes",
+    "contested_pit_share",
   ]);
   const lines = [header];
   for (const s of summaries) {
+    const fq = s.fight_quality;
     lines.push(
       row([
         s.seed,
@@ -68,6 +78,15 @@ export function summariesToCsv(summaries: MatchSummary[]): string {
         s.claim_paid,
         s.t_first_R ?? "",
         s.t_L7 ?? "",
+        fq?.f1_teamfights ?? 0,
+        fq?.f2_combo_chains ?? 0,
+        fq?.f3_clutch_moments ?? 0,
+        fq?.f4_close_finish ?? 0,
+        fq?.f4_comeback ?? 0,
+        fq?.f4_shutout ?? 0,
+        fq?.f4_multikills ?? 0,
+        fq?.lead_changes ?? 0,
+        fq?.contested_pit_share ?? 0,
       ]),
     );
   }

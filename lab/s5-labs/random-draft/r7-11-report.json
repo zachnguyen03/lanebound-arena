@@ -1,0 +1,226 @@
+{
+  "ruling": "R7-11",
+  "spec_sha": "f30352477590f552f71f19c4827787096d9ff115282f15f5c8bde4780f2d79d1",
+  "n_games": 1200,
+  "n_pairs": 600,
+  "seat": {
+    "blue": 276,
+    "red": 324,
+    "blue_wr": 0.46
+  },
+  "seat_swapped": {
+    "blue": 323,
+    "red": 277,
+    "blue_wr": 0.5383333333333333
+  },
+  "pooled": {
+    "blue_wins": 599,
+    "red_wins": 601,
+    "draws": 0,
+    "blue_win_rate": 0.49916666666666665
+  },
+  "pair": {
+    "comp": 0.7083333333333334,
+    "side": 0.2916666666666667
+  },
+  "length_median_s": 119.2,
+  "zone_share_winner": 0.5282251382876395,
+  "f1_f4_median": {
+    "f1": 1,
+    "f2": 0,
+    "f3": 1,
+    "f4_close": 0
+  },
+  "champ_n": {
+    "brannoch": 1240,
+    "calder": 624,
+    "helvar": 584,
+    "huntress": 818,
+    "isra": 820,
+    "kerrig": 596,
+    "maelis": 762,
+    "mirren": 596,
+    "rhedan": 1160,
+    "saelo": 1196,
+    "sedge": 744,
+    "tolle": 864,
+    "torun": 792,
+    "ysol": 1204
+  },
+  "appear_rates": {
+    "brannoch": {
+      "slot": "top",
+      "n_picks": 1240,
+      "appear_rate": 0.7683333333333333,
+      "expected_appear": 0.75
+    },
+    "rhedan": {
+      "slot": "top",
+      "n_picks": 1160,
+      "appear_rate": 0.735,
+      "expected_appear": 0.75
+    },
+    "sedge": {
+      "slot": "jungle",
+      "n_picks": 744,
+      "appear_rate": 0.51,
+      "expected_appear": 0.5555555555555556
+    },
+    "tolle": {
+      "slot": "jungle",
+      "n_picks": 864,
+      "appear_rate": 0.585,
+      "expected_appear": 0.5555555555555556
+    },
+    "torun": {
+      "slot": "jungle",
+      "n_picks": 792,
+      "appear_rate": 0.545,
+      "expected_appear": 0.5555555555555556
+    },
+    "calder": {
+      "slot": "mid",
+      "n_picks": 624,
+      "appear_rate": 0.45666666666666667,
+      "expected_appear": 0.4375
+    },
+    "helvar": {
+      "slot": "mid",
+      "n_picks": 584,
+      "appear_rate": 0.435,
+      "expected_appear": 0.4375
+    },
+    "kerrig": {
+      "slot": "mid",
+      "n_picks": 596,
+      "appear_rate": 0.42833333333333334,
+      "expected_appear": 0.4375
+    },
+    "mirren": {
+      "slot": "mid",
+      "n_picks": 596,
+      "appear_rate": 0.435,
+      "expected_appear": 0.4375
+    },
+    "huntress": {
+      "slot": "adc",
+      "n_picks": 818,
+      "appear_rate": 0.5666666666666667,
+      "expected_appear": 0.5555555555555556
+    },
+    "isra": {
+      "slot": "adc",
+      "n_picks": 820,
+      "appear_rate": 0.5666666666666667,
+      "expected_appear": 0.5555555555555556
+    },
+    "maelis": {
+      "slot": "adc",
+      "n_picks": 762,
+      "appear_rate": 0.5266666666666666,
+      "expected_appear": 0.5555555555555556
+    },
+    "saelo": {
+      "slot": "support",
+      "n_picks": 1196,
+      "appear_rate": 0.7466666666666667,
+      "expected_appear": 0.75
+    },
+    "ysol": {
+      "slot": "support",
+      "n_picks": 1204,
+      "appear_rate": 0.75,
+      "expected_appear": 0.75
+    }
+  },
+  "mirror_rates": {
+    "top": {
+      "rate": 0.49666666666666665,
+      "expected": 0.5
+    },
+    "jungle": {
+      "rate": 0.36,
+      "expected": 0.3333333333333333
+    },
+    "mid": {
+      "rate": 0.245,
+      "expected": 0.25
+    },
+    "adc": {
+      "rate": 0.34,
+      "expected": 0.3333333333333333
+    },
+    "support": {
+      "rate": 0.5033333333333333,
+      "expected": 0.5
+    }
+  },
+  "by_mirrored_positions": {
+    "0": {
+      "n_pairs": 50,
+      "comp_decisive": 38,
+      "side_decisive": 12,
+      "comp_rate": 0.76,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0.1,
+      "f4_shutout_rate": 0.2,
+      "f4_games": 100
+    },
+    "1": {
+      "n_pairs": 163,
+      "comp_decisive": 121,
+      "side_decisive": 42,
+      "comp_rate": 0.7423312883435583,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0.0950920245398773,
+      "f4_shutout_rate": 0.2085889570552147,
+      "f4_games": 326
+    },
+    "2": {
+      "n_pairs": 207,
+      "comp_decisive": 147,
+      "side_decisive": 60,
+      "comp_rate": 0.7101449275362319,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0.10869565217391304,
+      "f4_shutout_rate": 0.19082125603864733,
+      "f4_games": 414
+    },
+    "3": {
+      "n_pairs": 135,
+      "comp_decisive": 97,
+      "side_decisive": 38,
+      "comp_rate": 0.7185185185185186,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0.06666666666666667,
+      "f4_shutout_rate": 0.18888888888888888,
+      "f4_games": 270
+    },
+    "4": {
+      "n_pairs": 40,
+      "comp_decisive": 22,
+      "side_decisive": 18,
+      "comp_rate": 0.55,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0.075,
+      "f4_shutout_rate": 0.075,
+      "f4_games": 80
+    },
+    "5": {
+      "n_pairs": 5,
+      "comp_decisive": 0,
+      "side_decisive": 5,
+      "comp_rate": 0,
+      "f4_close_rate": 0,
+      "f4_comeback_rate": 0,
+      "f4_shutout_rate": 0,
+      "f4_games": 10
+    }
+  },
+  "end_reasons": {
+    "first_to_10": 0.9375,
+    "clock": 0.051666666666666666,
+    "zone_time": 0.008333333333333333,
+    "sudden_death": 0.0025
+  }
+}

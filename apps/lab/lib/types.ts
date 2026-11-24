@@ -30,7 +30,18 @@ export interface BatchConfig {
   seed_start?: number;
   pins?: {
     attrs_all?: number;
+    /** Override teamwork after attrs_all (isolation follow-up floor). */
+    teamwork_all?: number;
     mastery_all?: number;
+    /**
+     * §8.5 mastery isolation: set mastery for ONE player's current pick only.
+     * Does not raise mastery on the other nine players.
+     */
+    mastery_one?: {
+      side: Team;
+      slot: Slot;
+      value: number;
+    };
     isolation?: IsolationPin;
   };
   isolation?: IsolationPin;
@@ -38,6 +49,11 @@ export interface BatchConfig {
   save_full_events?: boolean;
   /** Lab: emit sanctuary_violation on illegal centres (default true for batches). */
   assert_sanctuary?: boolean;
+  /**
+   * When true, each seed runs twice: as-rolled and with blue/red picks swapped.
+   * n = total games; pair count = floor(n/2). Used to separate comp lean from side lean.
+   */
+  side_swap_pairs?: boolean;
 }
 
 export interface ScoreParts {
@@ -73,6 +89,21 @@ export interface MatchSummary {
   t_first_R: number | null;
   t_L7: number | null;
   kda: KdaRow[];
+  /** Lab-layer fight-quality (inventions — see fight-quality.ts). */
+  fight_quality: FightQualityMetrics;
+}
+
+export interface FightQualityMetrics {
+  f1_teamfights: number;
+  f2_combo_chains: number;
+  f3_clutch_moments: number;
+  f4_close_finish: 0 | 1;
+  lead_changes: number;
+  /** Pit-centred fight_call fraction (0–1); stand-in for R6-5 contested owned time. */
+  contested_pit_share: number;
+  f4_comeback: 0 | 1;
+  f4_shutout: 0 | 1;
+  f4_multikills: number;
 }
 
 export interface DashboardRow {

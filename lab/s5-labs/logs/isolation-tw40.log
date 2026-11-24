@@ -1,0 +1,251 @@
+
+> lanebound-arena@0.0.0 isolation
+> tsx apps/lab/isolation-cli.ts --n 400 --seed 20261122 --teamwork-floor 40 --pairing pair_swap --out lab/s5-labs/isolation-tw40
+
+isolation: 400 games/arm pairing=pair_swap tactic=hold_the_pit teamwork_floor=40
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/400
+  … 50/400
+  … 100/400
+  … 150/400
+  … 200/400
+  … 250/400
+  … 300/400
+  … 350/400
+  … 400/400
+  … 1/200
+  … 50/200
+  … 100/200
+  … 150/200
+  … 200/200
+{
+  "n_per_arm": 400,
+  "n_pair_seeds": 200,
+  "seed_start": 20261122,
+  "control_blue_win_pp": 50.24999999999999,
+  "deltas": [
+    {
+      "attr": "aim",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 50.24999999999999,
+      "delta_pp": 0,
+      "n": 400
+    },
+    {
+      "attr": "reflexes",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 50.24999999999999,
+      "delta_pp": 0,
+      "n": 400
+    },
+    {
+      "attr": "execution",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 47.75,
+      "delta_pp": -2.499999999999993,
+      "n": 400
+    },
+    {
+      "attr": "decision",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 49.25,
+      "delta_pp": -0.9999999999999929,
+      "n": 400
+    },
+    {
+      "attr": "positioning",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 44.5,
+      "delta_pp": -5.749999999999993,
+      "n": 400
+    },
+    {
+      "attr": "teamwork",
+      "control_win_pp": 50.24999999999999,
+      "arm_win_pp": 50,
+      "delta_pp": -0.2499999999999929,
+      "n": 400
+    }
+  ],
+  "mastery_50_to_90": {
+    "control_blue_win_pp": 50.24999999999999,
+    "arm_blue_win_pp": 50.74999999999999,
+    "delta_pp": 0.5,
+    "n": 400,
+    "wilson95_arm": {
+      "p": 0.5075,
+      "lo": 0.45866770612795893,
+      "hi": 0.5561896042630458
+    }
+  },
+  "mirror_control": {
+    "blue_win_pp": 43.5,
+    "n": 200,
+    "wilson95": {
+      "p": 0.435,
+      "lo": 0.368156071588974,
+      "hi": 0.5042939091804078
+    }
+  },
+  "arms": {
+    "control": {
+      "blue_win_pp": 50.24999999999999,
+      "blue_wins": 201,
+      "n": 400,
+      "wilson95": {
+        "p": 0.5025,
+        "lo": 0.4537104387832727,
+        "hi": 0.5512419980137288
+      }
+    },
+    "aim": {
+      "blue_win_pp": 50.24999999999999,
+      "blue_wins": 201,
+      "n": 400,
+      "wilson95": {
+        "p": 0.5025,
+        "lo": 0.4537104387832727,
+        "hi": 0.5512419980137288
+      }
+    },
+    "reflexes": {
+      "blue_win_pp": 50.24999999999999,
+      "blue_wins": 201,
+      "n": 400,
+      "wilson95": {
+        "p": 0.5025,
+        "lo": 0.4537104387832727,
+        "hi": 0.5512419980137288
+      }
+    },
+    "execution": {
+      "blue_win_pp": 47.75,
+      "blue_wins": 191,
+      "n": 400,
+      "wilson95": {
+        "p": 0.4775,
+        "lo": 0.4289965818287492,
+        "hi": 0.5264314869982364
+      }
+    },
+    "decision": {
+      "blue_win_pp": 49.25,
+      "blue_wins": 197,
+      "n": 400,
+      "wilson95": {
+        "p": 0.4925,
+        "lo": 0.4438103957369542,
+        "hi": 0.541332293872041
+      }
+    },
+    "positioning": {
+      "blue_win_pp": 44.5,
+      "blue_wins": 178,
+      "n": 400,
+      "wilson95": {
+        "p": 0.445,
+        "lo": 0.3970499227484684,
+        "hi": 0.4939964677174965
+      }
+    },
+    "teamwork": {
+      "blue_win_pp": 50,
+      "blue_wins": 200,
+      "n": 400,
+      "wilson95": {
+        "p": 0.5,
+        "lo": 0.4512336165999552,
+        "hi": 0.5487663834000448
+      }
+    },
+    "mastery90": {
+      "blue_win_pp": 50.74999999999999,
+      "blue_wins": 203,
+      "n": 400,
+      "wilson95": {
+        "p": 0.5075,
+        "lo": 0.45866770612795893,
+        "hi": 0.5561896042630458
+      }
+    }
+  },
+  "setup_notes": [
+    "tactic=hold_the_pit",
+    "attrs_all=60",
+    "teamwork_floor=40 (callFollowSlack=1+0.01*max(0,50−T); inert at T≥50)",
+    "pairing=pair_swap (n_games≈400, n_pair_seeds=200)",
+    "mastery arm: mastery_one on blue ADC pick only (§8.5) — not mastery_all",
+    "BLOCKED: aim/reflexes skillshot isolation — chooseExecutionCast in sim/ai/brain.ts returns null unless champ is kerrig|huntress, and even then only gated R (never Q/W). No arena preset emits cast_start/skillshot_roll without sim edits or scripted_* hooks. Arms still run (auto-only) and are marked blocked."
+  ],
+  "blocked_arms": [
+    "aim",
+    "reflexes"
+  ],
+  "tactic": "hold_the_pit",
+  "teamwork_floor": 40,
+  "pairing": "pair_swap",
+  "elapsed_ms": 355784
+}
+wrote lab/s5-labs/isolation-tw40/isolation-results.json

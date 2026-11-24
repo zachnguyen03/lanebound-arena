@@ -21,7 +21,8 @@
     "lab:s4": "tsx apps/lab/lab-s4.ts",
     "batch": "tsx apps/lab/batch.ts",
     "isolation": "tsx apps/lab/isolation-cli.ts",
-    "lab:s5": "tsx apps/lab/lab-s5.ts"
+    "lab:s5": "tsx apps/lab/lab-s5.ts",
+    "lab:s5-labs": "tsx apps/lab/lab-s5-labs.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

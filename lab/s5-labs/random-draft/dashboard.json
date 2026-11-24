@@ -1,0 +1,366 @@
+{
+  "rows": [
+    {
+      "id": "match_length",
+      "metric": "Match length (median / p10 / p90)",
+      "target": "Median 3:30–4:30 (210–270 s)",
+      "value": "median 1:59.2 (119.2s); p10 1:05.2; p90 3:20.9",
+      "sample_size": 1200,
+      "mark": "fail",
+      "notes": "Ends: {\"first_to_10\":0.9375,\"clock\":0.051666666666666666,\"zone_time\":0.008333333333333333,\"sudden_death\":0.0025}"
+    },
+    {
+      "id": "zone_share",
+      "metric": "Zone share of winner's score",
+      "target": "30–40% (ticks+claims)",
+      "value": "52.8%",
+      "sample_size": 1200,
+      "mark": "fail"
+    },
+    {
+      "id": "per_champion",
+      "metric": "Per-champion win / pick / KDA",
+      "target": "Win rate 45–55%, min 200 games / champ (random-draft even)",
+      "value": "brannoch:56%(n=1240), calder:57%(n=624), helvar:55%(n=584), huntress:39%(n=818), isra:58%(n=820), kerrig:34%(n=596), maelis:53%(n=762), mirren:55%(n=596)…",
+      "sample_size": 1200,
+      "mark": "fail",
+      "notes": "min picks among champs=584"
+    },
+    {
+      "id": "archetype_matrix",
+      "metric": "Comp archetype matrix",
+      "target": "No archetype >55% vs field; triangle edges 55–65% (min 80/200)",
+      "value": "Dive 39%(n=556); Peel 49%(n=534); Poke 59%(n=736); Balanced 23%(n=106)",
+      "sample_size": 1200,
+      "mark": "fail",
+      "notes": "Peel_vs_Dive: 60%(n=126); Dive_vs_Poke: 25%(n=146); Poke_vs_Peel: 59%(n=150)"
+    },
+    {
+      "id": "attribute_isolation",
+      "metric": "Attribute isolation (+30 one attr)",
+      "target": "+3 to +6 pp team win%, min 400/arm; no delta >2× another",
+      "value": "not run — use npm run isolation",
+      "sample_size": 0,
+      "mark": "under-powered",
+      "notes": "See apps/lab/isolation.ts"
+    },
+    {
+      "id": "auto_peel",
+      "metric": "Auto-peel fire rate",
+      "target": "≥ 70% of geometrically reachable dives (dive_geom)",
+      "value": "94.3% (fired=2760, eligible=2928)",
+      "sample_size": 2928,
+      "mark": "pass",
+      "notes": "Denominator = dive_geom (all geometrically reachable dives; not filtered on peeler_perceived)"
+    },
+    {
+      "id": "sanctuary",
+      "metric": "Spawn-pad entries (illegal enemy-sanctuary centres)",
+      "target": "0",
+      "value": "0",
+      "sample_size": 1200,
+      "mark": "pass"
+    },
+    {
+      "id": "claim_deny",
+      "metric": "Claim deny rate",
+      "target": "Reported (opened / denied / paid); warn if 0% or 100%",
+      "value": "opened=710, denied=297, paid=363, rate=41.8%",
+      "sample_size": 710,
+      "mark": "report",
+      "notes": "ok"
+    },
+    {
+      "id": "level_timings",
+      "metric": "Level timings (first R / L7)",
+      "target": "Flavour R ~1:20, L7 ~2:40 (report misses; XP table is P)",
+      "value": "R median 1:00.1 (n=1200); L7 median 2:04.0 (n=561)",
+      "sample_size": 561,
+      "mark": "report"
+    },
+    {
+      "id": "side_lean",
+      "metric": "Side lean (blue vs red wins)",
+      "target": "Report only (no §6.5 band on side)",
+      "value": "blue 599 (49.9%) / red 601 (50.1%); draws/null=0",
+      "sample_size": 1200,
+      "mark": "report"
+    },
+    {
+      "id": "fight_f1_teamfights",
+      "metric": "F1 teamfights / game",
+      "target": "— (values only; no band yet)",
+      "value": "median 1.00; p10 1.00; p90 2.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F1 (S5-R6-8): engagement = maximal run of cross-team hit/status_apply with gap ≤ 3.0 s; teamfight = engagement lasting ≥ 3.0 s with ≥ 3 distinct units per side (dealt or took damage). Count per game."
+    },
+    {
+      "id": "fight_f2_combo_chains",
+      "metric": "F2 combo chains / game",
+      "target": "— (values only; no band yet)",
+      "value": "median 0.00; p10 0.00; p90 0.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F2 (S5-R6-8): hard-CC status_apply by A on enemy X, then within min(CC duration+0.5 s, 2.0 s) damage on X from ≥ 2 distinct units of A's team (A counts), ≥ 1 skill hit (skill_id ≠ auto)."
+    },
+    {
+      "id": "fight_f3_clutch_moments",
+      "metric": "F3 clutch moments / game",
+      "target": "— (values only; no band yet)",
+      "value": "median 1.00; p10 0.00; p90 3.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F3 (S5-R6-8): (a) low-HP escape — hit to ≤ 15% max HP during a teamfight, alive 5.0 s later, once per unit per 5 s; plus (b) outnumbered win — at a teamfight's first death, the side with fewer living involved ends that fight with more takedowns."
+    },
+    {
+      "id": "fight_f4_close_finish",
+      "metric": "F4 close finish (0/1)",
+      "target": "— (values only; no band yet)",
+      "value": "median 0.00; p10 0.00; p90 1.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F4 (S5-R6-8): close = 1 if final margin ≤ 2 or end_reason is sudden_death, else 0."
+    },
+    {
+      "id": "fight_f4_comeback",
+      "metric": "F4 comeback (0/1)",
+      "target": "— (values only; no band yet)",
+      "value": "median 0.00; p10 0.00; p90 0.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F4 companion: 1 if winner trailed by ≥ 3 at some score point."
+    },
+    {
+      "id": "fight_f4_shutout",
+      "metric": "F4 shutout (0/1)",
+      "target": "— (values only; no band yet)",
+      "value": "median 0.00; p10 0.00; p90 1.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F4 companion: 1 if loser score is 0."
+    },
+    {
+      "id": "fight_f4_multikills",
+      "metric": "F4 multikills / game",
+      "target": "— (values only; no band yet)",
+      "value": "median 0.00; p10 0.00; p90 0.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "F4 companion: count of double-kill windows (same killer ≥ 2 deaths within 6.0 s)."
+    },
+    {
+      "id": "fight_lead_changes",
+      "metric": "Lead changes / game",
+      "target": "— (values only; no band yet)",
+      "value": "median 3.00; p10 1.00; p90 9.00",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "Companion: sign(score_blue−score_red) changes on takedown_score/zone_tick/claim_award."
+    },
+    {
+      "id": "fight_contested_pit_share",
+      "metric": "Contested-pit share",
+      "target": "— (values only; no band yet)",
+      "value": "median 95.4%; p10 60.0%; p90 100.0%",
+      "sample_size": 1200,
+      "mark": "report",
+      "notes": "R6-5 pit contest proxy from the event log: share of fight_call events whose centroid is within ZONE_RADIUS of ZONE_CENTER. True “owned time that is contested” needs occupancy ticks (not exported); this is the lab stand-in."
+    }
+  ],
+  "aggregates": {
+    "n": 1200,
+    "length_median_s": 119.2,
+    "length_p10_s": 65.2,
+    "length_p90_s": 200.89000000000016,
+    "zone_share_winner": 0.5282251382876395,
+    "peel_fired": 2760,
+    "peel_eligible": 2928,
+    "peel_rate": 0.9426229508196722,
+    "sanctuary_violations": 0,
+    "claim_opened": 710,
+    "claim_denied": 297,
+    "claim_paid": 363,
+    "t_first_R_median": 60.1,
+    "t_L7_median": 124,
+    "end_reasons": {
+      "first_to_10": 0.9375,
+      "clock": 0.051666666666666666,
+      "zone_time": 0.008333333333333333,
+      "sudden_death": 0.0025
+    },
+    "side_lean": {
+      "blue_wins": 599,
+      "red_wins": 601,
+      "draws": 0,
+      "blue_win_rate": 0.49916666666666665
+    },
+    "champions": {
+      "brannoch": {
+        "picks": 1240,
+        "wins": 697,
+        "win_rate": 0.5620967741935484
+      },
+      "calder": {
+        "picks": 624,
+        "wins": 353,
+        "win_rate": 0.5657051282051282
+      },
+      "helvar": {
+        "picks": 584,
+        "wins": 321,
+        "win_rate": 0.5496575342465754
+      },
+      "huntress": {
+        "picks": 818,
+        "wins": 322,
+        "win_rate": 0.39364303178484106
+      },
+      "isra": {
+        "picks": 820,
+        "wins": 476,
+        "win_rate": 0.5804878048780487
+      },
+      "kerrig": {
+        "picks": 596,
+        "wins": 200,
+        "win_rate": 0.33557046979865773
+      },
+      "maelis": {
+        "picks": 762,
+        "wins": 402,
+        "win_rate": 0.5275590551181102
+      },
+      "mirren": {
+        "picks": 596,
+        "wins": 326,
+        "win_rate": 0.5469798657718121
+      },
+      "rhedan": {
+        "picks": 1160,
+        "wins": 503,
+        "win_rate": 0.4336206896551724
+      },
+      "saelo": {
+        "picks": 1196,
+        "wins": 578,
+        "win_rate": 0.48327759197324416
+      },
+      "sedge": {
+        "picks": 744,
+        "wins": 467,
+        "win_rate": 0.6276881720430108
+      },
+      "tolle": {
+        "picks": 864,
+        "wins": 402,
+        "win_rate": 0.4652777777777778
+      },
+      "torun": {
+        "picks": 792,
+        "wins": 331,
+        "win_rate": 0.41792929292929293
+      },
+      "ysol": {
+        "picks": 1204,
+        "wins": 622,
+        "win_rate": 0.5166112956810631
+      }
+    },
+    "archetypes_vs_field": {
+      "Dive": {
+        "w": 218,
+        "n": 556
+      },
+      "Peel": {
+        "w": 260,
+        "n": 534
+      },
+      "Poke": {
+        "w": 432,
+        "n": 736
+      },
+      "Balanced": {
+        "w": 24,
+        "n": 106
+      }
+    },
+    "archetype_edges": {
+      "Peel_vs_Dive": {
+        "fav": "Peel",
+        "w": 75,
+        "n": 126
+      },
+      "Dive_vs_Poke": {
+        "fav": "Dive",
+        "w": 37,
+        "n": 146
+      },
+      "Poke_vs_Peel": {
+        "fav": "Poke",
+        "w": 89,
+        "n": 150
+      }
+    },
+    "fight_quality": {
+      "distributions": {
+        "f1_teamfights": {
+          "median": 1,
+          "p10": 1,
+          "p90": 2
+        },
+        "f2_combo_chains": {
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "f3_clutch_moments": {
+          "median": 1,
+          "p10": 0,
+          "p90": 3
+        },
+        "f4_close_finish": {
+          "median": 0,
+          "p10": 0,
+          "p90": 1
+        },
+        "f4_comeback": {
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "f4_shutout": {
+          "median": 0,
+          "p10": 0,
+          "p90": 1
+        },
+        "f4_multikills": {
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "lead_changes": {
+          "median": 3,
+          "p10": 1,
+          "p90": 9
+        },
+        "contested_pit_share": {
+          "median": 0.9535960378983634,
+          "p10": 0.6003574606486453,
+          "p90": 1
+        }
+      },
+      "definitions": {
+        "f1_teamfights": "F1 (S5-R6-8): engagement = maximal run of cross-team hit/status_apply with gap ≤ 3.0 s; teamfight = engagement lasting ≥ 3.0 s with ≥ 3 distinct units per side (dealt or took damage). Count per game.",
+        "f2_combo_chains": "F2 (S5-R6-8): hard-CC status_apply by A on enemy X, then within min(CC duration+0.5 s, 2.0 s) damage on X from ≥ 2 distinct units of A's team (A counts), ≥ 1 skill hit (skill_id ≠ auto).",
+        "f3_clutch_moments": "F3 (S5-R6-8): (a) low-HP escape — hit to ≤ 15% max HP during a teamfight, alive 5.0 s later, once per unit per 5 s; plus (b) outnumbered win — at a teamfight's first death, the side with fewer living involved ends that fight with more takedowns.",
+        "f4_close_finish": "F4 (S5-R6-8): close = 1 if final margin ≤ 2 or end_reason is sudden_death, else 0.",
+        "lead_changes": "Companion: sign(score_blue−score_red) changes on takedown_score/zone_tick/claim_award.",
+        "contested_pit_share": "R6-5 pit contest proxy from the event log: share of fight_call events whose centroid is within ZONE_RADIUS of ZONE_CENTER. True “owned time that is contested” needs occupancy ticks (not exported); this is the lab stand-in.",
+        "f4_comeback": "F4 companion: 1 if winner trailed by ≥ 3 at some score point.",
+        "f4_shutout": "F4 companion: 1 if loser score is 0.",
+        "f4_multikills": "F4 companion: count of double-kill windows (same killer ≥ 2 deaths within 6.0 s)."
+      }
+    }
+  }
+}

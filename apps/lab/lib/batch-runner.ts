@@ -3,6 +3,7 @@
  * No renderer / canvas imports (B3).
  */
 import { createHash } from "node:crypto";
+import { CHAMPIONS, type Slot } from "../../../data/champions/defs.js";
 import { evenOvrConfig } from "../../../sim/match_config.js";
 import { simulate } from "../../../sim/simulate.js";
 import type { MatchConfig, PlayerAttrs } from "../../../sim/types.js";
@@ -17,6 +18,15 @@ import type {
   IsolationPin,
   MatchSummary,
 } from "./types.js";
+
+/** §7 / R7-11 slot order — picks[i] must match Position i. */
+export const DRAFT_SLOTS: readonly Slot[] = [
+  "top",
+  "jungle",
+  "mid",
+  "adc",
+  "support",
+] as const;
 
 export const ATTRS: AttrName[] = [
   "aim",
@@ -86,10 +96,32 @@ export function applyPins(
       for (const p of side.players) p.attrs = attrsAll(attrsValue);
     }
   }
+  const teamworkValue = pins?.teamwork_all;
+  if (teamworkValue !== undefined) {
+    for (const side of [cfg.blue, cfg.red]) {
+      for (const p of side.players) {
+        p.attrs = { ...p.attrs, teamwork: teamworkValue };
+      }
+    }
+  }
   if (masteryValue !== undefined) {
     const m = masteryAll(masteryValue);
     for (const side of [cfg.blue, cfg.red]) {
       for (const p of side.players) p.mastery = { ...m };
+    }
+  }
+  const masteryOne = pins?.mastery_one;
+  if (masteryOne) {
+    const side = masteryOne.side === "red" ? cfg.red : cfg.blue;
+    const idx = slotIndex(masteryOne.slot);
+    const player = side.players[idx];
+    const champ = side.picks[idx];
+    if (player && champ) {
+      const base = player.mastery ?? masteryAll(masteryValue ?? 50);
+      player.mastery = {
+        ...base,
+        [champ]: Math.min(100, Math.max(0, masteryOne.value)),
+      };
     }
   }
   const iso = isolation ?? pins?.isolation;
@@ -106,72 +138,95 @@ export function applyPins(
   return cfg;
 }
 
-/** Quick draft: deterministic xorshift shuffle from seed. */
-export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
-  let s = seed >>> 0 || 1;
-  const next = () => {
-    s ^= s << 13;
-    s >>>= 0;
-    s ^= s >>> 17;
-    s >>>= 0;
-    s ^= s << 5;
-    s >>>= 0;
-    return (s >>> 0) / 0x100000000;
+/** Swap blue/red picks (and draft_mode fixed). Same seed → side-swapped pair. */
+export function swapPicks(cfg: MatchConfig): MatchConfig {
+  const out = structuredClone(cfg);
+  const bluePicks = out.blue.picks.slice();
+  const redPicks = out.red.picks.slice();
+  out.blue = { ...out.blue, picks: redPicks };
+  out.red = { ...out.red, picks: bluePicks };
+  out.draft_mode = "fixed";
+  return out;
+}
+
+/** Mirror: both sides play the same five picks (blue's by default). */
+export function mirrorPicks(cfg: MatchConfig, from: "blue" | "red" = "blue"): MatchConfig {
+  const out = structuredClone(cfg);
+  const picks = (from === "red" ? out.red.picks : out.blue.picks).slice();
+  out.blue = { ...out.blue, picks: picks.slice() };
+  out.red = { ...out.red, picks: picks.slice() };
+  out.draft_mode = "fixed";
+  return out;
+}
+
+/**
+ * Lab-local Mulberry32 stream mixed from `seed` + domain tag.
+ * INVENTION: not sim RNG stream `draft` (or any sim stream). Deterministic per seed.
+ */
+export function labDraftUnit(seed: number): () => number {
+  let state =
+    (Math.imul((seed >>> 0) ^ 0xd4a71c35, 0x9e3779b9) + 0x6d2b79f5) >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-  const pool = [
-    "huntress",
-    "maelis",
-    "isra",
-    "sedge",
-    "torun",
-    "tolle",
-    "helvar",
-    "calder",
-    "kerrig",
-    "mirren",
-    "rhedan",
-    "brannoch",
-    "ysol",
-    "saelo",
-  ];
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1));
-    const tmp = pool[i]!;
-    pool[i] = pool[j]!;
-    pool[j] = tmp;
+}
+
+/**
+ * Position pools from champion data (`default_slot`), sorted for stable indexing.
+ * R7-11 sizes: Top 2, Jungle 3, Mid 4, ADC 3, Support 2.
+ */
+export function positionPoolsFromData(): Record<Slot, string[]> {
+  const pools: Record<Slot, string[]> = {
+    top: [],
+    jungle: [],
+    mid: [],
+    adc: [],
+    support: [],
+  };
+  for (const def of Object.values(CHAMPIONS)) {
+    pools[def.default_slot].push(def.id);
   }
-  const slots = ["top", "jungle", "mid", "adc", "support"] as const;
-  const defaultSlot: Record<string, string> = {
-    huntress: "adc",
-    maelis: "adc",
-    isra: "adc",
-    sedge: "jungle",
-    torun: "jungle",
-    tolle: "jungle",
-    helvar: "mid",
-    calder: "mid",
-    kerrig: "mid",
-    mirren: "mid",
-    rhedan: "top",
-    brannoch: "top",
-    ysol: "support",
-    saelo: "support",
+  for (const slot of DRAFT_SLOTS) {
+    pools[slot].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+  return pools;
+}
+
+/** Count of Positions where blue and red field the same champion (0–5). */
+export function mirroredPositionCount(
+  blue: readonly string[],
+  red: readonly string[],
+): number {
+  let n = 0;
+  for (let i = 0; i < DRAFT_SLOTS.length; i++) {
+    if (blue[i] === red[i]) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Role-random draft (R7-11 / M6 Scope): each team fields exactly one champion
+ * per Position in its matching slot; each slot drawn independently and
+ * uniformly from that Position's pool (from champion data). Cross-team
+ * duplicates allowed (lab only). Not a uniform 14-champion deal.
+ */
+export function quickDraftPicks(seed: number): { blue: string[]; red: string[] } {
+  const next = labDraftUnit(seed);
+  const pools = positionPoolsFromData();
+  const draw = (slot: Slot): string => {
+    const pool = pools[slot];
+    const j = Math.floor(next() * pool.length);
+    return pool[j]!;
   };
-  const takeFor = (want: string, remaining: string[]): string => {
-    const hit = remaining.findIndex((id) => defaultSlot[id] === want);
-    if (hit >= 0) {
-      const [id] = remaining.splice(hit, 1);
-      return id!;
-    }
-    const [id] = remaining.splice(0, 1);
-    return id!;
-  };
-  const rem = pool.slice();
   const blue: string[] = [];
   const red: string[] = [];
-  for (const slot of slots) {
-    blue.push(takeFor(slot, rem));
-    red.push(takeFor(slot, rem));
+  for (const slot of DRAFT_SLOTS) {
+    blue.push(draw(slot));
+    red.push(draw(slot));
   }
   return { blue, red };
 }
@@ -269,7 +324,11 @@ export function runBatch(
   const batch_id = `batch-${seedStart}-${n}-${batch.scheme}`;
   const started_at = new Date().toISOString();
 
-  for (let i = 0; i < n; i++) {
+  const pairMode = batch.side_swap_pairs === true;
+  const pairSeeds = pairMode ? Math.floor(n / 2) : n;
+  const totalGames = pairMode ? pairSeeds * 2 : n;
+
+  for (let i = 0; i < pairSeeds; i++) {
     if (opts.signal?.aborted || opts.shouldCancel?.()) {
       cancelled = true;
       break;
@@ -279,7 +338,28 @@ export function runBatch(
     const result = simulate(cfg);
     const summary = summarizeMatch(seed, result);
     summaries.push(summary);
-    opts.onProgress?.({ completed: summaries.length, total: n, last: summary });
+    opts.onProgress?.({
+      completed: summaries.length,
+      total: totalGames,
+      last: summary,
+    });
+
+    if (pairMode) {
+      if (opts.signal?.aborted || opts.shouldCancel?.()) {
+        cancelled = true;
+        break;
+      }
+      const swapped = applyPins(swapPicks(cfg), batch.pins, batch.isolation);
+      const r2 = simulate(swapped);
+      // Traceability: swapped twin encoded as seed + 1e9
+      const summary2 = summarizeMatch((seed + 1_000_000_000) >>> 0, r2);
+      summaries.push(summary2);
+      opts.onProgress?.({
+        completed: summaries.length,
+        total: totalGames,
+        last: summary2,
+      });
+    }
   }
 
   const dashboard = buildDashboard(summaries);
