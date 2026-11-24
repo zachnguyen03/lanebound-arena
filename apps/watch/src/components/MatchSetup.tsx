@@ -4,6 +4,7 @@ interface Props {
   busy?: boolean;
   onStart: (seed: number) => void;
   onStartClockAi?: (seed: number) => void;
+  onStartCadence?: (seed: number) => void;
   onExport?: () => void;
   onImportText?: (text: string) => void;
   canExport?: boolean;
@@ -16,6 +17,7 @@ export function MatchSetup({
   busy,
   onStart,
   onStartClockAi,
+  onStartCadence,
   onExport,
   onImportText,
   canExport,
@@ -56,6 +58,17 @@ export function MatchSetup({
             onClick={() => onStartClockAi(20261122)}
           >
             Start clock AI 20261122
+          </Button>
+        ) : null}
+        {onStartCadence ? (
+          <Button
+            data-testid="btn-start-cadence"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => onStartCadence(20261122)}
+          >
+            Cadence (exp) 20261122
           </Button>
         ) : null}
         {onExport ? (

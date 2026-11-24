@@ -43,6 +43,8 @@ export interface UnitView {
   fallback: boolean;
   intent: string | null;
   targetId: string | null;
+  /** exp cadence: sim t the flank buff expires (0 / undefined = none). */
+  buffUntil?: number;
 }
 
 export interface OrbView {
@@ -50,6 +52,8 @@ export interface OrbView {
   x: number;
   y: number;
   up: boolean;
+  /** exp cadence (buffs only): sim t of the next spawn, from buff_pickup / buff_soon. */
+  nextSpawnAt?: number | null;
 }
 
 export interface FightCallView {
@@ -208,6 +212,8 @@ export const UNRENDERED_EVENT_TYPES = new Set([
   "orb_pickup",
   "buff_spawn",
   "buff_pickup",
+  "buff_soon",
+  "buff_share",
   "zone_capture",
   "zone_tick",
   "claim_open",

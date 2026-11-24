@@ -55,6 +55,8 @@ export interface BuffPad {
   up: boolean;
   respawn_at: number;
   holders: UnitId[];
+  /** exp cadence: buff_soon already emitted for the pending spawn. */
+  warned?: boolean;
 }
 
 export interface ArenaRuntime {
@@ -334,6 +336,18 @@ export function tickArenaPhase11(
     }
   }
 
+  // exp/orb-buff-cadence (off unless config.cadence): spawn warning for buffs.
+  const cad = config.cadence;
+  if (cad?.buff_warn_s !== undefined) {
+    for (const buff of arena.buffs) {
+      if (buff.up || buff.warned) continue;
+      if (state.t + 1e-12 >= buff.respawn_at - cad.buff_warn_s) {
+        buff.warned = true;
+        emit("buff_soon", { buff_id: buff.buff_id, x: buff.x, y: buff.y, spawn_at: buff.respawn_at });
+      }
+    }
+  }
+
   // Orb / buff spawns then pickups (G4: spawn before pickup; already-on-pad picks next tick)
   const spawnedOrbs = new Set<string>();
   const spawnedBuffs = new Set<string>();
@@ -365,7 +379,11 @@ export function tickArenaPhase11(
     }
     if (!picker) continue;
     orb.up = false;
-    orb.respawn_at = state.t + c.ORB_RESPAWN_S;
+    const wave = cad?.orb_wave_s;
+    // Waves: every orb comes back on the shared wave boundary at least half a wave out.
+    orb.respawn_at = wave
+      ? Math.ceil((state.t + wave / 2) / wave - 1e-9) * wave
+      : state.t + c.ORB_RESPAWN_S;
     const base = c.ORB_XP;
     const xp = catchupEligible(picker, state.units, arena, c)
       ? base * (1 + c.CATCHUP_BONUS)
@@ -393,11 +411,36 @@ export function tickArenaPhase11(
     picker.flank_buff_until = until;
     // Refresh: holders list is who currently carries this pad's buff
     buff.holders = [picker.id];
+    buff.warned = false;
     emit("buff_pickup", {
       buff_id: buff.buff_id,
       unit_id: picker.id,
       expires_at: until,
+      ...(cad ? { next_spawn_at: buff.respawn_at } : {}),
     });
+    const shareR = cad?.buff_share_r;
+    if (shareR !== undefined) {
+      const sharers = state.units.filter(
+        (a) =>
+          a.id !== picker!.id &&
+          a.alive &&
+          a.team === picker!.team &&
+          dist(a.x, a.y, picker!.x, picker!.y) <= shareR + 1e-12,
+      );
+      for (const a of sharers) {
+        arena.buff_until[a.id] = until;
+        a.flank_buff_until = until;
+        buff.holders.push(a.id);
+      }
+      if (sharers.length > 0) {
+        emit("buff_share", {
+          buff_id: buff.buff_id,
+          source_id: picker.id,
+          unit_ids: sharers.map((a) => a.id),
+          expires_at: until,
+        });
+      }
+    }
   }
 
   // Commit aura snapshot for NEXT tick (S3-R5-7): this tick's end state

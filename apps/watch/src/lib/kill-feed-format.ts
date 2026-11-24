@@ -42,8 +42,25 @@ export function formatTakedownScoreRow(e: SimEvent): string {
   return `${team} scores · ${blue ?? "?"}–${red ?? "?"}`;
 }
 
-export function formatKillFeedRow(e: SimEvent): string {
-  if (e.type === "death") return formatDeathRow(e);
+/** exp cadence: seq of deaths whose victim held a flank buff at death. */
+export function buffedDeathSeqs(events: readonly SimEvent[]): Set<number> {
+  const until: Record<string, number> = {};
+  const out = new Set<number>();
+  for (const e of events) {
+    if (e.type === "buff_pickup" && typeof e.unit_id === "string" && typeof e.expires_at === "number") {
+      until[e.unit_id] = e.expires_at;
+    } else if (e.type === "buff_share" && Array.isArray(e.unit_ids) && typeof e.expires_at === "number") {
+      for (const id of e.unit_ids) if (typeof id === "string") until[id] = e.expires_at;
+    } else if (e.type === "death" && typeof e.unit_id === "string") {
+      if ((until[e.unit_id] ?? 0) > e.t) out.add(e.seq);
+      delete until[e.unit_id];
+    }
+  }
+  return out;
+}
+
+export function formatKillFeedRow(e: SimEvent, buffed = false): string {
+  if (e.type === "death") return formatDeathRow(e) + (buffed ? " · BUFF DOWN" : "");
   if (e.type === "takedown_score") return formatTakedownScoreRow(e);
   return e.type;
 }

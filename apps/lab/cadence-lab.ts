@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { simulate } from "../../sim/index.js";
 import { evenOvrConfig, type TacticPreset } from "../../sim/match_config.js";
+import { CADENCE_EXPERIMENT } from "../../sim/cadence.js";
 import { DEFAULT_CONSTANTS } from "../../sim/constants.js";
 import type { MatchConfig } from "../../sim/types.js";
 
@@ -21,11 +22,7 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   baseline: (cfg) => cfg,
   step1: (cfg) => ({ ...cfg, constants: { ...STEP1 } }),
   step2: (cfg) => ({ ...cfg, constants: { ...STEP1 }, cadence: { rovers: true } }),
-  step3: (cfg) => ({
-    ...cfg,
-    constants: { ...STEP1, BUFF_DMG: 0.2, BUFF_MS: 0.15 },
-    cadence: { rovers: true, orb_wave_s: 20, buff_share_r: 4, buff_warn_s: 10 },
-  }),
+  step3: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT }),
 };
 
 type Ev = Record<string, any>;

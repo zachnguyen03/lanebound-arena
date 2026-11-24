@@ -33,6 +33,7 @@ import {
   runFromConfig,
   runClockAiMatch,
   runWatchMatch,
+  runCadenceMatch,
 } from "@watch/lib/live-match";
 import type { MatchConfig } from "@sim/types";
 import type { SimEvent } from "@watch/lib/types";
@@ -152,7 +153,7 @@ export function WatchShell({
   }, [assets]);
 
   const startLive = useCallback(
-    (seed: number, preset: "hold_the_pit" | "clock_ai" = "hold_the_pit") => {
+    (seed: number, preset: "hold_the_pit" | "clock_ai" | "cadence" = "hold_the_pit") => {
       setPhase("loading");
       setError(null);
       setConfigError(null);
@@ -161,13 +162,19 @@ export function WatchShell({
         const { config, result, digest } =
           preset === "clock_ai"
             ? runClockAiMatch(seed, stagedConstants)
-            : runWatchMatch(seed, stagedConstants);
+            : preset === "cadence"
+              ? runCadenceMatch(seed, stagedConstants)
+              : runWatchMatch(seed, stagedConstants);
         const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
         setLiveDigest(digest);
         setLiveConfig(config);
         setSourceName(
-          preset === "clock_ai" ? `clock AI seed ${seed}` : `live seed ${seed}`,
+          preset === "clock_ai"
+            ? `clock AI seed ${seed}`
+            : preset === "cadence"
+              ? `cadence seed ${seed}`
+              : `live seed ${seed}`,
         );
         setTick(0);
         setDeathEvent(null);
@@ -476,6 +483,7 @@ export function WatchShell({
                 busy={phase === "loading"}
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
+                onStartCadence={(seed) => startLive(seed, "cadence")}
                 onImportText={importConfig}
                 onOpenLab={onOpenLab}
                 dirty={dirty}
@@ -622,6 +630,7 @@ export function WatchShell({
                 busy={phase === "loading"}
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
+                onStartCadence={(seed) => startLive(seed, "cadence")}
                 onExport={() => {
                   if (!liveConfig) return;
                   const json = exportConfigJson(liveConfig);

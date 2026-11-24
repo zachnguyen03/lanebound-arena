@@ -436,7 +436,37 @@ function applyEvent(
       const id = ev.buff_id;
       if (typeof id === "string") {
         const o = state.buffs.find((x) => x.id === id);
-        if (o) o.up = false;
+        if (o) {
+          o.up = false;
+          o.nextSpawnAt = typeof ev.next_spawn_at === "number" ? ev.next_spawn_at : null;
+        }
+      }
+      const u = getUnit(state, ev.unit_id);
+      if (u && typeof ev.expires_at === "number") u.buffUntil = ev.expires_at;
+      break;
+    }
+    case "buff_share": {
+      if (Array.isArray(ev.unit_ids) && typeof ev.expires_at === "number") {
+        for (const id of ev.unit_ids) {
+          const u = getUnit(state, id);
+          if (u) u.buffUntil = ev.expires_at;
+        }
+      }
+      break;
+    }
+    case "buff_soon": {
+      if (typeof ev.buff_id === "string" && typeof ev.spawn_at === "number") {
+        let o = state.buffs.find((x) => x.id === ev.buff_id);
+        if (!o) {
+          o = {
+            id: ev.buff_id,
+            x: typeof ev.x === "number" ? ev.x : 0,
+            y: typeof ev.y === "number" ? ev.y : 0,
+            up: false,
+          };
+          state.buffs.push(o);
+        }
+        o.nextSpawnAt = ev.spawn_at;
       }
       break;
     }

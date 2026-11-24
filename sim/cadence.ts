@@ -1,0 +1,11 @@
+import type { MatchConfig } from "./types.js";
+
+/**
+ * exp/orb-buff-cadence step 3 (not in the build spec): buffs every ~1 min with a
+ * 10 s warning and team share, orbs in 20 s waves, rover AI. Applied on top of a
+ * config; the lab's step3 arm and Watch's "Cadence" button both use this.
+ */
+export const CADENCE_EXPERIMENT: Pick<MatchConfig, "constants" | "cadence"> = {
+  constants: { BUFF_FIRST_SPAWN_S: 35, BUFF_RESPAWN_S: 55, ORB_RESPAWN_S: 20, BUFF_DMG: 0.2, BUFF_MS: 0.15 },
+  cadence: { rovers: true, orb_wave_s: 20, buff_share_r: 4, buff_warn_s: 10 },
+};

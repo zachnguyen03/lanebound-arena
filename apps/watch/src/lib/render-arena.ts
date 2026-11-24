@@ -184,7 +184,18 @@ export function renderArena(
       if (dy >= H) continue;
       blitNearest(ctx, assets.pillarsSheet, sx, sy, sw, sh, dx, dy);
     } else {
-      drawUnit(ctx, assets, state, item.unit);
+      const u = item.unit;
+      if (u.alive && (u.buffUntil ?? 0) > state.t) {
+        // exp cadence: buffed-unit aura under the feet.
+        ctx.fillStyle = "rgba(178, 107, 255, 0.35)";
+        ctx.strokeStyle = "rgba(214, 180, 255, 0.95)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(u.x * TILE_W, u.y * TILE_H + 2, 22, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+      drawUnit(ctx, assets, state, u);
     }
   }
 
@@ -198,6 +209,45 @@ export function renderArena(
     ctx.beginPath();
     ctx.arc(px, py, 5, 0, Math.PI * 2);
     ctx.fill();
+  }
+  // exp cadence: live buff glow, spawn countdown on the pad.
+  for (const b of state.buffs) {
+    const px = b.x * TILE_W;
+    const py = b.y * TILE_H;
+    if (py >= H) continue;
+    if (b.up) {
+      const pulse = 0.5 + 0.5 * Math.sin(state.t * 6);
+      ctx.fillStyle = `rgba(178, 107, 255, ${0.25 + 0.25 * pulse})`;
+      ctx.beginPath();
+      ctx.arc(px, py, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#C79BFF";
+      ctx.beginPath();
+      ctx.moveTo(px, py - 8);
+      ctx.lineTo(px + 6, py);
+      ctx.lineTo(px, py + 8);
+      ctx.lineTo(px - 6, py);
+      ctx.closePath();
+      ctx.fill();
+    } else if (b.nextSpawnAt != null && b.nextSpawnAt > state.t) {
+      const left = Math.ceil(b.nextSpawnAt - state.t);
+      const soon = left <= 10;
+      const label = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+      ctx.font = `bold ${soon ? 16 : 12}px 'Barlow Condensed', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(11, 14, 20, 0.9)";
+      ctx.strokeText(label, px, py - 22);
+      ctx.fillStyle = soon ? "#E7D2FF" : "rgba(199, 155, 255, 0.7)";
+      ctx.fillText(label, px, py - 22);
+      if (soon) {
+        ctx.strokeStyle = "rgba(199, 155, 255, 0.8)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(px, py, 6 + (state.t * 8) % 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
   }
   if (state.zoneOwner) {
     const c = assets.worldProps.placements.zone.centre_px;

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { absStyle, type Rect } from "@watch/lib/hud-layout";
-import { formatKillFeedRow } from "@watch/lib/kill-feed-format";
+import { buffedDeathSeqs, formatKillFeedRow } from "@watch/lib/kill-feed-format";
 import type { SimEvent } from "@watch/lib/types";
 
 interface Props {
@@ -25,6 +25,8 @@ export function KillFeed({ events, currentTick, rect, onJump, onDeath }: Props) 
       )
       .slice(-12);
   }, [events, currentTick]);
+
+  const buffed = useMemo(() => buffedDeathSeqs(events), [events]);
 
   return (
     <div
@@ -60,7 +62,7 @@ export function KillFeed({ events, currentTick, rect, onJump, onDeath }: Props) 
                   {e.tick}
                 </span>
                 <span className="truncate text-paper">
-                  {formatKillFeedRow(e)}
+                  {formatKillFeedRow(e, buffed.has(e.seq))}
                 </span>
               </button>
             </li>
