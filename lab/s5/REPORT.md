@@ -119,7 +119,7 @@ Mastery 50→90 (all players): **+28.75 pp** (n=400). Target band is +3 to +6 pp
 
 Build-spec L1162 / L1737 / L1916 (and R #3 S2-4) define the auto-peel acceptance denominator as **perceived, reachable** dives (`dive` with `peeler_perceived === true`).
 
-**This lab uses the stricter `dive_geom` count (all geometrically reachable dives), not the perceived filter.** Reason: in the even Hold lab, `peeler_perceived` stays false (S2 deferred — perception never opens the peel window on these seeds), so filtering on it yields **0/0**. Dashboard copy and `MatchSummary.peel_eligible` therefore say **geometrically reachable / `dive_geom`**, never “perceived”. Caption sources: `apps/lab/lib/dashboard.ts`, `apps/lab/lib/summary.ts`. Rate on the 2000-game lab: 3194/3317 = 96.3% under that denominator.
+**This lab uses the stricter `dive_geom` count (all geometrically reachable dives), not the perceived-at-dive-begin filter.** Reason: on even Hold, `dive.peeler_perceived` is **false at dive-begin** (spec denom = perceived *on the tick the dive began*). Perception then opens and `peel_start` follows — measured on seed `20261622`: 7/7 dives emit `peeler_perceived: false`, then `peel_start` at **+0.6 s** every time (lag min = median = max = 0.6). Filtering the lab on perceived-at-begin therefore yields **0/0**; the rate here is “of geometrically reachable dives, how often did peel eventually start?” Dashboard copy and `MatchSummary.peel_eligible` say **geometrically reachable / `dive_geom`**, never “perceived”. Caption sources: `apps/lab/lib/dashboard.ts`, `apps/lab/lib/summary.ts`. Rate on the 2000-game lab: 3194/3317 = 96.3% under that denominator.
 
 ## Acceptance map
 
@@ -138,7 +138,7 @@ Build-spec L1162 / L1737 / L1916 (and R #3 S2-4) define the auto-peel acceptance
 | Melee idling under a hold commit | `sim/ai/brain.ts` engage gate — Hold even lab still has melee champions with sparse auto `hit`s (S4 note). |
 | No `cast_start` telegraph | Even Hold emits 0 `cast_start` on gold seeds; Watch cannot draw skill telegraphs from that event. Also blocks Aim/Reflexes isolation (above). |
 | Side lean (kit×side) | 2000-game blue kit win ~13% / red ~87%; see `lab/s3/side-lean/REPORT.md`. Isolation control blue win 4.5% at attrs=60 (N=400). |
-| `peeler_perceived` stays false | S2 deferred; forces the `dive_geom` peel denominator invention above. |
+| `peeler_perceived` false at dive-begin | Spec denom wants perceived *at dive begin*; Hold tapes show it false then true ~0.6 s later (seed `20261622`). Forces the `dive_geom` peel denominator invention above. |
 
 ## Inventories / assumptions
 
