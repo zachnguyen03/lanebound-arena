@@ -118,7 +118,9 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
                   />
                 </div>
                 <div className="mt-0.5 text-[9px] tabular-nums text-dim">
-                  {u.alive ? `${Math.round(u.hp)}/${u.maxHp}` : "DEAD"}
+                  {u.alive
+                    ? `${Math.round(u.hp)}/${Math.round(u.maxHp)}`
+                    : "DEAD"}
                 </div>
               </div>
             </div>
