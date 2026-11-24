@@ -1157,6 +1157,8 @@ function interruptOf(ctx: Ctx, skill: SkillKey, maxRange: number): UnitState | n
 }
 
 function zoneBreakHelvar(ctx: Ctx): boolean {
+  // R7-10: needs published zone; every enemy occupant on the 2.2×9 line;
+  // each clipped 2.2-tile knockback ends > ZONE_RADIUS from centre; logs P4.
   const z = ctx.state.zone;
   if (!z) return false;
   const enemy = ctx.u.team === "blue" ? "red" : "blue";
@@ -1175,9 +1177,12 @@ function zoneBreakHelvar(ctx: Ctx): boolean {
     if (!lineHits(ctx, e, "R").some((h) => h.id === e.id)) return false;
     const n = normalize(e.x - ctx.u.x, e.y - ctx.u.y);
     if (n.len < 1e-12) return false;
-    const x = e.x + n.x * (ab.knockback ?? 2.2);
-    const y = e.y + n.y * (ab.knockback ?? 2.2);
-    if (distPts(x, y, ctx.c.ZONE_CENTER[0]!, ctx.c.ZONE_CENTER[1]!) <= ctx.c.ZONE_RADIUS + 1e-9) return false;
+    const kb = ab.knockback ?? 2.2;
+    const raw = { x: e.x + n.x * kb, y: e.y + n.y * kb };
+    const clipped = clipMove(e.team, e.x, e.y, raw.x, raw.y, ctx.c);
+    if (distPts(clipped.x, clipped.y, ctx.c.ZONE_CENTER[0]!, ctx.c.ZONE_CENTER[1]!) <= ctx.c.ZONE_RADIUS + 1e-9) {
+      return false;
+    }
   }
   return true;
 }
@@ -2221,14 +2226,44 @@ function markFinisher(ctx: Ctx, tier: CastTier, kind: "huntress" | "kerrig", ran
   return prop("R", tier, foe.id, aim);
 }
 
+/**
+ * R7-10 Tolle W guards:
+ * - Winning commit (engage && A_true ≥ 0.62) + only enemy we can hit → block.
+ * - Last denier of our claim: block only if banish ends before resolve_at
+ *   (apply + 18 < resolve_at tick); allow if banish covers resolve_at.
+ */
 function tolleBanOk(ctx: Ctx, target: UnitState): boolean {
   if (target.id === ctx.u.id) return false;
   const winning = ctx.commit === "engage" && ctx.aTrue >= 0.62 - 1e-9;
-  if (winning && ctx.perceived.length <= 1) return false;
+  if (winning) {
+    // Only enemy we can hit = no other perceived legal enemy within 8 of any in-fight ally.
+    const allies = ctx.state.units.filter(
+      (a) => a.alive && a.team === ctx.u.team && (ctx.fightIds.length === 0 || ctx.fightIds.includes(a.id)),
+    );
+    let other = false;
+    for (const e of ctx.perceived) {
+      if (e.id === target.id || !legalEnemy(ctx.u, e, ctx.c)) continue;
+      for (const a of allies) {
+        if (d(e, a) <= 8 + 1e-9) {
+          other = true;
+          break;
+        }
+      }
+      if (other) break;
+    }
+    if (!other) return false;
+  }
   const claim = ctx.state.claim;
   if (claim && claim.team === ctx.u.team) {
-    const inZ = ctx.perceived.filter((e) => inZone(e, ctx.c));
-    if (inZ.length === 1 && inZ[0]!.id === target.id) return false;
+    const inZ = ctx.state.units.filter(
+      (e) => e.alive && e.team !== ctx.u.team && !isBanished(e.status) && inZone(e, ctx.c),
+    );
+    if (inZ.length === 1 && inZ[0]!.id === target.id) {
+      const applyTick = ctx.state.tick + leadTicks(ctx.u, "W");
+      const banishEndTick = applyTick + 18; // 1.8 s banish
+      const resolveTick = tickOf(claim.resolve_at);
+      if (banishEndTick < resolveTick) return false;
+    }
   }
   return true;
 }

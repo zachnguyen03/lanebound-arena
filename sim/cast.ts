@@ -714,6 +714,42 @@ function resolveOnTargets(
       if (ab.heal && ab.shape !== "self") queueHeal(state, source, v, ab);
       if (ab.shield) queueShield(state, source, v, ab);
     }
+
+    // R7-10: Torun W kit peel taunt — 2.0 s on a diver inside r 1.2 of the
+    // shielded ally centre. AI classifies W as shield-only (not rule-1 disable),
+    // but the Handicap taunt must still apply and emit status_apply.
+    if (
+      ab.shape === "circle_ally" &&
+      ab.special?.some((s) => s.toLowerCase().includes("peel taunt")) &&
+      primary
+    ) {
+      const r = ab.radius ?? 1.2;
+      let best: UnitState | null = null;
+      let bestScore = -Infinity;
+      for (const e of state.units) {
+        if (!e.alive || e.team === source.team || isBanished(e.status)) continue;
+        if (!(e.stats.range <= 2 + 1e-9 || e.champ === "kerrig")) continue;
+        if (dist(e.x, e.y, primary.x, primary.y) > r + c.BODY_RADIUS + 1e-9) continue;
+        // Prefer the diver closest to the shielded ally (top threat score).
+        const score = 100 - dist(e.x, e.y, primary.x, primary.y);
+        if (score > bestScore + 1e-9 || (Math.abs(score - bestScore) <= 1e-9 && (!best || e.index < best.index))) {
+          best = e;
+          bestScore = score;
+        }
+      }
+      if (best) {
+        state.pending_status.push({
+          seq: state.event_seq,
+          source_id: source.id,
+          target_id: best.id,
+          kind: "taunt",
+          category: "handicap",
+          raw_duration: 2.0,
+          school: "magic",
+          skill_id: ab.name,
+        });
+      }
+    }
   }
 
   void skill;
