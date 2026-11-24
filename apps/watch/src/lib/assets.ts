@@ -125,17 +125,19 @@ async function loadChampion(slug: string): Promise<{
 
   const artImages: Record<string, HTMLImageElement> = {};
   const rels = new Set(collectAtlasFiles(slug, raw));
-  // Ensure standalone huntress-style vfx pngs and sheet are present.
-  for (const extra of [
-    "vfx/vfx-sheet.png",
-    "vfx/projectile-basic-blue.png",
-    "vfx/projectile-basic-red.png",
-    "vfx/projectile-skill-blue.png",
-    "vfx/projectile-skill-red.png",
-    "vfx/impact-blue.png",
-    "vfx/impact-red.png",
-  ]) {
-    rels.add(extra);
+  // Huntress stores projectile/impact rects on a dedicated sheet plus pngs.
+  if (slug === "huntress") {
+    for (const extra of [
+      "vfx/vfx-sheet.png",
+      "vfx/projectile-basic-blue.png",
+      "vfx/projectile-basic-red.png",
+      "vfx/projectile-skill-blue.png",
+      "vfx/projectile-skill-red.png",
+      "vfx/impact-blue.png",
+      "vfx/impact-red.png",
+    ]) {
+      rels.add(extra);
+    }
   }
   await Promise.all(
     [...rels].map(async (rel) => {

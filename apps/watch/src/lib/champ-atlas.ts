@@ -133,6 +133,9 @@ export function collectAtlasFiles(slug: string, raw: unknown): string[] {
     if (Array.isArray(node)) {
       for (const item of node) {
         if (typeof item === "string") {
+          // files[] holds real paths (vfx/…, sheets/…). Bare skill ids belong
+          // under `file` and go through skillIconPath — skip them here.
+          if (!item.includes("/") && !item.includes(".")) continue;
           const rel = resolveAtlasFile(slug, item);
           if (rel) out.push(rel);
         } else {
