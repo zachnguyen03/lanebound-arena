@@ -149,7 +149,7 @@ export const CAST_POLICIES: Readonly<Record<string, readonly PolicySkill[]>> = O
   ],
   saelo: [
     { skill: "Q", tiers: ["P1b", "P2", "P4"] },
-    { skill: "W", tiers: ["P1c", "P4"] },
+    { skill: "W", tiers: ["P1b", "P1c", "P4"] },
     { skill: "R", tiers: ["P1a", "P1c", "P3", "P4"] },
   ],
 });
@@ -2072,6 +2072,16 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return m;
     };
     const inF = (a: UnitState) => unitInFightNow(a, ctx.state, ctx.c, ctx.fightIds, ctx.seenAt, ctx.ignorePerception);
+    // R7-2 P1b: auto-peel assigned, dived carry within 6.5, Handicap or incoming_1s from diver.
+    if (tier === "P1b" && (ctx.peeling || ctx.peelDiverId) && pair) {
+      const carry = pair.carry;
+      if (inRange(ctx.u, carry, 6.5)) {
+        const fromDiver = (carry.damage_log ?? []).some(
+          (g) => g.source_id === pair.diver.id && ctx.state.t - g.t <= 1 + 1e-9,
+        );
+        if (handicap(carry) > 1e-9 || fromDiver) return prop("W", "P1b", carry.id);
+      }
+    }
     if (tier === "P1c") {
       const cc = ctx.allies.filter((a) => a.id !== ctx.u.id && inRange(ctx.u, a, 6.5) && inF(a) && handicap(a) >= 0.5 - 1e-9);
       cc.sort((a, b) => (isCarry(a) ? 0 : 1) - (isCarry(b) ? 0 : 1) || a.index - b.index);
