@@ -39,6 +39,12 @@ export function summariesToCsv(summaries: MatchSummary[]): string {
     "claim_paid",
     "t_first_R",
     "t_L7",
+    "casts",
+    "side_swapped",
+    "interrupts",
+    "interrupts_low",
+    "interrupts_mid",
+    "interrupts_high",
   ]);
   const lines = [header];
   for (const s of summaries) {
@@ -68,6 +74,12 @@ export function summariesToCsv(summaries: MatchSummary[]): string {
         s.claim_paid,
         s.t_first_R ?? "",
         s.t_L7 ?? "",
+        s.casts ?? 0,
+        s.side_swapped === true ? 1 : 0,
+        s.interrupts ?? 0,
+        s.interrupts_by_reflexes?.low ?? 0,
+        s.interrupts_by_reflexes?.mid ?? 0,
+        s.interrupts_by_reflexes?.high ?? 0,
       ]),
     );
   }
