@@ -112,6 +112,11 @@ export interface Constants {
   HIT_COEF: number;
   HIT_FLOOR: number;
   HIT_CEIL: number;
+  /**
+   * R7-6b: multiplies reaction_delay_s for a P1a interrupt decision on an
+   * enemy **R** windup only (§9.4.1.3 / §15). Non-R windups keep full delay.
+   */
+  P1A_READ_MULT: number;
   DENY_ANY_UNIT: boolean;
   LAB_GAMES: number;
   LAB_SEED: number;
@@ -215,6 +220,7 @@ export const DEFAULT_CONSTANTS: Constants = {
   HIT_COEF: 0.01,
   HIT_FLOOR: 0.25,
   HIT_CEIL: 0.9,
+  P1A_READ_MULT: 0.5,
   DENY_ANY_UNIT: true,
   LAB_GAMES: 2000,
   LAB_SEED: 20261122,
