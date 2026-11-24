@@ -23,6 +23,12 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   step1: (cfg) => ({ ...cfg, constants: { ...STEP1 } }),
   step2: (cfg) => ({ ...cfg, constants: { ...STEP1 }, cadence: { rovers: true } }),
   step3: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT }),
+  // exp/teamfight-dynamics arms
+  combo: (cfg) => ({ ...cfg, teamfight: { combo: true } }),
+  roles: (cfg) => ({ ...cfg, teamfight: { roles: true } }),
+  chase: (cfg) => ({ ...cfg, teamfight: { chase: true } }),
+  tf: (cfg) => ({ ...cfg, teamfight: { combo: true, roles: true, chase: true } }),
+  tf_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { combo: true, roles: true, chase: true } }),
 };
 
 type Ev = Record<string, any>;
@@ -40,6 +46,10 @@ export function measure(ev: Ev[]) {
   const buffPads = (DEFAULT_CONSTANTS.BUFF_PADS as number[][]);
   let orbs = 0, buffs = 0, buffShares = 0, rs = 0, buffedDeaths = 0;
   const buffUntil: Record<string, number> = {};
+  // Teamfight metrics: locks by target, follow-up hits from a different ally, R slot map.
+  const lockOn: Record<string, { t: number; src: string }> = {};
+  let followups = 0, rIntoLock = 0;
+  const rSkills = new Set<string>(ev.filter((e) => e.type === "cast_end" && e.skill === "R").map((e) => e.skill_id));
   for (const e of ev) {
     if (e.type === "pos") { pos[e.unit_id] = { x: e.x, y: e.y }; continue; }
     if (e.type === "hit" || e.type === "death") {
@@ -56,6 +66,15 @@ export function measure(ev: Ev[]) {
     if (e.type === "buff_pickup") { buffs++; buffUntil[e.unit_id] = e.expires_at; }
     if (e.type === "buff_share") { buffShares += e.unit_ids.length; for (const u of e.unit_ids) buffUntil[u] = e.expires_at; }
     if (e.type === "cast_end" && e.skill === "R") rs++;
+    if (e.type === "status_apply" && (e.category === "lock" || e.category === "bind")) lockOn[e.target_id] = { t: e.t, src: e.source_id };
+    if (e.type === "hit") {
+      const l = lockOn[e.target_id];
+      if (l && e.t - l.t <= 1.5 && e.source_id !== l.src && e.source_id.split(":")[0] === l.src.split(":")[0]) followups++;
+    }
+    if (e.type === "cast_start" && rSkills.has(e.skill_id) && e.target_id) {
+      const l = lockOn[e.target_id];
+      if (l && e.t - l.t <= 1.5 && e.unit_id.split(":")[0] === l.src.split(":")[0]) rIntoLock++;
+    }
     if (e.type === "death") {
       deaths.push(e);
       const p = pos[e.unit_id];
@@ -70,6 +89,10 @@ export function measure(ev: Ev[]) {
     }
   }
   const tail = end.t - lastAction; if (tail > maxGap) maxGap = tail; if (tail > 3) quiet += tail;
+  const killCount: Record<string, number> = {};
+  for (const d of deaths) killCount[d.killer_id] = (killCount[d.killer_id] ?? 0) + 1;
+  const gang = deaths.filter((d) => (d.assists?.length ?? 0) >= 3).length;
+  const backline = deaths.filter((d) => /:(adc|mid)$/.test(d.unit_id)).length;
   let solo = 0, multi = 0;
   const byKiller: Record<string, number[]> = {};
   for (const d of deaths) { if (!d.assists?.length) solo++; (byKiller[d.killer_id] ??= []).push(d.t); }
@@ -82,6 +105,11 @@ export function measure(ev: Ev[]) {
     orbDeathPct: deaths.length ? nearOrb / deaths.length : 0,
     pitDeathPct: deaths.length ? nearPit / deaths.length : 0,
     orbs, buffs, buffShares, buffedDeaths, rs,
+    gangPct: deaths.length ? gang / deaths.length : 0,
+    distinctKillers: Object.keys(killCount).length,
+    topKillerShare: deaths.length ? Math.max(...Object.values(killCount)) / deaths.length : 0,
+    backlinePct: deaths.length ? backline / deaths.length : 0,
+    followups, rIntoLock,
   };
 }
 
@@ -113,6 +141,12 @@ export function summarize(rows: Row[]) {
     buff_shares_mean: r1(mean(rows.map((r) => r.buffShares))),
     buffed_deaths_mean: r1(mean(rows.map((r) => r.buffedDeaths))),
     r_casts_mean: r1(mean(rows.map((r) => r.rs))),
+    gang_death_pct: pct(mean(rows.map((r) => r.gangPct))),
+    distinct_killers_mean: r1(mean(rows.map((r) => r.distinctKillers))),
+    top_killer_share_pct: pct(mean(rows.map((r) => r.topKillerShare))),
+    backline_death_pct: pct(mean(rows.map((r) => r.backlinePct))),
+    combo_followup_hits_mean: r1(mean(rows.map((r) => r.followups))),
+    r_into_cc_mean: r1(mean(rows.map((r) => r.rIntoLock))),
   };
 }
 

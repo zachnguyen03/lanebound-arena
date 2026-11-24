@@ -8,7 +8,7 @@ import { CHAMPIONS, type ChampClass } from "../../data/champions/defs.js";
 import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
 import { isBanished, isLocked } from "../status.js";
-import type { Team, UnitId, UnitState } from "../types.js";
+import type { Team, Teamfight, UnitId, UnitState } from "../types.js";
 import { callFollowSlack, clamp } from "./attributes.js";
 import { estTtk } from "./dps.js";
 
@@ -55,6 +55,7 @@ export function targetingScore(
     intentTarget: Partial<Record<UnitId, UnitId | null>>;
     coachFocusSlot?: string | null;
     teamwork?: number;
+    tf?: Teamfight;
   },
 ): number {
   if (!target.alive || isBanished(target.status)) return 0;
@@ -68,8 +69,9 @@ export function targetingScore(
 
   const ttk = estTtk(self, target, opts.all, opts.intentTarget);
   let killability = 1 / (ttk + 0.5);
-  // Lock ×1.25 on killability (§9.3 L1128).
-  if (isLocked(target.status)) killability *= 1.25;
+  // Lock ×1.25 on killability (§9.3 L1128). exp combo: ×2.2 so allies converge
+  // on the locked body (CC → burst).
+  if (isLocked(target.status)) killability *= opts.tf?.combo ? 2.2 : 1.25;
 
   const reach = reachFactor(self, target);
   const sticky = opts.currentTarget === target.id ? 1.25 : 1.0;
@@ -85,7 +87,26 @@ export function targetingScore(
   if (opts.tactic === "starve" && opts.isolated) tactic = 1.2;
 
   const ward = 1.0;
-  return value * killability * reach * sticky * call * tactic * ward;
+  const role = opts.tf?.roles ? roleMult(self, target) : 1.0;
+  return value * killability * reach * sticky * call * tactic * ward * role;
+}
+
+/** exp/teamfight-dynamics role split (not build spec). */
+export function isDiver(u: UnitState): boolean {
+  return (CHAMPIONS[u.champ]?.class ?? "Fighter") === "Assassin" || u.slot === "jungle";
+}
+
+export function isFrontline(u: UnitState): boolean {
+  const c = CHAMPIONS[u.champ]?.class ?? "Fighter";
+  return (c === "Tank" || c === "Fighter") && !isDiver(u);
+}
+
+function roleMult(self: UnitState, target: UnitState): number {
+  const tc = CHAMPIONS[target.champ]?.class ?? "Fighter";
+  const backline = tc === "Marksman" || tc === "Mage" || tc === "Enchanter";
+  if (isDiver(self)) return backline ? 1.8 : 0.7;
+  if (isFrontline(self)) return 1 / (1 + 0.25 * dist(self, target));
+  return 1.0;
 }
 
 /**
@@ -173,6 +194,7 @@ export function pickUnitTarget(
     coachFocusSlot?: string | null;
     teamwork?: number;
     commitDisengage?: boolean;
+    tf?: Teamfight;
   },
 ): UnitId | null {
   if (opts.peeling && opts.peelDiverId) return opts.peelDiverId;
@@ -198,6 +220,7 @@ export function pickUnitTarget(
       intentTarget: opts.intentTarget,
       coachFocusSlot: opts.coachFocusSlot,
       teamwork: opts.teamwork ?? self.attrs.teamwork,
+      tf: opts.tf,
     });
 
   if (opts.commitDisengage && opts.focusId) {
@@ -212,7 +235,9 @@ export function pickUnitTarget(
   }
   if (!localBest) return null;
 
-  if (opts.focusId) {
+  // exp roles: divers and the front line play their own target, not the call.
+  const ownsTarget = !!opts.tf?.roles && (isDiver(self) || isFrontline(self));
+  if (opts.focusId && !ownsTarget) {
     const focusUnit = legal.find((e) => e.id === opts.focusId);
     if (focusUnit) {
       const callScore = scoreOf(focusUnit, true);

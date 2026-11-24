@@ -700,6 +700,8 @@ function holdRBlocks(ctx: Ctx, target: UnitState): boolean {
 }
 
 function rHoldBlocks(ctx: Ctx, target: UnitState): boolean {
+  // exp/teamfight-dynamics combo: never hold R off an enemy an ally has locked.
+  if (ctx.state.config?.teamfight?.combo && disableRemaining(target) > 1e-9) return false;
   const hp = target.hp / Math.max(1, target.max_hp);
   return ctx.aTrue < rHoldA(ctx.ex) - 1e-9 && hp > rHoldHp(ctx.ex) - 1e-9;
 }
@@ -2295,6 +2297,7 @@ function buildCtx(state: MatchState, u: UnitState, opts: CastPolicyOpts): Ctx {
     intentTarget: opts.intentTarget ?? {},
     teamwork: u.attrs.teamwork,
     commitDisengage: opts.commit === "disengage",
+    tf: state.config?.teamfight,
   });
   const T = tid ? state.units.find((x) => x.id === tid) ?? null : null;
   return {

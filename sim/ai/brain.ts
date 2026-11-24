@@ -58,6 +58,22 @@ function dist(ax: number, ay: number, bx: number, by: number): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+/**
+ * exp/teamfight-dynamics chase relax (not build spec): multiplier on the chase
+ * leash and TTK stop. ×2 on a target under 35% HP, ×1.5 more with an ally
+ * within 4 tiles of the target. 1 when the flag is off.
+ */
+export function chaseRelax(state: MatchState, u: UnitState, target: UnitState): number {
+  if (!state.config?.teamfight?.chase) return 1;
+  let m = 1;
+  if (target.hp / Math.max(1, target.max_hp) < 0.35) m *= 2;
+  const ally = state.units.some(
+    (a) => a.alive && a.team === u.team && a.id !== u.id && dist(a.x, a.y, target.x, target.y) <= 4 + 1e-9,
+  );
+  if (ally) m *= 1.5;
+  return m;
+}
+
 export function chaseShouldStop(
   chaser: UnitState,
   target: UnitState,
@@ -65,14 +81,15 @@ export function chaseShouldStop(
   c: Constants,
   ttk: number,
   lockIncoming: boolean,
+  relax = 1,
 ): { stop: boolean; reason: "sanctuary" | "leash" | "ttk" | null } {
   if (inOwnSanctuary(target.team, target.x, target.y, c)) {
     return { stop: true, reason: "sanctuary" };
   }
   const travelled = dist(chaser.x, chaser.y, chase.start_x, chase.start_y);
-  if (travelled >= c.CHASE_LEASH) return { stop: true, reason: "leash" };
+  if (travelled >= c.CHASE_LEASH * Math.min(relax, 1.5)) return { stop: true, reason: "leash" };
   // §9.4 L1143: stop when est_ttk > CHASE_TTK_STOP (no deferred window).
-  if (ttk > c.CHASE_TTK_STOP && !lockIncoming) {
+  if (ttk > c.CHASE_TTK_STOP * relax && !lockIncoming) {
     return { stop: true, reason: "ttk" };
   }
   return { stop: false, reason: null };
@@ -389,6 +406,7 @@ export function brainDecide(
     coachFocusSlot: opts.coachFocusSlot,
     teamwork: u.attrs.teamwork,
     commitDisengage: opts.commit === "disengage",
+    tf: state.config?.teamfight,
   });
 
   if (!targetId) {
@@ -430,7 +448,7 @@ export function brainDecide(
     // No multi-tick grace — tip's ticks>=5 / 0.5 s delay was test-tuned (remove).
     const continuing =
       !!opts.chase && opts.chase.target_id === targetId && !opts.chase.leashed;
-    const stop = chaseShouldStop(u, target, chase, opts.c, ttk, false);
+    const stop = chaseShouldStop(u, target, chase, opts.c, ttk, false, chaseRelax(state, u, target));
     if (stop.stop && (stop.reason !== "ttk" || continuing)) {
       const stopped = {
         target_id: targetId,

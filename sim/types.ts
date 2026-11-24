@@ -71,8 +71,23 @@ export interface Cadence {
   buff_warn_s?: number;
 }
 
+/**
+ * Experimental teamfight dynamics (branch exp/teamfight-dynamics). Not in the
+ * build spec. Absent (the default) = spec behaviour and unchanged digests.
+ */
+export interface Teamfight {
+  /** CC → burst: allies converge on and ult into an enemy an ally has locked. */
+  combo?: boolean;
+  /** Role targets: divers hunt the backline, front line hits the nearest body. */
+  roles?: boolean;
+  /** Chase stays on low-HP / ally-supported targets longer. */
+  chase?: boolean;
+}
+
 export interface MatchConfig {
   seed: number;
+  /** Experimental, see {@link Teamfight}. */
+  teamfight?: Teamfight;
   /** Experimental, see {@link Cadence}. */
   cadence?: Cadence;
   constants?: Partial<Record<string, unknown>>;
