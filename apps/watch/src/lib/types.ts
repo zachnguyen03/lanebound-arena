@@ -58,6 +58,99 @@ export interface FightCallView {
   aTrue: number | null;
 }
 
+/** Wind-up telegraph interval derived from cast_start (+ cancel / end). */
+export interface TelegraphFx {
+  id: string;
+  unitId: UnitId;
+  champ: string;
+  team: Team;
+  skillId: string;
+  skillKey: "Q" | "W" | "R" | "?";
+  kind: "line" | "aoe" | "cone" | "self" | "dash" | "dotted-leash" | "double-ring";
+  isUlt: boolean;
+  startedAt: number;
+  endsAt: number;
+  aimX: number;
+  aimY: number;
+  targetId: string | null;
+  radius: number;
+  width: number;
+  groundFx?: string;
+}
+
+/** Projectile travelling between spawn and land / hit. */
+export interface ProjectileFx {
+  projId: string;
+  unitId: UnitId;
+  champ: string;
+  team: Team;
+  skillId: string;
+  isAuto: boolean;
+  /** Atlas vfx key or huntress style. */
+  artKey: string | null;
+  trail?: "bronze-leash" | "iron-chain" | "spark";
+  spawnT: number;
+  landT: number;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  /** Cleared early if a matching hit lands before land_t. */
+  endedAt: number;
+}
+
+/** Brief skill-hit flash + impact burst on a target. */
+export interface HitFlashFx {
+  id: string;
+  targetId: UnitId;
+  sourceId: UnitId | null;
+  champ: string;
+  skillId: string;
+  impactKeys: string[];
+  startedAt: number;
+  endsAt: number;
+}
+
+/** Status icon over a unit for its applied duration. */
+export interface StatusIconFx {
+  id: string;
+  targetId: UnitId;
+  kind: string;
+  startedAt: number;
+  endsAt: number;
+}
+
+/** Floating Q/W/R + name tag above the caster. */
+export interface SkillTagFx {
+  id: string;
+  unitId: UnitId;
+  team: Team;
+  skillKey: "Q" | "W" | "R" | "?";
+  skillName: string;
+  startedAt: number;
+  endsAt: number;
+}
+
+/** Short R-cast screen emphasis (ring / shake), never over HUD. */
+export interface UltPulseFx {
+  id: string;
+  unitId: UnitId;
+  team: Team;
+  x: number;
+  y: number;
+  startedAt: number;
+  endsAt: number;
+}
+
+export interface MatchEffects {
+  telegraphs: TelegraphFx[];
+  projectiles: ProjectileFx[];
+  hitFlashes: HitFlashFx[];
+  statuses: StatusIconFx[];
+  skillTags: SkillTagFx[];
+  ultPulses: UltPulseFx[];
+}
+
 /** Champ ids with a body sheet shipped under arena-sandbox/. */
 export const CHAMP_ART: ReadonlySet<string> = new Set(["dummy"]);
 
@@ -80,6 +173,8 @@ export interface MatchViewState {
   buffs: OrbView[];
   fightBlue: FightCallView | null;
   fightRed: FightCallView | null;
+  /** Deterministic VFX intervals derived from the event log. */
+  effects: MatchEffects;
 }
 
 export type Speed = 0.5 | 1 | 2 | 4 | 8;
@@ -95,14 +190,7 @@ export const SLOT_LABEL: Record<Slot, string> = {
 
 /** Events the shell cannot render yet — listed in lab/s4/unrendered.md. */
 export const UNRENDERED_EVENT_TYPES = new Set([
-  "cast_start",
-  "cast_cancel",
-  "projectile_spawn",
-  "hit",
   "heal",
-  "shield_apply",
-  "status_apply",
-  "status_expire",
   "sleep_break",
   "dispel",
   "orb_spawn",
