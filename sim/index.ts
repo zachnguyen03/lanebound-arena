@@ -12,7 +12,7 @@ export { constantsHash, digestEvents, canonicalJSON, constantsTable } from "./ca
 export { dataHash } from "./data_hash.js";
 export { RngBank } from "./rng.js";
 export { clipMove, inEnemySanctuary, hitsPillar } from "./map.js";
-export { statsAtLevel, skillScale, hitChance, mit } from "./stats.js";
+export { statsAtLevel, skillScale, hitChance, hitChanceDisabled, mit } from "./stats.js";
 export { computePacket } from "./packet.js";
 export { cancelAutoWindup, canStartAuto, recordAssistCredit } from "./combat.js";
 export {

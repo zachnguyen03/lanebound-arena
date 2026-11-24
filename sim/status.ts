@@ -241,6 +241,32 @@ export function isLocked(st: StatusState): boolean {
   return st.effects.some((e) => e.category === "lock" && e.remaining > 0);
 }
 
+/**
+ * K-2 (§8.4 L935): Lock- or Bind-disabled for the skillshot override.
+ * Explicit kind list (includes taunt even though it is Handicap in DR);
+ * slows are excluded. Petrify flag on a stun also counts.
+ */
+const K2_SKILLSHOT_DISABLED_KINDS: ReadonlySet<CcKind> = new Set([
+  "stun",
+  "root",
+  "knockup",
+  "sleep",
+  "fear",
+  "taunt",
+  "hex",
+  "leash",
+  "petrify",
+  "timestop",
+]);
+
+export function isSkillshotDisabled(st: StatusState): boolean {
+  return st.effects.some(
+    (e) =>
+      e.remaining > 0 &&
+      (K2_SKILLSHOT_DISABLED_KINDS.has(e.kind) || e.petrify === true),
+  );
+}
+
 export function isTimeStopped(st: StatusState): boolean {
   return hasKind(st, "timestop");
 }

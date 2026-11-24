@@ -28,7 +28,7 @@ import { computePacket } from "./packet.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
 import { clipPointAoE } from "./sanctuary_clip.js";
-import { effAim, hitChance, skillScale } from "./stats.js";
+import { effAim, hitChance, hitChanceDisabled, skillScale } from "./stats.js";
 import {
   addShield,
   applyCc,
@@ -36,6 +36,7 @@ import {
   isBanished,
   isRooted,
   isSilenced,
+  isSkillshotDisabled,
   isTaunted,
   isTimeStopped,
   strongDispel,
@@ -87,14 +88,22 @@ function isAllyShape(shape: AbilityShape): boolean {
   return shape === "ally_target" || shape === "circle_ally";
 }
 
+/**
+ * One skillshot roll on stream `skillshot` (§8.4).
+ * When `targetDisabled` (K-2), Reflexes drop out and hit% uses the disabled formula.
+ * Call order and stream are unchanged so determinism / stream alignment hold.
+ */
 export function rollSkillshotHit(
   rng: RngBank,
   effAimVal: number,
   targetReflexes: number,
   c: Constants,
   unitKey = 0,
+  targetDisabled = false,
 ): boolean {
-  const p = hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
+  const p = targetDisabled
+    ? hitChanceDisabled(effAimVal)
+    : hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
   return rng.next("skillshot", unitKey) < p;
 }
 
@@ -622,6 +631,7 @@ function resolveOnTargets(
           v.attrs.reflexes,
           c,
           unitKeyFromId(source.id),
+          isSkillshotDisabled(v.status),
         );
         emit("skillshot_roll", { source_id: source.id, target_id: v.id, hit, skill_id });
       }
@@ -1151,6 +1161,7 @@ export function runScriptedSkillshots(
       target.attrs.reflexes,
       c,
       unitKeyFromId(source.id),
+      isSkillshotDisabled(target.status),
     );
     bits.push(hit ? 1 : 0);
     if (hit) hits += 1;

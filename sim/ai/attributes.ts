@@ -27,6 +27,15 @@ export function skillshotHitChance(effAimVal: number, targetReflexes: number, c:
   return clamp(c.HIT_BASE + c.HIT_COEF * (effAimVal - targetReflexes), c.HIT_FLOOR, c.HIT_CEIL);
 }
 
+/** K-2 disabled-target hit% (§8.4 L935–944): Reflexes drop out. */
+export function skillshotHitChanceDisabled(effAimVal: number): number {
+  const raw =
+    effAimVal < 60
+      ? 0.8 + (0.1 / 30) * (effAimVal - 60)
+      : 0.8 + 0.01 * (effAimVal - 60);
+  return clamp(raw, 0.7, 0.95);
+}
+
 /** Reflexes reaction delay (s). */
 export function reactionDelayS(reflexes: number): number {
   return clamp(0.7 - 0.008 * (reflexes - 50), 0.2, 0.9);
