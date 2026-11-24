@@ -181,13 +181,15 @@ describe("S6 melee idle under Hold — engage gate", () => {
         ...cfg,
         constants: { ...(cfg.constants ?? {}), MATCH_T: N_S },
       });
-      const meleeIds = r.state.units.filter((u) => meleeChamps.has(u.champ)).map((u) => u.id);
-      expect(meleeIds.length).toBeGreaterThan(0);
+      const meleeIds = new Set(
+        r.state.units.filter((u) => meleeChamps.has(u.champ)).map((u) => u.id as string),
+      );
+      expect(meleeIds.size).toBeGreaterThan(0);
       const autoHits = r.events.filter(
         (e) =>
           e.type === "hit" &&
           e.skill_id === "auto" &&
-          meleeIds.includes(e.source_id as string),
+          meleeIds.has(e.source_id as string),
       );
       expect(
         autoHits.length,

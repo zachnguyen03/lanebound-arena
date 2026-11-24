@@ -10,7 +10,7 @@
 import { KITS } from "../../data/champions/kits.js";
 import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
-import { hasMark } from "../marks.js";
+import { hasMark, type MarkInstance } from "../marks.js";
 import { isBanished, isLocked, isTimeStopped } from "../status.js";
 import type { MatchState, UnitId, UnitState } from "../types.js";
 import { effExecution } from "./attributes.js";
@@ -41,7 +41,7 @@ export interface SkillCastPolicy {
   /** Prefer firing when the chosen target already has Lock/Bind (CC chain). */
   prefer_cc_chain?: boolean;
   /** Require a living mark kind on the target (kit mark id). */
-  requires_mark?: string;
+  requires_mark?: MarkInstance["kind"];
   /**
    * Minimum eff_Execution to honour authored setup order (spec §8.4 default 45).
    * Below this, the evaluator still may fire if the entry is enabled — §9.4.1
