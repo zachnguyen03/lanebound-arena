@@ -933,6 +933,8 @@ export function cancelCastsInterruptedByStatus(
 ): void {
   for (const u of state.units) {
     if (!u.alive || !u.cast_skill) continue;
+    // OQ-8 / L448: time-stop pauses windup — never cancel (match tickCasts).
+    if (isTimeStopped(u.status)) continue;
     if (isHardLocked(u.status) || isBanished(u.status)) {
       cancelCast(u, "lock", emit);
       continue;
