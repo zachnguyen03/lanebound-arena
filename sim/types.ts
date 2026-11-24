@@ -91,6 +91,8 @@ export interface MatchConfig {
         /** Lab: move-speed override (tiles/s). */
         ms?: number;
         as?: number;
+        /** Lab/test: seed AI focus target (e.g. Torun W taunt diver). */
+        ai_target_id?: UnitId | null;
       }
     >
   >;
@@ -158,6 +160,11 @@ export interface ScriptedCast {
   aim_y?: number;
   /** Skip Aim roll (lab fixtures that pin damage/CC). */
   force_hit?: boolean;
+  /**
+   * Lab-only §9.4.1.4 rule 12 tier. Additive. Stripped in digestEvents
+   * (same exclusion class as `pos`).
+   */
+  tier?: "P1a" | "P1b" | "P1c" | "P1d" | "P2" | "P2c" | "P3" | "P4" | "P4s";
 }
 
 export interface ScriptedMotor {
@@ -275,6 +282,11 @@ export interface UnitState {
   ai_first_auto_done: boolean;
   /** S3-R5-7: +ZONE_AURA_RES while previous-tick exclusive owner occupant. */
   zone_aura_res: number;
+  /**
+   * HP lost after shields over recent ticks (§9.4.1 incoming_1s / Doomed).
+   * Not an event field; omitted from the digest.
+   */
+  recent_taken?: Array<{ t: number; hp: number }>;
 }
 
 export interface Displacement {

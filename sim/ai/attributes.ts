@@ -27,6 +27,15 @@ export function skillshotHitChance(effAimVal: number, targetReflexes: number, c:
   return clamp(c.HIT_BASE + c.HIT_COEF * (effAimVal - targetReflexes), c.HIT_FLOOR, c.HIT_CEIL);
 }
 
+/** K-2 disabled-target hit% (§8.4 L935–944): Reflexes drop out. */
+export function skillshotHitChanceDisabled(effAimVal: number): number {
+  const raw =
+    effAimVal < 60
+      ? 0.8 + (0.1 / 30) * (effAimVal - 60)
+      : 0.8 + 0.01 * (effAimVal - 60);
+  return clamp(raw, 0.7, 0.95);
+}
+
 /** Reflexes reaction delay (s). */
 export function reactionDelayS(reflexes: number): number {
   return clamp(0.7 - 0.008 * (reflexes - 50), 0.2, 0.9);
@@ -95,7 +104,12 @@ export function autoResetS(effExec: number): number {
   return clamp(0.2 - 0.002 * (effExec - 50), 0.08, 0.28);
 }
 
-/** Teamwork follow-call multiplier (§8.4): at 50+ always 1.0. */
+/**
+ * Teamwork follow-call multiplier — Appendix R6-7(d):
+ *   clamp(1 + 0.01·(T − 50), 0.70, 1.40)
+ * Replaces the old §8.4 form `1 + 0.01·max(0, 50 − T)`, which was inert for
+ * T ∈ [50, 99] and inverted below 50 (low T made follow easier).
+ */
 export function callFollowSlack(teamwork: number): number {
-  return 1 + 0.01 * Math.max(0, 50 - teamwork);
+  return clamp(1 + 0.01 * (teamwork - 50), 0.7, 1.4);
 }

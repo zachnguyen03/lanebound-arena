@@ -8,6 +8,7 @@
  * - OQ-S2-7: intent only when it changes (first-class digest event).
  */
 import { beginCast } from "../cast.js";
+import { createCastMemory, notePolicyCast, observeCastMemory } from "./cast_policy.js";
 import type { Constants } from "../constants.js";
 import type { RngBank } from "../rng.js";
 import { isBanished } from "../status.js";
@@ -18,6 +19,7 @@ import { brainDecide, type ChaseState } from "./brain.js";
 import {
   canFlipCommit,
   chooseCommit,
+  commitThresholds,
   evaluateFight,
   fightIssuesCall,
   shouldRunL1,
@@ -60,6 +62,8 @@ export interface AiRuntime {
   soft_until: number;
   /** Focus died this fight — do not auto-pick a replacement (Teamwork stick). */
   focus_died: Record<Team, boolean>;
+  /** §9.4.1 disable / spill / cast-sight memory. Not digested. */
+  cast_memory: ReturnType<typeof createCastMemory>;
   /**
    * Effective tactic preset for this team (§12 L1344 / L1358).
    * Secondary replaces primary when the 1 s L1 planner would otherwise idle
@@ -94,6 +98,7 @@ export function createAiRuntime(): AiRuntime {
     soft_until: -Infinity,
     focus_died: { blue: false, red: false },
     active_tactic: { blue: "hold_the_pit", red: "hold_the_pit" },
+    cast_memory: createCastMemory(),
   };
 }
 
@@ -255,11 +260,23 @@ export function tickAi(
         });
       }
       ai.focus[team] = focus;
+      // commit_r (§9.4.1.4 rule 6 / R7-5): engage ∧ A_commit ≥ engage+0.10 ∧ ≥3 enemies.
+      // Field path: fight_call.commit_r (boolean). Lifts nA≤1 only; nE≥2 still required.
+      const ownZone = state.zone?.owner === team;
+      const th = commitThresholds(ai.active_tactic[team], !!ownZone);
+      let enemiesInFight = 0;
+      for (const id of useSnap.participants) {
+        const eu = state.units.find((x) => x.id === id);
+        if (eu && eu.alive && eu.team !== team && !isBanished(eu.status)) enemiesInFight += 1;
+      }
+      const commit_r =
+        next === "engage" && a_commit + 1e-9 >= th.engage + 0.1 && enemiesInFight >= 3;
       emit("fight_call", {
         team,
         a_true: aTrue,
         a_commit,
         commit: next,
+        commit_r,
         focus_id: focus ?? null,
         shotcaller_id: sc?.id ?? null,
         reason: useSnap.escalate_2v2 ? "2v2_escalate" : "fight",
@@ -333,10 +350,18 @@ export function tickAi(
     }
   }
 
-  const scripted = config.scripted_motor;
-  // Only geometric fights (or soft grace) expose participants to the Unit Brain.
   const brainFightIds =
     snap.exists || softIssue || !!ai.fight_id ? snap.participants : [];
+  observeCastMemory(
+    state,
+    ai.cast_memory,
+    c,
+    brainFightIds,
+    ai.seen_at,
+    config.ai_ignore_perception === true,
+  );
+
+  const scripted = config.scripted_motor;
   for (const u of state.units) {
     if (scripted && scripted[u.id]) continue;
     const team = u.team;
@@ -356,6 +381,9 @@ export function tickAi(
       coachFocusSlot: side.tactics.focus === "auto" ? null : side.tactics.focus ?? null,
       comboStyle: side.tactics.combo_style,
       aTrue,
+      seenAt: ai.seen_at,
+      ignorePerception: config.ai_ignore_perception === true,
+      castMemory: ai.cast_memory,
     });
     if (decision.chase) ai.chase[u.id] = decision.chase;
     else delete ai.chase[u.id];
@@ -414,18 +442,27 @@ export function tickAi(
     }
 
     if (decision.cast && intent === decision.intent) {
+      const skill = decision.cast.skill;
+      const cdBefore = skill === "Q" ? u.cd_q : skill === "W" ? u.cd_w : u.cd_r;
       beginCast(
         state,
         {
           tick: state.tick,
           source_id: u.id,
-          skill: decision.cast.skill,
+          skill,
           target_id: decision.cast.target_id ?? undefined,
+          aim_x: decision.cast.aim_x,
+          aim_y: decision.cast.aim_y,
           force_hit: false,
+          tier: decision.cast.tier,
         },
         c,
         emit,
       );
+      const cdAfter = skill === "Q" ? u.cd_q : skill === "W" ? u.cd_w : u.cd_r;
+      if (cdBefore <= 1e-9 && cdAfter > 1e-9) {
+        notePolicyCast(ai.cast_memory, u, skill, decision.cast.target_id, state.t);
+      }
     }
 
     // R #3 S2-7: intent only on state change (intent name / target_id) — not waypoint.

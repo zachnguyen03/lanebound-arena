@@ -46,6 +46,18 @@ export function summarizeMatch(
   let sanctuary_violations = 0;
   let t_first_R: number | null = null;
   let t_L7: number | null = null;
+  let casts = 0;
+  let interrupts = 0;
+  const interrupts_by_reflexes = { low: 0, mid: 0, high: 0 };
+
+  // Reflexes band of interrupter at cast time (attrs are match-static in even OVR).
+  const reflexesOf = (unitId: string | undefined): number => {
+    if (!unitId) return 70;
+    const u = result.state.units.find((x) => x.id === unitId);
+    return u?.attrs.reflexes ?? 70;
+  };
+  const bandOf = (r: number): "low" | "mid" | "high" =>
+    r < 60 ? "low" : r < 80 ? "mid" : "high";
 
   for (const ev of result.events) {
     switch (ev.type) {
@@ -82,6 +94,27 @@ export function summarizeMatch(
       case "sanctuary_violation":
         sanctuary_violations += 1;
         break;
+      case "cast_start":
+        casts += 1;
+        break;
+      case "cast_cancel": {
+        // M2-33 / R7-6b: interrupt = cancel reason lock|silence after a P1a cast.
+        const reason = String(ev.reason ?? "");
+        if (reason !== "lock" && reason !== "silence") break;
+        const t = Number(ev.t);
+        const prior = result.events.filter(
+          (e) =>
+            e.type === "cast_start" &&
+            e.tier === "P1a" &&
+            Number(e.t) <= t + 1e-9 &&
+            t - Number(e.t) <= 1.5,
+        );
+        const p1a = prior[prior.length - 1];
+        if (!p1a) break;
+        interrupts += 1;
+        interrupts_by_reflexes[bandOf(reflexesOf(String(p1a.unit_id)))] += 1;
+        break;
+      }
       case "hit": {
         const dmg = Number(ev.mitigated ?? 0);
         if (Number.isFinite(dmg) && dmg > 0) {
@@ -141,6 +174,9 @@ export function summarizeMatch(
     t_first_R,
     t_L7,
     kda,
+    casts,
+    interrupts,
+    interrupts_by_reflexes,
   };
 }
 

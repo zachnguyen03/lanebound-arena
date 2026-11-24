@@ -41,7 +41,7 @@ describe("S5 batch B1–B3", () => {
     );
     // First seed matches even-OVR Hold gold
     expect(fullA.summaries[0]!.digest).toBe(
-      "54cae20c950a238d5c06a8324076cf2febe429d8dfe8b2c2057232fdf33f6b0d",
+      "1664977f37e03fec75e5aafc5987103cb02c883b29194d5428d2ec980ab77bef",
     );
     expect(fullA.summaries[0]!.seed).toBe(20261122);
   }, 600_000);

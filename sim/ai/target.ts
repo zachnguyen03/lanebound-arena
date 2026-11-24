@@ -9,7 +9,7 @@ import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
 import { isBanished, isLocked } from "../status.js";
 import type { Team, UnitId, UnitState } from "../types.js";
-import { clamp } from "./attributes.js";
+import { callFollowSlack, clamp } from "./attributes.js";
 import { estTtk } from "./dps.js";
 
 /** §9.3 L1125 class value table. */
@@ -89,8 +89,8 @@ export function targetingScore(
 }
 
 /**
- * Appendix R #4 Teamwork follow-call:
- * follow focus if local_score < call_score × (1 + 0.01×max(0, 50 − Teamwork)).
+ * Appendix R6-7(d) Teamwork follow-call:
+ * follow if local_score < call_score × clamp(1 + 0.01·(T − 50), 0.70, 1.40).
  * Disengage calls are always followed (handled by caller).
  */
 export function shouldFollowFocus(
@@ -98,8 +98,7 @@ export function shouldFollowFocus(
   localScore: number,
   teamwork: number,
 ): boolean {
-  const slack = 1 + 0.01 * Math.max(0, 50 - teamwork);
-  return localScore < callScore * slack;
+  return localScore < callScore * callFollowSlack(teamwork);
 }
 
 export function chooseFocus(

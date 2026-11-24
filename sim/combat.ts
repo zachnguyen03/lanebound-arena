@@ -360,6 +360,10 @@ export function resolvePendingDamage(
       target.assist_log.push({ source_id: p.source_id, t: state.t, kind: "damage" });
       target.last_damage_t = state.t;
       target.status.last_damage_t = state.t;
+      const taken = (target.recent_taken ??= []);
+      taken.push({ t: state.t, hp: abs.hpLoss });
+      const cutoff = state.t - 1.2;
+      while (taken.length > 0 && taken[0]!.t < cutoff) taken.shift();
       source.last_dealt_t = state.t;
       source.status.last_dealt_t = state.t;
     }

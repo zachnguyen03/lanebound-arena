@@ -71,8 +71,9 @@ describe("S4 live match", () => {
       (e) =>
         e.type === "hit" && melee.has(idChamp.get(String(e.source_id)) ?? ""),
     );
-    expect(hits).toHaveLength(102);
-    expect(hits.some((e) => idChamp.get(String(e.source_id)) === "kerrig" && e.tick === 2109)).toBe(
+    // S6 tip exacts (pending Anh approval): melee Approach + casts raised volume.
+    expect(hits).toHaveLength(158);
+    expect(hits.some((e) => idChamp.get(String(e.source_id)) === "kerrig" && e.tick === 42)).toBe(
       true,
     );
   }, 120_000);

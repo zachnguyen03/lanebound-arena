@@ -28,7 +28,7 @@ import { computePacket } from "./packet.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
 import { clipPointAoE } from "./sanctuary_clip.js";
-import { effAim, hitChance, skillScale } from "./stats.js";
+import { effAim, hitChance, hitChanceDisabled, skillScale } from "./stats.js";
 import {
   addShield,
   applyCc,
@@ -36,6 +36,7 @@ import {
   isBanished,
   isRooted,
   isSilenced,
+  isSkillshotDisabled,
   isTaunted,
   isTimeStopped,
   strongDispel,
@@ -87,14 +88,22 @@ function isAllyShape(shape: AbilityShape): boolean {
   return shape === "ally_target" || shape === "circle_ally";
 }
 
+/**
+ * One skillshot roll on stream `skillshot` (§8.4).
+ * When `targetDisabled` (K-2), Reflexes drop out and hit% uses the disabled formula.
+ * Call order and stream are unchanged so determinism / stream alignment hold.
+ */
 export function rollSkillshotHit(
   rng: RngBank,
   effAimVal: number,
   targetReflexes: number,
   c: Constants,
   unitKey = 0,
+  targetDisabled = false,
 ): boolean {
-  const p = hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
+  const p = targetDisabled
+    ? hitChanceDisabled(effAimVal)
+    : hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
   return rng.next("skillshot", unitKey) < p;
 }
 
@@ -622,6 +631,7 @@ function resolveOnTargets(
           v.attrs.reflexes,
           c,
           unitKeyFromId(source.id),
+          isSkillshotDisabled(v.status),
         );
         emit("skillshot_roll", { source_id: source.id, target_id: v.id, hit, skill_id });
       }
@@ -703,6 +713,42 @@ function resolveOnTargets(
       }
       if (ab.heal && ab.shape !== "self") queueHeal(state, source, v, ab);
       if (ab.shield) queueShield(state, source, v, ab);
+    }
+
+    // R7-10: Torun W kit peel taunt — 2.0 s on a diver inside r 1.2 of the
+    // shielded ally centre. AI classifies W as shield-only (not rule-1 disable),
+    // but the Handicap taunt must still apply and emit status_apply.
+    if (
+      ab.shape === "circle_ally" &&
+      ab.special?.some((s) => s.toLowerCase().includes("peel taunt")) &&
+      primary
+    ) {
+      const r = ab.radius ?? 1.2;
+      let best: UnitState | null = null;
+      let bestScore = -Infinity;
+      for (const e of state.units) {
+        if (!e.alive || e.team === source.team || isBanished(e.status)) continue;
+        if (!(e.stats.range <= 2 + 1e-9 || e.champ === "kerrig")) continue;
+        if (dist(e.x, e.y, primary.x, primary.y) > r + c.BODY_RADIUS + 1e-9) continue;
+        // Prefer the diver closest to the shielded ally (top threat score).
+        const score = 100 - dist(e.x, e.y, primary.x, primary.y);
+        if (score > bestScore + 1e-9 || (Math.abs(score - bestScore) <= 1e-9 && (!best || e.index < best.index))) {
+          best = e;
+          bestScore = score;
+        }
+      }
+      if (best) {
+        state.pending_status.push({
+          seq: state.event_seq,
+          source_id: source.id,
+          target_id: best.id,
+          kind: "taunt",
+          category: "handicap",
+          raw_duration: 2.0,
+          school: "magic",
+          skill_id: ab.name,
+        });
+      }
     }
   }
 
@@ -847,14 +893,21 @@ export function beginCast(
     source.cast_snapshot_ids = snap.units.map((u) => u.id);
   }
 
-  emit("cast_start", {
+  const payload: Record<string, unknown> = {
     unit_id: source.id,
     skill_id: ab.name,
     cast_time: ab.cast_s,
-  });
+  };
+  // §4.4 / §9.4.1.4 rule 12: every cast_start carries target_id or x,y.
+  if (source.cast_target) payload.target_id = source.cast_target;
+  payload.x = source.cast_aim_x;
+  payload.y = source.cast_aim_y;
+  // Additive lab field. Absent on scripted casts. digestEvents strips it.
+  if (cast.tier) payload.tier = cast.tier;
+  emit("cast_start", payload);
 }
 
-function cancelCast(
+export function cancelCast(
   u: UnitState,
   reason: string,
   emit: (type: string, payload: Record<string, unknown>) => void,
@@ -867,6 +920,27 @@ function cancelCast(
   u.cast_target = null;
   u.cast_snapshot_ids = null;
   u.attack_reset_pending = false;
+}
+
+/**
+ * Same-tick interrupt cancel after status apply (M2-33 / R7-6b).
+ * tickCasts runs before applyPendingStatuses; silence/Lock applied this tick
+ * must still cancel an in-flight windup on the apply tick.
+ */
+export function cancelCastsInterruptedByStatus(
+  state: MatchState,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  for (const u of state.units) {
+    if (!u.alive || !u.cast_skill) continue;
+    // OQ-8 / L448: time-stop pauses windup — never cancel (match tickCasts).
+    if (isTimeStopped(u.status)) continue;
+    if (isHardLocked(u.status) || isBanished(u.status)) {
+      cancelCast(u, "lock", emit);
+      continue;
+    }
+    if (isSilenced(u.status)) cancelCast(u, "silence", emit);
+  }
 }
 
 export function tickCasts(
@@ -1151,6 +1225,7 @@ export function runScriptedSkillshots(
       target.attrs.reflexes,
       c,
       unitKeyFromId(source.id),
+      isSkillshotDisabled(target.status),
     );
     bits.push(hit ? 1 : 0);
     if (hit) hits += 1;
