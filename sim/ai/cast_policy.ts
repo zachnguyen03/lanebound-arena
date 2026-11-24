@@ -563,9 +563,15 @@ function isX(ctx: Ctx, e: UnitState): boolean {
   return ended !== undefined && ctx.state.t - ended <= 0.5 + 1e-9;
 }
 
+function comboFollowTicks(ex: number): number {
+  // Whole ticks: round(combo_follow_s × 10). +1e-9 avoids 0.15*10 float → 1.
+  return Math.round(comboFollowS(ex) * 10 + 1e-9);
+}
+
 function comboReady(ctx: Ctx, target: UnitState): boolean {
   const now = ctx.state.t;
-  const follow = comboFollowS(ctx.ex);
+  const followTicks = comboFollowTicks(ctx.ex);
+  const follow = followTicks / 10;
   const effects = disableEffects(target);
   let applyT = now;
   let expireT = now;
@@ -583,15 +589,31 @@ function comboReady(ctx: Ctx, target: UnitState): boolean {
     applyT = ended;
     expireT = ended;
   }
+  // §8.4 cash-the-window: eff_E ≥ 50 and disable would expire before follow.
   if (ctx.ex >= 50 && expireT <= applyT + follow + 1e-9) return now + 1e-9 >= applyT;
+  // R7-1 own disable: apply tick + round(combo_follow_s × 10).
   let earliest = applyT + follow;
   if (source && source !== ctx.u.id) {
+    // Ally disable: §9.4.1.3 P2 bound.
     const react = reactionDelayS(ctx.u.attrs.reflexes);
     const castT =
       [...(ctx.memory?.casts ?? [])].reverse().find((c) => c.caster === source && c.disable)?.t ?? applyT;
     earliest = Math.max(applyT, castT + react, applyT + follow);
   }
   return now + 1e-9 >= earliest;
+}
+
+function skillHasTier(champ: string, skill: SkillKey, tier: CastTier): boolean {
+  return CAST_POLICIES[champ]?.find((r) => r.skill === skill)?.tiers.includes(tier) ?? false;
+}
+
+/**
+ * R7-1: if T is X and the skill has a P2 row, P4 may not fire before the
+ * P2 earliest tick — hold (P2 path logs tier P2 once ready).
+ */
+function p4BlockedByComboFollow(ctx: Ctx, skill: SkillKey, target: UnitState | null): boolean {
+  if (!target || !skillHasTier(ctx.u.champ, skill, "P2")) return false;
+  return isX(ctx, target);
 }
 
 function incoming1s(u: UnitState, now: number): number {
@@ -1165,6 +1187,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: x.x, y: x.y });
     }
     if (tier === "P4") {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const prefer = ctx.u.level >= 5 && ctx.u.cd_r <= 4 + 1e-9;
       let aimAt = T;
       if (prefer) {
@@ -1211,6 +1234,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: pick.x, y: pick.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 7.8)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const pick = bestLine(ctx, "Q", T);
       if (!pick) return null;
       return prop("Q", "P4", T.id, { x: pick.x, y: pick.y });
@@ -1261,6 +1285,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, p);
     }
     if (tier === "P4" && T && inRange(ctx.u, T, ab.range) && !bad(T)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       return prop("Q", "P4", T.id, predict(T, delay));
     }
   }
@@ -1320,6 +1345,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: x.x, y: x.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 5.5)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const pick = bestCircle(ctx, 5.5, 2.2);
       if (pick && pick.n >= 1) return prop("Q", "P4", pick.who?.id ?? T.id, { x: pick.x, y: pick.y });
       return prop("Q", "P4", T.id, { x: T.x, y: T.y });
@@ -1543,6 +1569,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: pick.x, y: pick.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 8)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const pick = bestLine(ctx, "Q", T);
       if (!pick) return null;
       return prop("Q", "P4", T.id, { x: pick.x, y: pick.y });
@@ -1612,6 +1639,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: pick.x, y: pick.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 6.4)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const pick = bestCone(ctx, "Q", T);
       if (!pick) return null;
       return prop("Q", "P4", T.id, { x: pick.x, y: pick.y });
@@ -1689,7 +1717,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       const x = followX(ctx, 1.8);
       if (x) return prop("W", "P2", x.id);
     }
-    if (tier === "P4" && T && inRange(ctx.u, T, 1.8)) return prop("W", "P4", T.id);
+    if (tier === "P4" && T && inRange(ctx.u, T, 1.8)) {
+      if (p4BlockedByComboFollow(ctx, "W", T)) return null;
+      return prop("W", "P4", T.id);
+    }
   }
 
   if (champ === "kerrig" && skill === "R") {
@@ -1701,7 +1732,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       const x = followX(ctx, 6);
       if (x) return prop("Q", "P2", x.id);
     }
-    if (tier === "P4" && T && inRange(ctx.u, T, 6)) return prop("Q", "P4", T.id);
+    if (tier === "P4" && T && inRange(ctx.u, T, 6)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
+      return prop("Q", "P4", T.id);
+    }
   }
 
   if (champ === "mirren" && skill === "W") {
@@ -1758,7 +1792,10 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       const x = followX(ctx, 3);
       if (x) return prop("Q", "P2", x.id, { x: x.x, y: x.y });
     }
-    if (tier === "P4" && T && inRange(ctx.u, T, 3)) return prop("Q", "P4", T.id, { x: T.x, y: T.y });
+    if (tier === "P4" && T && inRange(ctx.u, T, 3)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
+      return prop("Q", "P4", T.id, { x: T.x, y: T.y });
+    }
   }
 
   if (champ === "rhedan" && skill === "W") {
@@ -1819,6 +1856,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: pick.x, y: pick.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 6.5)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const fleeing = ctx.perceived.filter(
         (e) => inRange(ctx.u, e, 6.5) && (e.intent === "Retreat" || e.intent === "Regroup"),
       );
@@ -1985,6 +2023,7 @@ function trySkill(ctx: Ctx, tier: CastTier, skill: SkillKey): CastProposal | nul
       return prop("Q", "P2", x.id, { x: pick.x, y: pick.y });
     }
     if (tier === "P4" && T && inRange(ctx.u, T, 7)) {
+      if (p4BlockedByComboFollow(ctx, "Q", T)) return null;
       const pick = bestLine(ctx, "Q", T);
       if (!pick) return null;
       return prop("Q", "P4", T.id, { x: pick.x, y: pick.y });
