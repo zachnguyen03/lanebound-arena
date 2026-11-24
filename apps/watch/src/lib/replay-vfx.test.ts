@@ -168,6 +168,39 @@ describe("ReplayEngine skill VFX intervals", () => {
     expect(done.projectiles).toHaveLength(0);
   });
 
+  it("keeps at most one skill tag per caster", () => {
+    const events = [
+      lineup,
+      ev({
+        type: "cast_start",
+        tick: 10,
+        seq: 1,
+        unit_id: "blue:mid",
+        skill_id: "Latch Line",
+        cast_time: 0.3,
+        x: 12,
+        y: 8,
+      }),
+      ev({
+        type: "cast_start",
+        tick: 12,
+        seq: 2,
+        unit_id: "blue:mid",
+        skill_id: "Spool Cut",
+        cast_time: 0.28,
+        x: 12,
+        y: 8,
+      }),
+      ev({ type: "xp_gain", tick: 40, seq: 3, unit_id: "blue:mid", amount: 1 }),
+    ];
+    const eng = new ReplayEngine(events);
+    const mid = activeEffectsAt(eng.stateAt(12).effects, 1.2);
+    const tags = mid.skillTags.filter((t) => t.unitId === "blue:mid");
+    expect(tags).toHaveLength(1);
+    expect(tags[0]!.skillName).toBe("Spool Cut");
+    expect(mid.casterFlashes.some((f) => f.unitId === "blue:mid")).toBe(true);
+  });
+
   it("skill hit creates a flash distinct from autos", () => {
     const events = [
       lineup,

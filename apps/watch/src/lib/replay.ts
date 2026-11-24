@@ -24,9 +24,10 @@ import type {
 } from "./types";
 import { CHAMP_ART, SLOTS } from "./types";
 
-const SKILL_TAG_DUR = 0.85;
+const SKILL_TAG_DUR = 0.8;
 const HIT_FLASH_DUR = 0.22;
 const ULT_PULSE_DUR = 0.28;
+const CASTER_FLASH_DUR = 0.22;
 
 /**
  * Pure replay: derive MatchViewState at tick T from the event log only.
@@ -117,6 +118,7 @@ function cloneEffects(e: MatchEffects): MatchEffects {
     statuses: e.statuses.map((x) => ({ ...x })),
     skillTags: e.skillTags.map((x) => ({ ...x })),
     ultPulses: e.ultPulses.map((x) => ({ ...x })),
+    casterFlashes: e.casterFlashes.map((x) => ({ ...x })),
   };
 }
 
@@ -128,6 +130,7 @@ function emptyEffects(): MatchEffects {
     statuses: [],
     skillTags: [],
     ultPulses: [],
+    casterFlashes: [],
   };
 }
 
@@ -161,6 +164,7 @@ export function activeEffectsAt(
   statuses: StatusIconFx[];
   skillTags: SkillTagFx[];
   ultPulses: UltPulseFx[];
+  casterFlashes: import("./types").CasterFlashFx[];
 } {
   const live = <T extends { startedAt: number; endsAt: number }>(list: T[]) =>
     list.filter((x) => x.startedAt <= t && t < x.endsAt);
@@ -173,6 +177,7 @@ export function activeEffectsAt(
     statuses: live(effects.statuses),
     skillTags: live(effects.skillTags),
     ultPulses: live(effects.ultPulses),
+    casterFlashes: live(effects.casterFlashes),
   };
 }
 
@@ -528,6 +533,12 @@ function applyCastStartFx(
     width: meta?.width ?? 0.6,
     groundFx: recipe.groundFx,
   });
+  // At most one floating skill tag per caster.
+  for (const tag of state.effects.skillTags) {
+    if (tag.unitId === u.id && tag.endsAt > ev.t && tag.startedAt <= ev.t) {
+      tag.endsAt = ev.t;
+    }
+  }
   state.effects.skillTags.push({
     id: `tag:${id}`,
     unitId: u.id,
@@ -536,6 +547,14 @@ function applyCastStartFx(
     skillName: skillId || meta?.name || "?",
     startedAt: ev.t,
     endsAt: ev.t + SKILL_TAG_DUR,
+  });
+  state.effects.casterFlashes.push({
+    id: `flash:${id}`,
+    unitId: u.id,
+    team: u.team,
+    isUlt: !!recipe.ultEmphasis || meta?.key === "R",
+    startedAt: ev.t,
+    endsAt: ev.t + CASTER_FLASH_DUR,
   });
   if (recipe.ultEmphasis || meta?.key === "R") {
     state.effects.ultPulses.push({

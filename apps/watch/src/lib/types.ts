@@ -142,6 +142,16 @@ export interface UltPulseFx {
   endsAt: number;
 }
 
+/** Brief caster ring/flash at cast_start so the origin is readable. */
+export interface CasterFlashFx {
+  id: string;
+  unitId: UnitId;
+  team: Team;
+  isUlt: boolean;
+  startedAt: number;
+  endsAt: number;
+}
+
 export interface MatchEffects {
   telegraphs: TelegraphFx[];
   projectiles: ProjectileFx[];
@@ -149,6 +159,7 @@ export interface MatchEffects {
   statuses: StatusIconFx[];
   skillTags: SkillTagFx[];
   ultPulses: UltPulseFx[];
+  casterFlashes: CasterFlashFx[];
 }
 
 /** Champ ids with a body sheet shipped under arena-sandbox/. */

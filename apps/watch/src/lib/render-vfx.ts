@@ -22,8 +22,13 @@ import type {
 const TILE_W = 44;
 const TILE_H = 32;
 const ANCHOR_Y = 46;
-/** Match body playfield scale — authored VFX cells are 1× bitmaps. */
-const VFX_SCALE = 2;
+/**
+ * Authored VFX cells are 1×. Bodies blit at 2×; effects need 2× that (4×)
+ * to read at 1280×800. Integer nearest-neighbour only — art is not redrawn.
+ */
+const VFX_SCALE = 4;
+const LINE_MIN = 3;
+const OUTLINE = "#0B0E14";
 
 function blitNearest(
   ctx: CanvasRenderingContext2D,
@@ -85,6 +90,31 @@ function facingFromDelta(dx: number): Facing {
   return dx < 0 ? "left" : "right";
 }
 
+/** Dark outline under a coloured stroke so lines read on the dark floor. */
+function strokeOutlined(
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  width: number,
+  dash: number[] | null,
+  drawPath: () => void,
+): void {
+  const w = Math.max(LINE_MIN, width);
+  ctx.save();
+  if (dash) ctx.setLineDash(dash);
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.strokeStyle = OUTLINE;
+  ctx.lineWidth = w + 2;
+  drawPath();
+  ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = w;
+  drawPath();
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
 function drawDottedLine(
   ctx: CanvasRenderingContext2D,
   x0: number,
@@ -95,16 +125,11 @@ function drawDottedLine(
   width: number,
   dash: number[],
 ): void {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.setLineDash(dash);
-  ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  ctx.lineTo(x1, y1);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
+  strokeOutlined(ctx, color, width, dash, () => {
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+  });
 }
 
 function drawEllipseOutline(
@@ -125,14 +150,37 @@ function drawEllipseOutline(
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  if (dashed) ctx.setLineDash([3, 3]);
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
   ctx.restore();
+  strokeOutlined(ctx, color, width, dashed ? [5, 4] : null, () => {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  });
+}
+
+/** Bright team core under dark streak / smear art. */
+function blitWithTeamCore(
+  ctx: CanvasRenderingContext2D,
+  sheet: HTMLImageElement,
+  sx: number,
+  sy: number,
+  sw: number,
+  sh: number,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number,
+  team: Team,
+): void {
+  ctx.save();
+  ctx.fillStyle = TEAM_HEX[team];
+  ctx.globalAlpha = 0.55;
+  ctx.fillRect(Math.round(dx) + 2, Math.round(dy) + 2, Math.max(2, dw - 4), Math.max(2, dh - 4));
+  ctx.restore();
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy, dw, dh);
+  ctx.restore();
+  blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
 function blitSpriteAt(
@@ -247,6 +295,47 @@ function resolveEntrySprite(
   return { sprite, image };
 }
 
+function drawCasterFlashes(
+  ctx: CanvasRenderingContext2D,
+  state: MatchViewState,
+  active: ReturnType<typeof activeEffectsAt>,
+): void {
+  for (const flash of active.casterFlashes) {
+    const unit = state.units[flash.unitId];
+    if (!unit || !unit.alive) continue;
+    const { px, py } = world(unit.x, unit.y);
+    const u = clamp01(
+      (state.t - flash.startedAt) /
+        Math.max(1e-6, flash.endsAt - flash.startedAt),
+    );
+    const color = TEAM_HEX[flash.team];
+    const r = (flash.isUlt ? 22 : 16) + u * (flash.isUlt ? 18 : 10);
+    ctx.save();
+    ctx.globalAlpha = 1 - u * 0.85;
+    drawEllipseOutline(
+      ctx,
+      px,
+      py,
+      r,
+      r * 0.45,
+      color,
+      flash.isUlt ? 4 : 3,
+      false,
+      `${color}33`,
+    );
+    // Origin pip at the caster feet.
+    ctx.fillStyle = OUTLINE;
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawTelegraphs(
   ctx: CanvasRenderingContext2D,
   state: MatchViewState,
@@ -268,6 +357,19 @@ function drawTelegraphs(
       (state.t - tele.startedAt) / Math.max(1e-6, tele.endsAt - tele.startedAt),
     );
     const strong = tele.isUlt;
+    const lineW = strong ? 5 : 3;
+
+    // Origin marker — telegraph visibly starts at the caster.
+    ctx.save();
+    ctx.fillStyle = OUTLINE;
+    ctx.beginPath();
+    ctx.arc(a.px, a.py, strong ? 5 : 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(a.px, a.py, strong ? 3 : 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
     if (tele.kind === "line" || tele.kind === "dotted-leash") {
       drawDottedLine(
@@ -277,50 +379,52 @@ function drawTelegraphs(
         aim.px,
         aim.py,
         color,
-        strong ? 2.5 : 1.5,
-        tele.kind === "dotted-leash" ? [2, 4] : [4, 3],
+        lineW,
+        tele.kind === "dotted-leash" ? [3, 5] : [6, 4],
       );
-      // 1 px team core
-      ctx.save();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-      ctx.globalAlpha = 0.9;
-      ctx.beginPath();
-      ctx.moveTo(a.px, a.py);
-      ctx.lineTo(aim.px, aim.py);
-      ctx.stroke();
-      ctx.restore();
+      // Bright team core down the centre.
+      strokeOutlined(ctx, color, Math.max(1, lineW - 2), null, () => {
+        ctx.beginPath();
+        ctx.moveTo(a.px, a.py);
+        ctx.lineTo(aim.px, aim.py);
+      });
     } else if (tele.kind === "cone") {
       const ang = Math.atan2(aim.py - a.py, aim.px - a.px);
-      const len = Math.hypot(aim.px - a.px, aim.py - a.py) || tele.radius * TILE_W || 80;
+      const len =
+        Math.hypot(aim.px - a.px, aim.py - a.py) ||
+        tele.radius * TILE_W ||
+        80;
       const half = ((tele.width > 0 ? 40 : 35) * Math.PI) / 180;
-      ctx.save();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = strong ? 2 : 1.5;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(a.px, a.py);
-      ctx.lineTo(
-        a.px + Math.cos(ang - half) * len,
-        a.py + Math.sin(ang - half) * len,
-      );
-      ctx.lineTo(
-        a.px + Math.cos(ang + half) * len,
-        a.py + Math.sin(ang + half) * len,
-      );
-      ctx.closePath();
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
+      strokeOutlined(ctx, color, lineW, [5, 4], () => {
+        ctx.beginPath();
+        ctx.moveTo(a.px, a.py);
+        ctx.lineTo(
+          a.px + Math.cos(ang - half) * len,
+          a.py + Math.sin(ang - half) * len,
+        );
+        ctx.lineTo(
+          a.px + Math.cos(ang + half) * len,
+          a.py + Math.sin(ang + half) * len,
+        );
+        ctx.closePath();
+      });
     } else if (
       tele.kind === "aoe" ||
       tele.kind === "double-ring" ||
       tele.kind === "self"
     ) {
-      const r = Math.max(tele.radius, tele.kind === "self" ? 0.8 : 1.2);
-      const rx = r * TILE_W * (0.55 + 0.45 * progress);
-      const ry = r * TILE_H * (0.55 + 0.45 * progress);
+      const baseR = Math.max(
+        tele.radius,
+        tele.kind === "self" ? 0.9 : 1.2,
+      );
+      const grow = strong ? 0.75 + 0.55 * progress : 0.6 + 0.4 * progress;
+      const rx = baseR * TILE_W * grow * (strong ? 1.15 : 1);
+      const ry = baseR * TILE_H * grow * (strong ? 1.15 : 1);
+      // Point AoE: ring at aim, with a spoke from caster so origin is clear.
       const c = tele.kind === "self" ? a : aim;
+      if (tele.kind !== "self") {
+        drawDottedLine(ctx, a.px, a.py, c.px, c.py, color, 3, [4, 4]);
+      }
       drawEllipseOutline(
         ctx,
         c.px,
@@ -328,24 +432,24 @@ function drawTelegraphs(
         rx,
         ry,
         color,
-        strong ? 2.5 : 1.5,
+        strong ? 5 : 3,
         true,
-        `${color}22`,
+        `${color}28`,
       );
       if (tele.kind === "double-ring" || strong) {
         drawEllipseOutline(
           ctx,
           c.px,
           c.py,
-          rx * 0.82,
-          ry * 0.82,
+          rx * 0.78,
+          ry * 0.78,
           color,
-          1,
+          3,
           true,
         );
       }
     } else if (tele.kind === "dash") {
-      drawDottedLine(ctx, a.px, a.py, aim.px, aim.py, color, 2, [6, 4]);
+      drawDottedLine(ctx, a.px, a.py, aim.px, aim.py, color, lineW, [8, 5]);
     }
   }
 }
@@ -397,7 +501,31 @@ function drawProjectileSprite(
 
   const resolved = resolveEntrySprite(assets, champ, p.artKey, team, facing);
   if (resolved?.image) {
-    blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite);
+    const w = resolved.image.naturalWidth || resolved.image.width;
+    const h = resolved.image.naturalHeight || resolved.image.height;
+    // Dark streak / smear-like projectiles get a team core + additive pass.
+    const dark =
+      p.artKey.includes("latch") ||
+      p.artKey.includes("hook") ||
+      p.artKey.includes("chip") ||
+      p.artKey.includes("bucket");
+    if (dark && !resolved.sprite.rect && !resolved.sprite.cell) {
+      blitWithTeamCore(
+        ctx,
+        resolved.image,
+        0,
+        0,
+        w,
+        h,
+        Math.round(px - (w * VFX_SCALE) / 2),
+        Math.round(py - (h * VFX_SCALE) / 2),
+        w * VFX_SCALE,
+        h * VFX_SCALE,
+        team,
+      );
+    } else {
+      blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite);
+    }
     return true;
   }
   return false;
@@ -432,9 +560,9 @@ function drawProjectiles(
           rx,
           ry,
           TEAM_HEX[p.team],
-          2,
+          3,
           true,
-          `${TEAM_HEX[p.team]}18`,
+          `${TEAM_HEX[p.team]}22`,
         );
         void meta;
       }
@@ -446,24 +574,28 @@ function drawProjectiles(
       const caster = state.units[p.unitId];
       if (caster) {
         const c = world(caster.x, caster.y);
-        drawDottedLine(ctx, c.px, c.py, px, py, "#B08A4A", 1.5, [2, 3]);
+        drawDottedLine(ctx, c.px, c.py, px, py, "#E0B86A", 3, [3, 4]);
       }
     } else if (p.trail === "iron-chain") {
       const caster = state.units[p.unitId];
       if (caster) {
         const c = world(caster.x, caster.y);
-        drawDottedLine(ctx, c.px, c.py - 10, px, py, "#8A9098", 1.5, [3, 2]);
+        drawDottedLine(ctx, c.px, c.py - 10, px, py, "#C8D0D8", 3, [4, 3]);
       }
     } else if (p.trail === "spark") {
       ctx.save();
       ctx.fillStyle = "#F2C14E";
-      ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = OUTLINE;
+      ctx.lineWidth = 2;
       for (let i = 0; i < 3; i++) {
         const t = clamp01(u - i * 0.08);
         const sx = lerp(p.fromX, p.toX, t);
         const sy = lerp(p.fromY, p.toY, t);
         const s = world(sx, sy);
-        ctx.fillRect(Math.round(s.px) - 1, Math.round(s.py) - 1, 2, 2);
+        ctx.beginPath();
+        ctx.arc(s.px, s.py, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
       }
       ctx.restore();
     }
@@ -472,9 +604,12 @@ function drawProjectiles(
       // Fallback only when no atlas bitmap resolved.
       ctx.save();
       ctx.fillStyle = TEAM_HEX[p.team];
+      ctx.strokeStyle = OUTLINE;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(px, py - 4, p.isAuto ? 2.5 : 3.5, 0, Math.PI * 2);
+      ctx.arc(px, py - 4, p.isAuto ? 4 : 6, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
       ctx.restore();
     }
   }
@@ -495,12 +630,17 @@ function drawHitFlashes(
 
     // Skill hit ring (distinct from auto hit anim).
     ctx.save();
-    ctx.strokeStyle = "#F2E6C8";
-    ctx.lineWidth = 2;
     ctx.globalAlpha = 1 - clamp01(age / HIT_FLASH_FALLBACK);
-    ctx.beginPath();
-    ctx.ellipse(px, py - 12, 14 + frame * 2, 8 + frame, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    drawEllipseOutline(
+      ctx,
+      px,
+      py - 12,
+      16 + frame * 2,
+      9 + frame,
+      "#F2E6C8",
+      3,
+      false,
+    );
     ctx.restore();
 
     for (const key of flash.impactKeys) {
@@ -589,15 +729,15 @@ function drawStatusIcons(
             unit.facing,
           );
           if (!resolved?.image) continue;
-          const ox = slot * 10 - ((list.length - 1) * 10) / 2;
+          const ox = slot * 22 - ((list.length - 1) * 22) / 2;
           // Sleep to the right of HP bar per Sedge notes; others above head.
           const headY =
             st.kind === "sleep"
               ? py - ANCHOR_Y + 4
               : st.kind === "root" || st.kind === "slow"
-                ? py - 4
-                : py - ANCHOR_Y - 4;
-          const headX = st.kind === "sleep" ? px + 14 : px + ox;
+                ? py - 2
+                : py - ANCHOR_Y - 8;
+          const headX = st.kind === "sleep" ? px + 22 : px + ox;
           const age = state.t - st.startedAt;
           const fi = Math.floor(age * 8);
           blitSpriteAt(
@@ -623,8 +763,8 @@ function drawStatusIcons(
       }
       if (!drawn) {
         // Procedural fallback glyph.
-        const ox = slot * 10 - ((list.length - 1) * 10) / 2;
-        drawProceduralStatus(ctx, px + ox, py - ANCHOR_Y - 8, st.kind, unit.team);
+        const ox = slot * 22 - ((list.length - 1) * 22) / 2;
+        drawProceduralStatus(ctx, px + ox, py - ANCHOR_Y - 10, st.kind, unit.team);
       }
       slot += 1;
     }
@@ -643,58 +783,72 @@ function drawProceduralStatus(
   const color = TEAM_HEX[team];
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 3;
   switch (kind) {
     case "stun":
       ctx.beginPath();
-      ctx.arc(0, 0, 5, 0, Math.PI * 2);
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(-3, 0);
-      ctx.lineTo(3, 0);
-      ctx.moveTo(0, -3);
-      ctx.lineTo(0, 3);
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(5, 0);
+      ctx.moveTo(0, -5);
+      ctx.lineTo(0, 5);
       ctx.stroke();
       break;
     case "slow":
       ctx.beginPath();
-      ctx.moveTo(-5, 2);
-      ctx.lineTo(-1, -2);
-      ctx.lineTo(3, 2);
-      ctx.lineTo(6, -1);
+      ctx.moveTo(-8, 3);
+      ctx.lineTo(-2, -3);
+      ctx.lineTo(4, 3);
+      ctx.lineTo(9, -2);
       ctx.stroke();
       break;
     case "root":
       ctx.beginPath();
-      ctx.ellipse(0, 3, 6, 2.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 4, 9, 4, 0, 0, Math.PI * 2);
       ctx.stroke();
       break;
     case "silence":
       ctx.beginPath();
-      ctx.arc(0, 0, 5, 0, Math.PI * 2);
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(-3.5, 3.5);
-      ctx.lineTo(3.5, -3.5);
+      ctx.moveTo(-5, 5);
+      ctx.lineTo(5, -5);
       ctx.stroke();
       break;
     case "taunt":
       ctx.beginPath();
-      ctx.moveTo(-4, 3);
-      ctx.lineTo(0, -4);
-      ctx.lineTo(4, 3);
+      ctx.moveTo(-6, 5);
+      ctx.lineTo(0, -6);
+      ctx.lineTo(6, 5);
       ctx.closePath();
       ctx.stroke();
       break;
     case "shield":
       ctx.beginPath();
-      ctx.ellipse(0, 0, 6, 7, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 9, 10, 0, 0, Math.PI * 2);
       ctx.stroke();
       break;
     default:
-      ctx.fillRect(-3, -3, 6, 6);
+      ctx.fillRect(-5, -5, 10, 10);
   }
   ctx.restore();
+}
+
+function drawOutlinedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  color: string,
+): void {
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = OUTLINE;
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
 }
 
 function drawSkillTags(
@@ -702,24 +856,44 @@ function drawSkillTags(
   state: MatchViewState,
   active: ReturnType<typeof activeEffectsAt>,
 ): void {
-  for (const tag of active.skillTags) {
+  // One tag per caster already enforced in replay; stack by foot-Y so peers
+  // in a clump do not cover each other.
+  const placed: Array<{ x: number; y: number; w: number }> = [];
+  const tags = [...active.skillTags].sort((a, b) => {
+    const ua = state.units[a.unitId];
+    const ub = state.units[b.unitId];
+    return (ua?.y ?? 0) - (ub?.y ?? 0) || (ua?.x ?? 0) - (ub?.x ?? 0);
+  });
+  ctx.save();
+  ctx.font = "bold 12px Barlow Condensed, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  for (const tag of tags) {
     const unit = state.units[tag.unitId];
     if (!unit || !unit.alive) continue;
     const { px, py } = world(unit.x, unit.y);
-    const label = `${tag.skillKey} · ${tag.skillName}`;
+    const label = `${tag.skillKey} ${tag.skillName}`;
     const age = state.t - tag.startedAt;
-    const alpha = 1 - clamp01(age / 0.85);
-    ctx.save();
+    const alpha = 1 - clamp01(age / 0.8);
+    if (alpha <= 0) continue;
+    const metrics = ctx.measureText(label);
+    const tw = metrics.width;
+    let ty = py - ANCHOR_Y - 14;
+    // Nudge up while overlapping another tag's box.
+    for (let guard = 0; guard < 8; guard++) {
+      const hit = placed.some(
+        (p) =>
+          Math.abs(p.y - ty) < 14 &&
+          Math.abs(p.x - px) < (p.w + tw) / 2 + 6,
+      );
+      if (!hit) break;
+      ty -= 14;
+    }
+    placed.push({ x: px, y: ty, w: tw });
     ctx.globalAlpha = alpha;
-    ctx.font = "bold 9px Barlow Condensed, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.fillStyle = "#0B0E14";
-    ctx.fillText(label, px + 1, py - ANCHOR_Y - 10);
-    ctx.fillStyle = TEAM_HEX[tag.team];
-    ctx.fillText(label, px, py - ANCHOR_Y - 11);
-    ctx.restore();
+    drawOutlinedText(ctx, label, px, ty, TEAM_HEX[tag.team]);
   }
+  ctx.restore();
 }
 
 function drawUltPulses(
@@ -739,14 +913,30 @@ function drawUltPulses(
         Math.max(1e-6, pulse.endsAt - pulse.startedAt),
     );
     const color = TEAM_HEX[pulse.team];
-    const r = 12 + u * 36;
+    const r = 20 + u * 52;
     ctx.save();
-    ctx.globalAlpha = 1 - u;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.ellipse(px, py, r, r * 0.45, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.globalAlpha = 1 - u * 0.9;
+    drawEllipseOutline(
+      ctx,
+      px,
+      py,
+      r,
+      r * 0.48,
+      color,
+      4,
+      false,
+      `${color}30`,
+    );
+    drawEllipseOutline(
+      ctx,
+      px,
+      py,
+      r * 0.7,
+      r * 0.34,
+      color,
+      3,
+      true,
+    );
     ctx.restore();
   }
 }
@@ -799,18 +989,12 @@ function drawMeleeSmears(
       const [ox, oy] = hit.offset_from_anchor ?? [0, -12];
       const w = image.naturalWidth || image.width;
       const h = image.naturalHeight || image.height;
-      blitNearest(
-        ctx,
-        image,
-        0,
-        0,
-        w,
-        h,
-        Math.round(px + ox * VFX_SCALE - 9 * VFX_SCALE),
-        Math.round(py + oy * VFX_SCALE - 23 * VFX_SCALE),
-        w * VFX_SCALE,
-        h * VFX_SCALE,
-      );
+      const dx = Math.round(px + ox * VFX_SCALE - 9 * VFX_SCALE);
+      const dy = Math.round(py + oy * VFX_SCALE - 23 * VFX_SCALE);
+      const dw = w * VFX_SCALE;
+      const dh = h * VFX_SCALE;
+      // Melee smear strips are dark checkered — lift with team core + additive.
+      blitWithTeamCore(ctx, image, 0, 0, w, h, dx, dy, dw, dh, unit.team);
     }
   }
 }
@@ -846,6 +1030,7 @@ export function renderVfx(
 ): void {
   const active = activeEffectsAt(state.effects, state.t);
   drawUltPulses(ctx, state, active, opts.height);
+  drawCasterFlashes(ctx, state, active);
   drawTelegraphs(ctx, state, active);
   drawMeleeSmears(ctx, assets, state, active);
   drawProjectiles(ctx, assets, state, active);
@@ -863,6 +1048,7 @@ export function countActiveVfx(state: MatchViewState): number {
     a.hitFlashes.length +
     a.statuses.length +
     a.skillTags.length +
-    a.ultPulses.length
+    a.ultPulses.length +
+    a.casterFlashes.length
   );
 }
