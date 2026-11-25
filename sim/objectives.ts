@@ -63,7 +63,7 @@ export function tickObjectives(
   emit: Emit,
 ): boolean {
   if (state.tick === 1) {
-    emit("objectives_init", { mode, score_to_win: c.SCORE_TO_WIN, points: points.map(({ id, x, y, r }) => ({ id, x, y, r })) });
+    emit("objectives_init", { mode, score_to_win: c.SCORE_TO_WIN, majority_tick_s: c.MAJORITY_TICK_S, points: points.map(({ id, x, y, r }) => ({ id, x, y, r })) });
   }
   const need = Math.round(c.ZONE_CAPTURE_S / c.DT);
   let scored = false;

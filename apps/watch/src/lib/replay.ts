@@ -245,6 +245,7 @@ function emptyState(): MatchViewState {
     seed: null,
     constantsHash: null,
     scoreToWin: 10,
+    majorityTickS: 15,
     scoreBlue: 0,
     scoreRed: 0,
     ended: false,
@@ -258,7 +259,7 @@ function emptyState(): MatchViewState {
     points: [],
     majority: null,
     tactics: { blue: null, red: null },
-    split: { blue: { kills: 0, obj: 0 }, red: { kills: 0, obj: 0 } },
+    split: { blue: { kills: 0, obj: 0, objAt: -1 }, red: { kills: 0, obj: 0, objAt: -1 } },
     orbs: [],
     buffs: [],
     fightBlue: null,
@@ -279,10 +280,12 @@ function tacticView(raw: unknown): TacticView | null {
 }
 
 /** Credit the score delta of a scoring event to kills or objectives. */
-function addSplit(state: MatchViewState, ev: SimEvent, kind: keyof ScoreSplit): void {
+function addSplit(state: MatchViewState, ev: SimEvent, kind: "kills" | "obj"): void {
   if ((ev.team !== "blue" && ev.team !== "red") || typeof ev.score_after !== "number") return;
   const prev = ev.team === "blue" ? state.scoreBlue : state.scoreRed;
-  state.split[ev.team][kind] += Math.max(0, ev.score_after - prev);
+  const d = Math.max(0, ev.score_after - prev);
+  state.split[ev.team][kind] += d;
+  if (kind === "obj" && d > 0) state.split[ev.team].objAt = ev.t;
 }
 
 function applyEvent(
@@ -453,6 +456,7 @@ function applyEvent(
       break;
     }
     case "objectives_init": {
+      if (typeof ev.majority_tick_s === "number") state.majorityTickS = ev.majority_tick_s;
       if (Array.isArray(ev.points)) {
         state.points = (ev.points as Array<{ id: string; x: number; y: number; r: number }>).map((p) => ({
           ...p,

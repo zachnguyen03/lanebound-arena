@@ -230,6 +230,8 @@ export interface TacticView {
 export interface ScoreSplit {
   kills: number;
   obj: number;
+  /** Match time of the last objective point (−1 = none); drives the +1 pop. */
+  objAt: number;
 }
 
 export interface MatchViewState {
@@ -239,6 +241,8 @@ export interface MatchViewState {
   constantsHash: string | null;
   /** First-to target; 10 unless the match says otherwise (points mode). */
   scoreToWin: number;
+  /** Points mode: seconds between majority ticks (objectives_init). */
+  majorityTickS: number;
   scoreBlue: number;
   scoreRed: number;
   ended: boolean;

@@ -1,0 +1,206 @@
+/* Top HUD v3-C (floating cluster). Tokens and timings from the v3-C handoff. */
+@font-face { font-family: "Oxanium"; font-weight: 800; src: url("/hud/fonts/Oxanium-ExtraBold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Oxanium"; font-weight: 700; src: url("/hud/fonts/Oxanium-Bold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Tomorrow"; font-weight: 700; src: url("/hud/fonts/Tomorrow-Bold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Tomorrow"; font-weight: 600; src: url("/hud/fonts/Tomorrow-SemiBold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "HudInter"; font-weight: 400; src: url("/hud/fonts/Inter-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "HudInter"; font-weight: 600; src: url("/hud/fonts/Inter-SemiBold.ttf") format("truetype"); font-display: swap; }
+
+.hud {
+  --plate-top: #1c2230;
+  --plate-bot: #121722;
+  --hi: #5a6888;
+  --line2: #3a4660;
+  --text: #eef2f8;
+  --dim: #a1acbf;
+  --blue: #4da3ff;
+  --red: #f5477a;
+  --blue-dk: #0e1c30;
+  --red-dk: #2a101c;
+  --blue-ink: #1557a8;
+  --red-ink: #b01640;
+  --gold: #f2c14e;
+  --on-gold: #17130a;
+  --paper: #eef2f8;
+  --ink: #0e1018;
+  --sting: #8b1020;
+  --panel2: #1a2130;
+  position: relative;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  color: var(--text);
+  filter: drop-shadow(0 3px 9px rgba(0, 0, 0, 0.6));
+}
+.hud.compact { filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6)); }
+
+.hud-ox { font-family: "Oxanium", "Barlow Condensed", sans-serif; }
+.hud-tm { font-family: "Tomorrow", "Barlow Condensed", sans-serif; }
+.hud-in { font-family: "HudInter", "Barlow", sans-serif; }
+
+/* Plate segments share one gradient so the cluster reads as one piece. */
+.hud-seg {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(var(--plate-top), var(--plate-bot));
+  box-shadow: inset 0 1px 0 rgba(90, 104, 136, 0.55), inset 0 -1px 0 var(--line2);
+}
+.hud.sudden .hud-seg {
+  background:
+    repeating-linear-gradient(0deg, rgba(14, 16, 24, 0.07) 0 1px, transparent 1px 6px),
+    var(--paper);
+  background-size: 100% 6px, auto;
+  animation: hud-scan 2s linear infinite, hud-heart 0.9s ease-in-out infinite;
+}
+.hud.end-blue .hud-seg { background: linear-gradient(#173052, var(--blue-dk)); }
+.hud.end-red .hud-seg { background: linear-gradient(#4a1a2e, var(--red-dk)); }
+.hud.end-draw .hud-seg { background: linear-gradient(#262d3c, var(--plate-bot)); }
+
+.hud-cap-l { clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+.hud-cap-r { clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+.compact .hud-cap-l { clip-path: polygon(6px 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); }
+.compact .hud-cap-r { clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%); }
+
+.hud-teamcap { width: 100%; height: 100%; }
+.hud-teamcap.blue { background: linear-gradient(90deg, var(--blue-dk), var(--blue)); box-shadow: 0 0 4px var(--blue); }
+.hud-teamcap.red { background: linear-gradient(270deg, var(--red-dk), var(--red)); box-shadow: 0 0 4px var(--red); }
+
+/* Wing bleed, clipped to the identity column. Off on sudden death / end. */
+.hud-bleed-blue { background-image: linear-gradient(90deg, rgba(77, 163, 255, 0.31), transparent); }
+.hud-bleed-red { background-image: linear-gradient(270deg, rgba(245, 71, 122, 0.31), transparent); }
+.hud.sudden .hud-bleed-blue, .hud.sudden .hud-bleed-red,
+.hud[class*="end-"] .hud-bleed-blue, .hud[class*="end-"] .hud-bleed-red { background-image: none; }
+
+.hud-score { font-weight: 800; line-height: 1; }
+.hud-score.blue { color: var(--blue); text-shadow: 0 0 8px rgba(77, 163, 255, 0.51); }
+.hud-score.red { color: var(--red); text-shadow: 0 0 8px rgba(245, 71, 122, 0.51); }
+.compact .hud-score.blue { text-shadow: 0 0 5px rgba(77, 163, 255, 0.43); }
+.compact .hud-score.red { text-shadow: 0 0 5px rgba(245, 71, 122, 0.43); }
+.hud.sudden .hud-score { text-shadow: none; }
+.hud.sudden .hud-score.blue, .hud.sudden .hud-tag.blue { color: var(--blue-ink); }
+.hud.sudden .hud-score.red, .hud.sudden .hud-tag.red { color: var(--red-ink); }
+.hud-tag { font-weight: 700; line-height: 1; letter-spacing: 0.02em; }
+.hud-tag.blue { color: var(--blue); }
+.hud-tag.red { color: var(--red); }
+
+.hud-chip {
+  font-weight: 600;
+  height: 15px;
+  width: 86px;
+  font-size: 11px;
+  line-height: 15px;
+  text-align: center;
+  background: rgba(11, 14, 20, 0.55);
+}
+.hud-chip.blue { color: var(--blue); border-left: 2px solid var(--blue); }
+.hud-chip.red { color: var(--red); border-right: 2px solid var(--red); }
+.hud.sudden .hud-chip { background: rgba(14, 16, 24, 0.85); }
+.hud-src { font-size: 10px; color: var(--dim); white-space: nowrap; }
+.hud.sudden .hud-src { color: #3b4458; }
+
+/* Clock well */
+.hud-well { flex-direction: column; justify-content: center; }
+.hud-clock { font-weight: 700; line-height: 1; }
+.hud-target { font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.hud.final .hud-well {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--sting);
+  animation: hud-pulse 1.2s ease-in-out infinite;
+}
+.hud.final .hud-well .hud-target { color: #3b4458; }
+.hud.sudden .hud-wellcore { background: var(--ink); color: var(--text); }
+.hud.sudden .hud-wellcore .hud-target { color: var(--text); }
+.hud-prog { position: absolute; bottom: 0; height: 5px; }
+.compact .hud-prog { height: 3px; }
+.hud-prog.blue { right: 50%; background: var(--blue); }
+.hud-prog.red { left: 50%; background: var(--red); }
+.hud-progtrack { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: rgba(11, 14, 20, 0.6); }
+.compact .hud-progtrack { height: 3px; }
+.hud.sudden .hud-prog.blue { background: var(--blue-ink); }
+.hud.sudden .hud-prog.red { background: var(--red-ink); }
+
+/* Point markers */
+.hud-mk {
+  position: relative;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  font-family: "Tomorrow", sans-serif;
+  font-weight: 700;
+  color: var(--dim);
+  background: var(--panel2);
+  box-shadow: inset 0 0 0 1px var(--line2);
+}
+.hud-mk.blue { background: var(--blue); color: var(--ink); box-shadow: 0 0 3px var(--blue); }
+.hud-mk.red { background: var(--red); color: var(--ink); box-shadow: 0 0 3px var(--red); }
+.hud-mk.contested {
+  background: linear-gradient(180deg, var(--red) 50%, var(--blue) 50%);
+  color: var(--paper);
+  animation: hud-contest 1.2s ease-in-out infinite;
+}
+.hud-mk-arc { position: absolute; inset: -3px; border-radius: 9999px; pointer-events: none; }
+
+/* Gold majority segment */
+.hud-gold {
+  background: linear-gradient(#f7d27a, var(--gold) 55%, #d9a73c);
+  color: var(--on-gold);
+  overflow: hidden;
+}
+.hud-gold-l { clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+.hud-gold-r { clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+.compact .hud-gold-l { clip-path: polygon(6px 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); }
+.compact .hud-gold-r { clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%); }
+.hud-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 250, 230, 0.35) 45%, transparent 60%);
+  animation: hud-shine 0.4s linear 1 forwards;
+  pointer-events: none;
+}
+.hud-ring { border-radius: 9999px; display: grid; place-items: center; }
+
+/* One-shot effects */
+.hud-pop {
+  position: absolute;
+  font-family: "Oxanium", sans-serif;
+  font-weight: 800;
+  color: var(--gold);
+  text-shadow: 0 0 4px rgba(242, 193, 78, 0.6);
+  animation: hud-pop 0.4s cubic-bezier(0.5, 1, 0.89, 1) forwards;
+  pointer-events: none;
+}
+.hud-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 2px var(--sting);
+  animation: hud-flash 0.28s linear forwards;
+  pointer-events: none;
+}
+.hud-wipe {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent calc(100% - 14px), rgba(238, 242, 248, 0.7));
+  animation: hud-wipe 0.7s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+@keyframes hud-scan { to { background-position: 0 6px, 0 0; } }
+@keyframes hud-heart {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 2px rgba(139, 16, 32, 0.2); }
+  50% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 10px rgba(139, 16, 32, 0.75); }
+}
+@keyframes hud-pulse { 50% { filter: brightness(1.12); box-shadow: inset 0 0 0 2px var(--sting), 0 0 8px rgba(139, 16, 32, 0.8); } }
+@keyframes hud-contest { 50% { box-shadow: 0 0 0 2px var(--paper); } }
+@keyframes hud-shine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes hud-pop { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+@keyframes hud-flash { from { opacity: 0.85; } to { opacity: 0; } }
+@keyframes hud-wipe { from { clip-path: inset(0 100% 0 0); opacity: 1; } 90% { opacity: 1; } to { clip-path: inset(0 0 0 0); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud *, .hud .hud-seg { animation: none !important; }
+  .hud-pop, .hud-flash, .hud-wipe, .hud-shine { display: none; }
+}
