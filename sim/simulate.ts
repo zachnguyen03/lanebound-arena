@@ -53,6 +53,7 @@ import {
   type ArenaRuntime,
 } from "./arena.js";
 import { cancelRetreatWindupIfMoving } from "./retreat_combat.js";
+import { createCardRuntime, tickCards } from "./cards.js";
 import type {
   MatchConfig,
   MatchState,
@@ -484,7 +485,11 @@ function applyScriptedCc(
 }
 
 export function simulate(config: MatchConfig): SimulateResult {
-  return withKitPatch(config.kit_patch, () => simulateInner(config));
+  // exp/cards: tactic-shift cards edit the sides' tactics during the run, so work on a copy.
+  const cfg = config.cards
+    ? { ...config, blue: { ...config.blue, tactics: { ...config.blue.tactics } }, red: { ...config.red, tactics: { ...config.red.tactics } } }
+    : config;
+  return withKitPatch(cfg.kit_patch, () => simulateInner(cfg));
 }
 
 function simulateInner(config: MatchConfig): SimulateResult {
@@ -591,6 +596,7 @@ function simulateInner(config: MatchConfig): SimulateResult {
     last_geom_t: -Infinity,
   };
   let scoredThisTick = false;
+  const cardRt = config.cards ? (state.cards = createCardRuntime(state)) : null;
 
   // Publish initial S3 public state (unowned zone, pads down until spawn).
   publishArena(state, arena, rng);
@@ -897,7 +903,7 @@ function simulateInner(config: MatchConfig): SimulateResult {
       u.waypoint = null;
       u.auto_windup_left = 0;
       u.auto_windup_target = null;
-      const respawnAt = state.t + c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level;
+      const respawnAt = state.t + (c.RESPAWN_BASE + c.RESPAWN_PER_LEVEL * u.level) * (cardRt ? cardRt.team[u.team].respawn : 1);
       u.respawn_at = respawnAt;
 
       const killerId = u.last_hit_by;
@@ -1018,6 +1024,7 @@ function simulateInner(config: MatchConfig): SimulateResult {
     }
 
     publishArena(state, arena, rng);
+    if (cardRt && tickCards(state, cardRt, events, emit)) scoredThisTick = true;
 
     if (clockEndFlag) {
       endMatch(state, emit, "clock");

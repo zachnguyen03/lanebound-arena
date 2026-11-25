@@ -148,6 +148,8 @@ export interface MatchConfig {
   cadence?: Cadence;
   /** Experimental attribute damage scaling (sim/combat.ts ATTR_SCALING); absent = spec combat. */
   attr_scaling?: true | Partial<AttrScaling>;
+  /** Experimental Tactic Cards (sim/cards.ts); absent = no card runtime. */
+  cards?: import("./cards.js").Cards;
   constants?: Partial<Record<string, unknown>>;
   blue: SideConfig;
   red: SideConfig;
@@ -295,6 +297,8 @@ export interface UnitState {
   alive: boolean;
   /** Sim t at which a dead unit respawns at its own slot (Infinity while alive). */
   respawn_at: number;
+  /** exp/cards: active card multipliers (absent = none). */
+  card?: { dmg: number; taken: number; ms: number; cd: number };
   spawn_shield_until: number;
   auto_cd: number;
   /** Remaining windup time (s); 0 = not winding up. */
@@ -502,6 +506,8 @@ export interface MatchState {
   /** exp/objectives public point view. */
   objectives?: Array<{ id: string; x: number; y: number; r: number; owner: Team | null; paid: boolean }>;
   rng_counters?: Record<string, number>;
+  /** exp/cards runtime (only when MatchConfig.cards is set). */
+  cards?: import("./cards.js").CardRuntime;
 }
 
 export type EventPayload = Record<string, unknown>;

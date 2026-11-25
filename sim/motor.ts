@@ -64,7 +64,7 @@ function fightSpread(state: MatchState, unit: UnitState): { r: number; k: number
 }
 
 function flankMsMult(unit: UnitState, t: number, c: Constants): number {
-  return unit.flank_buff_until > t + 1e-12 ? 1 + c.BUFF_MS : 1;
+  return (unit.flank_buff_until > t + 1e-12 ? 1 + c.BUFF_MS : 1) * (unit.card?.ms ?? 1);
 }
 
 export function desiredVelocity(

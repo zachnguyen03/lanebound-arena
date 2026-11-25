@@ -959,9 +959,10 @@ export function tickCasts(
     const paused = isTimeStopped(u.status);
 
     if (!paused) {
-      if (u.cd_q > 0) u.cd_q = Math.max(0, u.cd_q - c.DT);
-      if (u.cd_w > 0) u.cd_w = Math.max(0, u.cd_w - c.DT);
-      if (u.cd_r > 0) u.cd_r = Math.max(0, u.cd_r - c.DT);
+      const dt = c.DT * (u.card?.cd ?? 1);
+      if (u.cd_q > 0) u.cd_q = Math.max(0, u.cd_q - dt);
+      if (u.cd_w > 0) u.cd_w = Math.max(0, u.cd_w - dt);
+      if (u.cd_r > 0) u.cd_r = Math.max(0, u.cd_r - dt);
     }
 
     if (u.cast_left > 0 && u.cast_skill) {

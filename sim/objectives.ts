@@ -78,15 +78,16 @@ export function tickObjectives(
     for (const p of points) Object.assign(p, { owner: null, bar_blue: 0, bar_red: 0, paid: false });
     return false;
   }
+  const capRate = (t: Team) => state.cards?.team[t].cap ?? 1;
   for (const p of points) {
     if (!pointLive(p, mode, state.t)) continue;
     const b = presence(state.units, p, "blue");
     const r = presence(state.units, p, "red");
     if (b > 0 && r === 0) {
-      if (p.owner !== "blue") p.bar_blue += 1;
+      if (p.owner !== "blue") p.bar_blue += capRate("blue");
       p.bar_red = Math.max(0, p.bar_red - 1);
     } else if (r > 0 && b === 0) {
-      if (p.owner !== "red") p.bar_red += 1;
+      if (p.owner !== "red") p.bar_red += capRate("red");
       p.bar_blue = Math.max(0, p.bar_blue - 1);
     } else if (b === 0 && r === 0) {
       p.bar_blue = Math.max(0, p.bar_blue - 1);

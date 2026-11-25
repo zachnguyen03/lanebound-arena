@@ -369,6 +369,7 @@ export function resolvePendingDamage(
     }
 
     mitigated *= attrDamageMult(state, source, target);
+    if (source.card || target.card) mitigated *= (source.card?.dmg ?? 1) * (target.card?.taken ?? 1);
     const abs = absorbDamage(target.status, mitigated, state.t, {
       pierceSpawnShield: scriptedPierce,
     });
