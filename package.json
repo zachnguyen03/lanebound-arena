@@ -27,7 +27,10 @@
     "batch": "tsx apps/lab/batch.ts",
     "isolation": "tsx apps/lab/isolation-cli.ts",
     "lab:s5": "tsx apps/lab/lab-s5.ts",
-    "manager:test": "for t in apps/manager/test/*.test.mjs; do tsx $t || exit 1; done"
+    "manager:test": "for t in apps/manager/test/*.test.mjs; do tsx $t || exit 1; done",
+    "manager:dev": "vite --config apps/manager/vite.config.ts",
+    "manager:build": "vite build --config apps/manager/vite.config.ts",
+    "manager:e2e": "playwright test --config apps/manager/playwright.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
