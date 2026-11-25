@@ -1,0 +1,26 @@
+/* Lanebound — Direction A "Prime Time". Single token source. */
+:root{
+  /* colour */
+  --c-field:#0B0E14; --c-panel:#121722; --c-panel-2:#1A2130; --c-line:#252E40; --c-line-2:#3A4660;
+  --c-text:#EEF2F8; --c-dim:#A1ACBF; --c-faint:#8792A6;          /* faint = min AA on field/panel */
+  --c-blue:#4DA3FF; --c-red:#FF5C6C;                             /* ONLY blue side / red side */
+  --c-action:#F2C14E; --c-on-action:#17130A;                     /* one primary action per screen */
+  --c-good:#3DDC97; --c-warn:#FFB547; --c-bad:#FF5C6C;           /* thresholds only */
+  --c-on-blue:#06111F; --c-scrim:rgba(5,7,11,.72);
+  --c-blue-wash:rgba(77,163,255,.16); --c-red-wash:rgba(255,92,108,.16); --c-action-wash:rgba(242,193,78,.10);
+  /* map */
+  --m-ground:#0F141D; --m-lane:#1F2839; --m-terrain:#161D2A; --m-terrain-edge:#2A3448; --m-pit:#F2C14E;
+  /* type */
+  --f-display:'Saira SemiCondensed',sans-serif; --f-ui:'Geist',sans-serif; --f-mono:'Geist Mono',monospace;
+  --t-xs:11px; --t-sm:12px; --t-md:14px; --t-lg:15px; --t-xl:22px; --t-2xl:30px; --t-3xl:44px; --t-4xl:64px;
+  --track-caps:.08em; --track-wide:.14em;
+  /* space (4-pt) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px;
+  /* shape */
+  --cut:8px; --radius:0; --bar:4px;
+  /* layout */
+  --topbar:56px; --gutter:24px;
+  /* motion */
+  --ease:cubic-bezier(.2,.7,.2,1); --dur-fast:120ms; --dur:220ms;
+}
+:root{ --r-common:#8E9747; --r-rare:#5FD3BF; --r-epic:#B03FC2; --r-signature:#F4E9CF; } /* Tactic Card rarity borders */

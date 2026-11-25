@@ -26,7 +26,8 @@
     "lab:s4": "tsx apps/lab/lab-s4.ts",
     "batch": "tsx apps/lab/batch.ts",
     "isolation": "tsx apps/lab/isolation-cli.ts",
-    "lab:s5": "tsx apps/lab/lab-s5.ts"
+    "lab:s5": "tsx apps/lab/lab-s5.ts",
+    "manager:test": "for t in apps/manager/test/*.test.mjs; do tsx $t || exit 1; done"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
