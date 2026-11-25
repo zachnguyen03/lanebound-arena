@@ -23,6 +23,7 @@ import {
   summariesToCsv,
 } from "./lib/csv.js";
 import type { BatchScheme } from "./lib/types.js";
+import { TEAMFIGHT_R3 } from "../../sim/cadence.js";
 
 function parseArgs(argv: string[]) {
   let n = 100;
@@ -31,6 +32,7 @@ function parseArgs(argv: string[]) {
   let out = "lab/s5";
   let cancelAfter: number | null = null;
   let sideSwapPairs = false;
+  let sandbox = false;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--n" && argv[i + 1]) n = Number(argv[++i]);
@@ -40,6 +42,8 @@ function parseArgs(argv: string[]) {
     else if (a === "--cancel-after" && argv[i + 1])
       cancelAfter = Number(argv[++i]);
     else if (a === "--side-swap-pairs") sideSwapPairs = true;
+    // exp: the Watch sandbox setup (three capture points + round-3 teamfight AI).
+    else if (a === "--sandbox") sandbox = true;
     else if (a === "--help") {
       console.log(
         "Usage: npm run batch -- --n 100..5000 --seed N [--scheme seed_range|random_draft|archetype_matrix] [--side-swap-pairs] [--out dir] [--cancel-after K]",
@@ -56,6 +60,7 @@ function parseArgs(argv: string[]) {
     scheme,
     out,
     sideSwapPairs,
+    sandbox,
     cancelAfter:
       cancelAfter !== null && Number.isFinite(cancelAfter)
         ? cancelAfter
@@ -77,6 +82,9 @@ function writeResult(outDir: string, result: ReturnType<typeof runBatch>) {
 const args = parseArgs(process.argv.slice(2));
 const batch = defaultEvenBatchConfig(args.n, args.seed, args.scheme);
 batch.side_swap_pairs = args.sideSwapPairs;
+if (args.sandbox) {
+  batch.base = { ...batch.base, objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 } };
+}
 
 let cancelRequested = false;
 let completed = 0;
