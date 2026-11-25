@@ -164,7 +164,7 @@ function renderLive(app) {
       <div class="l-feed"><h3 class="disp">Feed</h3><div id="feed"></div></div></div></div>`;
   let shown = -1;
   const ctl = mountMatch($('#stage', app), sum.config, {
-    names, speed: md.speed, paused: md.paused,
+    names, tags: teams.map(x => x?.tag), speed: md.speed, paused: md.paused,
     onTick: t => {
       const sec = Math.floor(t); if (sec === shown) return; shown = sec;
       const sc = sum.timeline.filter(x => x.t <= t).at(-1).s;
@@ -216,7 +216,7 @@ function renderPost(app) {
 // ================= Match report (15) =================
 export function report(app, gid, startT = null) {
   const W = state.W, r = W.reports[gid], g = W.games.find(x => x.id === +gid);
-  const top = `<header class="top"><a class="wm" href="#/home">LANE<i>/</i>BREAK</a><span class="crumb"><a href="#/stats/games">Stats › Games</a> › <b>Match report</b></span><span class="sp"></span><button class="btn btn-ghost" onclick="history.back()">◂ Back</button></header>`;
+  const top = `<header class="top"><a class="wm" href="#/home">LANE<i>/</i>BOUND</a><span class="crumb"><a href="#/stats/games">Stats › Games</a> › <b>Match report</b></span><span class="sp"></span><button class="btn btn-ghost" onclick="history.back()">◂ Back</button></header>`;
   if (!r) { app.innerHTML = `${top}<main class="view pad">${empty('Detailed report not kept', g ? `${esc(team(W, g.winner)?.name)} won ${g.score[0]}–${g.score[1]} in ${fmt(g.dur)}. Full reports are kept for your games and finals (the latest 40).` : 'This game is no longer in the records.', '<a class="btn btn-secondary" href="#/stats/games">All games</a>')}</main>`; return; }
   const s = W.series[g?.sid], teams = [team(W, r.blue), team(W, r.red)], names = teams.map(t => t?.name ?? '?');
   const others = s ? s.games.filter(id => W.reports[id]) : [+gid];
@@ -236,7 +236,7 @@ export function report(app, gid, startT = null) {
   if (!replay) return;
   let playing = false, sec = -1;
   const ctl = mountMatch($('#rstage', app), r.config, {
-    names, paused: true, startT: t, scale: 0.6,
+    names, tags: teams.map(x => x?.tag), paused: true, startT: t, scale: 0.6,
     onTick: x => { t = x; if (Math.floor(x) === sec) return; sec = Math.floor(x); $('#scrub', app).value = Math.floor(t); $('#tm', app).textContent = fmt(t); $('#rgold', app).innerHTML = scoreGraph(r.timeline, 340, 70, t); },
     onEnd: () => setPlaying(false),
   });

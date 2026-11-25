@@ -9,9 +9,11 @@ interface Props {
   state: MatchViewState;
   layout: HudLayout;
   portraits?: Record<string, TeamPortraits>;
+  /** Player names by slot order (career); champion name when unset. */
+  names?: string[];
 }
 
-export function TeamRail({ side, state, layout, portraits }: Props) {
+export function TeamRail({ side, state, layout, portraits, names }: Props) {
   const rail = side === "blue" ? layout.left_rail : layout.right_rail;
   const tf = layout.team_frames;
   const [fw, fh] = tf.size;
@@ -106,7 +108,7 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
                     compact ? "text-[11px] leading-4" : "text-sm",
                   )}
                 >
-                  {u.champ === "unknown" ? SLOT_LABEL[slot] : u.champ}
+                  {names?.[SLOTS.indexOf(slot)] ?? (u.champ === "unknown" ? SLOT_LABEL[slot] : u.champ)}
                 </div>
                 <div className={cn("flex justify-between gap-1", compact ? "text-[10px] leading-3" : "text-xs")}>
                   <span data-testid={`kda-${u.id}`} className="tabular-nums text-paper" title="Kills / Deaths / Assists">

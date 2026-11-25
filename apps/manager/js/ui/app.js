@@ -64,7 +64,7 @@ export function dateLabel(W) {
 function topBar(tab) {
   const W = state.W, n = unread(W);
   return `<header class="top">
-    <a class="wm" href="#/home">LANE<i>/</i>BREAK</a>
+    <a class="wm" href="#/home">LANE<i>/</i>BOUND</a>
     <nav class="tabs" aria-label="Main">${TABS.map(([k, l]) => `<a class="tab ${tab === k ? 'on' : ''}" href="#/${k}">${l}</a>`).join('')}</nav>
     <span class="sp"></span>
     <a class="icon-btn ${tab === 'inbox' ? 'on' : ''}" href="#/inbox" aria-label="Inbox, ${n} unread"><svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x=".75" y=".75" width="16.5" height="12.5"/><path d="m1 1 8 6 8-6"/></svg>${n ? `<span class="badge">${n > 99 ? '99+' : n}</span>` : ''}</a>
@@ -132,7 +132,7 @@ async function mainMenu() {
   const latest = Object.entries(saves).sort((a, b) => b[1].savedAt - a[1].savedAt)[0];
   app.innerHTML = `<main class="menu">
     <div class="menu-l">
-      <div class="wm big">LANE<i>/</i>BREAK</div>
+      <div class="wm big">LANE<i>/</i>BOUND</div>
       <p class="dim">Esports manager · 5v5 arena · ${REGIONS.length} regions</p>
       <div class="stack menu-actions">
         ${latest ? `<button class="btn btn-primary btn-lg" data-load="${latest[0]}">Continue career ▸</button><span class="dim small">${esc(latest[1].club)} · ${fmtDate(latest[1].year, latest[1].day)} ${latest[1].year} · ${SLOT_LABEL[latest[0]]}</span>` : ''}

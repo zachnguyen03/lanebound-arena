@@ -72,9 +72,11 @@ function Marker({ p, size, settled }: { p: PointView; size: number; settled: boo
 interface Props {
   state: MatchViewState;
   compact: boolean;
+  /** Team tags (career clubs); BLUE / RED when unset. */
+  tags?: Record<Team, string>;
 }
 
-export function TopHud({ state, compact }: Props) {
+export function TopHud({ state, compact, tags = TAG }: Props) {
   const g = compact ? GEOM.compact : GEOM.full;
   const phase = hudPhase(state);
   const points = state.points.length > 0;
@@ -118,7 +120,7 @@ export function TopHud({ state, compact }: Props) {
         <div className={`flex items-center gap-1.5 ${mirror ? "flex-row-reverse" : ""}`}>
           <img src={CREST[team]} alt="" width={compact ? 16 : 26} height={compact ? 16 : 26} className="pixelated" />
           <span className={`hud-tm hud-tag ${team}`} style={{ fontSize: compact ? 14 : 20 }}>
-            {TAG[team]}
+            {tags[team]}
           </span>
         </div>
         {!compact && t ? (
