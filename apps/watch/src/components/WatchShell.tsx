@@ -42,6 +42,7 @@ import { CardToastSlot, DockPanels } from "./DockPanels";
 import { DecisionStrip } from "./DecisionStrip";
 import { DevPanel } from "./DevPanel";
 import { EventLogPanel } from "./EventLogPanel";
+import { KillBanner } from "./KillBanner";
 import { KillFeed } from "./KillFeed";
 import { LogLoader } from "./LogLoader";
 import { MatchSetup } from "./MatchSetup";
@@ -566,6 +567,12 @@ export function WatchShell({
                   vfx={vfx}
                   subTick={playing ? subTick : undefined}
                   next={nextState}
+                />
+                <KillBanner
+                  events={engine.events}
+                  currentTick={tick}
+                  state={state}
+                  portraits={assets?.portraits}
                 />
               </div>
 
