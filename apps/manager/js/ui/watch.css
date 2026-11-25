@@ -1,0 +1,37 @@
+/* Tailwind for the Watch components only: no preflight, so the manager's own styles stay as they are. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../../../watch/src/components";
+
+@font-face { font-family: "Oxanium"; font-weight: 800; src: url("/hud/fonts/Oxanium-ExtraBold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Oxanium"; font-weight: 700; src: url("/hud/fonts/Oxanium-Bold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Tomorrow"; font-weight: 700; src: url("/hud/fonts/Tomorrow-Bold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Tomorrow"; font-weight: 600; src: url("/hud/fonts/Tomorrow-SemiBold.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Inter"; font-weight: 400; src: url("/hud/fonts/Inter-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Inter"; font-weight: 600; src: url("/hud/fonts/Inter-SemiBold.ttf") format("truetype"); font-display: swap; }
+
+@theme {
+  --color-field: #0b0e14;
+  --color-panel: #121722;
+  --color-panel-2: #1a2130;
+  --color-line: #252e40;
+  --color-line-2: #3a4660;
+  --color-paper: #eef2f8;
+  --color-dim: #a1acbf;
+  --color-faint: #8792a6;
+  --color-team-blue: #4da3ff;
+  --color-team-blue-dark: #0e1c30;
+  --color-team-red: #f5477a;
+  --color-team-red-dark: #2a101c;
+  --color-gold: #f2c14e;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: "Tomorrow", "Inter", ui-sans-serif, sans-serif;
+  --font-numeric: "Oxanium", "Inter", ui-sans-serif, sans-serif;
+}
+.watch-stage { font-family: var(--font-sans); color: var(--color-paper); line-height: 1.5; }
+.watch-stage *, .watch-stage *::before, .watch-stage *::after { box-sizing: border-box; }
+.watch-stage .pixelated { image-rendering: pixelated; }
+.watch-name { position: absolute; top: 12px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 14px var(--font-condensed); text-transform: uppercase; }
+.watch-name.blue { left: 16px; color: var(--color-team-blue); }
+.watch-name.red { right: 16px; color: var(--color-team-red); }

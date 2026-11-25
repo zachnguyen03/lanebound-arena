@@ -1,6 +1,5 @@
 // Club-side screens: Home (03), Squad (02/18/18b), Training (08), Tactics (09), Transfers (10/10b), Club (11), player and team pages.
-import { ROLES, CHAMPS, CHAMP_IDS, ATTRS, ATTR_LABEL, ATTR_SHORT, TF_ROLES, TF_DEFAULT, REGIONS, COMP_TAGS, COMP_TEXT } from '../data.js';
-import { PLAN_PRESETS, clonePlan } from '../sim.js';
+import { ROLES, CHAMPS, CHAMP_IDS, ATTRS, ATTR_LABEL, ATTR_SHORT, REGIONS, PLAN_PRESETS, clonePlan } from '../data.js';
 import {
   userTeam, team, teamPlayers, academyPlayers, allPlayers, overall, strength, payroll, wageCap, capRoom, valueOf, wageFor, MASTERY, potentialStars, fmtDate, weekday,
   nextUserSeries, involvesUser, userLeague, sortedTable, currentSplit, autoStarters, setStarter, promote, demote, transferList, releaseCompensation, releasePlayer,
@@ -9,16 +8,16 @@ import {
   conditionForecast, FIRST_TEAM_MAX, ACADEMY_MAX, ledger, tierName, coachRating, REGION_INFO, ordinal, scoutDays, comfortPool, metaFit, weeksTo, initManager, confLabel, requestBudget, takeJob, setUserTeam, scrimPartners, PERSONAS, PROMISES, STATUS_LABEL, statusOf, personaKnown, ensurePeople, pairChem, teamChem,
 } from '../career.js';
 import { state, go } from './state.js';
-import { esc, $, on, money, pct, num, crest, sprite, spriteURL, bar, condColor, spark, wl, seg, select, empty, card, table, wireTables, toast, modal, ROLE_SHORT } from './dom.js';
+import { esc, $, on, money, pct, num, crest, sprite, bar, condColor, spark, wl, seg, select, empty, card, table, wireTables, toast, modal, ROLE_SHORT } from './dom.js';
 
 const rr = () => state.rerender();
-const CLASS_COLOR = { Tank: '#6b8cae', Bruiser: '#c0623f', Fighter: '#c0623f', Assassin: '#7a5cc2', Mage: '#5a6ad6', Marksman: '#c99a2e', Enchanter: '#d36aa8' };
-export const champSprite = (id, size = 32) => `<span class="sprite" style="width:${size}px;height:${size}px" title="${esc(CHAMPS[id]?.name)}"><img class="px" src="${spriteURL(`c-${id}`, CLASS_COLOR[CHAMPS[id]?.cls] ?? '#888')}" alt=""></span>`;
+// Champion portrait: the Watch app's painted 64 px art (apps/watch/public).
+export const champSprite = (id, size = 32) => `<span class="sprite" style="width:${size}px;height:${size}px" title="${esc(CHAMPS[id]?.name)}"><img src="/champions/portraits/painted/${id}/${id}-64.png" alt="" width="${size}" height="${size}"></span>`;
 export const pLink = p => `<a href="#/player/${p.id}">${esc(p.name)}</a>`;
 export const tLink = t => (t ? `<a class="tm" href="#/team/${t.id}">${crest(t, 18)} ${esc(t.name)}</a>` : '<span class="dim">Free agent</span>');
 const recent = (W, tid, n = 5) => W.games.filter(g => g.blue === tid || g.red === tid).slice(-n).map(g => g.winner === tid);
 export function winChance(W, a, b) { const d = strength(W, a) - strength(W, b); return 1 / (1 + Math.exp(-(d * 0.05 + d ** 3 * 0.00044))); }
-const seasonAgg = (W, t) => { const a = { gp: 0, fb: 0, mins: 0, gold: 0, ga: 0 }; for (const [k, s] of Object.entries(t.season)) if (k.startsWith(String(W.year))) { a.gp += s.gp; a.fb += s.fb; a.mins += s.mins; a.gold += s.gold; a.ga += s.goldAgainst; } return a; };
+const seasonAgg = (W, t) => { const a = { gp: 0, fb: 0, mins: 0, score: 0, sa: 0 }; for (const [k, s] of Object.entries(t.season)) if (k.startsWith(String(W.year))) { a.gp += s.gp; a.fb += s.fb; a.mins += s.mins; a.score += s.score; a.sa += s.scoreAgainst; } return a; };
 const compare = (label, a, b, fmt) => { const tot = Math.abs(a) + Math.abs(b) || 1; return `<div class="cmp"><span class="caps">${label}</span><div class="cmp-row"><b class="num">${fmt(a)}</b><span class="cmpbar"><i class="bl" style="flex:${Math.max(0.05, Math.abs(a) / tot)}"></i><i class="rd" style="flex:${Math.max(0.05, Math.abs(b) / tot)}"></i></span><b class="num">${fmt(b)}</b></div></div>`; };
 
 // ================= Home (03) =================
@@ -33,7 +32,7 @@ export function home(el) {
         <div class="wc"><i class="bl" style="flex:${wc}"></i><i class="rd" style="flex:${1 - wc}"></i></div><div class="row between small"><span><b>${pct(wc)}</b> win chance</span><b>${pct(1 - wc)}</b></div>
         <span class="dim small">${esc(W.comps[s.comp].name)} · ${esc(s.label)}</span></div>
       <div class="hero-side right"><div><h2 class="disp xl">${esc(opp.name)}</h2><div>${wl(recent(W, opp.id))}</div></div>${crest(opp, 72)}</div></section>
-      <div class="hero-stats">${compare('Gold diff per game', au.gp ? (au.gold - au.ga) / au.gp : 0, ao.gp ? (ao.gold - ao.ga) / ao.gp : 0, v => `${v >= 0 ? '+' : ''}${(v / 1000).toFixed(1)}k`)}
+      <div class="hero-stats">${compare('Score diff per game', au.gp ? (au.score - au.sa) / au.gp : 0, ao.gp ? (ao.score - ao.sa) / ao.gp : 0, v => `${v >= 0 ? '+' : ''}${v.toFixed(1)}`)}
         ${compare('First blood rate', au.gp ? au.fb / au.gp : 0, ao.gp ? ao.fb / ao.gp : 0, v => pct(v))}
         ${compare('Avg. game length', au.gp ? au.mins / au.gp : 0, ao.gp ? ao.mins / ao.gp : 0, v => `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, '0')}`)}</div>`;
   } else hero = `<section class="hero empty-hero">${empty('No fixture scheduled', 'Your next match appears here once the schedule reaches it. Use Continue to move through the off-season.')}</section>`;
@@ -113,13 +112,11 @@ function playerPanel(W, p, u) {
 
 function lineup(el) {
   const W = state.W, u = userTeam(W), pool = teamPlayers(W, u);
-  el.innerHTML = `<div class="pad"><div class="row between mb"><p class="dim">Pick who starts in each role and their teamfight job. Playing off-role costs about 5–12% of their attributes.</p><button class="btn btn-secondary" id="auto">Auto-pick best five</button></div>
-    <div class="lineup">${ROLES.map((role, i) => { const p = W.players[u.starters[i]], champ = CHAMP_IDS.slice().sort((a, b) => p.prof[b] - p.prof[a])[0]; return `<section class="card slot-card"><span class="caps">${role}</span>${sprite(p.id, u.color, 64)}
+  el.innerHTML = `<div class="pad"><div class="row between mb"><p class="dim">Pick who starts in each role. Playing off-role costs about 5–12% of their attributes.</p><button class="btn btn-secondary" id="auto">Auto-pick best five</button></div>
+    <div class="lineup">${ROLES.map((role, i) => { const p = W.players[u.starters[i]]; return `<section class="card slot-card"><span class="caps">${role}</span>${sprite(p.id, u.color, 64)}
       ${select(`slot="${i}"`, pool.map(q => [q.id, `${q.name} · ${q.role} · ${overall(q, role)}`]), p.id, 'aria-label="Player"')}
-      <div class="kv"><span>In this role</span><b>${overall(p, role)}</b></div><div class="kv"><span>Condition</span><b style="color:${condColor(p.condition)}">${Math.round(p.condition)}</b></div>
-      <label class="small">Teamfight role ${select(`tf="${p.id}"`, [['', `Auto (${TF_DEFAULT[CHAMPS[champ].cls]})`], ...TF_ROLES.map(r => [r, r])], u.tfRoles[p.id] ?? '')}</label></section>`; }).join('')}</div></div>`;
+      <div class="kv"><span>In this role</span><b>${overall(p, role)}</b></div><div class="kv"><span>Condition</span><b style="color:${condColor(p.condition)}">${Math.round(p.condition)}</b></div></section>`; }).join('')}</div></div>`;
   on(el, 'select[data-slot]', 'change', s => { setStarter(W, +s.dataset.slot, s.value); rr(); });
-  on(el, 'select[data-tf]', 'change', s => { if (s.value) u.tfRoles[s.dataset.tf] = s.value; else delete u.tfRoles[s.dataset.tf]; toast('Teamfight role set.'); });
   $('#auto', el).onclick = () => { autoStarters(W, u); rr(); };
 }
 
@@ -185,32 +182,22 @@ export function training(el) {
 // ================= Tactics (09) =================
 export function tactics(el) {
   const W = state.W, u = userTeam(W), plan = u.plan;
-  const pseg = (ph, k, opts) => `<span class="seg" role="group">${opts.map(([v, l]) => `<span role="button" tabindex="0" data-ph="${ph}" data-k="${k}" data-v="${v}" class="${plan.phases[ph][k] === v ? 'on' : ''}">${l}</span>`).join('')}</span>`;
-  const phase = ph => `<div class="phase"><span class="caps">${ph}</span>${pseg(ph, 'posture', [['aggressive', 'Aggressive'], ['balanced', 'Balanced'], ['defensive', 'Defensive']])}${pseg(ph, 'style', [['teamfight', 'Teamfight'], ['split', 'Split push'], ['macro', 'Macro']])}</div>`;
   el.innerHTML = `<div class="pad split-wide">
     ${card('Game plan', `Preset ${select('preset', [['', 'Custom'], ...Object.entries(PLAN_PRESETS).map(([k, p]) => [k, p.name])], Object.keys(PLAN_PRESETS).find(k => PLAN_PRESETS[k].name === plan.name) ?? '')}`, `<div class="pad-s form">
-      <p class="dim">Early is the first 3 minutes, mid to 6:00, late after. Changes during a live game wait until the next reset.</p>
-      ${['early', 'mid', 'late'].map(phase).join('')}
-      <label>Target focus ${seg('focus', [['nearest', 'Nearest'], ['weakest', 'Weakest'], ['carry', 'Carries']], plan.focus)}</label>
-      <label>Jungle focus ${seg('jungle', [['any', 'Any'], ['top', 'Top'], ['mid', 'Mid'], ['bot', 'Bot']], plan.jungle)}</label>
-      <label>Objective priority ${seg('objective', [['titan', 'Titan'], ['shrine', 'Shrine'], ['towers', 'Towers']], plan.objective)}</label>
-      <label>Adapt when behind ${seg('adapt', [[true, 'On'], [false, 'Off']], plan.adapt)}</label>
-      <label>Scrim partner ${select('scrim', [['', 'None'], ...scrimPartners(W, u).map(t => [t.id, `${t.name} (rep ${t.rep})`])], u.scrim ?? '')}<small class="dim">Weekly: starters gain mastery on their best champions (more against stronger clubs), chemistry grows, and you learn the partner's comfort picks. Costs a little condition.</small></label>
-      <label>Drafting plan ${seg('draftpref', [['auto', 'Auto'], ...COMP_TAGS.map(t => [t, t[0].toUpperCase() + t.slice(1)])], u.draftPref ?? 'auto')}</label>
-      <p class="dim small">${esc(COMP_TEXT[u.draftPref && u.draftPref !== 'auto' ? u.draftPref : 'mixed'] ?? '')}${u.draftPref && u.draftPref !== 'auto' ? '' : ' — Auto: the analyst builds around your first picks.'} Engage beats poke, poke beats protect, protect beats engage.</p></div>`)}
-    ${card('Lanes and mastery', `Coach rating ${coachRating(u)}/20`, `<table><thead><tr><th>Lane</th><th>Player</th><th>Teamfight role</th><th>Best champions</th></tr></thead><tbody>${u.starters.map((id, i) => { const p = W.players[id], top = CHAMP_IDS.slice().sort((a, b) => p.prof[b] - p.prof[a]).slice(0, 3); return `<tr><td>${select(`lane="${i}"`, ROLES.map((r, j) => [j, r]), i)}</td><td>${pLink(p)}</td><td>${select(`tf="${p.id}"`, [['', 'Auto'], ...TF_ROLES.map(r => [r, r])], u.tfRoles[p.id] ?? '')}</td><td class="mastery">${top.map(c => `<span title="${CHAMPS[c].name}">${champSprite(c, 24)}<b class="${MASTERY(p.prof[c]) === 'S' ? 'gold' : ''}">${MASTERY(p.prof[c])}</b></span>`).join('')}</td></tr>`; }).join('')}</tbody></table>
+      <p class="dim">The plan is fixed for the whole game. Team Aggression can shift the posture one step.</p>
+      <label>Approach ${seg('preset', [['hold_the_pit', 'Hold the pit'], ['hunt', 'Hunt'], ['starve', 'Starve']], plan.preset)}<small class="dim">Hold: group on the centre point. Hunt: chase fights and take enemy-held points. Starve: spread over the points and avoid fights.</small></label>
+      <label>Posture ${seg('posture', [['aggressive', 'Aggressive'], ['balanced', 'Balanced'], ['defensive', 'Defensive']], plan.posture)}</label>
+      <label>Target focus ${seg('focus', [['auto', 'Auto'], ...ROLES.map(r => [r, ROLE_SHORT[r]])], plan.focus)}</label>
+      <label>Protect the carry ${seg('protect', [[true, 'On'], [false, 'Off']], plan.protect)}</label>
+      <label>Scrim partner ${select('scrim', [['', 'None'], ...scrimPartners(W, u).map(t => [t.id, `${t.name} (rep ${t.rep})`])], u.scrim ?? '')}<small class="dim">Weekly: starters gain mastery on their best champions (more against stronger clubs), chemistry grows, and you learn the partner's comfort picks. Costs a little condition.</small></label></div>`)}
+    ${card('Lanes and mastery', `Coach rating ${coachRating(u)}/20`, `<table><thead><tr><th>Lane</th><th>Player</th><th>Best champions</th></tr></thead><tbody>${u.starters.map((id, i) => { const p = W.players[id], top = CHAMP_IDS.slice().sort((a, b) => p.prof[b] - p.prof[a]).slice(0, 3); return `<tr><td>${select(`lane="${i}"`, ROLES.map((r, j) => [j, r]), i)}</td><td>${pLink(p)}</td><td class="mastery">${top.map(c => `<span title="${CHAMPS[c].name}">${champSprite(c, 24)}<b class="${MASTERY(p.prof[c]) === 'S' ? 'gold' : ''}">${MASTERY(p.prof[c])}</b></span>`).join('')}</td></tr>`; }).join('')}</tbody></table>
       <p class="pad-s dim small">Lane swap: pick a different lane for a player and they trade places with whoever holds it.</p>`)}</div>`;
   const set = (k, v) => { plan[k] = v; plan.name = 'Custom'; rr(); };
-  on(el, '[data-focus]', 'click', b => set('focus', b.dataset.focus));
-  on(el, '[data-jungle]', 'click', b => set('jungle', b.dataset.jungle));
-  on(el, '[data-objective]', 'click', b => set('objective', b.dataset.objective));
-  on(el, '[data-adapt]', 'click', b => set('adapt', b.dataset.adapt === 'true'));
-  on(el, '[data-draftpref]', 'click', b => { u.draftPref = b.dataset.draftpref; rr(); });
+  for (const k of ['preset', 'posture', 'focus']) on(el, `[data-${k}]:not(select)`, 'click', b => set(k, b.dataset[k]));
+  on(el, '[data-protect]', 'click', b => set('protect', b.dataset.protect === 'true'));
   $('select[data-scrim]', el)?.addEventListener('change', e => { u.scrim = e.target.value || null; toast(u.scrim ? 'Scrims booked for Mondays.' : 'Scrims cancelled.'); });
-  on(el, '[data-ph]', 'click', b => { plan.phases[b.dataset.ph][b.dataset.k] = b.dataset.v; plan.name = 'Custom'; rr(); });
   $('select[data-preset]', el).onchange = e => { if (e.target.value) { u.plan = clonePlan(PLAN_PRESETS[e.target.value]); rr(); } };
   on(el, 'select[data-lane]', 'change', s => { const from = +s.dataset.lane, to = +s.value; [u.starters[from], u.starters[to]] = [u.starters[to], u.starters[from]]; rr(); });
-  on(el, 'select[data-tf]', 'change', s => { if (s.value) u.tfRoles[s.dataset.tf] = s.value; else delete u.tfRoles[s.dataset.tf]; });
 }
 
 // ================= Transfers (10, 10b) =================
@@ -346,7 +333,7 @@ export function player(el, [pid]) {
         ${!own && !p.retired ? `<a class="btn btn-primary" href="#/negotiate/${p.id}">${t ? 'Make a bid' : 'Offer contract'}</a>` : ''}</div>
         <div class="pad-s row wrap"><span class="kvc"><span class="caps">Overall</span><b>${k.exact ? overall(p) : `${k.ability[0]}–${k.ability[1]}`}</b></span><span class="kvc"><span class="caps">Potential</span><b>${k.exact ? p.potential : `${k.potential[0]}–${k.potential[1]}`}</b></span>
         <span class="kvc"><span class="caps">Value</span><b>${money(valueOf(p))}</b></span><span class="kvc"><span class="caps">Wage</span><b>${money(p.wage)}</b></span><span class="kvc"><span class="caps">Contract</span><b>${p.contractEnd}</b></span><span class="kvc"><span class="caps">Form</span>${spark(p.form, 60, 18)}</span></div></section>
-      ${card('Stats by competition', '', comps.length ? `<div class="scroll"><table><thead><tr><th>Competition</th><th class="n">GP</th><th class="n">W</th><th class="n">KDA</th><th class="n">CS/m</th><th class="n">DMG/m</th><th class="n">Vis/m</th><th class="n">Rating</th><th class="n">MVP</th></tr></thead><tbody>${comps.map(c => `<tr><td>${esc(c.name)}</td><td class="n">${c.gp}</td><td class="n">${c.w}</td><td class="n">${num((c.k + c.a) / Math.max(1, c.d), 2)}</td><td class="n">${num(c.cs / c.mins)}</td><td class="n">${Math.round(c.dmg / c.mins)}</td><td class="n">${num(c.vision / c.mins)}</td><td class="n">${num(c.rating / c.gp, 2)}</td><td class="n">${c.mvp}</td></tr>`).join('')}</tbody></table></div>` : `<div class="pad-s">${empty('No games yet')}</div>`)}
+      ${card('Stats by competition', '', comps.length ? `<div class="scroll"><table><thead><tr><th>Competition</th><th class="n">GP</th><th class="n">W</th><th class="n">KDA</th><th class="n">DMG/m</th><th class="n" title="Seconds on capture points a minute">Pts s/m</th><th class="n">Rating</th><th class="n">MVP</th></tr></thead><tbody>${comps.map(c => `<tr><td>${esc(c.name)}</td><td class="n">${c.gp}</td><td class="n">${c.w}</td><td class="n">${num((c.k + c.a) / Math.max(1, c.d), 2)}</td><td class="n">${Math.round(c.dmg / c.mins)}</td><td class="n">${num(c.obj / c.mins)}</td><td class="n">${num(c.rating / c.gp, 2)}</td><td class="n">${c.mvp}</td></tr>`).join('')}</tbody></table></div>` : `<div class="pad-s">${empty('No games yet')}</div>`)}
       ${card('Recent games', '', p.history.length ? `<table><tbody>${p.history.map(h => `<tr><td class="dim">${fmtDate(h.year, h.day)}</td><td>vs ${esc(team(W, h.opp)?.name ?? '?')}</td><td><span class="tm">${champSprite(h.champ, 20)} ${CHAMPS[h.champ]?.name}</span></td><td class="n">${h.k}/${h.d}/${h.a}</td><td class="n">${h.rating}</td><td><span class="f ${h.win ? 'w' : 'l'}">${h.win ? 'W' : 'L'}</span></td><td>${W.reports[h.g] ? `<a href="#/report/${h.g}">Report</a>` : ''}</td></tr>`).join('')}</tbody></table>` : `<div class="pad-s">${empty('No games yet')}</div>`)}
     </div>
     <div class="stack">${k.exact || own ? playerPanel(W, p, t) : card('Attributes', 'Unknown', `<div class="pad-s">${empty('Scout to reveal attributes', `Ranges narrow over ${scoutDays(userTeam(W))} days of scouting.`, W.scouting[pid] ? '<span class="dim">Scouting in progress</span>' : `<button class="btn btn-secondary" id="sc">Scout (${money(SCOUT_COST)})</button>`)}</div>`)}

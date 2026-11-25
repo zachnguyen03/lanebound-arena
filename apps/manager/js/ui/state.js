@@ -5,7 +5,7 @@ import { loadSettings, saveSettings, writeSave } from './store.js';
 import { modal, download, toast } from './dom.js';
 
 export const state = { W: null, slot: 'slot1', settings: loadSettings(), busy: false, stop: false, rerender: () => {} };
-export const applySettings = () => { CFG.simDetail = state.settings.simDetail; CFG.fearless = state.settings.fearless; saveSettings(state.settings); };
+export const applySettings = () => { CFG.simDetail = state.settings.simDetail; saveSettings(state.settings); };
 applySettings();
 
 export const go = hash => { if (location.hash === hash) state.rerender(); else location.hash = hash; };

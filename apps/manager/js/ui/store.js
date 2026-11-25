@@ -1,6 +1,5 @@
 // Saves (IndexedDB: 3 slots + autosave, each with a .bak copy; export/import as .json) and global settings.
-import { SAVE_VERSION, initManager, setGoals, userTeam } from '../career.js';
-import { CHAMP_IDS } from '../data.js';
+import { SAVE_VERSION } from '../career.js';
 
 export const SLOTS = ['slot1', 'slot2', 'slot3', 'auto'];
 export const SLOT_LABEL = { slot1: 'Slot 1', slot2: 'Slot 2', slot3: 'Slot 3', auto: 'Autosave' };
@@ -8,7 +7,7 @@ const LEGACY_KEY = 'lanebreak-career'; // v0.3 single save
 
 // ---------- Settings ----------
 const SETTINGS_KEY = 'lanebreak-settings';
-export const DEFAULT_SETTINGS = { speed: 2, simDetail: 'fast', fearless: false, confirmContinue: false, pauseOffers: true, pauseScouting: false, autosave: 'weekly' };
+export const DEFAULT_SETTINGS = { speed: 2, simDetail: 'fast', confirmContinue: false, pauseOffers: true, pauseScouting: false, autosave: 'weekly' };
 export function loadSettings() { try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)) }; } catch { return { ...DEFAULT_SETTINGS }; } }
 export function saveSettings(s) { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch { /* settings stay in memory */ } }
 
@@ -69,22 +68,14 @@ export async function readSave(slot) {
 export async function deleteSave(slot) {
   try { await tx('readwrite', st => { st.delete(`${slot}.bak`); return st.delete(slot); }); } catch { /* ignore */ }
 }
-// Schema migrations: add `[from]: W => W'` steps as the save format changes. v2 (pre-arena) worlds are not convertible.
-const MIGRATIONS = {
-  // v3 (0.4) -> v4 (0.5): 40 champions, draft plans, board and manager, long-term goals. Patches and personalities fill in lazily.
-  3: W => {
-    for (const p of Object.values(W.players)) for (const id of CHAMP_IDS) p.prof[id] ??= +(0.6 + Math.random() * 0.25).toFixed(2);
-    for (const t of W.teams) t.draftPref ??= 'auto';
-    if (W.userTeamId) { initManager(W); W.manager.since ??= W.year; const u = userTeam(W); if (!u.goals) setGoals(W, u); }
-    return { ...W, v: 4 };
-  },
-};
+// Schema migrations: add `[from]: W => W'` steps as the save format changes. v4 and older (pre-Lanebound engine) can't be converted.
+const MIGRATIONS = {};
 // Import a downloaded .json save; returns { W } or { error }.
 export function importSave(text) {
   try { const W = migrate(JSON.parse(text)); return W ? { W } : { error: 'That save is too old to load.' }; } catch { return { error: 'Not a Lanebreak save file.' }; }
 }
 export function migrate(W) {
-  if (!W || typeof W.v !== 'number' || W.v < 3) return null;
+  if (!W || typeof W.v !== 'number' || W.v < 5) return null;
   while (W.v < SAVE_VERSION) { const m = MIGRATIONS[W.v]; if (!m) return null; W = m(W); }
   return W;
 }

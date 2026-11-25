@@ -213,8 +213,7 @@ function settings(el) {
   el.innerHTML = `<div class="pad g2">
     ${card('Match', '', `<div class="pad-s form">
       <label>Default live speed ${seg('speed', [[1, '1×'], [2, '2×'], [4, '4×']], s.speed)}</label>
-      <label>Background sim detail ${seg('simDetail', [['fast', 'Fast (statistical)'], ['top', 'Full engine for top leagues']], s.simDetail)}<small class="dim">Full engine is slower: about 0.1 s per game in a worker.</small></label>
-      <label>Fearless draft in Bo3/Bo5 ${seg('fearless', [[false, 'Off'], [true, 'On']], s.fearless)}<small class="dim">Champions a team played in the previous game of the series are locked for that team. The second ban phase is dropped.</small></label>
+      <label>Background sim detail ${seg('simDetail', [['fast', 'Fast (statistical)'], ['top', 'Full engine for top leagues']], s.simDetail)}<small class="dim">Full engine is much slower: about 0.25 s per game in a worker, minutes for a season.</small></label>
     </div>`)}
     ${card('Sim and saving', '', `<div class="pad-s form">
       <label>Pause when a new offer arrives ${seg('pauseOffers', [[true, 'On'], [false, 'Off']], s.pauseOffers)}</label>
@@ -224,7 +223,7 @@ function settings(el) {
       ${state.W ? `<div class="row">Save to ${SLOTS.slice(0, 3).map(sl => `<button class="btn btn-secondary" data-save="${sl}">${SLOT_LABEL[sl]}${sl === state.slot ? ' (current)' : ''}</button>`).join('')}</div>
       <div class="row"><button class="btn btn-ghost" id="export">Download save (.json)</button><a class="btn btn-ghost" href="#/menu" id="quit">Main menu</a></div>` : '<a class="btn btn-ghost" href="#/menu">◂ Main menu</a>'}
     </div>`)}</div>`;
-  for (const k of ['speed', 'simDetail', 'fearless', 'pauseOffers', 'pauseScouting', 'confirmContinue', 'autosave']) {
+  for (const k of ['speed', 'simDetail', 'pauseOffers', 'pauseScouting', 'confirmContinue', 'autosave']) {
     on(el, `[data-${k}]`, 'click', b => { const v = b.dataset[k]; s[k] = v === 'true' ? true : v === 'false' ? false : isNaN(+v) ? v : +v; applySettings(); settings(el); });
   }
   on(el, '[data-save]', 'click', async b => { state.slot = b.dataset.save; await save(state.slot, { quiet: false }); settings(el); });
@@ -264,10 +263,10 @@ function offerBox(W, o) {
   const p = W.players[o.pid];
   return `<div class="offer"><div class="kv"><span>Player</span><b><a href="#/player/${p.id}">${esc(p.name)}</a> · ${p.role} · ${overall(p)}</b></div><div class="kv"><span>Fee</span><b>${money(o.fee)}</b></div><div class="kv"><span>From</span><b>${esc(team(W, o.from).name)}</b></div><div class="kv"><span>Expires</span><b class="warn">${days} days</b></div><div class="row"><button class="btn btn-secondary" data-reject>Reject</button><button class="btn btn-primary" data-accept>Accept ${money(o.fee)}</button></div></div>`;
 }
-// Result mails: one recap and a small gold-lead graph per game (blue side up).
+// Result mails: one recap and a small score-lead graph per game (blue side up).
 const seriesRecap = (W, sid) => {
   const s = W.series[sid]; if (!s) return '';
-  return `<div class="recaps">${s.games.map((g, i) => { const r = W.reports[g], sum = gameSummary(W, g); return `<div class="recap"><div class="row between"><span class="caps">Game ${i + 1}${r ? ` · <span class="blue">${esc(team(W, r.blue)?.tag ?? '')}</span> v <span class="red">${esc(team(W, r.red)?.tag ?? '')}</span>` : ''}</span><a class="btn btn-ghost" href="#/report/${g}">Report ▸</a></div>${sum ? `<p class="small">${esc(sum)}</p>` : ''}${r?.timeline?.length > 1 ? `<div class="recap-graph">${M.goldGraph(r.timeline, 340, 46)}</div>` : ''}</div>`; }).join('')}</div>`;
+  return `<div class="recaps">${s.games.map((g, i) => { const r = W.reports[g], sum = gameSummary(W, g); return `<div class="recap"><div class="row between"><span class="caps">Game ${i + 1}${r ? ` · <span class="blue">${esc(team(W, r.blue)?.tag ?? '')}</span> v <span class="red">${esc(team(W, r.red)?.tag ?? '')}</span>` : ''}</span><a class="btn btn-ghost" href="#/report/${g}">Report ▸</a></div>${sum ? `<p class="small">${esc(sum)}</p>` : ''}${r?.timeline?.length > 1 ? `<div class="recap-graph">${M.scoreGraph(r.timeline, 340, 46)}</div>` : ''}</div>`; }).join('')}</div>`;
 };
 // Weekly highlights (17b): rank, champion, one-line title, who · champion · match · minute, Watch.
 const topFive = plays => `<p class="dim small">Picked by the highlight engine: multi-kills, solo outplays, game-turning ultimates, aces and comebacks. Each opens the replay just before the moment.</p>

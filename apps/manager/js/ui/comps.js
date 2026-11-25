@@ -1,5 +1,5 @@
 // Competitions (League pyramid 19, Bracket 06, International 20, Schedule 12, Awards 07) and the Stats centre (14, 14b, 14c, Teams, Games, Economy).
-import { ROLES, CHAMPS, REGIONS, REGION_INFO, TIERS, EVENTS, PASSIVES, kitText } from '../data.js';
+import { ROLES, CHAMPS, REGIONS, REGION_INFO, TIERS, EVENTS } from '../data.js';
 import {
   userTeam, team, sortedTable, currentSplit, fmtDate, dayOfDate, weekday, involvesUser, tierName, QUOTA,
   compKeys, archiveYears, playerRows, teamRows, champRows, gameRows, ledger, toCSV, tierList,
@@ -33,9 +33,9 @@ function meta(el, W, u) {
   el.innerHTML = `<div class="pad split-wide">
     ${card(`Patch ${esc(p?.id ?? '—')}`, `${(W.patches ?? []).length} patches tracked`, `<div class="pad-s">${(W.patches ?? []).slice().reverse().slice(0, 4).map(x => `<div class="mb"><b>${esc(x.id)}</b> <span class="dim small">${fmtDate(x.year, x.day)} ${x.year}</span><ul class="small">${x.notes.map(n => `<li class="${n.dir > 0 ? 'good' : 'bad'}">${n.dir > 0 ? '▲' : '▼'} ${esc(n.text)}</li>`).join('')}</ul></div>`).join('') || '<p class="dim">No patches yet.</p>'}
       <p class="dim small">Patches land at the season start, the summer split and before the Grand Convergence. They nerf the most dominant champions and buff the weakest; older changes fade by 30% each patch.</p></div>`)}
-    ${card('Tier list', `${tl[0]?.games ?? 0} top-league games on this patch ${select('metarole', [['', 'All roles'], ...ROLES.map(r => [r, r])], role)}`, `<div class="scroll"><table><thead><tr><th>Tier</th><th>Champion</th><th>Traits</th><th>Comp</th><th class="n">Presence</th><th class="n">Win%</th><th>Patch</th></tr></thead><tbody>
-      ${rows.map(r => { const k = kitText(r.id); return `<tr title="${esc(`${k.skill}\nUlt — ${k.ult}\n${k.passive}`)}"><td><b class="${r.tier === 'S' ? 'gold' : ''}">${r.tier}</b></td><td><span class="tm">${champSprite(r.id, 22)} ${esc(CHAMPS[r.id].name)}</span> <span class="dim small">${CHAMPS[r.id].roles.map(x => x.slice(0, 3)).join('/')}</span></td><td class="small">${k.traits.join(', ')}</td><td class="small">${k.tag}</td><td class="n">${r.games ? `${Math.round(r.presence * 100)}%` : '–'}</td><td class="n">${r.picks ? num(r.win * 100, 0) : '–'}</td><td class="small">${modTxt(r.mod)}</td></tr>`; }).join('')}</tbody></table></div>
-      <p class="pad-s dim small">Hover a champion for its kit. Tiers rank presence plus win rate on this patch.</p>`)}</div>`;
+    ${card('Tier list', `${tl[0]?.games ?? 0} top-league games on this patch ${select('metarole', [['', 'All roles'], ...ROLES.map(r => [r, r])], role)}`, `<div class="scroll"><table><thead><tr><th>Tier</th><th>Champion</th><th>Class</th><th class="n">Presence</th><th class="n">Win%</th><th>Patch</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td><b class="${r.tier === 'S' ? 'gold' : ''}">${r.tier}</b></td><td><span class="tm">${champSprite(r.id, 22)} ${esc(CHAMPS[r.id].name)}</span> <span class="dim small">${CHAMPS[r.id].roles.map(x => x.slice(0, 3)).join('/')}</span></td><td class="small">${CHAMPS[r.id].cls}</td><td class="n">${r.games ? `${Math.round(r.presence * 100)}%` : '–'}</td><td class="n">${r.picks ? num(r.win * 100, 0) : '–'}</td><td class="small">${modTxt(r.mod)}</td></tr>`).join('')}</tbody></table></div>
+      <p class="pad-s dim small">Tiers rank presence plus win rate on this patch.</p>`)}</div>`;
   $('select[data-metarole]', el).onchange = e => { ui.metaRole = e.target.value; rr(); };
 }
 
@@ -206,7 +206,7 @@ function awards(el, W, u) {
       ${mvpCard('Finals MVP', cup.finalsMvp, cup.finalsWhy)}
       ${mvpCard(intl ? 'Event MVP' : 'Season MVP', a?.mvp, a?.why)}</div>
     ${a ? card(intl ? 'All-Event team' : 'All-Pro first team', 'Best average rating per role · signature champion', `<div class="aw-team">${ROLES.map((r, i) => { const id = a.allPro1[i]; return `<div class="aw-slot">${id ? `${who(id, a)}<div><span class="caps dim">${r}</span><b>${plink(id)}${id === a.mvp ? ' <span class="aw-tag">MVP</span>' : ''}</b>${mini(tOf(a, id))}</div><span class="sp"></span>${sig(id) ? `<span title="${esc(CHAMPS[sig(id)]?.name ?? '')}">${champSprite(sig(id), 36)}</span>` : ''}` : `<span class="caps dim">${r}</span><span class="dim">—</span>`}</div>`; }).join('')}</div>`, 'mt') : ''}
-    ${a ? `<div class="aw-leads mt">${lead('kda', 'KDA', v => v.toFixed(1))}${lead('share', 'DMG share', v => `${Math.round(v * 100)}%`)}${lead('csm', 'CS / min', v => v.toFixed(1))}${lead('pool', 'Champ pool', v => v)}${lead('rookie', 'Rookie', null)}</div>` : ''}</div>`;
+    ${a ? `<div class="aw-leads mt">${lead('kda', 'KDA', v => v.toFixed(1))}${lead('share', 'DMG share', v => `${Math.round(v * 100)}%`)}${lead('objm', 'Point s / min', v => v.toFixed(1))}${lead('pool', 'Champ pool', v => v)}${lead('rookie', 'Rookie', null)}</div>` : ''}</div>`;
   wireAwards(el);
 }
 function wireAwards(el) {
@@ -218,8 +218,8 @@ function wireAwards(el) {
 const PLAYER_COLS = [
   { key: 'name', label: 'Player', fmt: r => `<a href="#/player/${r.id}">${esc(r.name)}</a>` }, { key: 'team', label: 'Team' }, { key: 'role', label: 'Role' },
   { key: 'gp', label: 'GP', n: 1 }, { key: 'winPct', label: 'Win%', n: 1, fmt: r => num(r.winPct, 0) }, { key: 'k', label: 'K', n: 1 }, { key: 'd', label: 'D', n: 1 }, { key: 'a', label: 'A', n: 1 },
-  { key: 'kda', label: 'KDA', n: 1, fmt: r => num(r.kda, 2) }, { key: 'csm', label: 'CS/m', n: 1, fmt: r => num(r.csm) }, { key: 'gpm', label: 'Gold/m', n: 1, fmt: r => Math.round(r.gpm) },
-  { key: 'dpm', label: 'DMG/m', n: 1, fmt: r => Math.round(r.dpm) }, { key: 'vpm', label: 'Vis/m', n: 1, fmt: r => num(r.vpm, 2) }, { key: 'rating', label: 'Rating', n: 1, fmt: r => num(r.rating, 2) }, { key: 'mvp', label: 'MVP', n: 1 },
+  { key: 'kda', label: 'KDA', n: 1, fmt: r => num(r.kda, 2) }, { key: 'dpm', label: 'DMG/m', n: 1, fmt: r => Math.round(r.dpm) },
+  { key: 'objm', label: 'Pts s/m', title: 'Seconds on capture points a minute', n: 1, fmt: r => num(r.objm) }, { key: 'rating', label: 'Rating', n: 1, fmt: r => num(r.rating, 2) }, { key: 'mvp', label: 'MVP', n: 1 },
 ];
 const CHAMP_COLS = [
   { key: 'name', label: 'Champion', fmt: r => `<span class="tm">${champSprite(r.id, 22)} ${esc(r.name)}</span>` }, { key: 'cls', label: 'Class' },
@@ -228,12 +228,12 @@ const CHAMP_COLS = [
 ];
 const TEAM_COLS = [
   { key: 'name', label: 'Team', fmt: r => `<a href="#/team/${r.id}">${esc(r.name)}</a>` }, { key: 'region', label: 'Region' }, { key: 'gp', label: 'GP', n: 1 }, { key: 'winPct', label: 'Win%', n: 1, fmt: r => num(r.winPct, 0) },
-  { key: 'kpg', label: 'Kills/g', n: 1, fmt: r => num(r.kpg) }, { key: 'dpg', label: 'Deaths/g', n: 1, fmt: r => num(r.dpg) }, { key: 'tpg', label: 'Towers/g', n: 1, fmt: r => num(r.tpg) },
-  { key: 'fbPct', label: 'FB%', n: 1, fmt: r => num(r.fbPct, 0) }, { key: 'titans', label: 'Titans', n: 1 }, { key: 'shrines', label: 'Shrines', n: 1 }, { key: 'len', label: 'Length', n: 1, fmt: r => num(r.len) }, { key: 'gdpg', label: 'GD/g', n: 1, fmt: r => Math.round(r.gdpg) },
+  { key: 'kpg', label: 'Kills/g', n: 1, fmt: r => num(r.kpg) }, { key: 'dpg', label: 'Deaths/g', n: 1, fmt: r => num(r.dpg) }, { key: 'cpg', label: 'Caps/g', n: 1, fmt: r => num(r.cpg) },
+  { key: 'fbPct', label: 'FB%', n: 1, fmt: r => num(r.fbPct, 0) }, { key: 'len', label: 'Length', n: 1, fmt: r => num(r.len) }, { key: 'spg', label: 'Score/g', n: 1, fmt: r => num(r.spg) }, { key: 'sdpg', label: 'SD/g', n: 1, fmt: r => num(r.sdpg) },
 ];
 const GAME_COLS = [
   { key: 'day', label: 'Date', fmt: r => fmtDate(r.year, r.day) }, { key: 'comp', label: 'Competition' }, { key: 'blue', label: 'Blue' }, { key: 'red', label: 'Red' }, { key: 'winner', label: 'Winner' },
-  { key: 'score', label: 'Kills' }, { key: 'len', label: 'Length', n: 1, fmt: r => num(r.len) }, { key: 'gd', label: 'Gold diff', n: 1, fmt: r => Math.round(r.gd) }, { key: 'report', label: '', fmt: r => (r.report ? `<a href="#/report/${r.id}">Report</a>` : '') },
+  { key: 'score', label: 'Score' }, { key: 'len', label: 'Length', n: 1, fmt: r => num(r.len) }, { key: 'sd', label: 'Score diff', n: 1 }, { key: 'report', label: '', fmt: r => (r.report ? `<a href="#/report/${r.id}">Report</a>` : '') },
 ];
 
 export function stats(el, args, sub) {
@@ -254,9 +254,9 @@ export function stats(el, args, sub) {
     const pr = playerRows(W, keys, { role: ui.role, minGp: scope === 'series' ? 1 : ui.minGp }), ch = champRows(W, keys), tr = teamRows(W, keys);
     const top = (rows, k, fmt, n = 5) => rows.slice().sort((a, b) => b[k] - a[k]).slice(0, n);
     const lead = (title, k, fmt) => card(title, '', `<table><tbody>${top(pr, k).map((r, i) => `<tr><td class="dim">${i + 1}</td><td><a href="#/player/${r.id}">${esc(r.name)}</a> <span class="dim small">${esc(r.team)} · ${r.role}</span></td><td class="n">${fmt(r[k])}</td></tr>`).join('')}</tbody></table>`);
-    body = pr.length ? `<div class="g4">${lead('Rating', 'rating', v => num(v, 2))}${lead('KDA', 'kda', v => num(v, 2))}${lead('Damage / min', 'dpm', v => Math.round(v))}${lead('Vision / min', 'vpm', v => num(v, 2))}</div>
+    body = pr.length ? `<div class="g4">${lead('Rating', 'rating', v => num(v, 2))}${lead('KDA', 'kda', v => num(v, 2))}${lead('Damage / min', 'dpm', v => Math.round(v))}${lead('Point s / min', 'objm', v => num(v))}</div>
       <div class="g2 mt">${card('Most present champions', `${ch[0]?.games ?? 0} games`, `<table><tbody>${top(ch, 'presence').map(r => `<tr><td><span class="tm">${champSprite(r.id, 22)} ${esc(r.name)}</span></td><td class="n">${num(r.presence, 0)}%</td><td class="n dim">${r.picks}P ${r.bans}B</td><td class="n">${r.picks ? num(r.winPct, 0) + '% W' : ''}</td></tr>`).join('')}</tbody></table>`)}
-      ${card('Best teams', '', `<table><tbody>${top(tr.filter(t => t.gp >= 3), 'winPct').map(r => `<tr class="${r.id === u.id ? 'me' : ''}"><td><a href="#/team/${r.id}">${esc(r.name)}</a></td><td class="n">${r.w}-${r.gp - r.w}</td><td class="n">${num(r.winPct, 0)}%</td><td class="n">${num(r.gdpg / 1000)}k GD</td></tr>`).join('')}</tbody></table>`)}</div>` : nothing;
+      ${card('Best teams', '', `<table><tbody>${top(tr.filter(t => t.gp >= 3), 'winPct').map(r => `<tr class="${r.id === u.id ? 'me' : ''}"><td><a href="#/team/${r.id}">${esc(r.name)}</a></td><td class="n">${r.w}-${r.gp - r.w}</td><td class="n">${num(r.winPct, 0)}%</td><td class="n">${r.sdpg >= 0 ? '+' : ''}${num(r.sdpg)} SD</td></tr>`).join('')}</tbody></table>`)}</div>` : nothing;
   } else if (sub === 'players') {
     const pr = playerRows(W, keys, { role: ui.role, minGp: scope === 'series' ? 1 : ui.minGp });
     csv = () => toCSV(pr, PLAYER_COLS);
