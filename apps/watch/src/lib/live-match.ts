@@ -1,4 +1,5 @@
 import { simulate } from "@sim/simulate";
+import { SANDBOX_KIT_PATCH } from "@sim/balance";
 import { CADENCE_EXPERIMENT, SANDBOX_CONSTANTS, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "@sim/cadence";
 import type { MatchConfig, PlayerAttrs, SideConfig } from "@sim/types";
 
@@ -158,6 +159,7 @@ export function runPointsMatch(
     objectives: { mode: "points" },
     teamfight: { ...TEAMFIGHT_R3 },
     constants: { ...SANDBOX_CONSTANTS },
+    kit_patch: SANDBOX_KIT_PATCH,
   };
   return runFromConfig(withConstants(base, constants));
 }

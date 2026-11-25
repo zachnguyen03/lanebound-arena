@@ -124,6 +124,8 @@ export interface MatchConfig {
   seed: number;
   /** Experimental, see {@link Objectives}. */
   objectives?: Objectives;
+  /** Experimental balance patch (sim/balance.ts); spec tables untouched when unset. */
+  kit_patch?: import("./balance.js").KitPatch;
   /** Experimental, see {@link Teamfight}. */
   teamfight?: Teamfight;
   /** Experimental, see {@link Cadence}. */

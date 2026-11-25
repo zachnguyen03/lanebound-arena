@@ -1,4 +1,5 @@
 import { constantsHash, digestEvents } from "./canonical.js";
+import { withKitPatch } from "./balance.js";
 import {
   cancelAutoWindup,
   landMissiles,
@@ -483,6 +484,10 @@ function applyScriptedCc(
 }
 
 export function simulate(config: MatchConfig): SimulateResult {
+  return withKitPatch(config.kit_patch, () => simulateInner(config));
+}
+
+function simulateInner(config: MatchConfig): SimulateResult {
   const c = mergeConstants(config.constants);
   const chash = constantsHash(c);
   const dhash = dataHash();

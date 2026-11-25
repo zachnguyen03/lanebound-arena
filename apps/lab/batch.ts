@@ -24,6 +24,7 @@ import {
 } from "./lib/csv.js";
 import type { BatchScheme } from "./lib/types.js";
 import { SANDBOX_CONSTANTS, TEAMFIGHT_R3 } from "../../sim/cadence.js";
+import { SANDBOX_KIT_PATCH } from "../../sim/balance.js";
 
 function parseArgs(argv: string[]) {
   let n = 100;
@@ -87,6 +88,7 @@ if (args.sandbox) {
     ...batch.base,
     objectives: { mode: "points" },
     teamfight: { ...TEAMFIGHT_R3 },
+    kit_patch: SANDBOX_KIT_PATCH,
     constants: { ...(batch.base.constants ?? {}), ...SANDBOX_CONSTANTS },
   };
 }
