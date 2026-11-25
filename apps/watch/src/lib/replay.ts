@@ -152,7 +152,7 @@ function emptyEffects(): MatchEffects {
 function cloneState(s: MatchViewState): MatchViewState {
   const units = {} as Record<UnitId, UnitView>;
   for (const id of Object.keys(s.units) as UnitId[]) {
-    units[id] = { ...s.units[id]! };
+    units[id] = { ...s.units[id]!, kda: { ...s.units[id]!.kda } };
   }
   return {
     ...s,
@@ -236,6 +236,7 @@ function emptyState(): MatchViewState {
         fallback: true,
         intent: null,
         targetId: null,
+        kda: { k: 0, d: 0, a: 0 },
       };
     }
   }
@@ -403,6 +404,16 @@ function applyEvent(
     case "death": {
       const u = getUnit(state, ev.unit_id);
       if (!u) break;
+      u.kda.d += 1;
+      // Same counting as the lab summary (apps/lab/lib/summary.ts).
+      const killer = getUnit(state, ev.killer_id);
+      if (killer) killer.kda.k += 1;
+      if (Array.isArray(ev.assists)) {
+        for (const id of ev.assists) {
+          const h = getUnit(state, id);
+          if (h) h.kda.a += 1;
+        }
+      }
       u.alive = false;
       u.hp = 0;
       u.vx = 0;

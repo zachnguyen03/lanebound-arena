@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { simulate } from "@sim/index";
 import { evenOvrConfig } from "@sim/match_config";
 import { SANDBOX_CONSTANTS } from "@sim/cadence";
+import { summarizeMatch } from "../../../lab/lib/summary";
 import { ReplayEngine } from "./replay";
 import type { SimEvent } from "./types";
 
@@ -23,5 +24,12 @@ describe("top HUD replay feed (points mode)", () => {
     let seen = false;
     for (let t = 0; t <= eng.maxTick && !seen; t += 20) seen = eng.stateAt(t).majority !== null;
     expect(seen).toBe(true);
+  });
+
+  it("rail K/D/A matches the lab summary", () => {
+    const sum = summarizeMatch(base.seed, res);
+    const ids = ["blue:top", "blue:jungle", "blue:mid", "blue:adc", "blue:support", "red:top", "red:jungle", "red:mid", "red:adc", "red:support"] as const;
+    const got = ids.map((id) => end.units[id].kda);
+    expect(got.map((x) => [x.k, x.d, x.a])).toEqual(sum.kda.map((x: { k: number; d: number; a: number }) => [x.k, x.d, x.a]));
   });
 });

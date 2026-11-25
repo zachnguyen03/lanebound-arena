@@ -43,6 +43,8 @@ export interface UnitView {
   fallback: boolean;
   intent: string | null;
   targetId: string | null;
+  /** Running K/D/A from death events. */
+  kda: { k: number; d: number; a: number };
   /** exp cadence: sim t the flank buff expires (0 / undefined = none). */
   buffUntil?: number;
 }

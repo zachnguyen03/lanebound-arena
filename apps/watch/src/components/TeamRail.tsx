@@ -100,18 +100,25 @@ export function TeamRail({ side, state, layout, portraits }: Props) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between gap-1">
-                  <span
-                    className={cn(
-                      "truncate font-condensed uppercase",
-                      compact ? "text-xs" : "text-sm",
-                    )}
-                  >
-                    {u.champ === "unknown" ? SLOT_LABEL[slot] : u.champ}
-                  </span>
-                  <span className="text-[10px] text-dim">L{u.level}</span>
+                <div
+                  className={cn(
+                    "truncate font-condensed font-semibold uppercase",
+                    compact ? "text-[11px] leading-4" : "text-sm",
+                  )}
+                >
+                  {u.champ === "unknown" ? SLOT_LABEL[slot] : u.champ}
                 </div>
-                <div className={cn("mt-1 w-full bg-field", compact ? "h-1" : "h-1.5")}>
+                <div className={cn("flex justify-between gap-1", compact ? "text-[10px] leading-3" : "text-xs")}>
+                  <span data-testid={`kda-${u.id}`} className="tabular-nums text-paper" title="Kills / Deaths / Assists">
+                    {u.kda.k}
+                    <span className="text-faint"> / </span>
+                    {u.kda.d}
+                    <span className="text-faint"> / </span>
+                    {u.kda.a}
+                  </span>
+                  <span className="text-dim">L{u.level}</span>
+                </div>
+                <div className={cn("mt-0.5 w-full bg-field", compact ? "h-1" : "h-1.5")}>
                   <div
                     className={cn("h-full", fill)}
                     style={{ width: `${frac * 100}%` }}
