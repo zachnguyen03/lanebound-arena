@@ -19,11 +19,20 @@ export interface Vec2 {
   y: number;
 }
 
+/**
+ * Coach tactics (§12 / Appendix R #3 S2-6).
+ * S1 frozen API deviation — before: combo_style "auto"|"aggressive"|"conservative"
+ * (no focus / secondary). After: combo_style "auto"|"hold_R"; optional focus + secondary.
+ */
 export interface Tactics {
   preset: "hold_the_pit" | "hunt" | "starve";
+  /** Optional secondary preset (§12 L1344: planner would otherwise idle). */
+  secondary?: "hold_the_pit" | "hunt" | "starve";
   aggression: -1 | 0 | 1;
   protect_the_carry: boolean;
-  combo_style: "auto" | "aggressive" | "conservative";
+  combo_style: "auto" | "hold_R";
+  /** `auto` or an enemy slot; that slot's targeting score ×1.25 (§12 L1352). */
+  focus?: "auto" | "top" | "jungle" | "mid" | "adc" | "support";
 }
 
 export interface PlayerAttrs {
@@ -47,8 +56,80 @@ export interface SideConfig {
   tactics: Tactics;
 }
 
+/**
+ * Experimental orb/buff cadence (branch exp/orb-buff-cadence). Not in the build
+ * spec. Absent (the default) = spec behaviour and unchanged digests.
+ */
+export interface Cadence {
+  /** AI: jungle + support rove to orbs/buffs; the carry takes its own-side buff. */
+  rovers?: boolean;
+  /** All orbs respawn together on this wave period in seconds (Dota rune-style). */
+  orb_wave_s?: number;
+  /** Allies within this radius (tiles) of the picker share the buff. */
+  buff_share_r?: number;
+  /** Emit `buff_soon` this many seconds before a buff spawns. */
+  buff_warn_s?: number;
+}
+
+/**
+ * Experimental teamfight dynamics (branch exp/teamfight-dynamics). Not in the
+ * build spec. Absent (the default) = spec behaviour and unchanged digests.
+ */
+export interface Teamfight {
+  /** CC → burst: allies converge on and ult into an enemy an ally has locked. */
+  combo?: boolean;
+  /** Role targets: divers hunt the backline, front line hits the nearest body. */
+  roles?: boolean;
+  /** Chase stays on low-HP / ally-supported targets longer. */
+  chase?: boolean;
+  /** Level at which R unlocks (spec: 5). */
+  r_min_level?: number;
+  /** Multiplier on R cooldown after a cast (spec: 1). */
+  r_cd_mult?: number;
+  /** Cast policy aims at an enemy an ally has locked, so per-kit rules (incl. chain windows) follow up on CC. */
+  combo_target?: boolean;
+  /** Fight shape: front line leads, backline holds behind it, divers flank wide. */
+  formation?: boolean;
+  // Round 3 (lab/teamfight3).
+  /** Ally separation 1.2 tiles in fight intents, 1.5× push for the backline. */
+  spread?: boolean;
+  /** Backliners take their own row (1.5 tiles apart) on fight waypoints. */
+  lanes?: boolean;
+  /** Ranged units stop at ~0.9× range instead of walking onto the target; step away from close melee. */
+  ranged_hold?: boolean;
+  /** At most this many allies on one target; overflow picks the next best. */
+  target_cap?: number;
+  /** Disengage call fires 0.07 A_true earlier; units under 30% HP near an enemy retreat. */
+  disengage?: boolean;
+  /** R only when an area ult catches ≥2 enemies, or a single-target ult hits a locked / <50% HP target. */
+  ult_timing?: boolean;
+  /** Step out of an enemy's ground-area cast while it winds up. */
+  dodge?: boolean;
+  /** Peel triggers at 4.5 tiles (spec 3) without the perception delay. */
+  peel?: boolean;
+}
+
+/**
+ * Experimental objective layouts (branch exp/objectives). Not in the build spec.
+ * Absent (the default) = the single pit, unchanged digests.
+ * - points: north / centre / south capture points; owning 2 of 3 scores 1 every MAJORITY_TICK_S (18 s).
+ * - pulse: the pit opens PULSE_OPEN_S of every PULSE_CYCLE_S; while closed, north and
+ *   south shrines are live and each pays 1 once per window to the team that captures it.
+ */
+export interface Objectives {
+  mode: "points" | "pulse";
+}
+
 export interface MatchConfig {
   seed: number;
+  /** Experimental, see {@link Objectives}. */
+  objectives?: Objectives;
+  /** Experimental balance patch (sim/balance.ts); spec tables untouched when unset. */
+  kit_patch?: import("./balance.js").KitPatch;
+  /** Experimental, see {@link Teamfight}. */
+  teamfight?: Teamfight;
+  /** Experimental, see {@link Cadence}. */
+  cadence?: Cadence;
   constants?: Partial<Record<string, unknown>>;
   blue: SideConfig;
   red: SideConfig;
@@ -79,7 +160,11 @@ export interface MatchConfig {
         auto_next_start_t?: number;
         /** Lab: override attack range (e.g. force melee ≤ 2). */
         range?: number;
+        /** Lab: move-speed override (tiles/s). */
+        ms?: number;
         as?: number;
+        /** Lab/test: seed AI focus target (e.g. Torun W taunt diver). */
+        ai_target_id?: UnitId | null;
       }
     >
   >;
@@ -116,6 +201,26 @@ export interface MatchConfig {
     duration: number;
     source_id?: UnitId;
   }>;
+  /**
+   * S2: enable fight-layer AI. Opt-in — defaultEvenConfig leaves false so the
+   * unedited S1 suite stays correct. S2 `configOf` sets true.
+   */
+  ai_enabled?: boolean;
+  /** Lab: skip Decision perception delay for peel geometry tests. */
+  ai_ignore_perception?: boolean;
+  /**
+   * S3 lab: treat a net +1 fight win as occurring on this tick (§5.6 / _contract.md).
+   */
+  scripted_claim_open?: Array<{
+    tick: number;
+    team: Team;
+    fight_id?: string;
+  }>;
+  /**
+   * Lab: stop the sim at this time (seconds). Harness sets it from scenario T so
+   * short fixtures can observe MATCH_T without running the full Bo1 ladder.
+   */
+  sim_until?: number;
 }
 
 export interface ScriptedCast {
@@ -127,6 +232,11 @@ export interface ScriptedCast {
   aim_y?: number;
   /** Skip Aim roll (lab fixtures that pin damage/CC). */
   force_hit?: boolean;
+  /**
+   * Lab-only §9.4.1.4 rule 12 tier. Additive. Stripped in digestEvents
+   * (same exclusion class as `pos`).
+   */
+  tier?: "P1a" | "P1b" | "P1c" | "P1d" | "P2" | "P2c" | "P3" | "P4" | "P4s";
 }
 
 export interface ScriptedMotor {
@@ -177,6 +287,10 @@ export interface UnitState {
   auto_next_start_t: number;
   stats: DummyStats;
   attrs: PlayerAttrs;
+  /** Flank buff expiry sim t (0 if none). +12% dmg / +10% MS while active. */
+  flank_buff_until: number;
+  /** Mastery 0–100 for the current champion (default 50 when unset). */
+  mastery: number;
   intent: string;
   waypoint: Vec2 | null;
   scripted_wp_i: number;
@@ -211,6 +325,40 @@ export interface UnitState {
   rewind_used: boolean;
   /** After fear, ignore scripted motor and re-enter AA range if autos are on. */
   abandon_scripted_motor: boolean;
+  /** S2: Unit Brain current target (autos prefer this when in range). */
+  ai_target_id: UnitId | null;
+  /** Set by AI when Teamwork forbids freelance autos (focus dead / awaiting call). */
+  ai_no_freelance?: boolean;
+  /**
+   * S2-R4-5: sim t until which a mobile Retreat/Regroup suppresses new autos and
+   * damage-only casts (0 = inactive). Cleared when the disengage call flips;
+   * expires at regroup_s.
+   */
+  ai_retreat_suppress_until: number;
+  /**
+   * §9.6 L1164: sim t until which WalkFromPad applies after a respawn.
+   * Match-start spawn does not set this — only post-death respawn does.
+   */
+  walk_from_pad_until: number;
+  /**
+   * Planner arrival hysteresis: once inside arrive_r, stay "at waypoint" until
+   * leave_r so HoldZone ↔ Idle does not flicker every tick.
+   */
+  ai_at_planner_wp: boolean;
+  /**
+   * §9.2 "do not trickle back in 1s": sim t until which a Retreat↔HoldZone
+   * (planner re-entry) flip is blocked after Retreat begins.
+   */
+  ai_no_trickle_until: number;
+  /** True after this life has fired at least one auto (first-auto pose hold). */
+  ai_first_auto_done: boolean;
+  /** S3-R5-7: +ZONE_AURA_RES while previous-tick exclusive owner occupant. */
+  zone_aura_res: number;
+  /**
+   * HP lost after shields over recent ticks (§9.4.1 incoming_1s / Doomed).
+   * Not an event field; omitted from the digest.
+   */
+  recent_taken?: Array<{ t: number; hp: number }>;
 }
 
 export interface Displacement {
@@ -298,6 +446,9 @@ export interface MatchState {
   data_hash: string;
   score_blue: number;
   score_red: number;
+  /** Kill counts for the §5.8 takedowns ladder (not assists, not claims/ticks). */
+  takedowns_blue: number;
+  takedowns_red: number;
   ended: boolean;
   end_reason: string | null;
   winner: "blue" | "red" | "draw" | null;
@@ -310,6 +461,29 @@ export interface MatchState {
   event_seq: number;
   config: MatchConfig;
   forced_clock_end: boolean;
+  /** S3 — public zone view (seconds). */
+  zone?: {
+    owner: Team | null;
+    progress_blue: number;
+    progress_red: number;
+    tick_timer: number;
+    occupied: UnitId[];
+    control_time: { blue: number; red: number };
+  };
+  claim?: { team: Team; resolve_at: number; fight_id?: string } | null;
+  orbs?: Array<{ orb_id: string; x: number; y: number; up: boolean; respawn_at?: number }>;
+  buffs?: Array<{
+    buff_id: string;
+    x: number;
+    y: number;
+    up: boolean;
+    respawn_at?: number;
+    holders?: UnitId[];
+  }>;
+  phase?: "play" | "sudden_death" | "extra_15" | "ended";
+  /** exp/objectives public point view. */
+  objectives?: Array<{ id: string; x: number; y: number; r: number; owner: Team | null; paid: boolean }>;
+  rng_counters?: Record<string, number>;
 }
 
 export type EventPayload = Record<string, unknown>;
@@ -329,4 +503,12 @@ export interface SimulateResult {
   constants_hash: string;
   data_hash: string;
   tick_count: number;
+  /** S2 peel lab counters (present when ai_enabled). */
+  ai_stats?: { dive_geom: number; peel_fired: number; peel_rate: number | null };
+  /** S3 career stats (S3-R5-8 / S3-R5-9). */
+  player_stats?: Array<{
+    unit_id: UnitId;
+    claim_denies: number;
+    zone_seconds: number;
+  }>;
 }

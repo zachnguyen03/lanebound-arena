@@ -1,0 +1,45 @@
+
+> lanebound-arena@0.0.0 watch:e2e
+> playwright test --config apps/watch/playwright.config.ts
+
+
+Running 34 tests using 1 worker
+
+(node:10583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 apps/watch/e2e/asset-404.spec.ts:40:5 › asset requests against a 404 static server › cold load and match start @1280 (1.2s)
+  ✓   2 apps/watch/e2e/asset-404.spec.ts:40:5 › asset requests against a 404 static server › cold load and match start @390 (1.2s)
+  ✓   3 apps/watch/e2e/bbox.spec.ts:80:5 › Watch layout guards (desktop) › integer 1:1 canvas scale at 1920x1080 (637ms)
+  ✓   4 apps/watch/e2e/bbox.spec.ts:80:5 › Watch layout guards (desktop) › integer 1:1 canvas scale at 1280x720 (624ms)
+  ✓   5 apps/watch/e2e/bbox.spec.ts:80:5 › Watch layout guards (desktop) › integer 1:1 canvas scale at 1280x800 (663ms)
+  ✓   6 apps/watch/e2e/bbox.spec.ts:112:3 › Watch layout guards (desktop) › drawer closed: HUD controls hittable @1920 and @1280 (1.3s)
+  ✓   7 apps/watch/e2e/bbox.spec.ts:130:3 › Watch layout guards (desktop) › 1280 top-bar clock stays ≥2px inside the 44px bar (597ms)
+  ✓   8 apps/watch/e2e/bbox.spec.ts:148:3 › Watch layout guards (desktop) › 1280x800: utilities sit fully below the 720 HUD (no peek) (625ms)
+  ✓   9 apps/watch/e2e/bbox.spec.ts:170:3 › Watch layout guards (desktop) › takedown log is empty on quiet S0 sample (no level_up filler) (511ms)
+  ✓  10 apps/watch/e2e/console-cold.spec.ts:11:1 › cold load at 1280x720 has a clean console (no 404) (1.3s)
+  ✓  11 apps/watch/e2e/decision-strip.spec.ts:25:5 › death strip stays on screen › 1280x720 (437ms)
+  ✓  12 apps/watch/e2e/decision-strip.spec.ts:25:5 › death strip stays on screen › 1440x900 (422ms)
+  ✓  13 apps/watch/e2e/decision-strip.spec.ts:25:5 › death strip stays on screen › 1920x1080 (458ms)
+  ✓  14 apps/watch/e2e/dev-panel.spec.ts:3:1 › production build hides the dev fallbacks panel (648ms)
+  ✓  15 apps/watch/e2e/dock-titles.spec.ts:19:5 › dock titles stay on one line › 1280x720 (611ms)
+  ✓  16 apps/watch/e2e/dock-titles.spec.ts:19:5 › dock titles stay on one line › 1440x900 (605ms)
+  ✓  17 apps/watch/e2e/dock-titles.spec.ts:19:5 › dock titles stay on one line › 1920x1080 (609ms)
+  ✓  18 apps/watch/e2e/drawer.spec.ts:156:5 › drawer open: controls hittable / modal › 1920x1080: drawer behaviour + screenshots (985ms)
+  ✓  19 apps/watch/e2e/drawer.spec.ts:156:5 › drawer open: controls hittable / modal › 1280x720: drawer behaviour + screenshots (937ms)
+  ✓  20 apps/watch/e2e/drawer.spec.ts:156:5 › drawer open: controls hittable / modal › 1280x800: drawer behaviour + screenshots (926ms)
+  ✓  21 apps/watch/e2e/drawer.spec.ts:156:5 › drawer open: controls hittable / modal › 1440x900: drawer behaviour + screenshots (959ms)
+  ✓  22 apps/watch/e2e/event-log.spec.ts:3:1 › production event log hides debug position and move rows (822ms)
+  ✓  23 apps/watch/e2e/missing-art.spec.ts:3:1 › missing champion art stays hidden when the even lineup is packed (323ms)
+  ✓  24 apps/watch/e2e/s4-live.spec.ts:40:5 › S4 live evenOvr match › 1920x1080 mid-match and match_end (1.9s)
+  ✓  25 apps/watch/e2e/s4-live.spec.ts:40:5 › S4 live evenOvr match › 1440x900 mid-match and match_end (1.7s)
+  ✓  26 apps/watch/e2e/s4-live.spec.ts:40:5 › S4 live evenOvr match › 1280x720 mid-match and match_end (1.8s)
+  ✓  27 apps/watch/e2e/s4-live.spec.ts:122:3 › S4 live evenOvr match › missing forced_clock_end is shown in the UI (302ms)
+  ✓  28 apps/watch/e2e/s4-live.spec.ts:135:3 › S4 live evenOvr match › invalid JSON replaces the previous config error (319ms)
+  ✓  29 apps/watch/e2e/s5-lab.spec.ts:20:5 › S5 lab dashboard + tuning › dashboard 1280x720 (432ms)
+  ✓  30 apps/watch/e2e/s5-lab.spec.ts:20:5 › S5 lab dashboard + tuning › dashboard 1920x1080 (472ms)
+  ✓  31 apps/watch/e2e/s5-lab.spec.ts:236:3 › S5 lab dashboard + tuning › tuning rejects ZONE_TICK_S=7 and saves preset (412ms)
+  ✓  32 apps/watch/e2e/screenshots-dummy.spec.ts:24:1 › dummy body screenshots + map crop (1.4s)
+  ✓  33 apps/watch/e2e/screenshots.spec.ts:42:1 › capture Watch screenshots + scale report (3.3s)
+  ✓  34 apps/watch/e2e/takedown-proof.spec.ts:11:1 › handmade death log: takedown rows show team + score (611ms)
+
+  34 passed (33.6s)

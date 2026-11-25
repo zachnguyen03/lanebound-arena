@@ -15,6 +15,7 @@ function shortCfg(partial: Partial<MatchConfig> = {}): MatchConfig {
   return {
     ...defaultEvenConfig(20261122),
     constants: { MATCH_T: 8.0, ...(partial.constants as object) },
+    ai_enabled: false,
     ...partial,
   };
 }

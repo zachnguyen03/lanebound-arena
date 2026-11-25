@@ -18,6 +18,7 @@ import {
   type StatusState,
 } from "./status.js";
 // isLocked covers Lock category (stun/fear/hex/…) — cancel windups under Lock.
+import { retreatImmobile, retreatSuppressesCombat } from "./retreat_combat.js";
 import type { MatchState, UnitId, UnitState } from "./types.js";
 
 /** Marksman-like dummy L1 stats (Huntress numbers from build-spec §7.1). */
@@ -60,13 +61,19 @@ export function cancelAutoWindup(u: UnitState): boolean {
   return true;
 }
 
-/** §6.8 gates: cannot start auto while disarmed / locked / time-stopped / attack-reset pending. */
-export function canStartAuto(u: UnitState, st: StatusState): boolean {
+/** §6.8 gates: cannot start auto while disarmed / locked / attack-reset pending. Time-stop is a Lock (isLocked). */
+export function canStartAuto(
+  u: UnitState,
+  st: StatusState,
+  state?: MatchState,
+  c?: Constants,
+): boolean {
   if (u.attack_reset_pending) return false;
   if (isDisarmed(st)) return false;
   if (isLocked(st)) return false;
-  if (isTimeStopped(st)) return false;
   if (isBanished(st)) return false;
+  // S2-R4-5 L1974: mobile Retreat/Regroup starts no new autos.
+  if (state && c && retreatSuppressesCombat(u, state, c)) return false;
   return true;
 }
 
@@ -110,6 +117,7 @@ export function tickAutos(
       const target = state.units.find((u) => u.id === tid);
       if (!target || !target.alive) continue;
       if (isBanished(target.status)) continue;
+      atk.ai_first_auto_done = true;
 
       // Blind: autos miss (§6.5 / §6.8).
       if (isBlind(atk.status)) {
@@ -172,9 +180,9 @@ export function tickAutos(
 
     // Ready to start a new windup?
     if (state.t < atk.auto_next_start_t) continue;
-    if (!canStartAuto(atk, atk.status)) continue;
+    if (!canStartAuto(atk, atk.status, state, c)) continue;
 
-    const target = pickAutoTarget(state, atk);
+    const target = pickAutoTarget(state, atk, c);
     if (!target) continue;
 
     const windup = c.AUTO_WINDUP / atk.stats.as;
@@ -232,7 +240,9 @@ export function landMissiles(
   return keep;
 }
 
-function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
+function pickAutoTarget(state: MatchState, atk: UnitState, c: Constants): UnitState | null {
+  // S2-R4-5: mobile retreat — no freestyle (or any) new auto target.
+  if (retreatSuppressesCombat(atk, state, c)) return null;
   if (isTaunted(atk.status)) {
     const tid = tauntSourceId(atk.status);
     if (tid) {
@@ -242,6 +252,20 @@ function pickAutoTarget(state: MatchState, atk: UnitState): UnitState | null {
         if (d <= atk.stats.range) return t;
       }
     }
+  }
+  // Prefer Unit Brain target when in range (Teamwork follow-call).
+  if (atk.ai_target_id) {
+    const pref = state.units.find((u) => u.id === atk.ai_target_id);
+    if (pref && pref.alive && pref.team !== atk.team && !isBanished(pref.status)) {
+      const d = dist(atk.x, atk.y, pref.x, pref.y);
+      if (d <= atk.stats.range) return pref;
+    }
+  }
+  // R #4: L1044 "Teamwork 50+ always-follow" is superseded. Block freestyle
+  // nearest-in-range only when the brain set ai_no_freelance (focus dead/cleared).
+  // S2-R4-5: immobile Retreat still freelances via the same retreatImmobile predicate.
+  if (atk.ai_target_id === null && atk.ai_no_freelance && !retreatImmobile(atk, c)) {
+    return null;
   }
   let best: UnitState | null = null;
   let bestD = Infinity;
@@ -280,7 +304,12 @@ export function resolvePendingDamage(
     if (!target || !target.alive || !source) continue;
     if (isBanished(target.status)) continue;
 
-    if (state.t < target.spawn_shield_until || state.t < target.status.spawn_shield_until) {
+    // Lab scripted_damage pierces spawn shield so short-respawn fixtures can re-kill.
+    const scriptedPierce = p.skill_id === "scripted";
+    if (
+      !scriptedPierce &&
+      (state.t < target.spawn_shield_until || state.t < target.status.spawn_shield_until)
+    ) {
       emit("hit", {
         source_id: p.source_id,
         target_id: p.target_id,
@@ -306,12 +335,19 @@ export function resolvePendingDamage(
       amp = kitAmps(state.units, source, target, state.t);
       // Autos: also get Long Sight via kitAmps; skills too.
       void longSightAmp;
+      const flank =
+        source.flank_buff_until > state.t + 1e-12 ? 1 + c.BUFF_DMG : 1;
       const taken = hasPetrify(target.status) ? 1 - c.PETRIFY_DR : 1;
-      mitigated = p.raw * amp * taken * mit(resist);
-      amp = amp * taken;
+      const rawFlank = p.raw * flank;
+      mitigated = rawFlank * amp * taken * mit(resist);
+      amp = amp * flank * taken;
+      // Expose damage-dealt amp in raw so §5.7 flank-buff checks can read it.
+      (p as { raw: number }).raw = rawFlank;
     }
 
-    const abs = absorbDamage(target.status, mitigated, state.t);
+    const abs = absorbDamage(target.status, mitigated, state.t, {
+      pierceSpawnShield: scriptedPierce,
+    });
     const exactHp = target.hp - abs.hpLoss;
     target.hp = exactHp;
     if (abs.hpLoss > 0) {
@@ -324,6 +360,10 @@ export function resolvePendingDamage(
       target.assist_log.push({ source_id: p.source_id, t: state.t, kind: "damage" });
       target.last_damage_t = state.t;
       target.status.last_damage_t = state.t;
+      const taken = (target.recent_taken ??= []);
+      taken.push({ t: state.t, hp: abs.hpLoss });
+      const cutoff = state.t - 1.2;
+      while (taken.length > 0 && taken[0]!.t < cutoff) taken.shift();
       source.last_dealt_t = state.t;
       source.status.last_dealt_t = state.t;
     }

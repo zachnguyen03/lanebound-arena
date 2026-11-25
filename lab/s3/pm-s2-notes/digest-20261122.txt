@@ -1,0 +1,8 @@
+seed=20261122
+ai_off_digest=7e6516f4fad170ab9893de7d8a225271c42b19d837a5dfedefeda6bdd97aee1f
+ai_on_digest=fccc7096e248c64a3182bfa244eaf7f16630525fcd5960c1abf7ef9215f18e48
+ai_off_equals_s1_gold=true
+intent_count=1686
+quick_flips_lt_0_1s=316
+retreat_to_holdzone_lt_1s=0
+event_counts={"match_start":1,"intent":1686,"xp_gain":21135,"fight_call":938,"projectile_spawn":588,"hit":684,"level_up":75,"death":21,"respawn":19,"shield_apply":1,"dive":4,"peel_start":4,"match_end":1}

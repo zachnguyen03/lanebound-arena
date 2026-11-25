@@ -1,0 +1,24 @@
+
+> lanebound-arena@0.0.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /agent/repos/lanebound-arena
+
+ ✓ tests/s0-g2-death-xp.test.ts (1 test) 26ms
+ ✓ tests/s0-auto-windup.test.ts (1 test) 24ms
+ ✓ tests/s0-gold-hash.test.ts (3 tests) 460ms
+ ✓ apps/watch/src/lib/replay.test.ts (3 tests) 1085ms
+   ✓ Watch determinism guard > loading and replaying a log leaves its digest unchanged 910ms
+ ✓ apps/watch/src/lib/draw-order.test.ts (3 tests) 2ms
+ ✓ tests/s0.test.ts (11 tests) 1262ms
+   ✓ S0 M0 acceptance > 1. same config → byte-identical digest; seed+1 differs 607ms
+ ✓ apps/watch/src/lib/spawn.test.ts (3 tests) 2ms
+ ✓ tests/s0-two-process.test.ts (1 test) 683ms
+   ✓ M0.1 two-process determinism > seed 20261122 digest matches across two separate Node processes 683ms
+
+ Test Files  8 passed (8)
+      Tests  26 passed (26)
+   Start at  05:47:30
+   Duration  1.89s (transform 170ms, setup 0ms, collect 362ms, tests 3.54s, environment 1ms, prepare 319ms)
+

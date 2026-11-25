@@ -66,6 +66,10 @@ export interface Constants {
   BUFF_MS: number;
   BUFF_PADS: [number, number][];
   SCORE_TO_WIN: number;
+  /** exp tuning: a team scores 1 point per this many takedowns (spec: 1). */
+  KILLS_PER_POINT: number;
+  /** exp/objectives `points`: majority holder scores every this many seconds. */
+  MAJORITY_TICK_S: number;
   MATCH_T: number;
   SUDDEN_DEATH_T: number;
   BO1_EXTRA_S: number;
@@ -112,6 +116,11 @@ export interface Constants {
   HIT_COEF: number;
   HIT_FLOOR: number;
   HIT_CEIL: number;
+  /**
+   * R7-6b: multiplies reaction_delay_s for a P1a interrupt decision on an
+   * enemy **R** windup only (§9.4.1.3 / §15). Non-R windups keep full delay.
+   */
+  P1A_READ_MULT: number;
   DENY_ANY_UNIT: boolean;
   LAB_GAMES: number;
   LAB_SEED: number;
@@ -170,6 +179,8 @@ export const DEFAULT_CONSTANTS: Constants = {
     [16.5, 7.5],
   ],
   SCORE_TO_WIN: 10,
+  KILLS_PER_POINT: 1,
+  MAJORITY_TICK_S: 18,
   MATCH_T: 240.0,
   SUDDEN_DEATH_T: 270.0,
   BO1_EXTRA_S: 15.0,
@@ -215,6 +226,7 @@ export const DEFAULT_CONSTANTS: Constants = {
   HIT_COEF: 0.01,
   HIT_FLOOR: 0.25,
   HIT_CEIL: 0.9,
+  P1A_READ_MULT: 0.5,
   DENY_ANY_UNIT: true,
   LAB_GAMES: 2000,
   LAB_SEED: 20261122,

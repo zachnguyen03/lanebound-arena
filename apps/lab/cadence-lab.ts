@@ -1,0 +1,267 @@
+#!/usr/bin/env node
+/**
+ * Orb/buff cadence lab (branch exp/orb-buff-cadence). Report only.
+ *
+ *   npx tsx apps/lab/cadence-lab.ts [--n 40] [--arms baseline,step1,step2,step3] [--out lab/cadence]
+ *
+ * Each arm runs n seeds × {hold_the_pit, hunt, starve} × {original, side-swapped kits}.
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { simulate } from "../../sim/index.js";
+import { evenOvrConfig, type TacticPreset } from "../../sim/match_config.js";
+import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "../../sim/cadence.js";
+import { DEFAULT_CONSTANTS } from "../../sim/constants.js";
+import type { MatchConfig } from "../../sim/types.js";
+
+const STEP1 = JSON.parse(
+  fs.readFileSync(path.resolve(import.meta.dirname, "../../lab/presets/cadence-step1.json"), "utf8"),
+).overrides as Record<string, number>;
+
+/** Round 1 chase + round 2 levers (combo/roles off: no measurable effect in round 1). */
+const TF2 = TEAMFIGHT_EXPERIMENT;
+const SPACING = { spread: true, lanes: true, ranged_hold: true };
+const TF3 = { ...TF2, ...SPACING, target_cap: 3, disengage: true, ult_timing: true, dodge: true, peel: true };
+
+export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
+  baseline: (cfg) => cfg,
+  step1: (cfg) => ({ ...cfg, constants: { ...STEP1 } }),
+  step2: (cfg) => ({ ...cfg, constants: { ...STEP1 }, cadence: { rovers: true } }),
+  step3: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT }),
+  // exp/teamfight-dynamics arms
+  combo: (cfg) => ({ ...cfg, teamfight: { combo: true } }),
+  roles: (cfg) => ({ ...cfg, teamfight: { roles: true } }),
+  chase: (cfg) => ({ ...cfg, teamfight: { chase: true } }),
+  tf: (cfg) => ({ ...cfg, teamfight: { combo: true, roles: true, chase: true } }),
+  tf_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { combo: true, roles: true, chase: true } }),
+  // round 2: earlier/more ults, per-kit combo targeting, formation
+  ults: (cfg) => ({ ...cfg, teamfight: { r_min_level: 3, r_cd_mult: 0.7 } }),
+  combo_target: (cfg) => ({ ...cfg, teamfight: { combo_target: true } }),
+  formation: (cfg) => ({ ...cfg, teamfight: { formation: true } }),
+  tf2: (cfg) => ({ ...cfg, teamfight: { ...TF2 } }),
+  tf2_cadence: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF2 } }),
+  // round 3 (exp/teamfight-r3): each lever on top of tf2, then all of them.
+  spread: (cfg) => ({ ...cfg, teamfight: { ...TF2, spread: true } }),
+  lanes: (cfg) => ({ ...cfg, teamfight: { ...TF2, lanes: true } }),
+  ranged_hold: (cfg) => ({ ...cfg, teamfight: { ...TF2, ranged_hold: true } }),
+  spacing: (cfg) => ({ ...cfg, teamfight: { ...TF2, ...SPACING } }),
+  cap: (cfg) => ({ ...cfg, teamfight: { ...TF2, target_cap: 3 } }),
+  disengage: (cfg) => ({ ...cfg, teamfight: { ...TF2, disengage: true } }),
+  ult_timing: (cfg) => ({ ...cfg, teamfight: { ...TF2, ult_timing: true } }),
+  dodge: (cfg) => ({ ...cfg, teamfight: { ...TF2, dodge: true } }),
+  peel: (cfg) => ({ ...cfg, teamfight: { ...TF2, peel: true } }),
+  tf3: (cfg) => ({ ...cfg, teamfight: { ...TF3 } }),
+  // tf3 minus `disengage` (its low-HP retreat dominated the combined arm).
+  tf3_keep: (cfg) => ({ ...cfg, teamfight: { ...TEAMFIGHT_R3 } }),
+  // Split objectives: the cadence experiment's rovers already send 1-2 units to orbs/buffs.
+  tf3_roam: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF3 } }),
+  // exp/objectives: alternative layouts on top of tf3_keep.
+  points: (cfg) => ({ ...cfg, objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 } }),
+  pulse: (cfg) => ({ ...cfg, objectives: { mode: "pulse" }, teamfight: { ...TEAMFIGHT_R3 } }),
+};
+
+type Ev = Record<string, any>;
+const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
+const ORB_PADS = [[2.5, 4.5], [2.5, 11.5], [21.5, 4.5], [21.5, 11.5], [8.5, 1.5], [15.5, 1.5], [8.5, 14.5], [15.5, 14.5]];
+const near = (p: { x: number; y: number }, pads: number[][], r: number) => pads.some(([x, y]) => dist(p, { x: x!, y: y! }) <= r);
+
+export function measure(ev: Ev[]) {
+  const end = ev.find((e) => e.type === "match_end")!;
+  const pos: Record<string, { x: number; y: number }> = {};
+  let sb = 0, sr = 0, lead = 0, leadChanges = 0, winnerTrailed = false;
+  let lastAction = 0, maxGap = 0, quiet = 0;
+  const deaths: Ev[] = [];
+  let skirmish = 0, nearBuff = 0, nearOrb = 0, nearPit = 0;
+  const buffPads = (DEFAULT_CONSTANTS.BUFF_PADS as number[][]);
+  let orbs = 0, buffs = 0, buffShares = 0, rs = 0, buffedDeaths = 0;
+  const buffUntil: Record<string, number> = {};
+  // Teamfight metrics: locks by target, follow-up hits from a different ally, R slot map.
+  const lockOn: Record<string, { t: number; src: string }> = {};
+  let followups = 0, rIntoLock = 0;
+  const rSkills = new Set<string>(ev.filter((e) => e.type === "cast_end" && e.skill === "R").map((e) => e.skill_id));
+  // Round 3 spacing metrics, sampled every 0.5 s from debug pos.
+  const alive: Record<string, boolean> = {};
+  let sampleTick = -1, splitS = 0, spreadSum = 0, spreadN = 0, fightSamples = 0, fightCount = 0, runS = 0, disengages = 0;
+  const runs: number[] = [];
+  const lastIntent: Record<string, string> = {};
+  const sample = () => {
+    const ids = Object.keys(pos).filter((id) => alive[id] !== false);
+    const engaged = ids.filter((a) => ids.some((b) => a[0] !== b[0] && dist(pos[a]!, pos[b]!) <= 5));
+    for (const team of ["b", "r"]) {
+      const g = engaged.filter((id) => id[0] === team);
+      if (g.length < 2) continue;
+      let s = 0, n = 0;
+      for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) { s += dist(pos[g[i]!]!, pos[g[j]!]!); n++; }
+      spreadSum += s / n; spreadN++;
+    }
+    // exp/objectives: combat on a side lane (|y−8| > 4.5) while the middle (|y−8| ≤ 3) also fights.
+    if (engaged.some((id) => Math.abs(pos[id]!.y - 8) > 4.5) && engaged.some((id) => Math.abs(pos[id]!.y - 8) <= 3)) splitS++;
+    // Fights = connected groups of engaged units (link ≤ 5 tiles) holding both teams.
+    const seen = new Set<string>();
+    let fights = 0;
+    for (const start of engaged) {
+      if (seen.has(start)) continue;
+      const stack = [start], teams = new Set<string>();
+      seen.add(start);
+      while (stack.length) {
+        const a = stack.pop()!; teams.add(a[0]!);
+        for (const b of engaged) if (!seen.has(b) && dist(pos[a]!, pos[b]!) <= 5) { seen.add(b); stack.push(b); }
+      }
+      if (teams.size === 2) fights++;
+    }
+    if (fights > 0) { fightSamples++; fightCount += fights; runS += 0.5; } else if (runS > 0) { runs.push(runS); runS = 0; }
+  };
+  for (const e of ev) {
+    if (e.tick !== sampleTick && e.tick % 5 === 0) { if (sampleTick >= 0) sample(); sampleTick = e.tick; }
+    if (e.type === "death") alive[e.unit_id] = false;
+    if (e.type === "respawn") alive[e.unit_id] = true;
+    if (e.type === "intent") {
+      if (e.intent === "Retreat" && ["Chase", "Approach", "Engage", "Kite", "Peel"].includes(lastIntent[e.unit_id] ?? "")) disengages++;
+      lastIntent[e.unit_id] = e.intent;
+    }
+    if (e.type === "pos") { pos[e.unit_id] = { x: e.x, y: e.y }; continue; }
+    if (e.type === "hit" || e.type === "death") {
+      const g = e.t - lastAction; if (g > maxGap) maxGap = g; if (g > 3) quiet += g; lastAction = e.t;
+    }
+    if (e.score_after !== undefined && (e.team === "blue" || e.team === "red")) {
+      if (e.team === "blue") sb = e.score_after; else sr = e.score_after;
+      const l = Math.sign(sb - sr);
+      if (l && lead && l !== lead) leadChanges++;
+      if (l) lead = l;
+      if ((end.winner === "blue" && sr > sb) || (end.winner === "red" && sb > sr)) winnerTrailed = true;
+    }
+    if (e.type === "orb_pickup") orbs++;
+    if (e.type === "buff_pickup") { buffs++; buffUntil[e.unit_id] = e.expires_at; }
+    if (e.type === "buff_share") { buffShares += e.unit_ids.length; for (const u of e.unit_ids) buffUntil[u] = e.expires_at; }
+    if (e.type === "cast_end" && e.skill === "R") rs++;
+    if (e.type === "status_apply" && (e.category === "lock" || e.category === "bind")) lockOn[e.target_id] = { t: e.t, src: e.source_id };
+    if (e.type === "hit") {
+      const l = lockOn[e.target_id];
+      if (l && e.t - l.t <= 1.5 && e.source_id !== l.src && e.source_id.split(":")[0] === l.src.split(":")[0]) followups++;
+    }
+    if (e.type === "cast_start" && rSkills.has(e.skill_id) && e.target_id) {
+      const l = lockOn[e.target_id];
+      if (l && e.t - l.t <= 1.5 && e.unit_id.split(":")[0] === l.src.split(":")[0]) rIntoLock++;
+    }
+    if (e.type === "death") {
+      deaths.push(e);
+      const p = pos[e.unit_id];
+      if ((buffUntil[e.unit_id] ?? 0) > e.t) buffedDeaths++;
+      if (!p) continue;
+      const local = Object.entries(pos).filter(([, q]) => dist(p, q) <= 6).length;
+      if (local <= 4) skirmish++;
+      // Buff pads sit 4.5 tiles from the pit centre, so test pit first with a tight radius.
+      if (dist(p, { x: 12, y: 8 }) <= 3.5) nearPit++;
+      else if (near(p, buffPads, 2)) nearBuff++;
+      else if (p.y < 4.5 || p.y > 11.5 || near(p, ORB_PADS, 3)) nearOrb++;
+    }
+  }
+  const tail = end.t - lastAction; if (tail > maxGap) maxGap = tail; if (tail > 3) quiet += tail;
+  const killCount: Record<string, number> = {};
+  for (const d of deaths) killCount[d.killer_id] = (killCount[d.killer_id] ?? 0) + 1;
+  const gang = deaths.filter((d) => (d.assists?.length ?? 0) >= 3).length;
+  const backline = deaths.filter((d) => /:(adc|mid)$/.test(d.unit_id)).length;
+  let solo = 0, multi = 0;
+  const byKiller: Record<string, number[]> = {};
+  for (const d of deaths) { if (!d.assists?.length) solo++; (byKiller[d.killer_id] ??= []).push(d.t); }
+  for (const ts of Object.values(byKiller)) for (let i = 1; i < ts.length; i++) if (ts[i]! - ts[i - 1]! <= 10) multi++;
+  return {
+    len: end.t, reason: end.reason as string, margin: Math.abs(end.score_blue - end.score_red),
+    leadChanges, comeback: winnerTrailed ? 1 : 0, kills: deaths.length, maxGap, quietPct: quiet / end.t,
+    skirmishPct: deaths.length ? skirmish / deaths.length : 0, solo, multi,
+    buffDeathPct: deaths.length ? nearBuff / deaths.length : 0,
+    orbDeathPct: deaths.length ? nearOrb / deaths.length : 0,
+    pitDeathPct: deaths.length ? nearPit / deaths.length : 0,
+    orbs, buffs, buffShares, buffedDeaths, rs,
+    gangPct: deaths.length ? gang / deaths.length : 0,
+    distinctKillers: Object.keys(killCount).length,
+    topKillerShare: deaths.length ? Math.max(...Object.values(killCount)) / deaths.length : 0,
+    backlinePct: deaths.length ? backline / deaths.length : 0,
+    followups, rIntoLock,
+    allySpread: spreadN ? spreadSum / spreadN : 0,
+    fightLen: runs.length ? runs.reduce((a, b) => a + b, 0) / runs.length : 0,
+    concurrent: fightSamples ? fightCount / fightSamples : 0,
+    splitPct: fightSamples ? splitS / fightSamples : 0,
+    disengages,
+  };
+}
+
+type Row = ReturnType<typeof measure>;
+const median = (xs: number[]) => { const s = xs.slice().sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)]! : 0; };
+const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length);
+
+export function summarize(rows: Row[]) {
+  const pct = (x: number) => Math.round(x * 1000) / 10;
+  const r1 = (x: number) => Math.round(x * 10) / 10;
+  return {
+    games: rows.length,
+    len_median_s: r1(median(rows.map((r) => r.len))),
+    first_to_10_pct: pct(mean(rows.map((r) => (r.reason === "first_to_10" ? 1 : 0)))),
+    lead_changes_mean: r1(mean(rows.map((r) => r.leadChanges))),
+    comeback_pct: pct(mean(rows.map((r) => r.comeback))),
+    margin_mean: r1(mean(rows.map((r) => r.margin))),
+    kills_mean: r1(mean(rows.map((r) => r.kills))),
+    max_gap_median_s: r1(median(rows.map((r) => r.maxGap))),
+    quiet_pct_median: pct(median(rows.map((r) => r.quietPct))),
+    skirmish_death_pct: pct(mean(rows.map((r) => r.skirmishPct))),
+    solo_kills_mean: r1(mean(rows.map((r) => r.solo))),
+    multikills_mean: r1(mean(rows.map((r) => r.multi))),
+    deaths_near_buff_pct: pct(mean(rows.map((r) => r.buffDeathPct))),
+    deaths_in_lanes_or_orbs_pct: pct(mean(rows.map((r) => r.orbDeathPct))),
+    deaths_near_pit_pct: pct(mean(rows.map((r) => r.pitDeathPct))),
+    orb_pickups_mean: r1(mean(rows.map((r) => r.orbs))),
+    buff_pickups_mean: r1(mean(rows.map((r) => r.buffs))),
+    buff_shares_mean: r1(mean(rows.map((r) => r.buffShares))),
+    buffed_deaths_mean: r1(mean(rows.map((r) => r.buffedDeaths))),
+    r_casts_mean: r1(mean(rows.map((r) => r.rs))),
+    gang_death_pct: pct(mean(rows.map((r) => r.gangPct))),
+    distinct_killers_mean: r1(mean(rows.map((r) => r.distinctKillers))),
+    top_killer_share_pct: pct(mean(rows.map((r) => r.topKillerShare))),
+    backline_death_pct: pct(mean(rows.map((r) => r.backlinePct))),
+    combo_followup_hits_mean: r1(mean(rows.map((r) => r.followups))),
+    r_into_cc_mean: r1(mean(rows.map((r) => r.rIntoLock))),
+    ally_spread_tiles: Math.round(mean(rows.map((r) => r.allySpread)) * 100) / 100,
+    fight_len_mean_s: r1(mean(rows.map((r) => r.fightLen))),
+    concurrent_fights: Math.round(mean(rows.map((r) => r.concurrent)) * 100) / 100,
+    side_and_mid_fight_pct: pct(mean(rows.map((r) => r.splitPct))),
+    disengages_mean: r1(mean(rows.map((r) => r.disengages))),
+  };
+}
+
+export function runArm(arm: string, n: number, tactic: TacticPreset): Row[] {
+  const rows: Row[] = [];
+  for (let i = 0; i < n; i++) {
+    for (const swap of [false, true]) {
+      let cfg: MatchConfig = evenOvrConfig(20261122 + i, tactic);
+      if (swap) cfg = { ...cfg, blue: { ...cfg.red, tactics: cfg.blue.tactics }, red: { ...cfg.blue, tactics: cfg.red.tactics } };
+      cfg = ARMS[arm]!({ ...cfg, debug_pos: true });
+      rows.push(measure(simulate(cfg).events as Ev[]));
+    }
+  }
+  return rows;
+}
+
+if (process.argv[1]?.includes("cadence-lab")) {
+  const argv = process.argv.slice(2);
+  const arg = (k: string, d: string) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] ? argv[i + 1]! : d; };
+  const n = Number(arg("--n", "40"));
+  const arms = arg("--arms", "baseline,step1,step2,step3").split(",");
+  const out = arg("--out", "lab/cadence");
+  fs.mkdirSync(out, { recursive: true });
+  const all: Record<string, Record<string, ReturnType<typeof summarize>>> = {};
+  for (const arm of arms) {
+    all[arm] = {};
+    for (const tactic of ["hold_the_pit", "hunt", "starve"] as const) {
+      const t0 = Date.now();
+      all[arm]![tactic] = summarize(runArm(arm, n, tactic));
+      console.error(`${arm} ${tactic} ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+    }
+  }
+  fs.writeFileSync(path.join(out, `results-${arms.join("_")}.json`), JSON.stringify(all, null, 2) + "\n");
+  for (const tactic of ["hold_the_pit", "hunt", "starve"]) {
+    console.log(`\n## ${tactic} (n=${n * 2}/arm)`);
+    const keys = Object.keys(all[arms[0]!]![tactic]!);
+    console.log(["metric", ...arms].join(" | "));
+    for (const k of keys) console.log([k, ...arms.map((a) => (all[a]![tactic] as any)[k])].join(" | "));
+  }
+}

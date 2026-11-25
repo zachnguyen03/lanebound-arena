@@ -1,0 +1,5651 @@
+{
+ "effect": "Cliffwake",
+ "champion": "Helvar",
+ "slug": "helvar-cliffwake",
+ "shape": "line (travelling wave)",
+ "layers": {
+  "ground": {
+   "files": {
+    "blue": "helvar-cliffwake-ground-blue-1x.png",
+    "red": "helvar-cliffwake-ground-red-1x.png"
+   },
+   "cell": [
+    218,
+    56
+   ],
+   "anchor": [
+    10,
+    27
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      220,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      439,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      658,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      877,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      1096,
+      1,
+      218,
+      56
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1315,
+      1,
+      218,
+      56
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1534,
+      1,
+      218,
+      56
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1753,
+      1,
+      218,
+      56
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1972,
+      1,
+      218,
+      56
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      2191,
+      1,
+      218,
+      56
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2410,
+      1,
+      218,
+      56
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      2629,
+      1,
+      218,
+      56
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      2848,
+      1,
+      218,
+      56
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      3067,
+      1,
+      218,
+      56
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 15,
+     "phase": "linger",
+     "phase_i": 3,
+     "rect": [
+      3286,
+      1,
+      218,
+      56
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  },
+  "air": {
+   "files": {
+    "blue": "helvar-cliffwake-air-blue-1x.png",
+    "red": "helvar-cliffwake-air-red-1x.png"
+   },
+   "cell": [
+    268,
+    96
+   ],
+   "anchor": [
+    34,
+    67
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      270,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      539,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      808,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      1077,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      1346,
+      1,
+      268,
+      96
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1615,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1884,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      2153,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      2422,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      2691,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2960,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      3229,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      3498,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      3767,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ],
+   "draw": "full air (back + front) = preview / fallback"
+  },
+  "air-back": {
+   "files": {
+    "blue": "helvar-cliffwake-air-back-blue-1x.png",
+    "red": "helvar-cliffwake-air-back-red-1x.png"
+   },
+   "cell": [
+    268,
+    96
+   ],
+   "anchor": [
+    34,
+    67
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      270,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      539,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      808,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      1077,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      1346,
+      1,
+      268,
+      96
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1615,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1884,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      2153,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      2422,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      2691,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2960,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      3229,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      3498,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      3767,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ],
+   "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+  },
+  "air-front": {
+   "files": {
+    "blue": "helvar-cliffwake-air-front-blue-1x.png",
+    "red": "helvar-cliffwake-air-front-red-1x.png"
+   },
+   "cell": [
+    268,
+    96
+   ],
+   "anchor": [
+    34,
+    67
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      270,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      539,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      808,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      1077,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      1346,
+      1,
+      268,
+      96
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1615,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1884,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      2153,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      2422,
+      1,
+      268,
+      96
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      2691,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2960,
+      1,
+      268,
+      96
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      3229,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      3498,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      3767,
+      1,
+      268,
+      96
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ],
+   "draw": "near-half pillars + dust: draw over bodies"
+  }
+ },
+ "radius_tiles": null,
+ "cast_s": 0.5,
+ "land_delay_s": 0,
+ "footprint_1x_px": [
+  200.0,
+  2.0
+ ],
+ "tile_1x_px": [
+  22,
+  16
+ ],
+ "scale_in_play": 2,
+ "scale_rule": "integer nearest-neighbour only",
+ "anchor_rule": "both layers anchor on HELVAR's foot at cast (line origin). Line runs 9 tiles along the cast vector.",
+ "team_swap": {
+  "dk": {
+   "blue": "#245CB4",
+   "red": "#A8204A"
+  },
+  "mid": {
+   "blue": "#4DA3FF",
+   "red": "#F5477A"
+  },
+  "lt": {
+   "blue": "#A0CCFF",
+   "red": "#FF96B0"
+  }
+ },
+ "phases": {
+  "windup": {
+   "frames": 5,
+   "ms_each": 100,
+   "loop": true,
+   "runs": "from cast start until 60 ms before the hit (440 ms), looping"
+  },
+  "impact": {
+   "frames": 7,
+   "ms": [
+    60,
+    100,
+    80,
+    80,
+    80,
+    90,
+    90
+   ],
+   "hit_frame": "impact f2 (strip index 6)",
+   "note": "f1 = 60 ms hold-off that starts 60 ms before the hit; f2 = biggest frame, the sim hit/CC lands at its first ms. Renderer may add a 100 ms freeze on f2 for R casts."
+  },
+  "linger_air": {
+   "frames": 3,
+   "ms": [
+    100,
+    100,
+    100
+   ]
+  },
+  "linger_ground": {
+   "frames": 4,
+   "ms": [
+    200,
+    200,
+    150,
+    150
+   ],
+   "note": "ground keeps going after the air strip ends; total ground linger 700 ms"
+  }
+ },
+ "durations_ms": {
+  "air_after_hit": 820,
+  "ground_after_hit": 1220
+ },
+ "directions": {
+  "authored": {
+   "e": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "helvar-cliffwake-ground-blue-1x.png",
+       "red": "helvar-cliffwake-ground-red-1x.png"
+      },
+      "cell": [
+       218,
+       56
+      ],
+      "anchor": [
+       10,
+       27
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         220,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         439,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         658,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         877,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1096,
+         1,
+         218,
+         56
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1315,
+         1,
+         218,
+         56
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1534,
+         1,
+         218,
+         56
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1753,
+         1,
+         218,
+         56
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1972,
+         1,
+         218,
+         56
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2191,
+         1,
+         218,
+         56
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2410,
+         1,
+         218,
+         56
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2629,
+         1,
+         218,
+         56
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2848,
+         1,
+         218,
+         56
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3067,
+         1,
+         218,
+         56
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         3286,
+         1,
+         218,
+         56
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "helvar-cliffwake-air-blue-1x.png",
+       "red": "helvar-cliffwake-air-red-1x.png"
+      },
+      "cell": [
+       268,
+       96
+      ],
+      "anchor": [
+       34,
+       67
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         270,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         539,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         808,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         1077,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1346,
+         1,
+         268,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1615,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1884,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         2153,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2422,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2691,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2960,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         3229,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3498,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3767,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     },
+     "air-back": {
+      "files": {
+       "blue": "helvar-cliffwake-air-back-blue-1x.png",
+       "red": "helvar-cliffwake-air-back-red-1x.png"
+      },
+      "cell": [
+       268,
+       96
+      ],
+      "anchor": [
+       34,
+       67
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         270,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         539,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         808,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         1077,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1346,
+         1,
+         268,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1615,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1884,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         2153,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2422,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2691,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2960,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         3229,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3498,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3767,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+     },
+     "air-front": {
+      "files": {
+       "blue": "helvar-cliffwake-air-front-blue-1x.png",
+       "red": "helvar-cliffwake-air-front-red-1x.png"
+      },
+      "cell": [
+       268,
+       96
+      ],
+      "anchor": [
+       34,
+       67
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         270,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         539,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         808,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         1077,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1346,
+         1,
+         268,
+         96
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1615,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1884,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         2153,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2422,
+         1,
+         268,
+         96
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2691,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2960,
+         1,
+         268,
+         96
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         3229,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3498,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3767,
+         1,
+         268,
+         96
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "near-half pillars + dust: draw over bodies"
+     }
+    },
+    "note": "main files (no suffix) = facing e"
+   },
+   "se": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-se-ground-blue-1x.png",
+       "red": "helvar-cliffwake-dir-se-ground-red-1x.png"
+      },
+      "cell": [
+       194,
+       146
+      ],
+      "anchor": [
+       27,
+       22
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         196,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         391,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         586,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         781,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         976,
+         1,
+         194,
+         146
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1171,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1366,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1561,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1756,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         1951,
+         1,
+         194,
+         146
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2146,
+         1,
+         194,
+         146
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2341,
+         1,
+         194,
+         146
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2536,
+         1,
+         194,
+         146
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         2731,
+         1,
+         194,
+         146
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         2926,
+         1,
+         194,
+         146
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-se-air-blue-1x.png",
+       "red": "helvar-cliffwake-dir-se-air-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       62
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     },
+     "air-back": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-se-air-back-blue-1x.png",
+       "red": "helvar-cliffwake-dir-se-air-back-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       62
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+     },
+     "air-front": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-se-air-front-blue-1x.png",
+       "red": "helvar-cliffwake-dir-se-air-front-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       62
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "near-half pillars + dust: draw over bodies"
+     }
+    }
+   },
+   "s": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-s-ground-blue-1x.png",
+       "red": "helvar-cliffwake-dir-s-ground-red-1x.png"
+      },
+      "cell": [
+       68,
+       164
+      ],
+      "anchor": [
+       34,
+       10
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         70,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         139,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         208,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         277,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         346,
+         1,
+         68,
+         164
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         415,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         484,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         553,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         622,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         691,
+         1,
+         68,
+         164
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         760,
+         1,
+         68,
+         164
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         829,
+         1,
+         68,
+         164
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         898,
+         1,
+         68,
+         164
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         967,
+         1,
+         68,
+         164
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         1036,
+         1,
+         68,
+         164
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-s-air-blue-1x.png",
+       "red": "helvar-cliffwake-dir-s-air-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       50
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     },
+     "air-back": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-s-air-back-blue-1x.png",
+       "red": "helvar-cliffwake-dir-s-air-back-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       50
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+     },
+     "air-front": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-s-air-front-blue-1x.png",
+       "red": "helvar-cliffwake-dir-s-air-front-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       50
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "near-half pillars + dust: draw over bodies"
+     }
+    }
+   },
+   "ne": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-ne-ground-blue-1x.png",
+       "red": "helvar-cliffwake-dir-ne-ground-red-1x.png"
+      },
+      "cell": [
+       194,
+       146
+      ],
+      "anchor": [
+       27,
+       124
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         196,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         391,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         586,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         781,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         976,
+         1,
+         194,
+         146
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1171,
+         1,
+         194,
+         146
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1366,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1561,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         1756,
+         1,
+         194,
+         146
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         1951,
+         1,
+         194,
+         146
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2146,
+         1,
+         194,
+         146
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2341,
+         1,
+         194,
+         146
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         2536,
+         1,
+         194,
+         146
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         2731,
+         1,
+         194,
+         146
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         2926,
+         1,
+         194,
+         146
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-ne-air-blue-1x.png",
+       "red": "helvar-cliffwake-dir-ne-air-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       164
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     },
+     "air-back": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-ne-air-back-blue-1x.png",
+       "red": "helvar-cliffwake-dir-ne-air-back-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       164
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+     },
+     "air-front": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-ne-air-front-blue-1x.png",
+       "red": "helvar-cliffwake-dir-ne-air-front-red-1x.png"
+      },
+      "cell": [
+       238,
+       186
+      ],
+      "anchor": [
+       48,
+       164
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         240,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         479,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         718,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         957,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         1196,
+         1,
+         238,
+         186
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         1435,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         1674,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         1913,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         2152,
+         1,
+         238,
+         186
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         2391,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         2630,
+         1,
+         238,
+         186
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         2869,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         3108,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         3347,
+         1,
+         238,
+         186
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "near-half pillars + dust: draw over bodies"
+     }
+    }
+   },
+   "n": {
+    "layers": {
+     "ground": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-n-ground-blue-1x.png",
+       "red": "helvar-cliffwake-dir-n-ground-red-1x.png"
+      },
+      "cell": [
+       68,
+       164
+      ],
+      "anchor": [
+       34,
+       154
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         70,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         139,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         208,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         277,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         346,
+         1,
+         68,
+         164
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         415,
+         1,
+         68,
+         164
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         484,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         553,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         622,
+         1,
+         68,
+         164
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         691,
+         1,
+         68,
+         164
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         760,
+         1,
+         68,
+         164
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         829,
+         1,
+         68,
+         164
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         898,
+         1,
+         68,
+         164
+        ],
+        "ms": 200,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         967,
+         1,
+         68,
+         164
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 15,
+        "phase": "linger",
+        "phase_i": 3,
+        "rect": [
+         1036,
+         1,
+         68,
+         164
+        ],
+        "ms": 150,
+        "hit": false,
+        "loop": false
+       }
+      ]
+     },
+     "air": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-n-air-blue-1x.png",
+       "red": "helvar-cliffwake-dir-n-air-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       194
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "full air (back + front) = preview / fallback"
+     },
+     "air-back": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-n-air-back-blue-1x.png",
+       "red": "helvar-cliffwake-dir-n-air-back-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       194
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "pillars on the far half of the band: draw AFTER ground, BEFORE bodies"
+     },
+     "air-front": {
+      "files": {
+       "blue": "helvar-cliffwake-dir-n-air-front-blue-1x.png",
+       "red": "helvar-cliffwake-dir-n-air-front-red-1x.png"
+      },
+      "cell": [
+       80,
+       204
+      ],
+      "anchor": [
+       40,
+       194
+      ],
+      "frames": [
+       {
+        "i": 0,
+        "phase": "windup",
+        "phase_i": 0,
+        "rect": [
+         1,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 1,
+        "phase": "windup",
+        "phase_i": 1,
+        "rect": [
+         82,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 2,
+        "phase": "windup",
+        "phase_i": 2,
+        "rect": [
+         163,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 3,
+        "phase": "windup",
+        "phase_i": 3,
+        "rect": [
+         244,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 4,
+        "phase": "windup",
+        "phase_i": 4,
+        "rect": [
+         325,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": true
+       },
+       {
+        "i": 5,
+        "phase": "impact",
+        "phase_i": 0,
+        "rect": [
+         406,
+         1,
+         80,
+         204
+        ],
+        "ms": 60,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 6,
+        "phase": "impact",
+        "phase_i": 1,
+        "rect": [
+         487,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": true,
+        "loop": false
+       },
+       {
+        "i": 7,
+        "phase": "impact",
+        "phase_i": 2,
+        "rect": [
+         568,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 8,
+        "phase": "impact",
+        "phase_i": 3,
+        "rect": [
+         649,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 9,
+        "phase": "impact",
+        "phase_i": 4,
+        "rect": [
+         730,
+         1,
+         80,
+         204
+        ],
+        "ms": 80,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 10,
+        "phase": "impact",
+        "phase_i": 5,
+        "rect": [
+         811,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 11,
+        "phase": "impact",
+        "phase_i": 6,
+        "rect": [
+         892,
+         1,
+         80,
+         204
+        ],
+        "ms": 90,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 12,
+        "phase": "linger",
+        "phase_i": 0,
+        "rect": [
+         973,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 13,
+        "phase": "linger",
+        "phase_i": 1,
+        "rect": [
+         1054,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       },
+       {
+        "i": 14,
+        "phase": "linger",
+        "phase_i": 2,
+        "rect": [
+         1135,
+         1,
+         80,
+         204
+        ],
+        "ms": 100,
+        "hit": false,
+        "loop": false
+       }
+      ],
+      "draw": "near-half pillars + dust: draw over bodies"
+     }
+    }
+   }
+  },
+  "mirrored": {
+   "w": "e",
+   "sw": "se",
+   "nw": "ne"
+  },
+  "rule": "pick the facing nearest the cast vector (8-way). For w/sw/nw use the e/se/ne strips flipped horizontally AND mirror the anchor x: anchor_x' = cell_w - anchor_x. n and s are authored because the air elements stand upright (a vertical flip would put them upside down)."
+ },
+ "line_tiles": [
+  9.0,
+  2.2
+ ],
+ "wave_front_by_impact_frame": [
+  0.3,
+  0.5,
+  0.7,
+  0.88,
+  1.0,
+  1.0
+ ],
+ "draw_order_split": "RECOMMENDED: ground -> air-back -> bodies (y-sorted) -> air-front. The crest pillars on the far half of the band then stand BEHIND the units they pass, so knocked-back units are never hidden. Fallback: ground -> bodies -> air (full) hides a unit for ~1 frame as the crest passes it.",
+ "knockback": "no status plate (displacement only): renderer moves hit units 2.2 tiles along the line during impact f2-f5; the rubble trail is the dash/wave trail"
+}

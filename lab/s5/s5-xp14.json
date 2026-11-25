@@ -1,0 +1,8 @@
+{
+  "name": "s5-xp14",
+  "parent": "default",
+  "overrides": {
+    "TIME_XP_PER_S": 14
+  },
+  "created_note": "Legal TIME_XP_PER_S=14 probe for T1/T3. Applies on next run only."
+}

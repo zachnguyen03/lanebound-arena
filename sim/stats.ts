@@ -93,4 +93,18 @@ export function hitChance(effAimVal: number, targetReflexes: number, hitBase = 0
   return clamp(hitBase + hitCoef * (effAimVal - targetReflexes), floor, ceil);
 }
 
+/**
+ * K-2 disabled-target skillshot override (§8.4 L935–944).
+ * Reflexes drop out; piecewise linear in eff_Aim, clamp [0.70, 0.95]:
+ *   < 60: 0.80 + (0.10/30)·(eff_Aim − 60)
+ *   ≥ 60: 0.80 + 0.01·(eff_Aim − 60)
+ */
+export function hitChanceDisabled(effAimVal: number): number {
+  const raw =
+    effAimVal < 60
+      ? 0.8 + (0.1 / 30) * (effAimVal - 60)
+      : 0.8 + 0.01 * (effAimVal - 60);
+  return clamp(raw, 0.7, 0.95);
+}
+
 export type { L1Stats, ChampClass };

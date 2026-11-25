@@ -13,6 +13,7 @@ import {
   strongestSlow,
 } from "./status.js";
 import type { MatchState, Team, UnitId, UnitState, Vec2 } from "./types.js";
+import { isBackliner } from "./ai/formation.js";
 
 /** Pose snapshot at the start of the motor phase (L1899). */
 export interface PhasePose {
@@ -36,34 +37,54 @@ export function separationSteer(
   unit: UnitState,
   allies: UnitState[],
   c: Constants,
+  spread: { r: number; k: number } | null = null,
 ): Vec2 {
   let sx = 0;
   let sy = 0;
-  const r = c.SEPARATION_RADIUS;
+  const r = spread?.r ?? c.SEPARATION_RADIUS;
+  const strength = c.SEPARATION_STRENGTH * (spread?.k ?? 1);
   for (const a of allies) {
     if (a.id === unit.id || !a.alive) continue;
     const d = dist(unit.x, unit.y, a.x, a.y);
     if (d <= 0 || d >= r) continue;
     const n = normalize(unit.x - a.x, unit.y - a.y);
-    const mag = c.SEPARATION_STRENGTH * (1 - d / r);
+    const mag = strength * (1 - d / r);
     sx += n.x * mag;
     sy += n.y * mag;
   }
   return { x: sx, y: sy };
 }
 
-export function desiredVelocity(unit: UnitState, c: Constants, sep: Vec2): Vec2 {
+const SPREAD_INTENTS = new Set(["Chase", "Approach", "Engage", "Kite", "Peel"]);
+
+/** exp teamfight round 3 `spread`: wider separation while fighting. */
+function fightSpread(state: MatchState, unit: UnitState): { r: number; k: number } | null {
+  if (!state.config?.teamfight?.spread || !SPREAD_INTENTS.has(unit.intent)) return null;
+  return { r: 1.2, k: isBackliner(unit) ? 1.5 : 1 };
+}
+
+function flankMsMult(unit: UnitState, t: number, c: Constants): number {
+  return unit.flank_buff_until > t + 1e-12 ? 1 + c.BUFF_MS : 1;
+}
+
+export function desiredVelocity(
+  unit: UnitState,
+  c: Constants,
+  sep: Vec2,
+  now = 0,
+): Vec2 {
+  const ms = unit.stats.ms * flankMsMult(unit, now, c);
   let dx = 0;
   let dy = 0;
   if (unit.waypoint) {
     const n = normalize(unit.waypoint.x - unit.x, unit.waypoint.y - unit.y);
-    dx = n.x * unit.stats.ms;
-    dy = n.y * unit.stats.ms;
+    dx = n.x * ms;
+    dy = n.y * ms;
   }
   dx += sep.x;
   dy += sep.y;
   const slow = strongestSlow(unit.status);
-  const maxMs = unit.stats.ms * (1 - slow);
+  const maxMs = ms * (1 - slow);
   const speed = hypot(dx, dy);
   if (speed > maxMs && speed > 0) {
     const s = maxMs / speed;
@@ -214,7 +235,8 @@ export function integrateSteering(
       return { unit, clipped: false, reason: null };
     }
     const n = normalize(unit.x - src.x, unit.y - src.y);
-    const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
+    const ms =
+      unit.stats.ms * flankMsMult(unit, state.t, c) * (1 - strongestSlow(unit.status));
     const dx = n.x * ms * c.DT;
     const dy = n.y * ms * c.DT;
     unit.vx = n.x * ms;
@@ -236,7 +258,8 @@ export function integrateSteering(
       }));
     const dest = hexSteerTarget(unit, poses, c);
     const n = normalize(dest.x - unit.x, dest.y - unit.y);
-    const ms = unit.stats.ms * (1 - strongestSlow(unit.status));
+    const ms =
+      unit.stats.ms * flankMsMult(unit, state.t, c) * (1 - strongestSlow(unit.status));
     const dx = n.x * ms * c.DT;
     const dy = n.y * ms * c.DT;
     unit.vx = n.x * ms;
@@ -260,16 +283,17 @@ export function integrateSteering(
   const allies = state.units.filter((u) => u.team === unit.team && u.alive);
   allies.sort((a, b) => a.index - b.index);
 
-  const sep = separationSteer(unit, allies, c);
+  const sep = separationSteer(unit, allies, c, fightSpread(state, unit));
   // Idle separation (no waypoint) starts after 1.0 s so early geometry casts
   // (OQ-4/5 at t≈0.8) keep authored poses; L1905 still separates by t=1.9.
   const idleSepOn = state.t >= 1.0 - 1e-12;
   const vel = unit.waypoint
-    ? desiredVelocity(unit, c, sep)
+    ? desiredVelocity(unit, c, sep, state.t)
     : idleSepOn
       ? (() => {
           const slow = strongestSlow(unit.status);
-          const maxMs = unit.stats.ms * (1 - slow);
+          const maxMs =
+            unit.stats.ms * flankMsMult(unit, state.t, c) * (1 - slow);
           const speed = hypot(sep.x, sep.y);
           if (speed <= 1e-12) return { x: 0, y: 0 };
           if (speed > maxMs) {

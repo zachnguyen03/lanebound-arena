@@ -1,0 +1,1719 @@
+{
+ "name": "Lanebound arena status plates",
+ "version": 1,
+ "sheet": "status-plates-2x.png",
+ "sheet_1x": "status-plates-1x.png",
+ "scale": 2,
+ "note": "Plate 16x18 @1x (32x36 @2x): 16x16 content, 1 px rim rgb(110,122,148), fill #121722, 14x14 glyph at (1,1), 2 px duration bar rows 16-17, x 1..15 accent, x 0 track (9,12,18). Runtime draws the bar's remaining fraction by clipping from the right and painting the rest with the track colour. Same key shape as the champion atlas 'sprites' (Huntress vfx): {rect, anchor}; anchor = bottom-centre of the plate (the bar), block centred on the unit's foot x, bar bottom 2 px above the initial tag (1x map space; at 2x this is 4 px). 'status-<kind>' = plate, 'status-<kind>-glyph' = bare 14x14 glyph (HUD chips). Asset id = the key.",
+ "head_rule": {
+  "one_plate_per_unit": "the strongest DISABLE (lowest priority number in group 'disable'); ties inside a band: longest remaining duration",
+  "overflow": "every other active status (disables, mark, buffs) folds into one '+N' chip beside the plate; N > 9 shows +9",
+  "no_disable": "if the unit has no disable, the head shows its strongest of: mark, then buffs by priority (spawn-shield first)",
+  "ground_cc": "root wick loops and slow chevrons stay at the feet (spectator/spec.md), independent of the head plate",
+  "order": [
+   "stun",
+   "knockup",
+   "petrify",
+   "timestop",
+   "banish",
+   "hex",
+   "sleep",
+   "fear",
+   "taunt",
+   "silence",
+   "disarm",
+   "blind",
+   "mute",
+   "root",
+   "leash",
+   "break",
+   "slow",
+   "mark",
+   "spawn-shield",
+   "shield",
+   "arena-buff",
+   "zone-aura",
+   "spellward",
+   "mitigation",
+   "regen",
+   "amp",
+   "haste"
+  ]
+ },
+ "sprites": {
+  "status-stun": {
+   "rect": [
+    0,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "stun",
+   "priority": 1,
+   "bar_rgb": [
+    230,
+    233,
+    240
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-stun-glyph": {
+   "rect": [
+    2,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    1,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-knockup": {
+   "rect": [
+    32,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    16,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "knockup",
+   "priority": 1,
+   "bar_rgb": [
+    230,
+    233,
+    240
+   ],
+   "source": "new, same plate language"
+  },
+  "status-knockup-glyph": {
+   "rect": [
+    34,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    17,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-petrify": {
+   "rect": [
+    64,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    32,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "petrify (stun-class)",
+   "priority": 1,
+   "bar_rgb": [
+    176,
+    170,
+    160
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-petrify-glyph": {
+   "rect": [
+    66,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    33,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-timestop": {
+   "rect": [
+    96,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    48,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "timestop",
+   "priority": 1,
+   "bar_rgb": [
+    210,
+    200,
+    178
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-timestop-glyph": {
+   "rect": [
+    98,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    49,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-banish": {
+   "rect": [
+    128,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    64,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "banish",
+   "priority": 1,
+   "bar_rgb": [
+    170,
+    214,
+    222
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-banish-glyph": {
+   "rect": [
+    130,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    65,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-hex": {
+   "rect": [
+    160,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    80,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "hex",
+   "priority": 1,
+   "bar_rgb": [
+    172,
+    214,
+    186
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-hex-glyph": {
+   "rect": [
+    162,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    81,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-sleep": {
+   "rect": [
+    192,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    96,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "lock",
+   "sim_kind": "sleep",
+   "priority": 2,
+   "bar_rgb": [
+    244,
+    233,
+    207
+   ],
+   "source": "new, same plate language"
+  },
+  "status-sleep-glyph": {
+   "rect": [
+    194,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    97,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-fear": {
+   "rect": [
+    224,
+    0,
+    32,
+    36
+   ],
+   "rect_1x": [
+    112,
+    0,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "fear (lock)",
+   "priority": 3,
+   "bar_rgb": [
+    230,
+    233,
+    240
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-fear-glyph": {
+   "rect": [
+    226,
+    216,
+    28,
+    28
+   ],
+   "rect_1x": [
+    113,
+    108,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-taunt": {
+   "rect": [
+    0,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "taunt",
+   "priority": 3,
+   "bar_rgb": [
+    200,
+    206,
+    218
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-taunt-glyph": {
+   "rect": [
+    2,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    1,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-silence": {
+   "rect": [
+    32,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    16,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "silence",
+   "priority": 3,
+   "bar_rgb": [
+    161,
+    172,
+    191
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-silence-glyph": {
+   "rect": [
+    34,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    17,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-disarm": {
+   "rect": [
+    64,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    32,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "disarm",
+   "priority": 3,
+   "bar_rgb": [
+    150,
+    170,
+    200
+   ],
+   "source": "new, same plate language"
+  },
+  "status-disarm-glyph": {
+   "rect": [
+    66,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    33,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-blind": {
+   "rect": [
+    96,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    48,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "blind",
+   "priority": 3,
+   "bar_rgb": [
+    196,
+    190,
+    224
+   ],
+   "source": "new, same plate language"
+  },
+  "status-blind-glyph": {
+   "rect": [
+    98,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    49,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-mute": {
+   "rect": [
+    128,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    64,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "mute",
+   "priority": 3,
+   "bar_rgb": [
+    135,
+    146,
+    166
+   ],
+   "source": "new, same plate language"
+  },
+  "status-mute-glyph": {
+   "rect": [
+    130,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    65,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-root": {
+   "rect": [
+    160,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    80,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "bind",
+   "sim_kind": "root",
+   "priority": 4,
+   "bar_rgb": [
+    200,
+    170,
+    130
+   ],
+   "source": "new, same plate language"
+  },
+  "status-root-glyph": {
+   "rect": [
+    162,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    81,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-leash": {
+   "rect": [
+    192,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    96,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "bind",
+   "sim_kind": "leash",
+   "priority": 4,
+   "bar_rgb": [
+    200,
+    170,
+    130
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-leash-glyph": {
+   "rect": [
+    194,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    97,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-break": {
+   "rect": [
+    224,
+    36,
+    32,
+    36
+   ],
+   "rect_1x": [
+    112,
+    18,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "break",
+   "priority": 5,
+   "bar_rgb": [
+    230,
+    233,
+    240
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-break-glyph": {
+   "rect": [
+    226,
+    244,
+    28,
+    28
+   ],
+   "rect_1x": [
+    113,
+    122,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-slow": {
+   "rect": [
+    0,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "disable",
+   "category": "handicap",
+   "sim_kind": "slow",
+   "priority": 5,
+   "bar_rgb": [
+    120,
+    148,
+    150
+   ],
+   "source": "batch3/per-kit plate, reused"
+  },
+  "status-slow-glyph": {
+   "rect": [
+    2,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    1,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-mark": {
+   "rect": [
+    32,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    16,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "mark",
+   "category": "none",
+   "sim_kind": "mark",
+   "priority": 6,
+   "bar_rgb": [
+    255,
+    240,
+    200
+   ],
+   "source": "hud-v2 plate-mark-2x, reused"
+  },
+  "status-mark-glyph": {
+   "rect": [
+    34,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    17,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-spawn-shield": {
+   "rect": [
+    64,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    32,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "shield (spawn, 1.5 s)",
+   "priority": 7,
+   "bar_rgb": [
+    210,
+    230,
+    236
+   ],
+   "source": "new, same plate language"
+  },
+  "status-spawn-shield-glyph": {
+   "rect": [
+    66,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    33,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-shield": {
+   "rect": [
+    96,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    48,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "shield",
+   "priority": 8,
+   "bar_rgb": [
+    210,
+    230,
+    236
+   ],
+   "source": "new, same plate language"
+  },
+  "status-shield-glyph": {
+   "rect": [
+    98,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    49,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-arena-buff": {
+   "rect": [
+    128,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    64,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "flank buff +12% dmg / +10% MS",
+   "priority": 9,
+   "bar_rgb": [
+    242,
+    193,
+    78
+   ],
+   "source": "new, same plate language"
+  },
+  "status-arena-buff-glyph": {
+   "rect": [
+    130,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    65,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-zone-aura": {
+   "rect": [
+    160,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    80,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "zone holder aura +10 res, +15 HP/s",
+   "priority": 10,
+   "bar_rgb": [
+    242,
+    193,
+    78
+   ],
+   "source": "new, same plate language"
+  },
+  "status-zone-aura-glyph": {
+   "rect": [
+    162,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    81,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-spellward": {
+   "rect": [
+    192,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    96,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "spellward",
+   "priority": 11,
+   "bar_rgb": [
+    161,
+    172,
+    191
+   ],
+   "source": "new, same plate language"
+  },
+  "status-spellward-glyph": {
+   "rect": [
+    194,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    97,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-mitigation": {
+   "rect": [
+    224,
+    72,
+    32,
+    36
+   ],
+   "rect_1x": [
+    112,
+    36,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "dmg_taken down",
+   "priority": 12,
+   "bar_rgb": [
+    150,
+    170,
+    200
+   ],
+   "source": "new, same plate language"
+  },
+  "status-mitigation-glyph": {
+   "rect": [
+    226,
+    272,
+    28,
+    28
+   ],
+   "rect_1x": [
+    113,
+    136,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-regen": {
+   "rect": [
+    0,
+    108,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    54,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "heal over time",
+   "priority": 13,
+   "bar_rgb": [
+    210,
+    230,
+    236
+   ],
+   "source": "new, same plate language"
+  },
+  "status-regen-glyph": {
+   "rect": [
+    2,
+    300,
+    28,
+    28
+   ],
+   "rect_1x": [
+    1,
+    150,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-amp": {
+   "rect": [
+    32,
+    108,
+    32,
+    36
+   ],
+   "rect_1x": [
+    16,
+    54,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "amp / dmg_dealt up",
+   "priority": 14,
+   "bar_rgb": [
+    244,
+    233,
+    207
+   ],
+   "source": "new, same plate language"
+  },
+  "status-amp-glyph": {
+   "rect": [
+    34,
+    300,
+    28,
+    28
+   ],
+   "rect_1x": [
+    17,
+    150,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-haste": {
+   "rect": [
+    64,
+    108,
+    32,
+    36
+   ],
+   "rect_1x": [
+    32,
+    54,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "buff",
+   "category": "buff",
+   "sim_kind": "ms_buff",
+   "priority": 15,
+   "bar_rgb": [
+    150,
+    170,
+    200
+   ],
+   "source": "new, same plate language"
+  },
+  "status-haste-glyph": {
+   "rect": [
+    66,
+    300,
+    28,
+    28
+   ],
+   "rect_1x": [
+    33,
+    150,
+    14,
+    14
+   ],
+   "anchor": [
+    14,
+    28
+   ],
+   "anchor_1x": [
+    7,
+    14
+   ]
+  },
+  "status-plus-1": {
+   "rect": [
+    0,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-2": {
+   "rect": [
+    32,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    16,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-3": {
+   "rect": [
+    64,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    32,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-4": {
+   "rect": [
+    96,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    48,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-5": {
+   "rect": [
+    128,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    64,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-6": {
+   "rect": [
+    160,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    80,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-7": {
+   "rect": [
+    192,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    96,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-8": {
+   "rect": [
+    224,
+    144,
+    32,
+    36
+   ],
+   "rect_1x": [
+    112,
+    72,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  },
+  "status-plus-9": {
+   "rect": [
+    0,
+    180,
+    32,
+    36
+   ],
+   "rect_1x": [
+    0,
+    90,
+    16,
+    18
+   ],
+   "anchor": [
+    16,
+    36
+   ],
+   "anchor_1x": [
+    8,
+    18
+   ],
+   "group": "overflow",
+   "note": "'+N' chip, N = hidden statuses (9 caps at +9)"
+  }
+ }
+}

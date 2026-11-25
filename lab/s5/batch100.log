@@ -1,0 +1,41 @@
+
+> lanebound-arena@0.0.0 batch
+> tsx apps/lab/batch.ts --n 100 --seed 20261122 --out lab/s5
+
+batch 1/100  4.29 games/s  ETA 23s
+batch 5/100  5.27 games/s  ETA 18s
+batch 8/100  5.50 games/s  ETA 17s
+batch 11/100  5.61 games/s  ETA 16s
+batch 16/100  6.04 games/s  ETA 14s
+batch 20/100  6.30 games/s  ETA 13s
+batch 24/100  6.46 games/s  ETA 12s
+batch 29/100  6.77 games/s  ETA 10s
+batch 33/100  6.84 games/s  ETA 10s
+batch 38/100  7.10 games/s  ETA 9s
+batch 43/100  7.27 games/s  ETA 8s
+batch 48/100  7.34 games/s  ETA 7s
+batch 53/100  7.45 games/s  ETA 6s
+batch 58/100  7.54 games/s  ETA 6s
+batch 62/100  7.49 games/s  ETA 5s
+batch 67/100  7.58 games/s  ETA 4s
+batch 71/100  7.60 games/s  ETA 4s
+batch 76/100  7.59 games/s  ETA 3s
+batch 81/100  7.67 games/s  ETA 2s
+batch 86/100  7.77 games/s  ETA 2s
+batch 91/100  7.85 games/s  ETA 1s
+batch 97/100  7.98 games/s  ETA 0s
+batch 100/100  7.92 games/s  ETA 0s
+{
+  "cancelled": false,
+  "n_requested": 100,
+  "n_finished": 100,
+  "config_hash": "bfaddabebb1a4c2cc8f968a4de41c1fe0b206677c2b05a43de558283ae127b4a",
+  "out": {
+    "jsonPath": "lab/s5/batch-results.json",
+    "csvPath": "lab/s5/batch-summaries.csv",
+    "dashPath": "lab/s5/batch-dashboard.csv"
+  },
+  "length_median_s": 87.75,
+  "peel_rate": 0.975609756097561,
+  "sanctuary": 0
+}

@@ -20,10 +20,11 @@
     "paths": {
       "@sim/*": ["sim/*"],
       "@data/*": ["data/*"],
+      "@lab/*": ["apps/lab/lib/*"],
       "@lanebound/match-contract": ["packages/match-contract/src/index.ts"],
       "@lanebound/career": ["packages/career/src/index.ts"]
     }
   },
-  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*", "packages/**/*"],
-  "exclude": ["apps/career/e2e", "apps/career/playwright.config.ts", "apps/career/vite.config.ts", "apps/career/dist"]
+  "include": ["sim/**/*", "apps/**/*", "tests/**/*", "data/**/*", "packages/**/*", "vitest.config.ts"],
+  "exclude": ["apps/watch", "apps/career/e2e", "apps/career/playwright.config.ts", "apps/career/vite.config.ts", "apps/career/dist"]
 }

@@ -46,6 +46,7 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
       positioning: 70,
       teamwork: 70,
     },
+    mastery: 50,
     intent: "Idle",
     waypoint: null,
     scripted_wp_i: 0,
@@ -72,6 +73,14 @@ function bareUnit(partial: Partial<UnitState> = {}): UnitState {
     commit_until: 0,
     rewind_used: false,
     abandon_scripted_motor: false,
+    ai_target_id: null,
+    ai_retreat_suppress_until: 0,
+    zone_aura_res: 0,
+    walk_from_pad_until: 0,
+    flank_buff_until: 0,
+    ai_at_planner_wp: false,
+    ai_no_trickle_until: 0,
+    ai_first_auto_done: false,
   };
   Object.assign(u, partial);
   return u;

@@ -1,0 +1,6 @@
+watch-1920-t0 viewport=1920x1080 intrinsic=1056x580 css=1056x580 scaleX=1 scaleY=1
+watch-1920-mid viewport=1920x1080 intrinsic=1056x580 css=1056x580 scaleX=1 scaleY=1
+watch-1920-drawer viewport=1920x1080 intrinsic=1056x580 css=1056x580 scaleX=1 scaleY=1
+watch-1280-t0 viewport=1280x720 intrinsic=1056x520 css=1056x520 scaleX=1 scaleY=1
+watch-1280-mid viewport=1280x720 intrinsic=1056x520 css=1056x520 scaleX=1 scaleY=1
+watch-1280x800-mid viewport=1280x800 intrinsic=1056x520 css=1056x520 scaleX=1 scaleY=1

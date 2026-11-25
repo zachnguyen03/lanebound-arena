@@ -1,4 +1,5 @@
 import { constantsHash, digestEvents } from "./canonical.js";
+import { withKitPatch } from "./balance.js";
 import {
   cancelAutoWindup,
   landMissiles,
@@ -7,10 +8,16 @@ import {
   recordAssistCredit,
   type AutoMissile,
 } from "./combat.js";
-import { LAB_SCRIPTED_ARRIVE_R, mergeConstants, type Constants } from "./constants.js";
+import {
+  DEFAULT_CONSTANTS,
+  LAB_SCRIPTED_ARRIVE_R,
+  mergeConstants,
+  type Constants,
+} from "./constants.js";
 import {
   applyPendingHealsShields,
   applyPendingStatuses,
+  cancelCastsInterruptedByStatus,
   landPendingSkills,
   processScriptedCasts,
   runScriptedSkillshots,
@@ -33,6 +40,19 @@ import {
   tickStatuses,
 } from "./status.js";
 import { statsAtLevel } from "./stats.js";
+import { evaluateFight } from "./ai/fight.js";
+import { createAiRuntime, tickAi } from "./ai/tick.js";
+import {
+  auraActiveFor,
+  catchupEligible,
+  createArenaRuntime,
+  openClaim,
+  publicZone,
+  snapshotLevels,
+  tickArenaPhase11,
+  type ArenaRuntime,
+} from "./arena.js";
+import { cancelRetreatWindupIfMoving } from "./retreat_combat.js";
 import type {
   MatchConfig,
   MatchState,
@@ -45,6 +65,7 @@ import type {
   UnitId,
   UnitState,
 } from "./types.js";
+import { hypot } from "./math.js";
 
 const SLOTS: Slot[] = ["top", "jungle", "mid", "adc", "support"];
 
@@ -72,6 +93,7 @@ const DEFAULT_TACTICS = {
   aggression: 0 as const,
   protect_the_carry: true,
   combo_style: "auto" as const,
+  // focus / secondary omitted — optional per R #3; default behaviour = focus "auto"
 };
 
 const DEFAULT_ATTRS: PlayerAttrs = {
@@ -106,7 +128,9 @@ export function defaultEvenConfig(seed = 20261122): MatchConfig {
     },
     draft_mode: "fixed",
     forced_clock_end: true,
-    notes: "S1 even default — real champions",
+    // S1 contract: AI off unless MatchConfig.ai_enabled === true (S2 harness sets it).
+    ai_enabled: false,
+    notes: "S1 even default — real champions, AI opt-in",
   };
 }
 
@@ -132,6 +156,7 @@ function makeUnit(
   c: Constants,
   champ: string,
   attrs: PlayerAttrs,
+  mastery = 50,
 ): UnitState {
   const id = `${team}:${slot}` as UnitId;
   const pose = spawnPose(team, slot, c);
@@ -169,6 +194,8 @@ function makeUnit(
       ms: 3.3,
     },
     attrs: { ...attrs },
+    flank_buff_until: 0,
+    mastery,
     intent: "Idle",
     waypoint: null,
     scripted_wp_i: 0,
@@ -195,6 +222,13 @@ function makeUnit(
     commit_until: 0,
     rewind_used: false,
     abandon_scripted_motor: false,
+    ai_target_id: null,
+    ai_retreat_suppress_until: 0,
+    walk_from_pad_until: 0,
+    ai_at_planner_wp: false,
+    ai_no_trickle_until: 0,
+    ai_first_auto_done: false,
+    zone_aura_res: 0,
   };
   applyChampStats(u, 1);
   u.hp = u.max_hp;
@@ -210,7 +244,9 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       const slot = SLOTS[si]!;
       const champ = side.picks[si] ?? "dummy";
       const attrs = side.players[si]?.attrs ?? DEFAULT_ATTRS;
-      units.push(makeUnit(team, slot, index, c, champ, attrs));
+      const masteryMap = side.players[si]?.mastery ?? {};
+      const mastery = masteryMap[champ] ?? 50;
+      units.push(makeUnit(team, slot, index, c, champ, attrs, mastery));
       index += 1;
     }
   }
@@ -241,6 +277,8 @@ function buildUnits(cfg: MatchConfig, c: Constants): UnitState[] {
       if (o.auto_next_start_t !== undefined) u.auto_next_start_t = o.auto_next_start_t;
       if (o.range !== undefined) u.stats.range = o.range;
       if (o.as !== undefined) u.stats.as = o.as;
+      if (o.ms !== undefined) u.stats.ms = o.ms;
+      if (o.ai_target_id !== undefined) u.ai_target_id = o.ai_target_id;
     }
   }
   return units;
@@ -363,7 +401,93 @@ function updateScriptedMotor(
   }
 }
 
+/**
+ * Lab scripted_cc — same phase-9 step as kit `applyPendingStatuses` (S3-R5-11).
+ * Applied after existing timers tick/expire so the apply tick is not shortened
+ * and the new effect is visible to later phases (occupancy, G7 pickup).
+ */
+function applyScriptedCc(
+  state: MatchState,
+  config: MatchConfig,
+  c: Constants,
+  tick: number,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  if (!config.scripted_cc) return;
+  for (const sc of config.scripted_cc) {
+    if (sc.tick !== tick) continue;
+    const u = state.units.find((x) => x.id === sc.target_id);
+    if (!u) continue;
+    const sourceId = sc.source_id ?? ("lab" as UnitId);
+    if (sc.kind === "break") {
+      const r = applyCc(u.status, {
+        kind: "break",
+        raw_duration: sc.duration,
+        school: "magic",
+        source_id: sourceId,
+        now: state.t,
+        dr_window: c.DR_WINDOW_S,
+        dr_factor: c.DR_FACTOR,
+        dr_floor: c.DR_FLOOR,
+        lock_budget: c.LOCK_BUDGET_S,
+        lock_taper: c.LOCK_TAPER,
+      });
+      u.status.break_until = state.t + r.applied_duration;
+      u.break_until = u.status.break_until;
+      if (!r.rejected) {
+        emit("status_apply", {
+          source_id: sourceId,
+          target_id: u.id,
+          kind: "break",
+          category: "handicap",
+          raw_duration: sc.duration,
+          applied_duration: r.applied_duration,
+          dr_factor: r.dr_factor,
+          lock_taper: r.lock_taper,
+        });
+      }
+      continue;
+    }
+    const r = applyCc(u.status, {
+      kind: sc.kind,
+      raw_duration: sc.duration,
+      school: "magic",
+      source_id: sourceId,
+      now: state.t,
+      dr_window: c.DR_WINDOW_S,
+      dr_factor: c.DR_FACTOR,
+      dr_floor: c.DR_FLOOR,
+      lock_budget: c.LOCK_BUDGET_S,
+      lock_taper: c.LOCK_TAPER,
+    });
+    if (!r.rejected && r.applied_duration > 0) {
+      if (sc.source_id) recordAssistCredit(u, sc.source_id, state.t, "cc");
+      emit("status_apply", {
+        source_id: sourceId,
+        target_id: u.id,
+        kind: sc.kind,
+        category: kindCategory(sc.kind),
+        raw_duration: sc.duration,
+        applied_duration: r.applied_duration,
+        dr_factor: r.dr_factor,
+        lock_taper: r.lock_taper,
+      });
+      if (
+        sc.kind === "silence" ||
+        sc.kind === "disarm" ||
+        (kindCategory(sc.kind) === "lock" && sc.kind !== "timestop")
+      ) {
+        cancelAutoWindup(u);
+      }
+    }
+  }
+}
+
 export function simulate(config: MatchConfig): SimulateResult {
+  return withKitPatch(config.kit_patch, () => simulateInner(config));
+}
+
+function simulateInner(config: MatchConfig): SimulateResult {
   const c = mergeConstants(config.constants);
   const chash = constantsHash(c);
   const dhash = dataHash();
@@ -384,6 +508,8 @@ export function simulate(config: MatchConfig): SimulateResult {
     data_hash: dhash,
     score_blue: 0,
     score_red: 0,
+    takedowns_blue: 0,
+    takedowns_red: 0,
     ended: false,
     end_reason: null,
     winner: null,
@@ -432,13 +558,70 @@ export function simulate(config: MatchConfig): SimulateResult {
     }
   }
 
-  const maxTick = Math.round(c.MATCH_T / c.DT);
+  // Short lab fixtures set MATCH_T via T and leave SUDDEN_DEATH_T at the §15
+  // default (270): stop at MATCH_T without the clock/ladder (MATCH_T is just the
+  // sim window). Real §5.8 / Bo1 fixtures override SUDDEN. Harness sim_until caps
+  // the run so a T=5 sudden-death probe does not roll into coin_flip.
+  const labShort =
+    !state.forced_clock_end &&
+    c.MATCH_T < DEFAULT_CONSTANTS.MATCH_T - 1e-9 &&
+    Math.abs(c.SUDDEN_DEATH_T - DEFAULT_CONSTANTS.SUDDEN_DEATH_T) < 1e-9;
+  const ladderEnd = c.SUDDEN_DEATH_T + c.BO1_EXTRA_S;
+  // Scenario T (sim_until) is the run cap when T >= MATCH_T. When T < MATCH_T the
+  // suite is using T as a label and the clocks own the length (e.g. kill@149 with T:8).
+  let endT: number;
+  if (state.forced_clock_end || labShort) {
+    endT = c.MATCH_T;
+  } else if (config.sim_until !== undefined && config.sim_until + 1e-9 >= c.MATCH_T) {
+    endT = Math.min(config.sim_until, ladderEnd);
+  } else {
+    endT = ladderEnd;
+  }
+  const maxTick = Math.round(endT / c.DT);
+  const ai = config.ai_enabled === true ? createAiRuntime() : null;
+  const arena: ArenaRuntime = createArenaRuntime(c, config);
+  let deathThisTick = false;
+  /** Fight kill tallies for production claim opens: fight_id → team → kills. */
+  const fightKills: Partial<Record<string, { blue: number; red: number }>> = {};
+  /** AI-off S3: track fight geometry for §5.6 claim opens. */
+  const claimFight = {
+    fight_id: null as string | null,
+    fight_seq: 0,
+    prev_geom: false,
+    last_geom_t: -Infinity,
+  };
+  let scoredThisTick = false;
+
+  // Publish initial S3 public state (unowned zone, pads down until spawn).
+  publishArena(state, arena, rng);
 
   for (let tick = 1; tick <= maxTick; tick++) {
     if (state.ended) break;
     state.tick = tick;
     state.t = tOf(tick);
-    const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T;
+    scoredThisTick = false;
+    snapshotLevels(state.units, arena);
+    for (const u of state.units) {
+      u.flank_buff_until = arena.buff_until[u.id] ?? 0;
+    }
+    // Phase label — tied at MATCH_T enters sudden_death on that tick (§5.8 L313).
+    if (!state.forced_clock_end) {
+      if (state.t > c.SUDDEN_DEATH_T + 1e-12) arena.phase = "extra_15";
+      else if (state.t + 1e-12 >= c.MATCH_T) arena.phase = "sudden_death";
+      else arena.phase = "play";
+    }
+    const clockEndFlag = state.forced_clock_end && state.t >= c.MATCH_T - 1e-12;
+    const deathsForAi = deathThisTick;
+    deathThisTick = false;
+
+    // S3 arena / scoring only when real §5.8 is on (forced_clock_end: false).
+    // Keeps S1 digests / brawl gold bit-identical under the default clock-end path.
+    const s3Live = !state.forced_clock_end;
+
+    // Aura resists for this tick from previous phase-11 commit (S3-R5-7).
+    for (const u of state.units) {
+      u.zone_aura_res = s3Live && auraActiveFor(arena, u) ? c.ZONE_AURA_RES : 0;
+    }
 
     // Respawn at own slot (L214): no occupancy check — G6 soft separation.
     for (const u of state.units) {
@@ -468,7 +651,33 @@ export function simulate(config: MatchConfig): SimulateResult {
       u.last_hit_by = null;
       u.attack_reset_pending = false;
       u.abandon_scripted_motor = false;
+      // §9.6 L1164: leave sanctuary within 1.5 s of respawn.
+      u.walk_from_pad_until = state.t + 1.5;
+      u.ai_at_planner_wp = false;
+      u.ai_no_trickle_until = 0;
+      u.ai_first_auto_done = false;
       emit("respawn", { unit_id: u.id, x: pose.x, y: pose.y, slot: u.slot });
+    }
+
+    // Phase 2: AI decide (Fight Call / peel / Unit Brain). Scripted motor wins per-unit.
+    if (ai) {
+      tickAi(state, config, c, rng, ai, emit, deathsForAi);
+    } else if (s3Live) {
+      // Lightweight G9 fight track for claim opens when AI is off.
+      const snap = evaluateFight(state.units, c, claimFight.fight_id);
+      if (snap.exists) {
+        claimFight.last_geom_t = state.t;
+        if (!claimFight.fight_id) {
+          claimFight.fight_seq += 1;
+          claimFight.fight_id = `cf${claimFight.fight_seq}`;
+        }
+      } else if (
+        claimFight.fight_id &&
+        state.t - claimFight.last_geom_t >= c.FIGHT_END_GRACE_S - 1e-9
+      ) {
+        claimFight.fight_id = null;
+      }
+      claimFight.prev_geom = snap.exists;
     }
 
     updateScriptedMotor(state, config, c, emit);
@@ -496,6 +705,13 @@ export function simulate(config: MatchConfig): SimulateResult {
           reason: "path",
         });
       }
+    }
+    // S2-R4-5: first retreat step cancels an unapplied windup (unless it applies this tick).
+    for (let i = 0; i < state.units.length; i++) {
+      const u = state.units[i]!;
+      const prev = phaseStart[i]!;
+      const moved = hypot(u.x - prev.x, u.y - prev.y) > 1e-9;
+      cancelRetreatWindupIfMoving(u, moved, state, c);
     }
 
     const due = state.displacements
@@ -553,12 +769,18 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     if (config.debug_pos) {
       for (const u of state.units) {
+        // `move` — S1 lab path samples; `pos` — S2 acceptance pathOf (both excluded from digest).
         emit("move", {
           unit_id: u.id,
           x: u.x,
           y: u.y,
           vx: u.vx,
           vy: u.vy,
+        });
+        emit("pos", {
+          unit_id: u.id,
+          x: u.x,
+          y: u.y,
         });
       }
     }
@@ -569,78 +791,6 @@ export function simulate(config: MatchConfig): SimulateResult {
         if (ar.tick !== tick) continue;
         const u = state.units.find((x) => x.id === ar.unit_id);
         if (u) u.attack_reset_pending = ar.pending;
-      }
-    }
-
-    if (config.scripted_cc) {
-      for (const sc of config.scripted_cc) {
-        if (sc.tick !== tick) continue;
-        const u = state.units.find((x) => x.id === sc.target_id);
-        if (!u) continue;
-        const sourceId = sc.source_id ?? ("lab" as UnitId);
-        if (sc.kind === "break") {
-          const r = applyCc(u.status, {
-            kind: "break",
-            raw_duration: sc.duration,
-            school: "magic",
-            source_id: sourceId,
-            now: state.t,
-            dr_window: c.DR_WINDOW_S,
-            dr_factor: c.DR_FACTOR,
-            dr_floor: c.DR_FLOOR,
-            lock_budget: c.LOCK_BUDGET_S,
-            lock_taper: c.LOCK_TAPER,
-          });
-          u.status.break_until = state.t + r.applied_duration;
-          u.break_until = u.status.break_until;
-          if (!r.rejected) {
-            emit("status_apply", {
-              source_id: sourceId,
-              target_id: u.id,
-              kind: "break",
-              category: "handicap",
-              raw_duration: sc.duration,
-              applied_duration: r.applied_duration,
-              dr_factor: r.dr_factor,
-              lock_taper: r.lock_taper,
-            });
-          }
-          continue;
-        }
-        const r = applyCc(u.status, {
-          kind: sc.kind,
-          raw_duration: sc.duration,
-          school: "magic",
-          source_id: sourceId,
-          now: state.t,
-          dr_window: c.DR_WINDOW_S,
-          dr_factor: c.DR_FACTOR,
-          dr_floor: c.DR_FLOOR,
-          lock_budget: c.LOCK_BUDGET_S,
-          lock_taper: c.LOCK_TAPER,
-        });
-        if (!r.rejected && r.applied_duration > 0) {
-          if (sc.source_id) recordAssistCredit(u, sc.source_id, state.t, "cc");
-          emit("status_apply", {
-            source_id: sourceId,
-            target_id: u.id,
-            kind: sc.kind,
-            category: kindCategory(sc.kind),
-            raw_duration: sc.duration,
-            applied_duration: r.applied_duration,
-            dr_factor: r.dr_factor,
-            lock_taper: r.lock_taper,
-          });
-          // Lock / silence / disarm cancel an in-progress auto windup.
-          // Time-stop pauses windups instead (L448) — do not cancel.
-          if (
-            sc.kind === "silence" ||
-            sc.kind === "disarm" ||
-            (kindCategory(sc.kind) === "lock" && sc.kind !== "timestop")
-          ) {
-            cancelAutoWindup(u);
-          }
-        }
       }
     }
 
@@ -696,9 +846,16 @@ export function simulate(config: MatchConfig): SimulateResult {
 
     // Regen for the elapsed DT lands before this tick's damage (so
     // post-hit regen spans MATCH_T - hit_t, not an extra DT).
+    // Lab: scripted timestop on this tick also suppresses regen (phase-9 order).
+    const scriptedStop = new Set<UnitId>();
+    if (config.scripted_cc) {
+      for (const sc of config.scripted_cc) {
+        if (sc.tick === tick && sc.kind === "timestop") scriptedStop.add(sc.target_id);
+      }
+    }
     for (const u of state.units) {
       if (!u.alive) continue;
-      if (!isTimeStopped(u.status)) {
+      if (!isTimeStopped(u.status) && !scriptedStop.has(u.id)) {
         u.hp = Math.min(u.max_hp, u.hp + u.stats.regen * c.DT);
       }
     }
@@ -707,10 +864,10 @@ export function simulate(config: MatchConfig): SimulateResult {
     resolvePendingDamage(state, c, (type, payload) => emit(type, payload));
     applyPendingHealsShields(state, c, emit);
 
-    // phase 9: new CC that landed this tick
-    applyPendingStatuses(state, c, emit);
-
-    // 6. Status — CC tick (paused under time-stop; timestop itself still ticks)
+    // Phase 9 (S3-R5-11 L1976 / L144): (1) tick timers that were already
+    // running at tick start, (2) expire finished effects, (3) apply this tick's
+    // new CC and buffs (kit pending + lab scripted_cc) without ticking them.
+    // Duration D on tick t covers ticks t .. t+round(10D)-1.
     for (const u of state.units) {
       if (!u.alive) continue;
       pruneMarks(u.marks, state.t);
@@ -726,10 +883,16 @@ export function simulate(config: MatchConfig): SimulateResult {
       }
     }
 
+    applyPendingStatuses(state, c, emit);
+    // M2-33 / R7-6b: silence/Lock applied this tick cancel windups on the apply tick.
+    cancelCastsInterruptedByStatus(state, emit);
+    applyScriptedCc(state, config, c, tick, emit);
+
     // 10. Deaths / kill+assist XP / time XP / level-ups (G2)
     for (const u of state.units) {
       if (!(u.alive && u.hp <= 0)) continue;
       u.alive = false;
+      deathThisTick = true;
       u.hp = 0;
       u.waypoint = null;
       u.auto_windup_left = 0;
@@ -776,6 +939,34 @@ export function simulate(config: MatchConfig): SimulateResult {
             const asst = state.units.find((x) => x.id === aid);
             if (asst && asst.alive) grantXp(asst, c.ASSIST_XP, "assist", emit);
           }
+          if (s3Live) {
+            // Team takedown score +1 (S3); log before phase-11 score events.
+            // exp tuning: KILLS_PER_POINT > 1 scores every Nth takedown (spec 1 = every one).
+            const kpp = Math.max(1, Math.round(c.KILLS_PER_POINT));
+            let pays = false;
+            if (killer.team === "blue") {
+              state.takedowns_blue += 1;
+              pays = state.takedowns_blue % kpp === 0;
+              if (pays) state.score_blue += 1;
+            } else {
+              state.takedowns_red += 1;
+              pays = state.takedowns_red % kpp === 0;
+              if (pays) state.score_red += 1;
+            }
+            if (pays) scoredThisTick = true;
+            emit("takedown_score", {
+              team: killer.team,
+              victim_id: u.id,
+              killer_id: killer.id,
+              score_after: killer.team === "blue" ? state.score_blue : state.score_red,
+            });
+            const fid = ai?.fight_id ?? claimFight.fight_id;
+            if (fid) {
+              const fk = fightKills[fid] ?? { blue: 0, red: 0 };
+              fk[killer.team] += 1;
+              fightKills[fid] = fk;
+            }
+          }
         }
       }
 
@@ -787,30 +978,71 @@ export function simulate(config: MatchConfig): SimulateResult {
       });
     }
 
-    const timeXp = c.TIME_XP_PER_S * c.DT;
+    const timeXpBase = c.TIME_XP_PER_S * c.DT;
     for (const u of state.units) {
       if (!u.alive) continue;
-      grantXp(u, timeXp, "time", emit);
+      const amt =
+        s3Live && catchupEligible(u, state.units, arena, c)
+          ? timeXpBase * (1 + c.CATCHUP_BONUS)
+          : timeXpBase;
+      grantXp(u, amt, "time", emit);
     }
 
     applyLevelUps(state, c, emit);
 
+    if (s3Live) {
+      // Aura heal (S3-R5-7): 1.5 HP/tick; time-stopped keeps resists, no regen.
+      for (const u of state.units) {
+        if (!u.alive) continue;
+        if (!auraActiveFor(arena, u)) continue;
+        if (isTimeStopped(u.status)) continue;
+        u.hp = Math.min(u.max_hp, u.hp + c.ZONE_AURA_HPS * c.DT);
+      }
+
+      const ar = tickArenaPhase11(state, arena, c, config, emit);
+      if (ar.scored) scoredThisTick = true;
+      applyLevelUps(state, c, emit);
+
+      const inFight = ai ? ai.prev_geom_fight : claimFight.prev_geom;
+      if (!inFight) {
+        for (const fid of Object.keys(fightKills)) {
+          const fk = fightKills[fid];
+          if (!fk) continue;
+          if (fk.blue !== fk.red) {
+            const team: Team = fk.blue > fk.red ? "blue" : "red";
+            openClaim(arena, team, state.t + c.CLAIM_DELAY_S, fid, emit);
+          }
+          delete fightKills[fid];
+        }
+      }
+    }
+
+    publishArena(state, arena, rng);
+
     if (clockEndFlag) {
-      let winner: "blue" | "red" | "draw" = "draw";
-      if (state.score_blue > state.score_red) winner = "blue";
-      else if (state.score_red > state.score_blue) winner = "red";
-      state.ended = true;
-      state.winner = winner;
-      state.end_reason = "clock";
-      emit("match_end", {
-        winner,
-        reason: "clock",
-        score_blue: state.score_blue,
-        score_red: state.score_red,
-        t: state.t,
-      });
+      endMatch(state, emit, "clock");
+    } else if (s3Live) {
+      decideMatchEnd(state, arena, c, rng, emit, scoredThisTick, labShort);
     }
   }
+
+  publishArena(state, arena, rng);
+  if (state.ended) arena.phase = "ended";
+  state.phase = arena.phase;
+
+  const ai_stats = ai
+    ? {
+        dive_geom: ai.dive_geom,
+        peel_fired: ai.peel_fired,
+        peel_rate: ai.dive_geom > 0 ? ai.peel_fired / ai.dive_geom : null,
+      }
+    : undefined;
+
+  const player_stats = state.units.map((u) => ({
+    unit_id: u.id,
+    claim_denies: arena.claim_denies[u.id] ?? 0,
+    zone_seconds: Math.round(((arena.zone.zone_ticks[u.id] ?? 0) / 10) * 1e4) / 1e4,
+  }));
 
   return {
     state,
@@ -819,5 +1051,134 @@ export function simulate(config: MatchConfig): SimulateResult {
     constants_hash: chash,
     data_hash: dhash,
     tick_count: state.tick,
+    player_stats,
+    ...(ai_stats ? { ai_stats } : {}),
   };
+}
+
+function publishArena(
+  state: MatchState,
+  arena: ArenaRuntime,
+  rng: RngBank,
+): void {
+  state.zone = publicZone(arena.zone);
+  state.claim = arena.claim
+    ? { team: arena.claim.team, resolve_at: arena.claim.resolve_at, fight_id: arena.claim.fight_id }
+    : null;
+  state.orbs = arena.orbs.map((o) => ({
+    orb_id: o.orb_id,
+    x: o.x,
+    y: o.y,
+    up: o.up,
+    respawn_at: o.respawn_at,
+  }));
+  state.buffs = arena.buffs.map((b) => ({
+    buff_id: b.buff_id,
+    x: b.x,
+    y: b.y,
+    up: b.up,
+    respawn_at: b.respawn_at,
+    holders: b.holders.slice(),
+  }));
+  state.phase = arena.phase;
+  if (arena.points) state.objectives = arena.points.map((p) => ({ ...p }));
+  state.rng_counters = rng.getCounters();
+}
+
+function endMatch(
+  state: MatchState,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+  reason: string,
+  winner?: "blue" | "red" | "draw",
+): void {
+  if (state.ended) return;
+  let w: "blue" | "red" | "draw" = winner ?? "draw";
+  if (winner === undefined) {
+    if (state.score_blue > state.score_red) w = "blue";
+    else if (state.score_red > state.score_blue) w = "red";
+    else w = "draw";
+  }
+  state.ended = true;
+  state.winner = w;
+  state.end_reason = reason;
+  emit("match_end", {
+    winner: w,
+    reason,
+    score_blue: state.score_blue,
+    score_red: state.score_red,
+    t: state.t,
+  });
+}
+
+/** Phase 14 precedence: first_to_10 → clock/ladder → sudden_death (S3-R5-2). */
+function decideMatchEnd(
+  state: MatchState,
+  arena: ArenaRuntime,
+  c: Constants,
+  rng: RngBank,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+  scoredThisTick: boolean,
+  labShort: boolean,
+): void {
+  if (state.ended) return;
+  const sb = state.score_blue;
+  const sr = state.score_red;
+  const ahead: "blue" | "red" | null = sb > sr ? "blue" : sr > sb ? "red" : null;
+
+  // (1) first_to_10 — strictly ahead and ≥ SCORE_TO_WIN (S3-R5-10)
+  if (
+    ahead &&
+    ((ahead === "blue" && sb >= c.SCORE_TO_WIN) || (ahead === "red" && sr >= c.SCORE_TO_WIN))
+  ) {
+    endMatch(state, emit, "first_to_10", ahead);
+    return;
+  }
+
+  // Lab short windows use MATCH_T as a stop time only — no clock/ladder/coin.
+  if (labShort) return;
+
+  // (2) 4:00 clock and 4:30 ladder
+  if (Math.abs(state.t - c.MATCH_T) <= 1e-12) {
+    if (ahead) {
+      endMatch(state, emit, "clock", ahead);
+      return;
+    }
+    // tie → sudden death continues (no end)
+  }
+
+  if (Math.abs(state.t - c.SUDDEN_DEATH_T) <= 1e-12) {
+    // Ladder once at 270.0: zone_time then takedowns (kills, not score)
+    const zb = arena.zone.control_time_ticks.blue;
+    const zr = arena.zone.control_time_ticks.red;
+    if (zb !== zr) {
+      endMatch(state, emit, "zone_time", zb > zr ? "blue" : "red");
+      return;
+    }
+    const tb = state.takedowns_blue;
+    const tr = state.takedowns_red;
+    if (tb !== tr) {
+      endMatch(state, emit, "takedowns", tb > tr ? "blue" : "red");
+      return;
+    }
+    // else enter extra_15
+  }
+
+  if (Math.abs(state.t - (c.SUDDEN_DEATH_T + c.BO1_EXTRA_S)) <= 1e-12) {
+    if (ahead) {
+      endMatch(state, emit, "sudden_death", ahead);
+      return;
+    }
+    const flip = rng.next("tiebreak", 0);
+    endMatch(state, emit, "coin_flip", flip < 0.5 ? "blue" : "red");
+    return;
+  }
+
+  // (3) sudden_death / extra_15: first tick ending unequal after a score
+  if (
+    (arena.phase === "sudden_death" || arena.phase === "extra_15") &&
+    scoredThisTick &&
+    ahead
+  ) {
+    endMatch(state, emit, "sudden_death", ahead);
+  }
 }

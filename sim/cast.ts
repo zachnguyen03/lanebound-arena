@@ -3,9 +3,11 @@
  * Reads AbilityDef from kits.ts — no per-champ numeric branches.
  */
 import { KITS, type AbilityDef, type AbilityShape } from "../data/champions/kits.js";
+import { rMinLevel } from "./teamfight.js";
 import type { Constants } from "./constants.js";
 import { cancelAutoWindup, recordAssistCredit } from "./combat.js";
 import { abilityBaseRaw } from "./formula.js";
+import { retreatCastAllowed } from "./retreat_combat.js";
 import {
   clampAimToRange,
   unitsInCircle,
@@ -27,7 +29,7 @@ import { computePacket } from "./packet.js";
 import type { RngBank } from "./rng.js";
 import { unitKeyFromId } from "./rng.js";
 import { clipPointAoE } from "./sanctuary_clip.js";
-import { hitChance, skillScale } from "./stats.js";
+import { effAim, hitChance, hitChanceDisabled, skillScale } from "./stats.js";
 import {
   addShield,
   applyCc,
@@ -35,6 +37,7 @@ import {
   isBanished,
   isRooted,
   isSilenced,
+  isSkillshotDisabled,
   isTaunted,
   isTimeStopped,
   strongDispel,
@@ -86,14 +89,22 @@ function isAllyShape(shape: AbilityShape): boolean {
   return shape === "ally_target" || shape === "circle_ally";
 }
 
+/**
+ * One skillshot roll on stream `skillshot` (§8.4).
+ * When `targetDisabled` (K-2), Reflexes drop out and hit% uses the disabled formula.
+ * Call order and stream are unchanged so determinism / stream alignment hold.
+ */
 export function rollSkillshotHit(
   rng: RngBank,
   effAimVal: number,
   targetReflexes: number,
   c: Constants,
   unitKey = 0,
+  targetDisabled = false,
 ): boolean {
-  const p = hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
+  const p = targetDisabled
+    ? hitChanceDisabled(effAimVal)
+    : hitChance(effAimVal, targetReflexes, c.HIT_BASE, c.HIT_COEF, c.HIT_FLOOR, c.HIT_CEIL);
   return rng.next("skillshot", unitKey) < p;
 }
 
@@ -109,7 +120,7 @@ export function canCastSkill(
   if (isSilenced(unit.status)) return false;
   if (isTaunted(unit.status)) return false;
   const ab = abilityOf(unit.champ, skill);
-  if (skill === "R" && unit.level < 5) return false;
+  if (skill === "R" && unit.level < rMinLevel(state)) return false;
   const cd = skill === "Q" ? unit.cd_q : skill === "W" ? unit.cd_w : unit.cd_r;
   if (cd > 1e-9) return false;
 
@@ -128,6 +139,9 @@ export function canCast(
   c: Constants,
 ): boolean {
   if (!canCastSkill(unit, skill, state, c)) return false;
+  // S2-R4-5 L1974: mobile Retreat/Regroup — no damage-only casts (defensive /
+  // escape / peel-CC exceptions in retreatCastAllowed).
+  if (!retreatCastAllowed(unit, skill, cast, state, c)) return false;
   const ab = abilityOf(unit.champ, skill);
   if (!shapeNeedsTarget(ab.shape)) return true;
   if (!cast.target_id) return false;
@@ -158,8 +172,8 @@ function queueDamage(
   finisher_mult: number,
   c: Constants,
 ): void {
-  if (isBanished(target.status)) return;
   // Kit amps / petrify / bedrock applied at resolve time so same-tick own CC does not affect own packet (OQ-2).
+  // Banish invuln is enforced in resolvePendingDamage (not here).
   const pkt = computePacket({
     base_raw,
     level: source.level,
@@ -362,7 +376,8 @@ function collectHits(
       r,
       bodyR,
       (u) => {
-        if (u.id === source.id) return false;
+        // Caster self-exclusion for hits_allies is applied at resolve (friendlyFire) /
+        // landPendingSkills re-collect — keep a single exclusion site there (PM S1 cleanup).
         if (ab.hits_allies) return true;
         return u.team !== source.team;
       },
@@ -611,7 +626,14 @@ function resolveOnTargets(
       const skipRoll =
         isPrimary && (ab.shape === "circle_target" || ab.shape === "cone_target");
       if (!skipRoll && v.team !== source.team) {
-        hit = rollSkillshotHit(rng, source.attrs.aim, v.attrs.reflexes, c, unitKeyFromId(source.id));
+        hit = rollSkillshotHit(
+          rng,
+          effAim(source.attrs.aim, source.mastery),
+          v.attrs.reflexes,
+          c,
+          unitKeyFromId(source.id),
+          isSkillshotDisabled(v.status),
+        );
         emit("skillshot_roll", { source_id: source.id, target_id: v.id, hit, skill_id });
       }
     }
@@ -693,6 +715,42 @@ function resolveOnTargets(
       if (ab.heal && ab.shape !== "self") queueHeal(state, source, v, ab);
       if (ab.shield) queueShield(state, source, v, ab);
     }
+
+    // R7-10: Torun W kit peel taunt — 2.0 s on a diver inside r 1.2 of the
+    // shielded ally centre. AI classifies W as shield-only (not rule-1 disable),
+    // but the Handicap taunt must still apply and emit status_apply.
+    if (
+      ab.shape === "circle_ally" &&
+      ab.special?.some((s) => s.toLowerCase().includes("peel taunt")) &&
+      primary
+    ) {
+      const r = ab.radius ?? 1.2;
+      let best: UnitState | null = null;
+      let bestScore = -Infinity;
+      for (const e of state.units) {
+        if (!e.alive || e.team === source.team || isBanished(e.status)) continue;
+        if (!(e.stats.range <= 2 + 1e-9 || e.champ === "kerrig")) continue;
+        if (dist(e.x, e.y, primary.x, primary.y) > r + c.BODY_RADIUS + 1e-9) continue;
+        // Prefer the diver closest to the shielded ally (top threat score).
+        const score = 100 - dist(e.x, e.y, primary.x, primary.y);
+        if (score > bestScore + 1e-9 || (Math.abs(score - bestScore) <= 1e-9 && (!best || e.index < best.index))) {
+          best = e;
+          bestScore = score;
+        }
+      }
+      if (best) {
+        state.pending_status.push({
+          seq: state.event_seq,
+          source_id: source.id,
+          target_id: best.id,
+          kind: "taunt",
+          category: "handicap",
+          raw_duration: 2.0,
+          school: "magic",
+          skill_id: ab.name,
+        });
+      }
+    }
   }
 
   void skill;
@@ -767,9 +825,7 @@ function resolveCastEnd(
     units = ids
       .map((id) => state.units.find((u) => u.id === id))
       .filter((u): u is UnitState => !!u && u.alive);
-    // Snapshot may drop the original primary (dead / filtered). Capture a local
-    // non-null binding so the callback does not see `primary` as possibly null
-    // (TS control-flow does not narrow captured `let` across the find predicate).
+    // Snapshot may drop primary; local binding narrows for the find predicate.
     const snapPrimary = primary;
     if (snapPrimary !== null && !units.find((u) => u.id === snapPrimary.id)) {
       primary = units[0] ?? null;
@@ -802,7 +858,7 @@ export function beginCast(
   source.attack_reset_pending = true;
 
   const cdKey = cast.skill === "Q" ? "cd_q" : cast.skill === "W" ? "cd_w" : "cd_r";
-  source[cdKey] = ab.CD_s;
+  source[cdKey] = cast.skill === "R" ? ab.CD_s * (state.config?.teamfight?.r_cd_mult ?? 1) : ab.CD_s;
 
   source.cast_left = ab.cast_s;
   source.cast_skill = cast.skill;
@@ -838,14 +894,21 @@ export function beginCast(
     source.cast_snapshot_ids = snap.units.map((u) => u.id);
   }
 
-  emit("cast_start", {
+  const payload: Record<string, unknown> = {
     unit_id: source.id,
     skill_id: ab.name,
     cast_time: ab.cast_s,
-  });
+  };
+  // §4.4 / §9.4.1.4 rule 12: every cast_start carries target_id or x,y.
+  if (source.cast_target) payload.target_id = source.cast_target;
+  payload.x = source.cast_aim_x;
+  payload.y = source.cast_aim_y;
+  // Additive lab field. Absent on scripted casts. digestEvents strips it.
+  if (cast.tier) payload.tier = cast.tier;
+  emit("cast_start", payload);
 }
 
-function cancelCast(
+export function cancelCast(
   u: UnitState,
   reason: string,
   emit: (type: string, payload: Record<string, unknown>) => void,
@@ -858,6 +921,27 @@ function cancelCast(
   u.cast_target = null;
   u.cast_snapshot_ids = null;
   u.attack_reset_pending = false;
+}
+
+/**
+ * Same-tick interrupt cancel after status apply (M2-33 / R7-6b).
+ * tickCasts runs before applyPendingStatuses; silence/Lock applied this tick
+ * must still cancel an in-flight windup on the apply tick.
+ */
+export function cancelCastsInterruptedByStatus(
+  state: MatchState,
+  emit: (type: string, payload: Record<string, unknown>) => void,
+): void {
+  for (const u of state.units) {
+    if (!u.alive || !u.cast_skill) continue;
+    // OQ-8 / L448: time-stop pauses windup — never cancel (match tickCasts).
+    if (isTimeStopped(u.status)) continue;
+    if (isHardLocked(u.status) || isBanished(u.status)) {
+      cancelCast(u, "lock", emit);
+      continue;
+    }
+    if (isSilenced(u.status)) cancelCast(u, "silence", emit);
+  }
 }
 
 export function tickCasts(
@@ -963,12 +1047,13 @@ export function landPendingSkills(
       }
     }
 
+    // Sanctuary enemies already dropped by unitsInCircle / clipPointAoE.
     resolveOnTargets(
       state,
       source,
       ab,
       p.skill,
-      landUnits.filter((u) => !(u.team !== source.team && inOwnSanctuary(u.team, u.x, u.y, c))),
+      landUnits,
       primary,
       true,
       rng,
@@ -1135,7 +1220,14 @@ export function runScriptedSkillshots(
   let hits = 0;
   const bits: number[] = [];
   for (let i = 0; i < opts.count; i++) {
-    const hit = rollSkillshotHit(rng, source.attrs.aim, target.attrs.reflexes, c, unitKeyFromId(source.id));
+    const hit = rollSkillshotHit(
+      rng,
+      effAim(source.attrs.aim, source.mastery),
+      target.attrs.reflexes,
+      c,
+      unitKeyFromId(source.id),
+      isSkillshotDisabled(target.status),
+    );
     bits.push(hit ? 1 : 0);
     if (hit) hits += 1;
     emit("skillshot_roll", {
@@ -1145,6 +1237,17 @@ export function runScriptedSkillshots(
       skill_id: "lab_skillshot",
       i,
     });
+    // S2 acceptance mastery test counts `hit` (S1 labs use skillshot_roll).
+    if (hit) {
+      emit("hit", {
+        source_id: source.id,
+        target_id: target.id,
+        skill_id: "lab_skillshot",
+        miss: false,
+        raw: 0,
+        mitigated: 0,
+      });
+    }
   }
   return { hits, bits };
 }

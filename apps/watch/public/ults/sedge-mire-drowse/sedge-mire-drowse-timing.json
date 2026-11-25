@@ -1,0 +1,545 @@
+{
+ "effect": "Mire Drowse",
+ "champion": "Sedge",
+ "slug": "sedge-mire-drowse",
+ "layers": {
+  "ground": {
+   "files": {
+    "blue": "sedge-mire-drowse-ground-blue-1x.png",
+    "red": "sedge-mire-drowse-ground-red-1x.png"
+   },
+   "cell": [
+    188,
+    142
+   ],
+   "anchor": [
+    94,
+    71
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      188,
+      142
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      190,
+      1,
+      188,
+      142
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      379,
+      1,
+      188,
+      142
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      568,
+      1,
+      188,
+      142
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      757,
+      1,
+      188,
+      142
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      946,
+      1,
+      188,
+      142
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1135,
+      1,
+      188,
+      142
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1324,
+      1,
+      188,
+      142
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1513,
+      1,
+      188,
+      142
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1702,
+      1,
+      188,
+      142
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      1891,
+      1,
+      188,
+      142
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2080,
+      1,
+      188,
+      142
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      2269,
+      1,
+      188,
+      142
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      2458,
+      1,
+      188,
+      142
+     ],
+     "ms": 200,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      2647,
+      1,
+      188,
+      142
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 15,
+     "phase": "linger",
+     "phase_i": 3,
+     "rect": [
+      2836,
+      1,
+      188,
+      142
+     ],
+     "ms": 150,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  },
+  "air": {
+   "files": {
+    "blue": "sedge-mire-drowse-air-blue-1x.png",
+    "red": "sedge-mire-drowse-air-red-1x.png"
+   },
+   "cell": [
+    210,
+    194
+   ],
+   "anchor": [
+    105,
+    117
+   ],
+   "frames": [
+    {
+     "i": 0,
+     "phase": "windup",
+     "phase_i": 0,
+     "rect": [
+      1,
+      1,
+      210,
+      194
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 1,
+     "phase": "windup",
+     "phase_i": 1,
+     "rect": [
+      212,
+      1,
+      210,
+      194
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 2,
+     "phase": "windup",
+     "phase_i": 2,
+     "rect": [
+      423,
+      1,
+      210,
+      194
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 3,
+     "phase": "windup",
+     "phase_i": 3,
+     "rect": [
+      634,
+      1,
+      210,
+      194
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 4,
+     "phase": "windup",
+     "phase_i": 4,
+     "rect": [
+      845,
+      1,
+      210,
+      194
+     ],
+     "ms": 110,
+     "hit": false,
+     "loop": true
+    },
+    {
+     "i": 5,
+     "phase": "impact",
+     "phase_i": 0,
+     "rect": [
+      1056,
+      1,
+      210,
+      194
+     ],
+     "ms": 60,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 6,
+     "phase": "impact",
+     "phase_i": 1,
+     "rect": [
+      1267,
+      1,
+      210,
+      194
+     ],
+     "ms": 100,
+     "hit": true,
+     "loop": false
+    },
+    {
+     "i": 7,
+     "phase": "impact",
+     "phase_i": 2,
+     "rect": [
+      1478,
+      1,
+      210,
+      194
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 8,
+     "phase": "impact",
+     "phase_i": 3,
+     "rect": [
+      1689,
+      1,
+      210,
+      194
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 9,
+     "phase": "impact",
+     "phase_i": 4,
+     "rect": [
+      1900,
+      1,
+      210,
+      194
+     ],
+     "ms": 80,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 10,
+     "phase": "impact",
+     "phase_i": 5,
+     "rect": [
+      2111,
+      1,
+      210,
+      194
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 11,
+     "phase": "impact",
+     "phase_i": 6,
+     "rect": [
+      2322,
+      1,
+      210,
+      194
+     ],
+     "ms": 90,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 12,
+     "phase": "linger",
+     "phase_i": 0,
+     "rect": [
+      2533,
+      1,
+      210,
+      194
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 13,
+     "phase": "linger",
+     "phase_i": 1,
+     "rect": [
+      2744,
+      1,
+      210,
+      194
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    },
+    {
+     "i": 14,
+     "phase": "linger",
+     "phase_i": 2,
+     "rect": [
+      2955,
+      1,
+      210,
+      194
+     ],
+     "ms": 100,
+     "hit": false,
+     "loop": false
+    }
+   ]
+  }
+ },
+ "radius_tiles": 3.8,
+ "cast_s": 0.55,
+ "land_delay_s": 0,
+ "footprint_1x_px": [
+  168,
+  122
+ ],
+ "tile_1x_px": [
+  22,
+  16
+ ],
+ "scale_in_play": 2,
+ "scale_rule": "integer nearest-neighbour only",
+ "anchor_rule": "both layers anchor on the ult target point on the floor (sim aim x,y). Blit at (world_px - anchor*2) at 2x.",
+ "team_swap": {
+  "dk": {
+   "blue": "#245CB4",
+   "red": "#A8204A"
+  },
+  "mid": {
+   "blue": "#4DA3FF",
+   "red": "#F5477A"
+  },
+  "lt": {
+   "blue": "#A0CCFF",
+   "red": "#FF96B0"
+  }
+ },
+ "phases": {
+  "windup": {
+   "frames": 5,
+   "ms_each": 110,
+   "loop": true,
+   "runs": "from cast start until 60 ms before the hit (490 ms), looping"
+  },
+  "impact": {
+   "frames": 7,
+   "ms": [
+    60,
+    100,
+    80,
+    80,
+    80,
+    90,
+    90
+   ],
+   "hit_frame": "impact f2 (strip index 6)",
+   "note": "f1 = 60 ms hold-off that starts 60 ms before the hit; f2 = biggest frame, the sim hit/CC lands at its first ms. Renderer may add a 100 ms freeze on f2 for R casts."
+  },
+  "linger_air": {
+   "frames": 3,
+   "ms": [
+    100,
+    100,
+    100
+   ]
+  },
+  "linger_ground": {
+   "frames": 4,
+   "ms": [
+    200,
+    200,
+    150,
+    150
+   ],
+   "note": "ground keeps going after the air strip ends; total ground linger 700 ms"
+  }
+ },
+ "durations_ms": {
+  "air_after_hit": 820,
+  "ground_after_hit": 1220
+ }
+}

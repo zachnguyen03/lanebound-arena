@@ -1,0 +1,1807 @@
+{
+ "name": "training-dummy",
+ "slug": "dummy",
+ "role": "dummy",
+ "class": "training-dummy",
+ "source": "CD-12 follow-up: generic training dummy for the Watch view.",
+ "cell": [
+  18,
+  24
+ ],
+ "anchor": [
+  9,
+  23
+ ],
+ "outline": "#0E1018",
+ "sheet": "dummy.png",
+ "sheet_2x": "dummy-2x.png",
+ "scale": 1,
+ "note": "Same key shape as the later champion atlases (Maelis / Sedge style): animations[name][variant] = {n, ms, fps, loop, note, frames:[{i, rect, anchor, hit}]}. variant is blue-right | blue-left | red-right | red-left. Blue faces right and red faces left on the live map; both facings are in the sheet so the engine can face movement. Anchor is the foot point (the centre of the wooden base); blit at (round(sx)-9, round(sy)-23). The 2x sheet is the 1x sheet scaled \u00d72 nearest-neighbour (cell 36\u00d748, anchor (18,46)); multiply rect and anchor by 2. Canonical animation names are idle, move, hit, death. 'walk' is an alias of 'move' for loaders that share the champion walk key. This is a straw-and-wood post dummy, not a champion: no face, no legs, X-stitched sack head, bone target, stick arms.",
+ "palette": {
+  "base": {
+   "wood_l": "#94704E",
+   "wood": "#725032",
+   "wood_d": "#4E3420",
+   "wood_x": "#382416",
+   "burlap_l": "#9E8A70",
+   "burlap": "#806C54",
+   "burlap_d": "#604E3A",
+   "straw_l": "#B09C84",
+   "straw": "#98846C",
+   "straw_d": "#765C40",
+   "stitch": "#3A2A20",
+   "bone": "#C4BCAC",
+   "bone_d": "#968C7C",
+   "iron_l": "#62646E",
+   "iron": "#464850",
+   "iron_d": "#303238",
+   "outline": "#0E1018"
+  },
+  "team": {
+   "blue": {
+    "mid": "#4DA3FF",
+    "dk": "#245CB4",
+    "lt": "#A0CCFF"
+   },
+   "red": {
+    "mid": "#F5477A",
+    "dk": "#A8204A",
+    "lt": "#FF96B0"
+   }
+  },
+  "note": "Straw and wood are muted so they cannot be mistaken for objective gold #F2C14E. Team tint only on the waist sash and a 1 px ring on the base."
+ },
+ "timing": {
+  "idle": {
+   "n": 4,
+   "ms": 125,
+   "fps": 8,
+   "loop": true,
+   "note": "straw tufts and sash end sway 1 px; the post stays planted"
+  },
+  "move": {
+   "n": 6,
+   "ms": 100,
+   "fps": 10,
+   "loop": true,
+   "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs"
+  },
+  "hit": {
+   "n": 3,
+   "ms": 83,
+   "fps": 12,
+   "loop": false,
+   "note": "recoil lean away from the blow, straw puffs, 1 px flash; last frame recovering"
+  },
+  "death": {
+   "n": 8,
+   "ms": 125,
+   "fps": 8,
+   "loop": false,
+   "note": "wobble, straw bursts, post tips to the facing side, sack slumps; last frame holds"
+  },
+  "walk": {
+   "n": 6,
+   "ms": 100,
+   "fps": 10,
+   "loop": true,
+   "note": "alias of move"
+  }
+ },
+ "animations_order": [
+  "idle",
+  "move",
+  "hit",
+  "death"
+ ],
+ "bands": [
+  "blue-right",
+  "blue-left",
+  "red-right",
+  "red-left"
+ ],
+ "animations": {
+  "idle": {
+   "blue-right": {
+    "n": 4,
+    "ms": 125,
+    "fps": 8,
+    "loop": true,
+    "note": "straw tufts and sash end sway 1 px; the post stays planted",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       1,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       1,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       1,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       1,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue-left": {
+    "n": 4,
+    "ms": 125,
+    "fps": 8,
+    "loop": true,
+    "note": "straw tufts and sash end sway 1 px; the post stays planted",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       101,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       101,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       101,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       101,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-right": {
+    "n": 4,
+    "ms": 125,
+    "fps": 8,
+    "loop": true,
+    "note": "straw tufts and sash end sway 1 px; the post stays planted",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       201,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       201,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       201,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       201,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-left": {
+    "n": 4,
+    "ms": 125,
+    "fps": 8,
+    "loop": true,
+    "note": "straw tufts and sash end sway 1 px; the post stays planted",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       301,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       301,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       301,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       301,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "move": {
+   "blue-right": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue-left": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-right": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-left": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "hit": {
+   "blue-right": {
+    "n": 3,
+    "ms": 83,
+    "fps": 12,
+    "loop": false,
+    "note": "recoil lean away from the blow, straw puffs, 1 px flash; last frame recovering",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       51,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       51,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       51,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue-left": {
+    "n": 3,
+    "ms": 83,
+    "fps": 12,
+    "loop": false,
+    "note": "recoil lean away from the blow, straw puffs, 1 px flash; last frame recovering",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       151,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       151,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       151,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-right": {
+    "n": 3,
+    "ms": 83,
+    "fps": 12,
+    "loop": false,
+    "note": "recoil lean away from the blow, straw puffs, 1 px flash; last frame recovering",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       251,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       251,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       251,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-left": {
+    "n": 3,
+    "ms": 83,
+    "fps": 12,
+    "loop": false,
+    "note": "recoil lean away from the blow, straw puffs, 1 px flash; last frame recovering",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       351,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       351,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       351,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "death": {
+   "blue-right": {
+    "n": 8,
+    "ms": 125,
+    "fps": 8,
+    "loop": false,
+    "note": "wobble, straw bursts, post tips to the facing side, sack slumps; last frame holds",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 6,
+      "rect": [
+       115,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 7,
+      "rect": [
+       134,
+       76,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue-left": {
+    "n": 8,
+    "ms": 125,
+    "fps": 8,
+    "loop": false,
+    "note": "wobble, straw bursts, post tips to the facing side, sack slumps; last frame holds",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 6,
+      "rect": [
+       115,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 7,
+      "rect": [
+       134,
+       176,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-right": {
+    "n": 8,
+    "ms": 125,
+    "fps": 8,
+    "loop": false,
+    "note": "wobble, straw bursts, post tips to the facing side, sack slumps; last frame holds",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 6,
+      "rect": [
+       115,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 7,
+      "rect": [
+       134,
+       276,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-left": {
+    "n": 8,
+    "ms": 125,
+    "fps": 8,
+    "loop": false,
+    "note": "wobble, straw bursts, post tips to the facing side, sack slumps; last frame holds",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 6,
+      "rect": [
+       115,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 7,
+      "rect": [
+       134,
+       376,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   }
+  },
+  "walk": {
+   "blue-right": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       26,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "blue-left": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       126,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-right": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       226,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   },
+   "red-left": {
+    "n": 6,
+    "ms": 100,
+    "fps": 10,
+    "loop": true,
+    "note": "the whole dummy is scooted: base slides 1\u20132 px, post wobbles; no legs",
+    "frames": [
+     {
+      "i": 0,
+      "rect": [
+       1,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 1,
+      "rect": [
+       20,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 2,
+      "rect": [
+       39,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 3,
+      "rect": [
+       58,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 4,
+      "rect": [
+       77,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     },
+     {
+      "i": 5,
+      "rect": [
+       96,
+       326,
+       18,
+       24
+      ],
+      "anchor": [
+       9,
+       23
+      ],
+      "hit": false
+     }
+    ]
+   }
+  }
+ }
+}
