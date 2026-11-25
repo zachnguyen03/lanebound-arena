@@ -28,7 +28,26 @@ export function formatDeathRow(e: SimEvent): string {
  * Takedown score row: team name + new scoreline.
  * e.g. "BLUE scores · 1–0"
  */
-export function formatTakedownScoreRow(e: SimEvent): string {
+export type Scoreline = { blue: number; red: number };
+
+/** Scoreline after every scoring event (seq → both scores), so log rows never show "?". */
+export function scorelines(events: readonly SimEvent[]): Map<number, Scoreline> {
+  const out = new Map<number, Scoreline>();
+  const cur = { blue: 0, red: 0 };
+  for (const e of events) {
+    if (
+      (e.type === "takedown_score" || e.type === "zone_tick" || e.type === "claim_award") &&
+      (e.team === "blue" || e.team === "red") &&
+      typeof e.score_after === "number"
+    ) {
+      cur[e.team] = e.score_after;
+      out.set(e.seq, { ...cur });
+    }
+  }
+  return out;
+}
+
+export function formatTakedownScoreRow(e: SimEvent, line?: Scoreline): string {
   const team =
     e.team === "blue" ? "BLUE" : e.team === "red" ? "RED" : "?";
   let blue: number | null =
@@ -39,7 +58,12 @@ export function formatTakedownScoreRow(e: SimEvent): string {
     if (e.team === "blue") blue = e.score_after;
     else if (e.team === "red") red = e.score_after;
   }
-  return `${team} scores · ${blue ?? "?"}–${red ?? "?"}`;
+  if (line) {
+    blue = line.blue;
+    red = line.red;
+  }
+  const what = e.type === "zone_tick" && e.point === "majority" ? "majority +1" : "scores";
+  return `${team} ${what} · ${blue ?? "?"}–${red ?? "?"}`;
 }
 
 /** exp cadence: seq of deaths whose victim held a flank buff at death. */
@@ -59,8 +83,8 @@ export function buffedDeathSeqs(events: readonly SimEvent[]): Set<number> {
   return out;
 }
 
-export function formatKillFeedRow(e: SimEvent, buffed = false): string {
+export function formatKillFeedRow(e: SimEvent, buffed = false, line?: Scoreline): string {
   if (e.type === "death") return formatDeathRow(e) + (buffed ? " · BUFF DOWN" : "");
-  if (e.type === "takedown_score") return formatTakedownScoreRow(e);
+  if (e.type === "takedown_score" || e.type === "zone_tick") return formatTakedownScoreRow(e, line);
   return e.type;
 }

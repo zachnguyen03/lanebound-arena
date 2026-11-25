@@ -3,6 +3,7 @@ import {
   formatDeathRow,
   formatKillFeedRow,
   formatTakedownScoreRow,
+  scorelines,
   shortUnitId,
 } from "./kill-feed-format";
 import type { SimEvent } from "./types";
@@ -17,6 +18,17 @@ function ev(partial: Partial<SimEvent> & { type: string }): SimEvent {
 }
 
 describe("kill-feed-format", () => {
+  it("fills both sides of the scoreline from the running scores", () => {
+    const evs = [
+      ev({ seq: 1, type: "takedown_score", team: "red", score_after: 1 }),
+      ev({ seq: 2, type: "zone_tick", team: "blue", point: "majority", score_after: 1 }),
+      ev({ seq: 3, type: "takedown_score", team: "red", score_after: 2 }),
+    ];
+    const lines = scorelines(evs);
+    expect(formatKillFeedRow(evs[1]!, false, lines.get(2))).toBe("BLUE majority +1 · 1–1");
+    expect(formatKillFeedRow(evs[2]!, false, lines.get(3))).toBe("RED scores · 1–2");
+  });
+
   it("shortUnitId maps unit ids, not bare team ids", () => {
     expect(shortUnitId("blue:adc")).toBe("B ADC");
     expect(shortUnitId("red:support")).toBe("R SUPPORT");
