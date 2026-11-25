@@ -1,6 +1,6 @@
 // Run: node test/people.test.mjs   (chemistry, personalities, promises, talks, rivalries, conversations)
 import assert from 'node:assert/strict';
-import { createWorld, newSeason, setUserTeam, simTo, userTeam, teamChem, pairChem, teamTalk, applyChoice, peopleWeekly, addPromises, rivalry, addRivalry, isRivalry, stakesOf, termsLikelihood, enginePlayer, PERSONAS } from '../js/career.js';
+import { createWorld, newSeason, setUserTeam, simTo, userTeam, teamChem, pairChem, teamTalk, applyChoice, peopleWeekly, addPromises, rivalry, addRivalry, isRivalry, stakesOf, termsLikelihood, playerAsk, enginePlayer, PERSONAS } from '../js/career.js';
 import { runPayload } from '../js/fastsim.js';
 
 const fast = async ps => ps.map(p => runPayload({ ...p, fast: true }));
@@ -27,7 +27,8 @@ const msg = W.inbox.find(m => m.data?.choices && m.title.includes(sub.name));
 assert.ok(applyChoice(W, msg, 0));
 assert.ok(t.starters.includes(sub.id) || !t.starters.some(id => W.players[id].role === sub.role), 'put back in the lineup');
 assert.equal(applyChoice(W, msg, 0), null, 'a choice resolves once');
-assert.ok(termsLikelihood(W, sub, t, { wage: sub.wage, years: 2 }) < termsLikelihood(W, sub, t, { wage: sub.wage, years: 2, promises: ['title'] }));
+const offer = { wage: playerAsk(sub, t), years: 2 }; // at the ask, so the likelihood isn't clamped at 0 by morale
+assert.ok(termsLikelihood(W, sub, t, offer) < termsLikelihood(W, sub, t, { ...offer, promises: ['title'] }));
 
 // Team talks move morale and report a mood per starter.
 const r = teamTalk(W, t, 'motivate', -1);

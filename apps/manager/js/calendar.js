@@ -7,6 +7,7 @@ import {
   START_YEAR, dayOfDate, weekday, fmtDate, team, userTeam, teamPlayers, allPlayers, leagueTeams, overall, mail, ordinal, tierName, TRAITS, autoStarters,
 } from './world.js';
 import { newPatch } from './meta.js';
+import { poolOf, bestLoadout, cardSpec } from './cards.js';
 import { newsSeries, newsChampion, newsIntlStart, newsAward } from './news.js';
 import { chemBonus, chemAfterGame, has, isRivalry, addRivalry, coolRivalries, pruneChem } from './people.js';
 import { initManager, boardSeries, boardSplit, boardWeekly, boardReview, setGoals } from './board.js';
@@ -235,9 +236,16 @@ export function enginePlayer(p, slot, champ, t) {
   return out;
 }
 export const coachRating = t => Math.round(((t.staff.head?.rating ?? 6) * 2 + (t.staff.strategy?.rating ?? 6)) / 3);
-export function engineTeam(W, t, picks, plan = t.plan) {
-  return { name: t.name, color: t.color, ai: t.id !== W.userTeamId, plan, coach: coachRating(t), lineup: starterPlayers(W, t).map((p, i) => enginePlayer(p, i, picks[i], t)) };
+export function engineTeam(W, t, picks, plan = t.plan, cards = []) {
+  return { name: t.name, color: t.color, ai: t.id !== W.userTeamId, plan, coach: coachRating(t), lineup: starterPlayers(W, t).map((p, i) => enginePlayer(p, i, picks[i], t)), cards: cards.map(cardSpec) };
 }
+// ---------- Tactic Cards (js/cards.js): pool of the starters, Fearless within a series, AI loadouts ----------
+export const cardPool = (W, t) => poolOf(starterPlayers(W, t));
+export const usedCards = (s, tid) => s.cards?.[tid] ?? [];
+/** The AI coach's loadout: the best measured cards still legal this series, nudged toward the club's plan. Classic mode: none. */
+export const aiLoadout = (W, s, t) => (W.classic ? [] : bestLoadout(cardPool(W, t), usedCards(s, t.id), t.plan));
+/** Mark a loadout used for the rest of the series (Fearless cards). */
+export function loadCards(s, tid, cards) { (s.cards ??= {})[tid] = [...usedCards(s, tid), ...cards.map(c => c.key)]; return cards; }
 export function stakesOf(W, s) {
   const c = W.comps[s.comp];
   const rival = isRivalry(W, s.a, s.b) ? 0.3 : 0;
@@ -253,7 +261,8 @@ export function gameJob(W, s) {
   const c = W.comps[s.comp];
   const d = autoDraft(starterPlayers(W, blue), starterPlayers(W, red), Math.random, { prefs: [draftPrefs(W), draftPrefs(W)] });
   const full = involvesUser(W, s) || (CFG.simDetail === 'top' && (c.tier === 0 || c.kind === 'intl'));
-  return { s, blue: blue.id, red: red.id, draft: { picks: d.picks, bans: d.bans }, payload: { teamA: engineTeam(W, blue, d.picks[0]), teamB: engineTeam(W, red, d.picks[1]), seed: Math.floor(Math.random() * 2 ** 31), fast: !full, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } } };
+  const [cb, cr] = [blue, red].map(t => loadCards(s, t.id, aiLoadout(W, s, t)));
+  return { s, blue: blue.id, red: red.id, draft: { picks: d.picks, bans: d.bans }, payload: { teamA: engineTeam(W, blue, d.picks[0], blue.plan, cb), teamB: engineTeam(W, red, d.picks[1], red.plan, cr), seed: Math.floor(Math.random() * 2 ** 31), fast: !full, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } } };
 }
 
 // obj = seconds on capture points.

@@ -6,6 +6,7 @@ import { SANDBOX_CONSTANTS, TEAMFIGHT_R3 } from "@sim/cadence";
 import { CHAMPIONS } from "@data/champions/defs";
 import { KITS } from "@data/champions/kits";
 import type { MatchConfig, PlayerConfig, SideConfig, Tactics } from "@sim/types";
+import type { CardSpec } from "@sim/cards";
 
 const ROLES = ["Top", "Jungle", "Mid", "Carry", "Support"];
 const SLOTS = ["top", "jungle", "mid", "adc", "support"] as const;
@@ -17,7 +18,9 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 /** Career player as calendar.enginePlayer builds it: 1-99 attributes, prof = effective mastery (~0.6-1.2). */
 export interface EnginePlayer { id: string; name: string; champ: string; prof: number; [attr: string]: number | string }
 export interface Plan { name?: string; preset?: Tactics["preset"]; posture?: string; focus?: string; protect?: boolean }
-export interface EngineTeam { name: string; plan?: Plan; coach?: number; lineup: EnginePlayer[] }
+/** Loaded Tactic Cards (js/cards.js cardSpec): the sim spec plus rarity and the holder's id. */
+export type TeamCard = CardSpec & { rarity?: string; pid?: string };
+export interface EngineTeam { name: string; plan?: Plan; coach?: number; lineup: EnginePlayer[]; cards?: TeamCard[] }
 export interface Opts { stakes?: number; attr_scaling?: MatchConfig["attr_scaling"]; patch?: Record<string, { hp?: number; atk?: number; cd?: number }> }
 
 export function rngFrom(seed: number): () => number { // mulberry32
@@ -94,6 +97,7 @@ export function matchConfig(teamA: EngineTeam, teamB: EngineTeam, seed: number, 
   return {
     seed, blue: side(teamA), red: side(teamB), objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 }, attr_scaling: opts.attr_scaling ?? true,
     constants: { ...SANDBOX_CONSTANTS }, kit_patch: kitPatch(opts.patch), ai_enabled: true, draft_mode: "fixed", forced_clock_end: false,
+    ...(teamA.cards?.length || teamB.cards?.length ? { cards: { blue: teamA.cards ?? [], red: teamB.cards ?? [] } } : {}),
   };
 }
 
@@ -165,6 +169,12 @@ export function runFull(teamA: EngineTeam, teamB: EngineTeam, seed: number, opts
       case "zone_tick": point(sideOf(e.team), "obj", t); events.push({ t, type: "majority", side: sideOf(e.team) }); break;
       case "claim_award": point(sideOf(e.team), "obj", t); events.push({ t, type: "claim", side: sideOf(e.team) }); break;
       case "point_capture": caps[sideOf(e.team)]!++; events.push({ t, type: "capture", side: sideOf(e.team), point: e.point }); break;
+      case "card_fire": {
+        const side = sideOf(e.team);
+        events.push({ t, type: "card", side, id: e.card_id, pid: players[idx(e.owner)]!.pid, ...(e.score ? { score: e.score } : {}) });
+        for (let i = 0; i < Number(e.score ?? 0); i++) point(side, "obj", t);
+        break;
+      }
     }
   }
   for (const x of players) for (const f of ["dmg", "taken", "heal"] as const) x[f] = Math.round(x[f]);

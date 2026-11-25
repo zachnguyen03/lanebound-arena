@@ -2,7 +2,8 @@
 // Same input and summary shape as the full engine (engine.ts runFull), no sim: the winner comes from a logistic
 // on the lineups' effective sim strength, then the score, stat lines and events are drawn around means measured
 // on the full engine. Calibrate with test/fit.mjs (numbers below).
-import { ROLES, ROLE_WEIGHTS } from './data.js';
+import { ROLES, ROLE_WEIGHTS, CHAMPS } from './data.js';
+import { CARD_STATS, SLOTS } from './cards.js';
 import { runFull, rngFrom, simPlayer, rate, SIM_ATTRS, ROLE_MEANS as RM } from './engine.ts';
 
 const KPM = Object.values(RM).reduce((n, m) => n + m.k, 0); // team kills per minute
@@ -23,10 +24,21 @@ export function strength(t, stakes = 0) {
   }, 0) / t.lineup.length;
 }
 
+// Tactic Cards: each loaded card adds its measured win-chance gain (CARD_STATS, js/cards.js) as a strength bonus.
+// Draft triggers are known exactly from the picks (gain / fire rate if met, else 0); the rest add fire rate × gain on firing = the measured gain.
+const draftMet = (c, mine, theirs) => (c.trigger.on === 'enemy_class' ? theirs.lineup.filter(p => CHAMPS[p.champ]?.cls === c.trigger.cls).length >= c.trigger.n
+  : c.trigger.on === 'owner_champ' ? mine.lineup[SLOTS.indexOf(c.owner)]?.champ === c.trigger.champ : null);
+function cardGain(c, mine, theirs) {
+  const [fire, lo, hi] = CARD_STATS[c.id] ?? [0, 0, 0], g = c.rarity === 'epic' ? hi : c.rarity === 'rare' ? (lo + hi) / 2 : lo, met = draftMet(c, mine, theirs);
+  return { p: met === null ? fire : met ? 1 : 0, gain: met === null ? g : met ? g / Math.max(0.05, fire) : 0 };
+}
+// Win-chance gain -> strength gap: dp ≈ p(1-p)·k·dd, so dd = 4·dp / k at even odds.
+const cardEdge = (mine, theirs) => (mine.cards ?? []).reduce((n, c) => n + (4 * cardGain(c, mine, theirs).gain) / FIT.k, 0);
+
 export function fastMatch(teamA, teamB, seed = 1, opts = {}) {
   const rng = rngFrom(seed), gauss = () => (rng() + rng() + rng() - 1.5) * 1.41;
   const teams = [teamA, teamB];
-  const d = strength(teamA, opts.stakes) - strength(teamB, opts.stakes);
+  const d = strength(teamA, opts.stakes) - strength(teamB, opts.stakes) + cardEdge(teamA, teamB) - cardEdge(teamB, teamA);
   const winner = rng() < 1 / (1 + Math.exp(-(FIT.c + FIT.k * d))) ? 0 : 1, loser = 1 - winner;
   const clock = rng() < P_CLOCK, score = [];
   // ponytail: the clock game's winning margin is a guess (only the loser's 23.8 was measured).
@@ -60,6 +72,11 @@ export function fastMatch(teamA, teamB, seed = 1, opts = {}) {
   // Point captures.
   const caps = [0, 0];
   for (let i = 0, n = Math.max(1, Math.round(CAPS_PER_MIN * mins * (1 + gauss() * 0.2))); i < n; i++) { const side = rng() < CAP_WIN_SHARE ? winner : loser; caps[side]++; events.push({ t: at(), type: 'capture', side, point: ['north', 'centre', 'south'][Math.floor(rng() * 3)] }); }
+  // Cards that "fired": sampled with their fire rate; timed triggers at their time, the rest anywhere in the game.
+  teams.forEach((t, side) => { for (const c of t.cards ?? []) if (rng() < cardGain(c, t, teams[1 - side]).p) {
+    const tt = c.trigger.t ?? (['enemy_class', 'owner_champ'].includes(c.trigger.on) ? 0 : 10 + rng() * (duration - 20));
+    if (tt < duration) events.push({ t: Math.round(tt * 10) / 10, type: 'card', side, id: c.id, pid: c.pid });
+  } });
   events.sort((a, b) => a.t - b.t);
 
   for (const x of players) {
