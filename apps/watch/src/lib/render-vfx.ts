@@ -162,7 +162,15 @@ function drawEllipseOutline(
 }
 
 /** Bright team core under dark streak / smear art. */
-function blitWithTeamCore(
+/** Tinted copies of dark sprite regions, keyed by image + rect + colour. */
+const tintCache = new WeakMap<HTMLImageElement, Map<string, HTMLCanvasElement>>();
+
+/**
+ * Dark art (smears, chevron strips, hook/latch projectiles) reads poorly on the
+ * floor. Recolour the sprite's own pixels toward `color` (shape kept, no
+ * backing pad) and blit the result.
+ */
+function blitTinted(
   ctx: CanvasRenderingContext2D,
   sheet: HTMLImageElement,
   sx: number,
@@ -173,19 +181,36 @@ function blitWithTeamCore(
   dy: number,
   dw: number,
   dh: number,
-  team: Team,
+  color: string,
 ): void {
+  let byKey = tintCache.get(sheet);
+  if (!byKey) tintCache.set(sheet, (byKey = new Map()));
+  const key = `${sx},${sy},${sw},${sh},${color}`;
+  let tinted = byKey.get(key);
+  if (!tinted && typeof document !== "undefined") {
+    tinted = document.createElement("canvas");
+    tinted.width = sw;
+    tinted.height = sh;
+    const t = tinted.getContext("2d")!;
+    t.drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+    t.globalCompositeOperation = "source-atop";
+    t.globalAlpha = 0.7;
+    t.fillStyle = color;
+    t.fillRect(0, 0, sw, sh);
+    byKey.set(key, tinted);
+  }
+  if (!tinted) {
+    blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy, dw, dh);
+    return;
+  }
   ctx.save();
-  ctx.fillStyle = TEAM_HEX[team];
-  ctx.globalAlpha = 0.55;
-  ctx.fillRect(Math.round(dx) + 2, Math.round(dy) + 2, Math.max(2, dw - 4), Math.max(2, dh - 4));
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(tinted, 0, 0, sw, sh, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
   ctx.restore();
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy, dw, dh);
-  ctx.restore();
-  blitNearest(ctx, sheet, sx, sy, sw, sh, dx, dy, dw, dh);
 }
+
+/** Slow / root ground marker colours (distinct from both team colours). */
+const STATUS_HEX = { slow: "#8FE3F2", root: "#F2C14E" } as const;
 
 function blitSpriteAt(
   ctx: CanvasRenderingContext2D,
@@ -508,14 +533,14 @@ function drawProjectileSprite(
   if (resolved?.image) {
     const w = resolved.image.naturalWidth || resolved.image.width;
     const h = resolved.image.naturalHeight || resolved.image.height;
-    // Dark streak / smear-like projectiles get a team core + additive pass.
+    // Dark streak / smear-like projectiles are recoloured toward the team colour.
     const dark =
       p.artKey.includes("latch") ||
       p.artKey.includes("hook") ||
       p.artKey.includes("chip") ||
       p.artKey.includes("bucket");
     if (dark && !resolved.sprite.rect && !resolved.sprite.cell) {
-      blitWithTeamCore(
+      blitTinted(
         ctx,
         resolved.image,
         0,
@@ -526,7 +551,7 @@ function drawProjectileSprite(
         Math.round(py - (h * scale) / 2),
         w * scale,
         h * scale,
-        team,
+        TEAM_HEX[team],
       );
     } else {
       blitSpriteAt(ctx, resolved.image, px, py, resolved.sprite, 0, scale);
@@ -757,7 +782,8 @@ function drawStatusIcons(
           const age = state.t - st.startedAt;
           const fi = Math.floor(age * 8);
           const ground = st.kind === "root" || st.kind === "slow";
-          const scale = VFX_SCALE;
+          // Ground markers stay at art size (1x) under the feet; head icons at 2x.
+          const scale = ground ? 1 : VFX_SCALE;
           const sprite = {
             ...resolved.sprite,
             offset_from_foot:
@@ -789,37 +815,10 @@ function drawStatusIcons(
             );
             const dw = fw * scale;
             const dh = fh * scale;
-            // Bright team underlay so dark chevron strips contrast on the floor.
             ctx.save();
-            ctx.fillStyle = TEAM_HEX[unit.team];
-            ctx.strokeStyle = OUTLINE;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.ellipse(
-              dx + dw / 2,
-              dy + dh / 2,
-              Math.max(dw / 2 + 4, 18),
-              Math.max(dh / 2 + 6, 10),
-              0,
-              0,
-              Math.PI * 2,
-            );
-            ctx.fill();
-            ctx.stroke();
+            ctx.globalAlpha *= 0.85;
+            blitTinted(ctx, imgEl, sx, 0, fw, fh, dx, dy, dw, dh, STATUS_HEX[st.kind as "slow" | "root"]);
             ctx.restore();
-            blitWithTeamCore(
-              ctx,
-              imgEl,
-              sx,
-              0,
-              fw,
-              fh,
-              dx,
-              dy,
-              dw,
-              dh,
-              unit.team,
-            );
           } else {
             blitSpriteAt(ctx, resolved.image, headX, headY, sprite, fi, scale);
             const ult = ultForStatus(state, st.sourceId, st.startedAt);
@@ -1095,10 +1094,10 @@ function drawMeleeSmears(
       const dy = Math.round(py + tn.dy + oy * sc - 23 * sc);
       const dw = w * sc;
       const dh = h * sc;
-      // Melee smear strips are dark checkered — lift with team core + additive.
+      // Melee smear strips are dark checkered: recolour toward the team colour.
       ctx.save();
       ctx.globalAlpha *= tn.alpha;
-      blitWithTeamCore(ctx, image, 0, 0, w, h, dx, dy, dw, dh, unit.team);
+      blitTinted(ctx, image, 0, 0, w, h, dx, dy, dw, dh, TEAM_HEX[unit.team]);
       ctx.restore();
     }
   }
