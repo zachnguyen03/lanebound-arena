@@ -215,6 +215,21 @@ export interface PointView {
   y: number;
   r: number;
   owner: "blue" | "red" | null;
+  /** objective_state feed (points mode): who is capturing and how far, 0–1. */
+  by?: "blue" | "red" | null;
+  progress?: number;
+  contested?: boolean;
+}
+
+export interface TacticView {
+  preset: string;
+  aggression: number;
+}
+
+/** Per-team score split: kill points vs objective points. */
+export interface ScoreSplit {
+  kills: number;
+  obj: number;
 }
 
 export interface MatchViewState {
@@ -236,6 +251,10 @@ export interface MatchViewState {
   zoneOwner: "blue" | "red" | null;
   /** exp/objectives capture points (empty for the single-pit match). */
   points: PointView[];
+  /** Points mode majority: holder and seconds to next tick at time `at`. */
+  majority: { team: Team; leftS: number; at: number } | null;
+  tactics: { blue: TacticView | null; red: TacticView | null };
+  split: { blue: ScoreSplit; red: ScoreSplit };
   orbs: OrbView[];
   buffs: OrbView[];
   fightBlue: FightCallView | null;

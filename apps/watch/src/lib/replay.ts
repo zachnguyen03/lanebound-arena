@@ -15,10 +15,12 @@ import type {
   MatchViewState,
   ProjectileFx,
   SimEvent,
+  ScoreSplit,
   SkillTagFx,
   Slot,
   StatusIconFx,
   Team,
+  TacticView,
   TelegraphFx,
   UltFx,
   UltPulseFx,
@@ -159,6 +161,8 @@ function cloneState(s: MatchViewState): MatchViewState {
     redLineup: s.redLineup.slice(),
     fallbackChamps: s.fallbackChamps.slice(),
     points: s.points.map((p) => ({ ...p })),
+    majority: s.majority ? { ...s.majority } : null,
+    split: { blue: { ...s.split.blue }, red: { ...s.split.red } },
     orbs: s.orbs.map((o) => ({ ...o })),
     buffs: s.buffs.map((o) => ({ ...o })),
     fightBlue: s.fightBlue ? { ...s.fightBlue } : null,
@@ -252,6 +256,9 @@ function emptyState(): MatchViewState {
     fallbackChamps: [],
     zoneOwner: null,
     points: [],
+    majority: null,
+    tactics: { blue: null, red: null },
+    split: { blue: { kills: 0, obj: 0 }, red: { kills: 0, obj: 0 } },
     orbs: [],
     buffs: [],
     fightBlue: null,
@@ -260,6 +267,22 @@ function emptyState(): MatchViewState {
     streaks: {},
     lastKillT: {},
   };
+}
+
+function tacticView(raw: unknown): TacticView | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { preset?: unknown; aggression?: unknown };
+  return {
+    preset: typeof r.preset === "string" ? r.preset : "custom",
+    aggression: typeof r.aggression === "number" ? r.aggression : 0,
+  };
+}
+
+/** Credit the score delta of a scoring event to kills or objectives. */
+function addSplit(state: MatchViewState, ev: SimEvent, kind: keyof ScoreSplit): void {
+  if ((ev.team !== "blue" && ev.team !== "red") || typeof ev.score_after !== "number") return;
+  const prev = ev.team === "blue" ? state.scoreBlue : state.scoreRed;
+  state.split[ev.team][kind] += Math.max(0, ev.score_after - prev);
 }
 
 function applyEvent(
@@ -276,6 +299,7 @@ function applyEvent(
         ? (ev.blue_lineup as string[])
         : [];
       const red = Array.isArray(ev.red_lineup) ? (ev.red_lineup as string[]) : [];
+      state.tactics = { blue: tacticView(ev.blue_tactics), red: tacticView(ev.red_tactics) };
       state.blueLineup = blue;
       state.redLineup = red;
       applyLineup(state, "blue", blue, knownArt);
@@ -408,6 +432,7 @@ function applyEvent(
       break;
     }
     case "takedown_score": {
+      addSplit(state, ev, "kills");
       if (ev.team === "blue" && typeof ev.score_after === "number") {
         state.scoreBlue = ev.score_after;
       }
@@ -418,6 +443,7 @@ function applyEvent(
     }
     case "zone_tick":
     case "claim_award": {
+      addSplit(state, ev, "obj");
       if (ev.team === "blue" && typeof ev.score_after === "number") {
         state.scoreBlue = ev.score_after;
       }
@@ -433,6 +459,22 @@ function applyEvent(
           owner: null,
         }));
       }
+      break;
+    }
+    case "objective_state": {
+      const pts = Array.isArray(ev.points) ? (ev.points as Array<Record<string, unknown>>) : [];
+      for (const q of pts) {
+        const p = state.points.find((x) => x.id === q.id);
+        if (!p) continue;
+        p.by = q.by === "blue" || q.by === "red" ? q.by : null;
+        p.progress = typeof q.progress === "number" ? q.progress : 0;
+        p.contested = q.contested === true;
+      }
+      const m = ev.majority as { team?: unknown; left_s?: unknown } | null | undefined;
+      state.majority =
+        m && (m.team === "blue" || m.team === "red") && typeof m.left_s === "number"
+          ? { team: m.team, leftS: m.left_s, at: ev.t }
+          : null;
       break;
     }
     case "point_capture": {

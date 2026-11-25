@@ -18,6 +18,9 @@ export interface ObjPoint {
   paid: boolean;
 }
 
+/** objective_state cadence in ticks (0.5 s at 10 Hz). */
+export const OBJ_STATE_EVERY = 5;
+
 export const PULSE_CYCLE_S = 50;
 export const PULSE_OPEN_S = 30;
 
@@ -107,6 +110,26 @@ export function tickObjectives(
     else if (++majority.timer >= Math.round(c.MAJORITY_TICK_S / c.DT)) {
       majority.timer = 0;
       score(holder, { point: "majority" });
+    }
+    // Spectator HUD feed: capture progress, contest and majority countdown.
+    if (state.tick % OBJ_STATE_EVERY === 0) {
+      const ticks = Math.round(c.MAJORITY_TICK_S / c.DT);
+      emit("objective_state", {
+        points: points.map((p) => {
+          const b = presence(state.units, p, "blue");
+          const r = presence(state.units, p, "red");
+          const lead = p.bar_blue >= p.bar_red ? "blue" : "red";
+          const bar = Math.max(p.bar_blue, p.bar_red);
+          return {
+            id: p.id,
+            owner: p.owner,
+            by: bar > 0 ? lead : null,
+            progress: Math.round((bar / need) * 100) / 100,
+            contested: b > 0 && r > 0,
+          };
+        }),
+        majority: holder ? { team: holder, left_s: Math.round((ticks - majority.timer) * c.DT * 10) / 10 } : null,
+      });
     }
   }
   return scored;
