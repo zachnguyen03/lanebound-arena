@@ -268,6 +268,11 @@ export function WatchShell({
     () => (engine ? engine.stateAt(tick) : null),
     [engine, tick],
   );
+  // While playing, the next tick's state so units glide between ticks (view only).
+  const nextState = useMemo(
+    () => (engine && playing && tick < engine.maxTick ? engine.stateAt(tick + 1) : null),
+    [engine, tick, playing],
+  );
 
   useEffect(() => {
     if (!playing || !engine) {
@@ -560,6 +565,7 @@ export function WatchShell({
                   overlays={overlays}
                   vfx={vfx}
                   subTick={playing ? subTick : undefined}
+                  next={nextState}
                 />
               </div>
 
