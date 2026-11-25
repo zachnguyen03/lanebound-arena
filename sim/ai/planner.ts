@@ -8,6 +8,7 @@
 import { CHAMPIONS, type ChampClass } from "../../data/champions/defs.js";
 import type { Constants } from "../constants.js";
 import { inOwnSanctuary } from "../map.js";
+import { pitOpensIn } from "../objectives.js";
 import { isBanished } from "../status.js";
 import type { MatchState, Team, UnitId, UnitState } from "../types.js";
 
@@ -264,6 +265,73 @@ function roverPlan(state: MatchState, u: UnitState, _c: Constants): PlannerPlan 
   return { intent: pick.buff ? "TakeBuff" : "CollectOrb", waypoint: { x: pick.x, y: pick.y } };
 }
 
+// ---------------------------------------------------------------------------
+// exp/objectives (not build spec): slot → point assignment. Off unless
+// MatchConfig.objectives. null = fall through to the tactic's normal plan.
+// ---------------------------------------------------------------------------
+
+type PointId = "north" | "centre" | "south";
+
+/** Per tactic, slot → home point. Missing slot = normal tactic plan (Hunt's chasers). */
+const POINT_HOME: Record<TacticPreset, Partial<Record<string, PointId>>> = {
+  hold_the_pit: { top: "north", jungle: "centre", mid: "centre", adc: "centre", support: "south" },
+  hunt: { top: "north", support: "south" },
+  starve: { top: "north", jungle: "north", mid: "centre", adc: "south", support: "south" },
+};
+/** Pulse: shrines only (no centre point); the pit reopens and pulls everyone back. */
+const SHRINE_HOME: Record<TacticPreset, Partial<Record<string, PointId>>> = {
+  hold_the_pit: { top: "north", jungle: "north", mid: "south", adc: "south", support: "south" },
+  hunt: { top: "north", support: "south" },
+  starve: { top: "north", jungle: "north", mid: "south", adc: "south", support: "south" },
+};
+/** Regroup on the pit this long before it reopens. */
+const PULSE_REGROUP_S = 6;
+
+/**
+ * Side duty: this unit's plan is a north / south point. It skips the main
+ * fight and only fights what it meets locally (brain.ts).
+ */
+export function sideDutyPlan(state: MatchState, u: UnitState, tactic: TacticPreset): PlannerPlan | null {
+  return objectivePlan(state, u, tactic, true);
+}
+
+function objectivePlan(state: MatchState, u: UnitState, tactic: TacticPreset, sideOnly = false): PlannerPlan | null {
+  const mode = state.config?.objectives?.mode;
+  const pts = state.objectives;
+  if (!mode || !pts || !u.slot) return null;
+  let live = pts;
+  let home: PointId | undefined;
+  if (mode === "pulse") {
+    const opensIn = pitOpensIn(state.t);
+    if (opensIn <= PULSE_REGROUP_S + 1e-9) return null;
+    live = pts.filter((p) => !p.paid);
+    home = SHRINE_HOME[tactic][u.slot];
+  } else {
+    home = POINT_HOME[tactic][u.slot];
+  }
+  if (!home || live.length === 0) return null;
+  let p = live.find((x) => x.id === home);
+  // Home point held (points) or already paid (pulse): take the nearest point we do not own.
+  if (!p || (mode === "points" && p.owner === u.team && !enemyNear(state, u, p, 6))) {
+    const open = live
+      .filter((x) => x.owner !== u.team)
+      .sort((a, b) => dist(u.x, u.y, a.x, a.y) - dist(u.x, u.y, b.x, b.y));
+    p = open[0] ?? p;
+  }
+  if (!p) return null;
+  if (sideOnly && p.id === "centre") return null;
+  // Side points sit between the corner pillars: from the flank, walk in via a
+  // staging spot inside the pillar line so the straight walk does not snag.
+  if (Math.abs(p.y - 8) > 3 && Math.abs(u.x - p.x) > 3.5 && Math.abs(u.y - p.y) > 1.5) {
+    return { intent: "HoldZone", waypoint: { x: p.x + Math.sign(u.x - p.x) * 3, y: p.y < 8 ? 5 : 11 } };
+  }
+  return { intent: "HoldZone", waypoint: { x: p.x, y: p.y } };
+}
+
+function enemyNear(state: MatchState, u: UnitState, p: { x: number; y: number }, r: number): boolean {
+  return state.units.some((e) => e.alive && e.team !== u.team && dist(e.x, e.y, p.x, p.y) <= r + 1e-9);
+}
+
 export interface PlannerPlan {
   intent: "HoldZone" | "Approach" | "CollectOrb" | "TakeBuff";
   waypoint: { x: number; y: number };
@@ -280,6 +348,10 @@ export function planObjective(
   c: Constants,
 ): PlannerPlan | null {
   if (!u.alive || isLabParked(u)) return null;
+  if (state.config?.objectives) {
+    const obj = objectivePlan(state, u, tactic);
+    if (obj) return obj;
+  }
   if (state.config?.cadence?.rovers && tactic !== "hunt") {
     const rove = roverPlan(state, u, c);
     if (rove) return rove;

@@ -4,6 +4,7 @@
  * → zone_tick → claim resolve → orb/buff spawn → pickup.
  */
 import type { Constants } from "./constants.js";
+import { createPoints, pitOpen, tickObjectives, type ObjPoint } from "./objectives.js";
 import { isBanished, isTimeStopped } from "./status.js";
 import type {
   MatchConfig,
@@ -70,6 +71,9 @@ export interface ArenaRuntime {
   claim_denies: Partial<Record<UnitId, number>>;
   /** Buff expiry per holder. */
   buff_until: Partial<Record<UnitId, number>>;
+  /** exp/objectives: side / majority points (absent by default). */
+  points?: ObjPoint[];
+  majority?: { timer: number };
 }
 
 const ORB_PAD_TILES: ReadonlyArray<readonly [number, number]> = [
@@ -89,7 +93,7 @@ function dist(ax: number, ay: number, bx: number, by: number): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-export function createArenaRuntime(c: Constants): ArenaRuntime {
+export function createArenaRuntime(c: Constants, config?: MatchConfig): ArenaRuntime {
   const orbs: OrbPad[] = ORB_PAD_TILES.map(([tx, ty], i) => ({
     orb_id: `orb:${i}`,
     x: tx + 0.5,
@@ -126,6 +130,9 @@ export function createArenaRuntime(c: Constants): ArenaRuntime {
     level_snap: {},
     claim_denies: {},
     buff_until: {},
+    ...(config?.objectives
+      ? { points: createPoints(config.objectives.mode), majority: { timer: 0 } }
+      : {}),
   };
 }
 
@@ -206,6 +213,9 @@ export function tickArenaPhase11(
 ): { scored: boolean } {
   let scored = false;
   const z = arena.zone;
+  // exp/objectives: no pit in `points`; the pit only runs while open in `pulse`.
+  const obj = config.objectives?.mode;
+  const pitLive = obj === "points" ? false : obj === "pulse" ? pitOpen(state.t) : true;
   const occupants = zoneOccupants(state.units, c);
   z.occupied = occupants.map((u) => u.id);
 
@@ -220,8 +230,9 @@ export function tickArenaPhase11(
     }
   }
 
-  const blueOcc = occupants.filter((u) => u.team === "blue");
-  const redOcc = occupants.filter((u) => u.team === "red");
+  // Occupancy still counts for claim denies / aura; only the pit's capture and score stop.
+  const blueOcc = pitLive ? occupants.filter((u) => u.team === "blue") : [];
+  const redOcc = pitLive ? occupants.filter((u) => u.team === "red") : [];
   const exclusive: Team | null =
     blueOcc.length > 0 && redOcc.length === 0
       ? "blue"
@@ -281,6 +292,10 @@ export function tickArenaPhase11(
         score_after: z.owner === "blue" ? state.score_blue : state.score_red,
       });
     }
+  }
+
+  if (obj && arena.points && arena.majority) {
+    if (tickObjectives(state, arena.points, arena.majority, obj, c, emit)) scored = true;
   }
 
   // Scripted claim opens (lab)

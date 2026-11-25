@@ -24,6 +24,7 @@ import {
   roverPrey,
   roverDetached,
   roverOutnumbered,
+  sideDutyPlan,
 } from "./planner.js";
 import { pickUnitTarget } from "./target.js";
 import { dodgeWaypoint, lowHpRetreat, rangedHoldWaypoint, ultWorthIt } from "./round3.js";
@@ -223,7 +224,9 @@ export function brainDecide(
     }
   }
 
-  const isParticipant = opts.fightIds.includes(u.id);
+  // exp/objectives: a unit walking to / holding a side point is not in the main fight.
+  const sideDuty = !!state.config?.objectives && !!sideDutyPlan(state, u, opts.tactic);
+  const isParticipant = opts.fightIds.includes(u.id) && !sideDuty;
   // Non-participants: at least PEEL_DIVE_R, but not less than own AA range so a
   // kiting backliner does not Idle mid-ring once they step past 3 tiles.
   const senseR = isParticipant
@@ -239,6 +242,7 @@ export function brainDecide(
   // Hunt: any living non-sanctuary enemy is a legal body (reach never 0 — R #4).
   // Do not require senseR contact before walking in.
   const huntEnemy =
+    !sideDuty &&
     opts.tactic === "hunt" &&
     state.units.some(
       (e) =>
@@ -254,6 +258,11 @@ export function brainDecide(
   // exp/orb-buff-cadence: a rover that meets an enemy it is not outnumbered by
   // takes the skirmish instead of standing off under a Hold call.
   if (opts.commit === "disengage" && roverDetached(state, u) && !roverOutnumbered(state, u)) {
+    effectiveCommit = "hold";
+  }
+  // exp/objectives: a unit outside the main fight plays its own skirmish, not the call.
+  const split = !!state.config?.objectives;
+  if (split && !isParticipant && opts.commit === "disengage" && !roverOutnumbered(state, u)) {
     effectiveCommit = "hold";
   }
   if (effectiveCommit === "hold" && nearEnemy && roverPrey(state, u)) {
@@ -405,7 +414,7 @@ export function brainDecide(
     (e) => e.alive && e.team !== u.team && !isBanished(e.status) && opts.fightIds.includes(e.id),
   );
   const allEnemies = state.units.filter((e) => e.alive && e.team !== u.team && !isBanished(e.status));
-  const pool = enemies.length > 0 ? enemies : allEnemies;
+  const pool = enemies.length > 0 && (isParticipant || !split) ? enemies : allEnemies;
 
   // R #4 Teamwork: follow focus via call_score vs local_score threshold (not a hard ≥50 stick).
   // Focus dead / illegal → pickUnitTarget falls through to local best.

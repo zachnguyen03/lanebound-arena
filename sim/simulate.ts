@@ -574,7 +574,7 @@ export function simulate(config: MatchConfig): SimulateResult {
   }
   const maxTick = Math.round(endT / c.DT);
   const ai = config.ai_enabled === true ? createAiRuntime() : null;
-  const arena: ArenaRuntime = createArenaRuntime(c);
+  const arena: ArenaRuntime = createArenaRuntime(c, config);
   let deathThisTick = false;
   /** Fight kill tallies for production claim opens: fight_id → team → kills. */
   const fightKills: Partial<Record<string, { blue: number; red: number }>> = {};
@@ -1071,6 +1071,7 @@ function publishArena(
     holders: b.holders.slice(),
   }));
   state.phase = arena.phase;
+  if (arena.points) state.objectives = arena.points.map((p) => ({ ...p }));
   state.rng_counters = rng.getCounters();
 }
 

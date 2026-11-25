@@ -48,19 +48,25 @@ function livingNonBanished(u: UnitState, c: Constants): boolean {
  * Centroid = mean of seeds. Candidates = all such units within FIGHT_RADIUS of
  * that seed centroid (pulls in ring-mates who lack a direct enemy contact).
  */
-export function fightCandidates(units: UnitState[], c: Constants): UnitState[] {
-  const seeds: UnitState[] = [];
+/** exp/objectives: fight link radius when several fights may run at once. */
+export const SPLIT_FIGHT_R = 5;
+
+export function fightCandidates(units: UnitState[], c: Constants, split = false): UnitState[] {
+  const R = split ? SPLIT_FIGHT_R : c.FIGHT_RADIUS;
+  let seeds: UnitState[] = [];
   for (const u of units) {
     if (!livingNonBanished(u, c)) continue;
     for (const e of units) {
       if (!livingNonBanished(e, c) || e.team === u.team) continue;
-      if (dist(u.x, u.y, e.x, e.y) <= c.FIGHT_RADIUS) {
+      if (dist(u.x, u.y, e.x, e.y) <= R) {
         seeds.push(u);
         break;
       }
     }
   }
   if (seeds.length === 0) return [];
+  // exp/objectives: the AI runs the largest seed cluster as "the" fight; the rest skirmish locally.
+  if (split) seeds = largestCluster(seeds, R);
   let sx = 0;
   let sy = 0;
   for (const u of seeds) {
@@ -70,8 +76,28 @@ export function fightCandidates(units: UnitState[], c: Constants): UnitState[] {
   const cx = sx / seeds.length;
   const cy = sy / seeds.length;
   return units.filter(
-    (u) => livingNonBanished(u, c) && dist(u.x, u.y, cx, cy) <= c.FIGHT_RADIUS,
+    (u) => livingNonBanished(u, c) && dist(u.x, u.y, cx, cy) <= R,
   );
+}
+
+function largestCluster(us: UnitState[], link: number): UnitState[] {
+  const seen = new Set<UnitState>();
+  let best: UnitState[] = [];
+  for (const start of us) {
+    if (seen.has(start)) continue;
+    const group = [start];
+    seen.add(start);
+    for (let i = 0; i < group.length; i++) {
+      for (const b of us) {
+        if (!seen.has(b) && dist(group[i]!.x, group[i]!.y, b.x, b.y) <= link) {
+          seen.add(b);
+          group.push(b);
+        }
+      }
+    }
+    if (group.length > best.length) best = group;
+  }
+  return best;
 }
 
 /**
@@ -79,8 +105,13 @@ export function fightCandidates(units: UnitState[], c: Constants): UnitState[] {
  * participants (= candidates; already distance-filtered) → fight if ≥2/side.
  * 2v2 escalate: max distance of each of the four to centroid ≤ 6 AND |A−0.5| > 0.20.
  */
-export function evaluateFight(units: UnitState[], c: Constants, fightId: string | null): FightSnapshot {
-  const cands = fightCandidates(units, c);
+export function evaluateFight(
+  units: UnitState[],
+  c: Constants,
+  fightId: string | null,
+  split = false,
+): FightSnapshot {
+  const cands = fightCandidates(units, c, split);
   if (cands.length === 0) {
     return {
       centroid: { x: c.ZONE_CENTER[0]!, y: c.ZONE_CENTER[1]! },
@@ -103,7 +134,8 @@ export function evaluateFight(units: UnitState[], c: Constants, fightId: string 
   }
   const centroid = { x: sx / cands.length, y: sy / cands.length };
 
-  const participants = cands.filter((u) => dist(u.x, u.y, centroid.x, centroid.y) <= c.FIGHT_RADIUS);
+  const R = split ? SPLIT_FIGHT_R : c.FIGHT_RADIUS;
+  const participants = cands.filter((u) => dist(u.x, u.y, centroid.x, centroid.y) <= R);
   const blue = participants.filter((u) => u.team === "blue").map((u) => u.id);
   const red = participants.filter((u) => u.team === "red").map((u) => u.id);
   const exists = blue.length >= 2 && red.length >= 2;

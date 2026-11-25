@@ -124,7 +124,7 @@ export function tickAi(
 
   updatePerceptionSeen(state.units, ai.seen_at, state.t);
 
-  const snap = evaluateFight(state.units, c, ai.fight_id);
+  const snap = evaluateFight(state.units, c, ai.fight_id, !!config.objectives);
   ai.last_snap = snap;
   const geomFight = snap.exists;
 
@@ -192,7 +192,7 @@ export function tickAi(
     ai.soft_until = Math.max(ai.soft_until, until);
   }
   const softIssue = !geomFight && state.t <= ai.soft_until + 1e-9 && ai.soft_until > 0;
-  const graceSnap = softIssue ? evaluateFight(state.units, c, ai.fight_id) : null;
+  const graceSnap = softIssue ? evaluateFight(state.units, c, ai.fight_id, !!config.objectives) : null;
 
   for (const team of ["blue", "red"] as Team[]) {
     const side = team === "blue" ? config.blue : config.red;

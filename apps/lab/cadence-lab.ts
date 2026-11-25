@@ -55,6 +55,9 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   tf3_keep: (cfg) => ({ ...cfg, teamfight: { ...TF3, disengage: false } }),
   // Split objectives: the cadence experiment's rovers already send 1-2 units to orbs/buffs.
   tf3_roam: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF3 } }),
+  // exp/objectives: alternative layouts on top of tf3_keep.
+  points: (cfg) => ({ ...cfg, objectives: { mode: "points" }, teamfight: { ...TF3, disengage: false } }),
+  pulse: (cfg) => ({ ...cfg, objectives: { mode: "pulse" }, teamfight: { ...TF3, disengage: false } }),
 };
 
 type Ev = Record<string, any>;
@@ -78,7 +81,7 @@ export function measure(ev: Ev[]) {
   const rSkills = new Set<string>(ev.filter((e) => e.type === "cast_end" && e.skill === "R").map((e) => e.skill_id));
   // Round 3 spacing metrics, sampled every 0.5 s from debug pos.
   const alive: Record<string, boolean> = {};
-  let sampleTick = -1, spreadSum = 0, spreadN = 0, fightSamples = 0, fightCount = 0, runS = 0, disengages = 0;
+  let sampleTick = -1, splitS = 0, spreadSum = 0, spreadN = 0, fightSamples = 0, fightCount = 0, runS = 0, disengages = 0;
   const runs: number[] = [];
   const lastIntent: Record<string, string> = {};
   const sample = () => {
@@ -91,6 +94,8 @@ export function measure(ev: Ev[]) {
       for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) { s += dist(pos[g[i]!]!, pos[g[j]!]!); n++; }
       spreadSum += s / n; spreadN++;
     }
+    // exp/objectives: combat on a side lane (|y−8| > 4.5) while the middle (|y−8| ≤ 3) also fights.
+    if (engaged.some((id) => Math.abs(pos[id]!.y - 8) > 4.5) && engaged.some((id) => Math.abs(pos[id]!.y - 8) <= 3)) splitS++;
     // Fights = connected groups of engaged units (link ≤ 5 tiles) holding both teams.
     const seen = new Set<string>();
     let fights = 0;
@@ -176,6 +181,7 @@ export function measure(ev: Ev[]) {
     allySpread: spreadN ? spreadSum / spreadN : 0,
     fightLen: runs.length ? runs.reduce((a, b) => a + b, 0) / runs.length : 0,
     concurrent: fightSamples ? fightCount / fightSamples : 0,
+    splitPct: fightSamples ? splitS / fightSamples : 0,
     disengages,
   };
 }
@@ -217,6 +223,7 @@ export function summarize(rows: Row[]) {
     ally_spread_tiles: Math.round(mean(rows.map((r) => r.allySpread)) * 100) / 100,
     fight_len_mean_s: r1(mean(rows.map((r) => r.fightLen))),
     concurrent_fights: Math.round(mean(rows.map((r) => r.concurrent)) * 100) / 100,
+    side_and_mid_fight_pct: pct(mean(rows.map((r) => r.splitPct))),
     disengages_mean: r1(mean(rows.map((r) => r.disengages))),
   };
 }

@@ -109,8 +109,21 @@ export interface Teamfight {
   peel?: boolean;
 }
 
+/**
+ * Experimental objective layouts (branch exp/objectives). Not in the build spec.
+ * Absent (the default) = the single pit, unchanged digests.
+ * - points: north / centre / south capture points; owning 2 of 3 scores 1 every 18 s.
+ * - pulse: the pit opens PULSE_OPEN_S of every PULSE_CYCLE_S; while closed, north and
+ *   south shrines are live and each pays 1 once per window to the team that captures it.
+ */
+export interface Objectives {
+  mode: "points" | "pulse";
+}
+
 export interface MatchConfig {
   seed: number;
+  /** Experimental, see {@link Objectives}. */
+  objectives?: Objectives;
   /** Experimental, see {@link Teamfight}. */
   teamfight?: Teamfight;
   /** Experimental, see {@link Cadence}. */
@@ -466,6 +479,8 @@ export interface MatchState {
     holders?: UnitId[];
   }>;
   phase?: "play" | "sudden_death" | "extra_15" | "ended";
+  /** exp/objectives public point view. */
+  objectives?: Array<{ id: string; x: number; y: number; r: number; owner: Team | null; paid: boolean }>;
   rng_counters?: Record<string, number>;
 }
 
