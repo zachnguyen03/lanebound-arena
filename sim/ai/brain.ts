@@ -25,6 +25,7 @@ import {
   roverDetached,
   roverOutnumbered,
   sideDutyPlan,
+  HUNT_SENSE_R,
 } from "./planner.js";
 import { pickUnitTarget } from "./target.js";
 import { dodgeWaypoint, lowHpRetreat, rangedHoldWaypoint, ultWorthIt } from "./round3.js";
@@ -249,7 +250,9 @@ export function brainDecide(
         e.alive &&
         e.team !== u.team &&
         !isBanished(e.status) &&
-        !inOwnSanctuary(e.team, e.x, e.y, opts.c),
+        !inOwnSanctuary(e.team, e.x, e.y, opts.c) &&
+        // exp/objectives points: Hunt chases nearby bodies only; far away it takes points.
+        (state.config?.objectives?.mode !== "points" || dist(u.x, u.y, e.x, e.y) <= HUNT_SENSE_R),
     );
   let effectiveCommit: CommitKind = opts.commit;
   if (opts.commit === "hold" && opts.tactic === "hunt" && (nearEnemy || huntEnemy)) {
@@ -433,6 +436,7 @@ export function brainDecide(
     teamwork: u.attrs.teamwork,
     commitDisengage: opts.commit === "disengage",
     tf: state.config?.teamfight,
+    points: state.config?.objectives?.mode === "points" ? state.objectives : undefined,
   });
 
   if (!targetId) {

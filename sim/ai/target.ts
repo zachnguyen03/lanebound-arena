@@ -56,6 +56,8 @@ export function targetingScore(
     coachFocusSlot?: string | null;
     teamwork?: number;
     tf?: Teamfight;
+    /** exp/objectives points: Hunt values enemies standing on a point ×1.3. */
+    points?: ReadonlyArray<{ x: number; y: number; r: number }>;
   },
 ): number {
   if (!target.alive || isBanished(target.status)) return 0;
@@ -85,6 +87,9 @@ export function targetingScore(
   if (opts.tactic === "hunt" && (cls === "Marksman" || cls === "Mage")) tactic = 1.2;
   if (opts.tactic === "hold_the_pit" && opts.zoneOccupiedByTarget) tactic = 1.2;
   if (opts.tactic === "starve" && opts.isolated) tactic = 1.2;
+  if (opts.tactic === "hunt" && opts.points?.some((p) => Math.hypot(target.x - p.x, target.y - p.y) <= p.r)) {
+    tactic *= 1.3;
+  }
 
   const ward = 1.0;
   const role = opts.tf?.roles ? roleMult(self, target) : 1.0;
@@ -195,6 +200,7 @@ export function pickUnitTarget(
     teamwork?: number;
     commitDisengage?: boolean;
     tf?: Teamfight;
+    points?: ReadonlyArray<{ x: number; y: number; r: number }>;
   },
 ): UnitId | null {
   if (opts.peeling && opts.peelDiverId) return opts.peelDiverId;
@@ -231,6 +237,7 @@ export function pickUnitTarget(
       coachFocusSlot: opts.coachFocusSlot,
       teamwork: opts.teamwork ?? self.attrs.teamwork,
       tf: opts.tf,
+      points: opts.points,
     });
 
   if (opts.commitDisengage && opts.focusId) {

@@ -284,6 +284,8 @@ const SHRINE_HOME: Record<TacticPreset, Partial<Record<string, PointId>>> = {
   hunt: { top: "north", support: "south" },
   starve: { top: "north", jungle: "north", mid: "south", adc: "south", support: "south" },
 };
+/** exp/objectives Hunt: chase only enemies this close; otherwise take points. */
+export const HUNT_SENSE_R = 7;
 /** Regroup on the pit this long before it reopens. */
 const PULSE_REGROUP_S = 6;
 
@@ -309,8 +311,28 @@ function objectivePlan(state: MatchState, u: UnitState, tactic: TacticPreset, si
   } else {
     home = POINT_HOME[tactic][u.slot];
   }
-  if (!home || live.length === 0) return null;
+  if (live.length === 0) return null;
+  // Hunt chasers (no home point): with no enemy close, take a point we do not
+  // own (enemy-held first) so the enemy has to come to us.
+  if (!home && mode === "points" && tactic === "hunt" && !sideOnly) {
+    const take = live
+      .filter((x) => x.owner !== u.team)
+      .sort(
+        (a, b) =>
+          (a.owner ? 0 : 1) - (b.owner ? 0 : 1) ||
+          dist(u.x, u.y, a.x, a.y) - dist(u.x, u.y, b.x, b.y),
+      )[0];
+    if (take) return { intent: "HoldZone", waypoint: { x: take.x, y: take.y } };
+  }
+  if (!home) return null;
   let p = live.find((x) => x.id === home);
+  // Starve avoids fights: home point outnumbered → rotate to a free point we do not own.
+  if (p && mode === "points" && tactic === "starve" && outnumberedAt(state, u, p, 4.5)) {
+    const free = live
+      .filter((x) => x.owner !== u.team && !enemyNear(state, u, x, 5))
+      .sort((a, b) => dist(u.x, u.y, a.x, a.y) - dist(u.x, u.y, b.x, b.y))[0];
+    if (free) p = free;
+  }
   // Home point held (points) or already paid (pulse): take the nearest point we do not own.
   if (!p || (mode === "points" && p.owner === u.team && !enemyNear(state, u, p, 6))) {
     const open = live
@@ -326,6 +348,12 @@ function objectivePlan(state: MatchState, u: UnitState, tactic: TacticPreset, si
     return { intent: "HoldZone", waypoint: { x: p.x + Math.sign(u.x - p.x) * 3, y: p.y < 8 ? 5 : 11 } };
   }
   return { intent: "HoldZone", waypoint: { x: p.x, y: p.y } };
+}
+
+function outnumberedAt(state: MatchState, u: UnitState, p: { x: number; y: number }, r: number): boolean {
+  const n = (team: string) =>
+    state.units.filter((x) => x.alive && x.team === team && dist(x.x, x.y, p.x, p.y) <= r + 1e-9).length;
+  return n(u.team === "blue" ? "red" : "blue") > n(u.team);
 }
 
 function enemyNear(state: MatchState, u: UnitState, p: { x: number; y: number }, r: number): boolean {
