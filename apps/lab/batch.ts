@@ -23,7 +23,7 @@ import {
   summariesToCsv,
 } from "./lib/csv.js";
 import type { BatchScheme } from "./lib/types.js";
-import { TEAMFIGHT_R3 } from "../../sim/cadence.js";
+import { SANDBOX_CONSTANTS, TEAMFIGHT_R3 } from "../../sim/cadence.js";
 
 function parseArgs(argv: string[]) {
   let n = 100;
@@ -83,7 +83,12 @@ const args = parseArgs(process.argv.slice(2));
 const batch = defaultEvenBatchConfig(args.n, args.seed, args.scheme);
 batch.side_swap_pairs = args.sideSwapPairs;
 if (args.sandbox) {
-  batch.base = { ...batch.base, objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 } };
+  batch.base = {
+    ...batch.base,
+    objectives: { mode: "points" },
+    teamfight: { ...TEAMFIGHT_R3 },
+    constants: { ...(batch.base.constants ?? {}), ...SANDBOX_CONSTANTS },
+  };
 }
 
 let cancelRequested = false;

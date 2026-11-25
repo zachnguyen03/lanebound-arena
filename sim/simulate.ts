@@ -936,14 +936,19 @@ export function simulate(config: MatchConfig): SimulateResult {
           }
           if (s3Live) {
             // Team takedown score +1 (S3); log before phase-11 score events.
+            // exp tuning: KILLS_PER_POINT > 1 scores every Nth takedown (spec 1 = every one).
+            const kpp = Math.max(1, Math.round(c.KILLS_PER_POINT));
+            let pays = false;
             if (killer.team === "blue") {
-              state.score_blue += 1;
               state.takedowns_blue += 1;
+              pays = state.takedowns_blue % kpp === 0;
+              if (pays) state.score_blue += 1;
             } else {
-              state.score_red += 1;
               state.takedowns_red += 1;
+              pays = state.takedowns_red % kpp === 0;
+              if (pays) state.score_red += 1;
             }
-            scoredThisTick = true;
+            if (pays) scoredThisTick = true;
             emit("takedown_score", {
               team: killer.team,
               victim_id: u.id,

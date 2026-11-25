@@ -20,8 +20,6 @@ export interface ObjPoint {
 
 export const PULSE_CYCLE_S = 50;
 export const PULSE_OPEN_S = 30;
-/** points: majority holder scores 1 this often (the pit uses ZONE_TICK_S = 12). */
-export const MAJORITY_TICK_S = 18;
 
 export function pitOpen(t: number): boolean {
   return t % PULSE_CYCLE_S < PULSE_OPEN_S - 1e-9;
@@ -106,7 +104,7 @@ export function tickObjectives(
     const own = (t: Team) => points.filter((p) => p.owner === t).length;
     const holder: Team | null = own("blue") >= 2 ? "blue" : own("red") >= 2 ? "red" : null;
     if (!holder) majority.timer = 0;
-    else if (++majority.timer >= Math.round(MAJORITY_TICK_S / c.DT)) {
+    else if (++majority.timer >= Math.round(c.MAJORITY_TICK_S / c.DT)) {
       majority.timer = 0;
       score(holder, { point: "majority" });
     }

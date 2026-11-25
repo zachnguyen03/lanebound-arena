@@ -3,7 +3,7 @@
  * Sandbox sweep (exp): diverse-settings games on the Watch sandbox setup
  * (three capture points + round-3 teamfight AI). Report only.
  *
- *   npx tsx apps/lab/sandbox-sweep.ts --from 0 --to 1000 --out lab/sandbox-sweep/rows-0.jsonl
+ *   npx tsx apps/lab/sandbox-sweep.ts --from 0 --to 1000 --out lab/sandbox-sweep/rows-0.jsonl [--constants '{"SCORE_TO_WIN":20}']
  *
  * Seed index i → seed 20270000 + i, run twice (picks as drafted, then picks
  * swapped between sides). Per seed, deterministic from the seed:
@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { simulate } from "../../sim/index.js";
 import { evenOvrConfig, type TacticPreset } from "../../sim/match_config.js";
-import { TEAMFIGHT_R3 } from "../../sim/cadence.js";
+import { SANDBOX_CONSTANTS, TEAMFIGHT_R3 } from "../../sim/cadence.js";
 import type { MatchConfig, PlayerAttrs, SideConfig } from "../../sim/types.js";
 import { quickDraftPicks } from "./lib/batch-runner.js";
 import { summarizeMatch } from "./lib/summary.js";
@@ -51,7 +51,7 @@ function settings(i: number, seed: number) {
   };
 }
 
-export function sweepConfig(i: number, swapped: boolean): MatchConfig {
+export function sweepConfig(i: number, swapped: boolean, constants?: Record<string, unknown>): MatchConfig {
   const seed = 20270000 + i;
   const base = evenOvrConfig(seed);
   const s = settings(i, seed);
@@ -75,6 +75,7 @@ export function sweepConfig(i: number, swapped: boolean): MatchConfig {
     blue,
     red,
     draft_mode: "quick",
+    constants: { ...(base.constants ?? {}), ...SANDBOX_CONSTANTS, ...(constants ?? {}) },
     objectives: { mode: "points" },
     teamfight: { ...TEAMFIGHT_R3 },
     debug_pos: true,
@@ -90,11 +91,13 @@ if (process.argv[1]?.includes("sandbox-sweep")) {
   const from = Number(arg("--from", "0"));
   const to = Number(arg("--to", "1000"));
   const out = arg("--out", "lab/sandbox-sweep/rows.jsonl");
+  /** Constant overrides as JSON, e.g. '{"SCORE_TO_WIN":20}'. */
+  const constants = argv.includes("--constants") ? JSON.parse(arg("--constants", "{}")) : undefined;
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const fd = fs.openSync(out, "w");
   for (let i = from; i < to; i++) {
     for (const swapped of [false, true]) {
-      const cfg = sweepConfig(i, swapped);
+      const cfg = sweepConfig(i, swapped, constants);
       const res = simulate(cfg);
       const sum = summarizeMatch(cfg.seed, res);
       const m = measure(res.events as Record<string, unknown>[]);

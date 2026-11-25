@@ -112,7 +112,7 @@ export interface Teamfight {
 /**
  * Experimental objective layouts (branch exp/objectives). Not in the build spec.
  * Absent (the default) = the single pit, unchanged digests.
- * - points: north / centre / south capture points; owning 2 of 3 scores 1 every 18 s.
+ * - points: north / centre / south capture points; owning 2 of 3 scores 1 every MAJORITY_TICK_S (18 s).
  * - pulse: the pit opens PULSE_OPEN_S of every PULSE_CYCLE_S; while closed, north and
  *   south shrines are live and each pays 1 once per window to the team that captures it.
  */

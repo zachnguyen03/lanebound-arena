@@ -66,6 +66,10 @@ export interface Constants {
   BUFF_MS: number;
   BUFF_PADS: [number, number][];
   SCORE_TO_WIN: number;
+  /** exp tuning: a team scores 1 point per this many takedowns (spec: 1). */
+  KILLS_PER_POINT: number;
+  /** exp/objectives `points`: majority holder scores every this many seconds. */
+  MAJORITY_TICK_S: number;
   MATCH_T: number;
   SUDDEN_DEATH_T: number;
   BO1_EXTRA_S: number;
@@ -175,6 +179,8 @@ export const DEFAULT_CONSTANTS: Constants = {
     [16.5, 7.5],
   ],
   SCORE_TO_WIN: 10,
+  KILLS_PER_POINT: 1,
+  MAJORITY_TICK_S: 18,
   MATCH_T: 240.0,
   SUDDEN_DEATH_T: 270.0,
   BO1_EXTRA_S: 15.0,

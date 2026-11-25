@@ -1,5 +1,5 @@
 import { simulate } from "@sim/simulate";
-import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "@sim/cadence";
+import { CADENCE_EXPERIMENT, SANDBOX_CONSTANTS, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "@sim/cadence";
 import type { MatchConfig, PlayerAttrs, SideConfig } from "@sim/types";
 
 /**
@@ -157,6 +157,7 @@ export function runPointsMatch(
     ...evenMatch(seed, "hold_the_pit", "Three capture points (experimental)"),
     objectives: { mode: "points" },
     teamfight: { ...TEAMFIGHT_R3 },
+    constants: { ...SANDBOX_CONSTANTS },
   };
   return runFromConfig(withConstants(base, constants));
 }

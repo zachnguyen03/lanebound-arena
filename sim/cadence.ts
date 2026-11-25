@@ -36,3 +36,14 @@ export const TEAMFIGHT_R3: NonNullable<MatchConfig["teamfight"]> = {
   dodge: true,
   peel: true,
 };
+
+/**
+ * Sandbox scoring (exp, lab/sandbox-sweep scoring grid): first to 28, majority
+ * tick 15 s, every takedown still 1 point. Median ~200 s, objectives ~38% of
+ * the winner's score. Used by Watch "Three points", batch --sandbox and the sweep.
+ */
+export const SANDBOX_CONSTANTS: Record<string, number> = {
+  SCORE_TO_WIN: 28,
+  MAJORITY_TICK_S: 15,
+  KILLS_PER_POINT: 1,
+};
