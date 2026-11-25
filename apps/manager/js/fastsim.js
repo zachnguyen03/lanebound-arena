@@ -3,17 +3,8 @@
 // on the lineups' effective sim strength, then the score, stat lines and events are drawn around means measured
 // on the full engine. Calibrate with test/fit.mjs (numbers below).
 import { ROLES, ROLE_WEIGHTS } from './data.js';
-import { runFull, rngFrom, simPlayer, rate, SIM_ATTRS } from './engine.ts';
+import { runFull, rngFrom, simPlayer, rate, SIM_ATTRS, ROLE_MEANS as RM } from './engine.ts';
 
-// Measured on the full engine with attr_scaling on (test/fit.mjs, 2,400 games at uniform career-attribute gaps 0/4/8/16, 600 each):
-// per-role per-minute means; obj = seconds on capture points. No game had a death without a killer.
-const RM = {
-  Top: { k: 0.666, d: 1.107, a: 1.916, dmg: 1439, taken: 2134, heal: 15, obj: 9.6 },
-  Jungle: { k: 0.557, d: 0.973, a: 2.209, dmg: 1200, taken: 2057, heal: 109, obj: 20.6 },
-  Mid: { k: 0.863, d: 1.118, a: 2.242, dmg: 1627, taken: 1650, heal: 40, obj: 15.4 },
-  Carry: { k: 1.946, d: 0.603, a: 2.119, dmg: 2822, taken: 1081, heal: 9, obj: 12.6 },
-  Support: { k: 0.729, d: 0.960, a: 2.156, dmg: 1224, taken: 1391, heal: 227, obj: 6.1 },
-};
 const KPM = Object.values(RM).reduce((n, m) => n + m.k, 0); // team kills per minute
 // Logistic fit (Newton, per-game strength gap d): logit p(blue wins) = 0.0188 + 0.1089·d. Win rate of the stronger side:
 //   gap 0: full 49.3%, fast 50.3% | gap 4: full 62.2%, fast 62.2% | gap 8: full 72.2%, fast 71.7% | gap 16: full 83.8%, fast 85.8%

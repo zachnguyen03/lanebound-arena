@@ -57,9 +57,22 @@ export function simTactics(plan: Plan = {}, lineup: EnginePlayer[]): Tactics {
   };
 }
 
-/** Career patch mods (fractions of base HP, attack, cooldowns) layered on the sandbox kit patch. */
-export function kitPatch(mods: Opts["patch"] = {}): KitPatch {
-  const out: KitPatch = { ...SANDBOX_KIT_PATCH };
+/** Career balance under attr_scaling (fractions of base HP, attack/power, cooldowns). Even teams, 2,400 games:
+ * every champion 44-55% (Ysol 44 ... Maelis 55); was Ysol 40, Saelo 42, Huntress 58.5. Measured with the scratch balance
+ * script: test/fit.mjs game(0, i) lineups, runFull with attr_scaling on. */
+export const BASE_MODS: NonNullable<Opts["patch"]> = {
+  ysol: { hp: 0.12, atk: 0.15, cd: -0.3 }, saelo: { hp: 0.2, atk: 0.2, cd: -0.25 }, sedge: { atk: 0.05 }, kerrig: { hp: 0.08 },
+  calder: { hp: 0.1 }, mirren: { hp: 0.06 }, helvar: { hp: 0.05 }, huntress: { atk: -0.16 }, isra: { atk: -0.12 },
+  maelis: { atk: -0.2 }, brannoch: { hp: -0.05 }, rhedan: { hp: -0.03 }, tolle: { hp: -0.04 }, torun: { hp: -0.04 },
+};
+
+/** Career patch mods layered on BASE_MODS (summed) and the sandbox kit patch. */
+export function kitPatch(patch: Opts["patch"] = {}): KitPatch {
+  const out: KitPatch = { ...SANDBOX_KIT_PATCH }, mods: NonNullable<Opts["patch"]> = {};
+  for (const id of new Set([...Object.keys(BASE_MODS), ...Object.keys(patch)])) {
+    const a = BASE_MODS[id] ?? {}, b = patch[id] ?? {};
+    mods[id] = { hp: (a.hp ?? 0) + (b.hp ?? 0), atk: (a.atk ?? 0) + (b.atk ?? 0), cd: (a.cd ?? 0) + (b.cd ?? 0) };
+  }
   for (const [id, m] of Object.entries(mods)) {
     const def = CHAMPIONS[id], kit = KITS[id], base = SANDBOX_KIT_PATCH[id] ?? {};
     if (!def || !kit) continue;
@@ -90,14 +103,29 @@ export interface Line {
 }
 export type Ev = { t: number; type: string; side: number; [k: string]: unknown };
 
-/** 1-10 rating from K/D/A, damage share, share of the game spent on points and the result.
- * Measured (test/fit.mjs games): winners 6.9, losers 5.4, carries 7.8, other roles 5.5-6.1, 0.3% at 10. */
+// Measured on the full engine with attr_scaling on (test/fit.mjs, 2,400 games at uniform career-attribute gaps 0/4/8/16, 600 each):
+// per-role per-minute means; obj = seconds on capture points. No game had a death without a killer.
+export const ROLE_MEANS: Record<string, { k: number; d: number; a: number; dmg: number; taken: number; heal: number; obj: number }> = {
+  Top: { k: 0.666, d: 1.107, a: 1.916, dmg: 1439, taken: 2134, heal: 15, obj: 9.6 },
+  Jungle: { k: 0.557, d: 0.973, a: 2.209, dmg: 1200, taken: 2057, heal: 109, obj: 20.6 },
+  Mid: { k: 0.863, d: 1.118, a: 2.242, dmg: 1627, taken: 1650, heal: 40, obj: 15.4 },
+  Carry: { k: 1.946, d: 0.603, a: 2.119, dmg: 2822, taken: 1081, heal: 9, obj: 12.6 },
+  Support: { k: 0.729, d: 0.960, a: 2.156, dmg: 1224, taken: 1391, heal: 227, obj: 6.1 },
+};
+const DMG_SUM = Object.values(ROLE_MEANS).reduce((n, m) => n + m.dmg, 0);
+/** Centres each role's mean rating on 6 (measured on 2,400 even games with BASE_MODS: 5.87-6.15, MVP share Top 12%, others 21-23%). */
+const ROLE_ADJ: Record<string, number> = { Top: 0, Jungle: 0.04, Mid: -0.02, Carry: 0.34, Support: -0.58 };
+
+/** 1-10 rating against the role's average line (ROLE_MEANS), so every role can be player of the game:
+ * K/D/A, damage share, healing, seconds on points, plus the result. */
 export function rate(players: Line[], winner: number, duration: number) {
   const mins = Math.max(1, duration / 60);
   for (const x of players) {
     const team = players.filter((y) => y.side === x.side).reduce((n, y) => n + y.dmg, 0) || 1;
     x.share = +(x.dmg / team).toFixed(3);
-    x.rating = +clamp(5 + x.k * 0.22 + x.a * 0.1 - x.d * 0.25 + (x.share - 0.2) * 5 + (x.obj / mins / 60) * 2 + (x.side === winner ? 0.5 : -0.3), 1, 10).toFixed(1);
+    const m = ROLE_MEANS[x.role]!;
+    x.rating = +clamp(6 + ROLE_ADJ[x.role]! + (x.k - m.k * mins) * 0.3 + (x.a - m.a * mins) * 0.12 - (x.d - m.d * mins) * 0.3 + (x.share - m.dmg / DMG_SUM) * 6
+      + (x.heal - m.heal * mins) / 900 + ((x.obj - m.obj * mins) / 60) * 2 + (x.side === winner ? 0.5 : -0.5), 1, 10).toFixed(1);
   }
   return players.filter((x) => x.side === winner).reduce((a, b) => (b.rating > a.rating ? b : a)).pid;
 }
