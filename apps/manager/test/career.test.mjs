@@ -17,7 +17,6 @@ assert.equal(W.teams.length, 50 + 5 * 8 + 5 * 6);
 assert.ok(W.teams.every(t => t.starters.length === 5 && new Set(t.starters).size === 5));
 const u0 = W.teams.find(t => t.tier === 0 && t.region === 'Westmark');
 setUserTeam(W, u0.id);
-CFG.fearless = true;
 
 // Club actions on day 0.
 const u = userTeam(W);

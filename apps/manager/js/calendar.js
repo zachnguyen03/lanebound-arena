@@ -13,7 +13,7 @@ import { initManager, boardSeries, boardSplit, boardWeekly, boardReview, setGoal
 import { dailyCondition, matchFatigue, weekly, scoutingTick, expireOffers, money, offseasonPlayers, aiMarket, fillAndStart, boardTarget } from './club.js';
 
 // Settings the UI sets (global, not per save).
-export const CFG = { simDetail: 'fast', fearless: false }; // simDetail: fast | top (top-league AI games on the full engine)
+export const CFG = { simDetail: 'fast' }; // simDetail: fast | top (top-league AI games on the full engine)
 
 const PRIZES = {
   playoffs: [200, 100, 60, 60, 30, 30],
@@ -226,7 +226,7 @@ export const starterPlayers = (W, t) => t.starters.map(id => W.players[id]);
 export function enginePlayer(p, slot, champ, t) {
   const pos = p.role === ROLES[slot] ? 1 : p.role2 === ROLES[slot] ? 0.95 : 0.88;
   const m = (0.94 + p.morale * 0.0012) * (0.9 + (p.condition ?? 100) * 0.001) * pos;
-  const out = { id: p.id, name: p.name, champ, prof: effProf(p, slot, champ), tfRole: t?.tfRoles?.[p.id] ?? null };
+  const out = { id: p.id, name: p.name, champ, prof: effProf(p, slot, champ) };
   const chem = t ? chemBonus(t) : {};
   for (const k of ATTRS) {
     const v = p[k] + p.traits.reduce((n, tr) => n + (TRAITS[tr]?.[k] ?? 0), 0) + (chem[k] ?? 0);
@@ -238,11 +238,6 @@ export const coachRating = t => Math.round(((t.staff.head?.rating ?? 6) * 2 + (t
 export function engineTeam(W, t, picks, plan = t.plan) {
   return { name: t.name, color: t.color, ai: t.id !== W.userTeamId, plan, coach: coachRating(t), lineup: starterPlayers(W, t).map((p, i) => enginePlayer(p, i, picks[i], t)) };
 }
-export const fearlessLocks = (W, s) => {
-  if (!CFG.fearless || s.bestOf < 3 || !s.games.length) return [[], []];
-  const g = W.games.find(x => x.id === s.games.at(-1));
-  return nextGameSides(s).map(tid => (g ? g.picks[g.blue === tid ? 0 : 1] : []));
-};
 export function stakesOf(W, s) {
   const c = W.comps[s.comp];
   const rival = isRivalry(W, s.a, s.b) ? 0.3 : 0;
@@ -250,18 +245,20 @@ export function stakesOf(W, s) {
   const decider = Object.values(s.wins).every(w => w === Math.floor(s.bestOf / 2));
   return Math.min(1, (s.match === 'GF' || s.match === 'F' ? 0.7 : 0.4) + (decider ? 0.3 : 0) + rival);
 }
-// Draft preferences of a club: its composition plan and the current patch's meta.
-export const draftPrefs = (W, t) => ({ comp: t.draftPref ?? 'auto', meta: W.patch?.meta ?? {} });
+// Draft preferences of a club: the current patch's meta.
+export const draftPrefs = W => ({ meta: W.patch?.meta ?? {} });
 // A background game: AI draft both sides, return a serializable engine job.
 export function gameJob(W, s) {
   const [blue, red] = nextGameSides(s).map(id => team(W, id));
   const c = W.comps[s.comp];
-  const d = autoDraft(starterPlayers(W, blue), starterPlayers(W, red), Math.random, { fearless: CFG.fearless && s.bestOf >= 3, locks: fearlessLocks(W, s), prefs: [blue, red].map(t => draftPrefs(W, t)) });
+  const d = autoDraft(starterPlayers(W, blue), starterPlayers(W, red), Math.random, { prefs: [draftPrefs(W), draftPrefs(W)] });
   const full = involvesUser(W, s) || (CFG.simDetail === 'top' && (c.tier === 0 || c.kind === 'intl'));
   return { s, blue: blue.id, red: red.id, draft: { picks: d.picks, bans: d.bans }, payload: { teamA: engineTeam(W, blue, d.picks[0]), teamB: engineTeam(W, red, d.picks[1]), seed: Math.floor(Math.random() * 2 ** 31), fast: !full, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } } };
 }
 
-const emptyAgg = () => ({ gp: 0, w: 0, k: 0, d: 0, a: 0, cs: 0, gold: 0, dmg: 0, taken: 0, heal: 0, towerDmg: 0, obj: 0, vision: 0, rating: 0, mins: 0, mvp: 0 });
+// obj = seconds on capture points.
+const emptyAgg = () => ({ gp: 0, w: 0, k: 0, d: 0, a: 0, obj: 0, dmg: 0, taken: 0, heal: 0, rating: 0, mins: 0, mvp: 0 });
+export const emptyTeam = () => ({ gp: 0, w: 0, kills: 0, deaths: 0, score: 0, scoreAgainst: 0, caps: 0, mins: 0, fb: 0 });
 export { emptyAgg };
 const REPORT_KEEP = 40;
 
@@ -269,8 +266,8 @@ export function recordGame(W, s, sum, blue, red, draft) {
   const winner = sum.winner === 0 ? blue : red, c = W.comps[s.comp];
   const g = {
     id: W.nextGame++, comp: s.comp, sid: s.id, year: W.year, day: W.day, n: s.games.length + 1, blue, red, winner, dur: Math.round(sum.duration),
-    kills: sum.kills, towers: sum.towers, gold: sum.gold, titans: sum.titans, shrines: sum.shrines, fb: sum.fbSide, mvp: sum.mvp, picks: draft.picks, bans: draft.bans,
-    pl: c.tier === 0 || c.kind === 'intl' || involvesUser(W, s) ? sum.players.map(p => [p.pid, p.champ, p.k, p.d, p.a, p.cs, p.gold, p.dmg, p.vision, p.rating]) : null, // lower tiers: result only (save size)
+    kills: sum.kills, score: sum.score, caps: sum.caps, fb: sum.fbSide, mvp: sum.mvp, picks: draft.picks, bans: draft.bans,
+    pl: c.tier === 0 || c.kind === 'intl' || involvesUser(W, s) ? sum.players.map(p => [p.pid, p.champ, p.k, p.d, p.a, p.obj, p.dmg, p.rating]) : null, // lower tiers: result only (save size)
     fast: !!sum.fast, pt: W.patch?.id,
   };
   W.games.push(g);
@@ -289,7 +286,7 @@ export function recordGame(W, s, sum, blue, red, draft) {
     agg.gp++; if (won) agg.w++;
     agg.team = pl.side === 0 ? blue : red; // ponytail: club of the latest game in this competition; split rows per club if mid-split moves matter
     (agg.rc ??= [0, 0, 0, 0, 0])[ROLES.indexOf(pl.role)]++;
-    for (const k of ['k', 'd', 'a', 'cs', 'gold', 'dmg', 'taken', 'heal', 'towerDmg', 'obj', 'vision']) agg[k] += Math.round(pl[k]);
+    for (const k of ['k', 'd', 'a', 'obj', 'dmg', 'taken', 'heal']) agg[k] += Math.round(pl[k]);
     agg.rating = Math.round((agg.rating + pl.rating) * 10) / 10;
     agg.mins = Math.round((agg.mins + sum.duration / 60) * 100) / 100;
     if (pl.pid === sum.mvp) agg.mvp++;
@@ -303,11 +300,11 @@ export function recordGame(W, s, sum, blue, red, draft) {
   matchFatigue(W, sum.players.map(p => p.pid));
   for (const side of [0, 1]) chemAfterGame(W, team(W, side === 0 ? blue : red), sum.players.filter(p => p.side === side).map(p => p.pid), (side === 0 ? blue : red) === winner);
   [blue, red].forEach((tid, side) => {
-    const ts = team(W, tid).season[s.comp] ??= { gp: 0, w: 0, kills: 0, deaths: 0, towers: 0, towersLost: 0, mins: 0, fb: 0, titans: 0, shrines: 0, gold: 0, goldAgainst: 0 };
+    const ts = team(W, tid).season[s.comp] ??= emptyTeam();
     ts.gp++; if (tid === winner) ts.w++;
-    ts.kills += sum.kills[side]; ts.deaths += sum.players.reduce((n, p) => n + (p.side === side ? p.d : 0), 0); // includes tower/minion executions ts.towers += sum.towers[side]; ts.towersLost += sum.towers[1 - side];
-    ts.mins += sum.duration / 60; if (sum.fbSide === side) ts.fb++; ts.titans += sum.titans[side]; ts.shrines += sum.shrines[side];
-    ts.gold += sum.gold[side]; ts.goldAgainst += sum.gold[1 - side];
+    ts.kills += sum.kills[side]; ts.deaths += sum.players.reduce((n, p) => n + (p.side === side ? p.d : 0), 0); // includes deaths with no killer
+    ts.score += sum.score[side]; ts.scoreAgainst += sum.score[1 - side]; ts.caps += sum.caps[side];
+    ts.mins += sum.duration / 60; if (sum.fbSide === side) ts.fb++;
   });
   if (s.wins[winner] >= Math.ceil(s.bestOf / 2)) seriesDone(W, s, winner);
   return g;
@@ -379,7 +376,7 @@ export function awardTable(W, c, minGp) {
     leaders: {
       kda: best(p => (agg(p).k + agg(p).a) / Math.max(1, agg(p).d)),
       share: best(p => agg(p).dmg / Math.max(1, teamDmg[agg(p).team])),
-      csm: best(p => agg(p).cs / Math.max(1, agg(p).mins)),
+      objm: best(p => agg(p).obj / Math.max(1, agg(p).mins)),
       pool: best(p => Object.keys(played[p.id] ?? {}).length),
       rookie: best(p => avgRating(p, c.key, minGp), rookies),
     },

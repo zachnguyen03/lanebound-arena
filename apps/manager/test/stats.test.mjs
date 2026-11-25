@@ -16,20 +16,19 @@ assert.ok(engines.full.length >= 10 && engines.fast.length >= 300, `${engines.fu
 // 1. Every summary is internally consistent.
 for (const [name, list] of Object.entries(engines)) for (const s of list) {
   const execs = s.events.filter(e => e.type === 'death');
+  assert.ok(s.endReason === 'score' ? s.score[s.winner] >= 28 : s.duration >= 240, `${name}: first to 28, else the 4:00 clock`);
   for (const side of [0, 1]) {
     const mine = s.players.filter(p => p.side === side), sum = k => mine.reduce((t, p) => t + p[k], 0);
     assert.equal(sum('k'), s.kills[side], `${name}: team kills = player kills`);
-    assert.equal(sum('d'), s.kills[1 - side] + execs.filter(e => e.side === side).length, `${name}: deaths = enemy kills + executions`);
-    assert.equal(sum('gold'), s.gold[side], `${name}: team gold = player gold`);
-    assert.ok(sum('obj') <= s.towers[side] + s.titans[side] + s.shrines[side], `${name}: objective credit never exceeds objectives`);
-    for (const p of mine) assert.ok(p.a <= s.kills[side], `${name}: assists <= team kills`);
+    assert.equal(sum('d'), s.kills[1 - side] + execs.filter(e => e.side === side).length, `${name}: deaths = enemy kills + deaths with no killer`);
+    assert.ok(s.split[side].kills <= s.kills[side], `${name}: one point per kill (a kill on the final tick may score nothing)`);
+    assert.equal(s.split[side].kills + s.split[side].obj, s.score[side], `${name}: score = kill points + objective points`);
+    assert.equal(s.events.filter(e => e.type === 'capture' && e.side === side).length, s.caps[side], `${name}: capture events`);
+    for (const p of mine) assert.ok(p.a <= s.kills[side] && p.obj <= s.duration, `${name}: assists <= team kills, point time <= game time`);
   }
-  assert.deepEqual(s.timeline.at(-1).g, s.gold, `${name}: gold graph ends at the final gold`);
+  assert.deepEqual(s.timeline.at(-1).s, s.score, `${name}: score graph ends at the final score`);
   assert.equal(new Set(s.players.map(p => p.pid)).size, 10);
 }
-// Junglers farm camps: CS/min within half of the laners'.
-const csm = (list, role) => list.reduce((t, s) => t + s.players.filter(p => p.role === role).reduce((u, p) => u + p.cs, 0) / 2 / (s.duration / 60), 0) / list.length;
-for (const [name, list] of Object.entries(engines)) assert.ok(csm(list, 'Jungle') > csm(list, 'Mid') * 0.5, `${name}: jungle CS ${csm(list, 'Jungle').toFixed(2)}`);
 
 // 2. Aggregates match the game records.
 const keys = compKeys(W, { scope: 'season' });

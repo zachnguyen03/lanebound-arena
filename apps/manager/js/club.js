@@ -24,17 +24,17 @@ export const capRoom = (W, t) => wageCap(t) - payroll(W, t);
 
 // ---------------- Training ----------------
 export const DRILLS = {
-  laning: { name: 'Laning drills', attrs: ['laning', 'mech'], fatigue: 6 },
-  mechanics: { name: 'Mechanics', attrs: ['mech', 'positioning'], fatigue: 7 },
+  aim: { name: 'Aim drills', attrs: ['aim', 'execution'], fatigue: 6 },
+  mechanics: { name: 'Mechanics', attrs: ['execution', 'reflexes'], fatigue: 7 },
   teamfight: { name: 'Teamfight scrim', attrs: ['teamwork', 'positioning'], fatigue: 8 },
-  vod: { name: 'VOD review', attrs: ['decision', 'vision'], fatigue: 2 },
-  macro: { name: 'Macro rotations', attrs: ['decision', 'vision', 'teamwork'], fatigue: 4 },
+  vod: { name: 'VOD review', attrs: ['decision', 'positioning'], fatigue: 2 },
+  macro: { name: 'Macro rotations', attrs: ['decision', 'teamwork'], fatigue: 4 },
   mental: { name: 'Mental coaching', attrs: ['resilience', 'clutch'], fatigue: 1 },
-  aggression: { name: 'Skirmish drills', attrs: ['aggression', 'mech'], fatigue: 7 },
+  aggression: { name: 'Skirmish drills', attrs: ['aggression', 'reflexes'], fatigue: 7 },
   champion: { name: 'Champion practice', attrs: [], fatigue: 5 },
   rest: { name: 'Rest', attrs: [], fatigue: -12 },
 };
-export const DEFAULT_PLAN = ['laning', 'vod', 'mechanics', 'teamfight', 'macro', 'champion', 'teamfight', 'mental', 'vod', 'rest'];
+export const DEFAULT_PLAN = ['aim', 'vod', 'mechanics', 'teamfight', 'macro', 'champion', 'teamfight', 'mental', 'vod', 'rest'];
 export const SESSION_LABEL = ['Mon AM', 'Mon PM', 'Tue AM', 'Tue PM', 'Wed AM', 'Wed PM', 'Thu AM', 'Thu PM', 'Fri AM', 'Fri PM'];
 export const FOCUS_COST = { attr: 2, champ: 1 };
 export const FOCUS_POINTS = 15;

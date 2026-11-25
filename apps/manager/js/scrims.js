@@ -33,7 +33,7 @@ export function scoutReport(W, t) {
   const series = Object.values(W.series).filter(s => s.winner && (s.a === t.id || s.b === t.id)).slice(-5);
   return {
     form: series.map(s => (s.winner === t.id ? 'W' : 'L')).join(''),
-    plan: t.draftPref ?? 'auto', chem: Math.round(teamChem(t)),
+    plan: t.plan?.name ?? 'Standard', chem: Math.round(teamChem(t)),
     recent: Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, n]) => ({ id, n })),
     known: known(W, t),
     players: t.starters.map((id, i) => { const p = W.players[id]; return { name: p.name, role: ROLES[i], ovr: overall(p), comfort: known(W, t) ? comfortPool(p).filter(c => CHAMPS[c].roles.includes(ROLES[i])).sort((a, b) => p.prof[b] - p.prof[a]).slice(0, 3) : null }; }),

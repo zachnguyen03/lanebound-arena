@@ -13,7 +13,7 @@ assert.equal(teamChem(u), 50, 'fresh world is neutral');
 await simTo(W, fast, { until: { year: W.year, day: W.day + 60 }, autoUser: true });
 assert.ok(teamChem(userTeam(W)) > 52, `chemistry grows: ${teamChem(userTeam(W))}`);
 const t = userTeam(W), p = W.players[t.starters[0]];
-assert.ok(enginePlayer(p, 0, 'bastion', t).teamwork >= enginePlayer(p, 0, 'bastion', null).teamwork);
+assert.ok(enginePlayer(p, 0, 'rhedan', t).teamwork >= enginePlayer(p, 0, 'rhedan', null).teamwork);
 
 // Every player has a personality after a week.
 assert.ok(Object.values(W.players).filter(x => x.teamId).every(x => x.persona?.every(k => PERSONAS[k])));

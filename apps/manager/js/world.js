@@ -1,8 +1,7 @@
 // World state: generation, clubs, players and shared helpers. Pure data logic (no DOM).
-import { ROLES, CHAMP_IDS, CHAMPS, REGIONS, REGION_INFO, TIERS, TIER_SIZE, CLUB_PARTS, TEAM_COLORS, NAME_A, NAME_B, ATTRS, ROLE_WEIGHTS, overall, clamp } from './data.js';
-import { PLAN_PRESETS, clonePlan } from './sim.js';
+import { ROLES, CHAMP_IDS, CHAMPS, REGIONS, REGION_INFO, TIERS, TIER_SIZE, CLUB_PARTS, TEAM_COLORS, NAME_A, NAME_B, ATTRS, ROLE_WEIGHTS, overall, clamp, PLAN_PRESETS, clonePlan } from './data.js';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5; // v5: Lanebound engine, attributes and champions (older saves can't be converted)
 export const START_YEAR = 2027;
 export const FIRST_TEAM_MAX = 10, ACADEMY_MAX = 10, ROSTER_MIN = 5;
 export const WAGE_CAP = [1_000_000, 500_000, 250_000]; // per tier, covers first team + academy
@@ -34,11 +33,11 @@ export const MASTERY = v => (v >= 1.08 ? 'S' : v >= 0.98 ? 'A' : v >= 0.85 ? 'B'
 
 // ---------------- Traits ----------------
 export const TRAITS = {
-  'Aggressive laner': { aggression: 8, laning: 3 },
+  'Aggressive': { aggression: 8, reflexes: 3 },
   'Tilts when behind': { resilience: -12 },
   'Clutch performer': { clutch: 10 },
   'Shotcaller': { decision: 5, teamwork: 4 },
-  'Ward master': { vision: 8 },
+  'Sharpshooter': { aim: 8 },
   'Team player': { teamwork: 6 },
   'Hot-headed': { aggression: 10, positioning: -5 },
   'Ice cold': { resilience: 8, clutch: 4 },
@@ -107,7 +106,7 @@ function makeClub(W, region, tier, rep, idx, used) {
   const t = {
     id: `t${W.teams.length}`, name, tag: tagOf(name), region, tier, color: TEAM_COLORS[idx % TEAM_COLORS.length], rep,
     cash: tier === 0 ? 800000 + rep * 25000 : tier === 1 ? 250000 + rep * 6000 : 80000 + rep * 2000,
-    players: [], academy: [], starters: [], tfRoles: {}, plan: clonePlan(PLAN_PRESETS[pick(Object.keys(PLAN_PRESETS))]), draftPref: pick(['auto', 'auto', 'engage', 'poke', 'pick', 'split', 'protect']),
+    players: [], academy: [], starters: [], plan: clonePlan(PLAN_PRESETS[pick(Object.keys(PLAN_PRESETS))]),
     facilities: { training: 1 + Math.floor(rep / 30), analytics: 1 + Math.floor(rep / 35), academy: 1 + Math.floor(rep / 35), media: 1 + Math.floor(rep / 30) },
     build: null, sponsors: [], staff: {}, fin: {}, trophies: [], history: [], season: {}, target: '', targetPlace: 6,
     training: { plan: null }, focusPoints: 15, scrims: [],

@@ -1,7 +1,7 @@
 // Stats centre queries: scopes, player / team / champion / game / economy aggregates, CSV export. No DOM.
 import { CHAMP_IDS, CHAMPS, REGIONS, ROLES } from './data.js';
 import { team } from './world.js';
-import { emptyAgg } from './calendar.js';
+import { emptyAgg, emptyTeam } from './calendar.js';
 
 // scope: season | career | archive (needs year) | series (needs sid). Filters: region, tier, kind.
 // A series scope is an empty key list tagged with .sid: rows then come from that series' games only.
@@ -24,7 +24,6 @@ function sumAgg(stats, keys) {
   return t;
 }
 const per = (n, d) => (d ? n / d : 0);
-const emptyTeam = () => ({ gp: 0, w: 0, kills: 0, deaths: 0, towers: 0, towersLost: 0, mins: 0, fb: 0, titans: 0, shrines: 0, gold: 0, goldAgainst: 0 });
 
 // Player and team aggregates straight from game records (series scope). g.pl rows are in engine order:
 // blue Top..Support, then red Top..Support.
@@ -34,15 +33,15 @@ function aggFromGames(games) {
     [g.blue, g.red].forEach((tid, side) => {
       const t = teams[tid] ??= emptyTeam(), o = 1 - side;
       t.gp++; if (g.winner === tid) t.w++;
-      t.kills += g.kills[side]; t.towers += g.towers[side]; t.towersLost += g.towers[o]; t.mins += g.dur / 60;
+      t.kills += g.kills[side]; t.score += g.score[side]; t.scoreAgainst += g.score[o]; t.caps += g.caps[side]; t.mins += g.dur / 60;
       t.deaths += g.pl ? g.pl.slice(side * 5, side * 5 + 5).reduce((n, r) => n + r[3], 0) : g.kills[o];
-      if (g.fb === side) t.fb++; t.titans += g.titans[side]; t.shrines += g.shrines[side]; t.gold += g.gold[side]; t.goldAgainst += g.gold[o];
+      if (g.fb === side) t.fb++;
     });
-    (g.pl ?? []).forEach(([pid, , k, d, a, cs, gold, dmg, vision, rating], i) => {
+    (g.pl ?? []).forEach(([pid, , k, d, a, obj, dmg, rating], i) => {
       const side = i < 5 ? 0 : 1, tid = side ? g.red : g.blue;
       const x = players[pid] ??= { ...emptyAgg(), rc: [0, 0, 0, 0, 0], team: tid };
       x.gp++; if (g.winner === tid) x.w++;
-      Object.assign(x, { k: x.k + k, d: x.d + d, a: x.a + a, cs: x.cs + cs, gold: x.gold + gold, dmg: x.dmg + dmg, vision: x.vision + vision, rating: x.rating + rating, mins: x.mins + g.dur / 60, team: tid });
+      Object.assign(x, { k: x.k + k, d: x.d + d, a: x.a + a, obj: x.obj + obj, dmg: x.dmg + dmg, rating: x.rating + rating, mins: x.mins + g.dur / 60, team: tid });
       if (g.mvp === pid) x.mvp++;
       x.rc[i % 5]++;
     });
@@ -61,8 +60,8 @@ export function playerRows(W, keys, { role, minGp = 1, teamId } = {}) {
     if (teamId && tid !== teamId) continue;
     rows.push({
       id: p.id, name: p.name, team: team(W, tid)?.tag ?? 'FA', role: played, gp: a.gp, w: a.w, winPct: per(a.w, a.gp) * 100,
-      k: a.k, d: a.d, a: a.a, kda: (a.k + a.a) / Math.max(1, a.d), csm: per(a.cs, a.mins), gpm: per(a.gold, a.mins), dpm: per(a.dmg, a.mins),
-      vpm: per(a.vision, a.mins), rating: per(a.rating, a.gp), mvp: a.mvp,
+      k: a.k, d: a.d, a: a.a, kda: (a.k + a.a) / Math.max(1, a.d), objm: per(a.obj, a.mins), dpm: per(a.dmg, a.mins),
+      rating: per(a.rating, a.gp), mvp: a.mvp,
     });
   }
   return rows;
@@ -75,7 +74,7 @@ export function teamRows(W, keys) {
     if (fromGames) a = fromGames[t.id] ?? a;
     else for (const k of keys) { const s = t.season[k]; if (s) for (const f in a) a[f] += s[f] ?? 0; }
     return { id: t.id, name: t.name, tag: t.tag, region: t.region, gp: a.gp, w: a.w, winPct: per(a.w, a.gp) * 100, kpg: per(a.kills, a.gp), dpg: per(a.deaths, a.gp),
-      tpg: per(a.towers, a.gp), fbPct: per(a.fb, a.gp) * 100, titans: a.titans, shrines: a.shrines, len: per(a.mins, a.gp), gpm: per(a.gold, a.mins * 5) , gdpg: per(a.gold - a.goldAgainst, a.gp) };
+      cpg: per(a.caps, a.gp), fbPct: per(a.fb, a.gp) * 100, len: per(a.mins, a.gp), spg: per(a.score, a.gp), sdpg: per(a.score - a.scoreAgainst, a.gp) };
   }).filter(r => r.gp > 0);
 }
 
@@ -96,7 +95,7 @@ export function champRows(W, keys, { pt } = {}) {
 export function gameRows(W, keys) {
   return gamesIn(W, keys).map(g => ({
     id: g.id, year: g.year, day: g.day, comp: W.comps[g.comp]?.name ?? g.comp, blue: team(W, g.blue)?.tag, red: team(W, g.red)?.tag, winner: team(W, g.winner)?.tag,
-    score: `${g.kills[0]}-${g.kills[1]}`, len: g.dur / 60, gd: g.gold[0] - g.gold[1], report: !!W.reports[g.id],
+    score: `${g.score[0]}-${g.score[1]}`, len: g.dur / 60, sd: g.score[0] - g.score[1], report: !!W.reports[g.id],
   })).reverse();
 }
 

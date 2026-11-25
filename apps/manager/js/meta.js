@@ -1,5 +1,6 @@
 // Patches and the meta: three balance patches a year (season start, summer split, before the Grand Convergence).
-// Each nerfs the most dominant champions of the previous patch and buffs the weakest, 4-8 champions in all.
+// Each nerfs the most dominant champions of the previous patch and buffs the weakest, 2-4 champions in all.
+// The mods reach the sim as a KitPatch (engine.ts kitPatch): HP, attack and power, Q/W/R cooldowns.
 // W.patch = { id, year, day, mods: { champ: { hp, atk, cd } } (cumulative, ±25% cap), meta: { champ: draft value }, notes }
 import { CHAMPS, CHAMP_IDS } from './data.js';
 import { newsPatch } from './news.js';
@@ -30,7 +31,7 @@ export function newPatch(W, rng = Math.random) {
   const mods = JSON.parse(JSON.stringify(prev?.mods ?? {}));
   const { n: games, rows } = patchStats(W, prev?.id);
   const ranked = CHAMP_IDS.slice().sort((a, b) => (games ? power(rows[b]) - power(rows[a]) : rng() - 0.5));
-  const k = 2 + Math.floor(rng() * 3); // 2-4 nerfs and 2-4 buffs
+  const k = 1 + Math.floor(rng() * 2); // 1-2 nerfs and 1-2 buffs (14 champions)
   const notes = [];
   const change = (id, dir) => {
     const stat = ['hp', 'atk', 'cd'][Math.floor(rng() * 3)], size = r2(0.05 + rng() * 0.07);
