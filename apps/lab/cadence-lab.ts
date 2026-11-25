@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { simulate } from "../../sim/index.js";
 import { evenOvrConfig, type TacticPreset } from "../../sim/match_config.js";
-import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT } from "../../sim/cadence.js";
+import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "../../sim/cadence.js";
 import { DEFAULT_CONSTANTS } from "../../sim/constants.js";
 import type { MatchConfig } from "../../sim/types.js";
 
@@ -52,12 +52,12 @@ export const ARMS: Record<string, (cfg: MatchConfig) => MatchConfig> = {
   peel: (cfg) => ({ ...cfg, teamfight: { ...TF2, peel: true } }),
   tf3: (cfg) => ({ ...cfg, teamfight: { ...TF3 } }),
   // tf3 minus `disengage` (its low-HP retreat dominated the combined arm).
-  tf3_keep: (cfg) => ({ ...cfg, teamfight: { ...TF3, disengage: false } }),
+  tf3_keep: (cfg) => ({ ...cfg, teamfight: { ...TEAMFIGHT_R3 } }),
   // Split objectives: the cadence experiment's rovers already send 1-2 units to orbs/buffs.
   tf3_roam: (cfg) => ({ ...cfg, ...CADENCE_EXPERIMENT, teamfight: { ...TF3 } }),
   // exp/objectives: alternative layouts on top of tf3_keep.
-  points: (cfg) => ({ ...cfg, objectives: { mode: "points" }, teamfight: { ...TF3, disengage: false } }),
-  pulse: (cfg) => ({ ...cfg, objectives: { mode: "pulse" }, teamfight: { ...TF3, disengage: false } }),
+  points: (cfg) => ({ ...cfg, objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 } }),
+  pulse: (cfg) => ({ ...cfg, objectives: { mode: "pulse" }, teamfight: { ...TEAMFIGHT_R3 } }),
 };
 
 type Ev = Record<string, any>;

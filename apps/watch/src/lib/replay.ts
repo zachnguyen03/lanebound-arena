@@ -145,6 +145,7 @@ function cloneState(s: MatchViewState): MatchViewState {
     blueLineup: s.blueLineup.slice(),
     redLineup: s.redLineup.slice(),
     fallbackChamps: s.fallbackChamps.slice(),
+    points: s.points.map((p) => ({ ...p })),
     orbs: s.orbs.map((o) => ({ ...o })),
     buffs: s.buffs.map((o) => ({ ...o })),
     fightBlue: s.fightBlue ? { ...s.fightBlue } : null,
@@ -230,6 +231,7 @@ function emptyState(): MatchViewState {
     redLineup: [],
     fallbackChamps: [],
     zoneOwner: null,
+    points: [],
     orbs: [],
     buffs: [],
     fightBlue: null,
@@ -394,6 +396,20 @@ function applyEvent(
       if (ev.team === "red" && typeof ev.score_after === "number") {
         state.scoreRed = ev.score_after;
       }
+      break;
+    }
+    case "objectives_init": {
+      if (Array.isArray(ev.points)) {
+        state.points = (ev.points as Array<{ id: string; x: number; y: number; r: number }>).map((p) => ({
+          ...p,
+          owner: null,
+        }));
+      }
+      break;
+    }
+    case "point_capture": {
+      const p = state.points.find((x) => x.id === ev.point);
+      if (p && (ev.team === "blue" || ev.team === "red")) p.owner = ev.team;
       break;
     }
     case "zone_capture": {

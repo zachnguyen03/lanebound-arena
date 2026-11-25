@@ -61,6 +61,9 @@ export function tickObjectives(
   c: Constants,
   emit: Emit,
 ): boolean {
+  if (state.tick === 1) {
+    emit("objectives_init", { mode, points: points.map(({ id, x, y, r }) => ({ id, x, y, r })) });
+  }
   const need = Math.round(c.ZONE_CAPTURE_S / c.DT);
   let scored = false;
   const score = (team: Team, extra: Record<string, unknown>) => {

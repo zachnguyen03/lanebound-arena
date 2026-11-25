@@ -169,6 +169,14 @@ export interface MatchEffects {
 /** Champ ids with a body sheet shipped under arena-sandbox/. */
 export const CHAMP_ART: ReadonlySet<string> = new Set(["dummy"]);
 
+export interface PointView {
+  id: string;
+  x: number;
+  y: number;
+  r: number;
+  owner: "blue" | "red" | null;
+}
+
 export interface MatchViewState {
   tick: number;
   t: number;
@@ -184,6 +192,8 @@ export interface MatchViewState {
   redLineup: string[];
   fallbackChamps: string[];
   zoneOwner: "blue" | "red" | null;
+  /** exp/objectives capture points (empty for the single-pit match). */
+  points: PointView[];
   orbs: OrbView[];
   buffs: OrbView[];
   fightBlue: FightCallView | null;

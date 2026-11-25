@@ -1,5 +1,5 @@
 import { simulate } from "@sim/simulate";
-import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT } from "@sim/cadence";
+import { CADENCE_EXPERIMENT, TEAMFIGHT_EXPERIMENT, TEAMFIGHT_R3 } from "@sim/cadence";
 import type { MatchConfig, PlayerAttrs, SideConfig } from "@sim/types";
 
 /**
@@ -144,6 +144,19 @@ export function runCadenceMatch(
     ...evenMatch(seed, "hold_the_pit", "Cadence + teamfight match (experimental)"),
     ...CADENCE_EXPERIMENT,
     teamfight: { ...TEAMFIGHT_EXPERIMENT },
+  };
+  return runFromConfig(withConstants(base, constants));
+}
+
+/** exp/objectives: three capture points (north / centre / south) on the round-3 teamfight AI. */
+export function runPointsMatch(
+  seed: number,
+  constants?: Record<string, unknown>,
+) {
+  const base: MatchConfig = {
+    ...evenMatch(seed, "hold_the_pit", "Three capture points (experimental)"),
+    objectives: { mode: "points" },
+    teamfight: { ...TEAMFIGHT_R3 },
   };
   return runFromConfig(withConstants(base, constants));
 }

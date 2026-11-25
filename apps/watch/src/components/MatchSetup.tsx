@@ -5,6 +5,7 @@ interface Props {
   onStart: (seed: number) => void;
   onStartClockAi?: (seed: number) => void;
   onStartCadence?: (seed: number) => void;
+  onStartPoints?: (seed: number) => void;
   onExport?: () => void;
   onImportText?: (text: string) => void;
   canExport?: boolean;
@@ -18,6 +19,7 @@ export function MatchSetup({
   onStart,
   onStartClockAi,
   onStartCadence,
+  onStartPoints,
   onExport,
   onImportText,
   canExport,
@@ -69,6 +71,17 @@ export function MatchSetup({
             onClick={() => onStartCadence(20261122)}
           >
             Cadence + teamfight (exp) 20261122
+          </Button>
+        ) : null}
+        {onStartPoints ? (
+          <Button
+            data-testid="btn-start-points"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => onStartPoints(20261122)}
+          >
+            Three points (exp) 20261122
           </Button>
         ) : null}
         {onExport ? (

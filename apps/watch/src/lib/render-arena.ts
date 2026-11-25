@@ -249,7 +249,20 @@ export function renderArena(
       }
     }
   }
-  if (state.zoneOwner) {
+  // exp/objectives: capture points (owner fill + rim); the pit does not score there.
+  for (const p of state.points) {
+    const col = p.owner === "blue" ? "77,163,255" : p.owner === "red" ? "245,71,122" : "235,235,220";
+    ctx.fillStyle = `rgba(${col},${p.owner ? 0.18 : 0.08})`;
+    ctx.strokeStyle = `rgba(${col},0.85)`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash(p.owner ? [] : [6, 4]);
+    ctx.beginPath();
+    ctx.ellipse(p.x * TILE_W, p.y * TILE_H, p.r * TILE_W, p.r * TILE_H, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if (state.zoneOwner && state.points.length === 0) {
     const c = assets.worldProps.placements.zone.centre_px;
     ctx.strokeStyle = state.zoneOwner === "blue" ? "#4DA3FF" : "#F5477A";
     ctx.lineWidth = 2;

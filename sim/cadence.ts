@@ -21,3 +21,18 @@ export const TEAMFIGHT_EXPERIMENT: NonNullable<MatchConfig["teamfight"]> = {
   combo_target: true,
   formation: true,
 };
+
+/**
+ * exp/teamfight-r3 recommended set (`tf3_keep`): round 2 + spacing, target cap,
+ * ult timing, dodge, peel. Disengage stays off (its low-HP retreat stalls fights).
+ */
+export const TEAMFIGHT_R3: NonNullable<MatchConfig["teamfight"]> = {
+  ...TEAMFIGHT_EXPERIMENT,
+  spread: true,
+  lanes: true,
+  ranged_hold: true,
+  target_cap: 3,
+  ult_timing: true,
+  dodge: true,
+  peel: true,
+};

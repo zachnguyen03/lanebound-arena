@@ -34,6 +34,7 @@ import {
   runClockAiMatch,
   runWatchMatch,
   runCadenceMatch,
+  runPointsMatch,
 } from "@watch/lib/live-match";
 import type { MatchConfig } from "@sim/types";
 import type { SimEvent } from "@watch/lib/types";
@@ -153,7 +154,7 @@ export function WatchShell({
   }, [assets]);
 
   const startLive = useCallback(
-    (seed: number, preset: "hold_the_pit" | "clock_ai" | "cadence" = "hold_the_pit") => {
+    (seed: number, preset: "hold_the_pit" | "clock_ai" | "cadence" | "points" = "hold_the_pit") => {
       setPhase("loading");
       setError(null);
       setConfigError(null);
@@ -164,6 +165,8 @@ export function WatchShell({
             ? runClockAiMatch(seed, stagedConstants)
             : preset === "cadence"
               ? runCadenceMatch(seed, stagedConstants)
+              : preset === "points"
+                ? runPointsMatch(seed, stagedConstants)
               : runWatchMatch(seed, stagedConstants);
         const eng = new ReplayEngine(result.events, artReady(assets));
         setEngine(eng);
@@ -174,6 +177,8 @@ export function WatchShell({
             ? `clock AI seed ${seed}`
             : preset === "cadence"
               ? `cadence seed ${seed}`
+              : preset === "points"
+                ? `three points seed ${seed}`
               : `live seed ${seed}`,
         );
         setTick(0);
@@ -484,6 +489,7 @@ export function WatchShell({
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onStartCadence={(seed) => startLive(seed, "cadence")}
+                onStartPoints={(seed) => startLive(seed, "points")}
                 onImportText={importConfig}
                 onOpenLab={onOpenLab}
                 dirty={dirty}
@@ -631,6 +637,7 @@ export function WatchShell({
                 onStart={startLive}
                 onStartClockAi={(seed) => startLive(seed, "clock_ai")}
                 onStartCadence={(seed) => startLive(seed, "cadence")}
+                onStartPoints={(seed) => startLive(seed, "points")}
                 onExport={() => {
                   if (!liveConfig) return;
                   const json = exportConfigJson(liveConfig);
