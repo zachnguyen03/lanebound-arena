@@ -113,6 +113,9 @@ export function WatchShell({
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
   const accRef = useRef(0);
+  const speedRef = useRef(1);
+  /** Elapsed fraction of the current tick, for sub-tick VFX drawing. */
+  const subTick = useCallback(() => (accRef.current * speedRef.current) / 100, []);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -275,6 +278,7 @@ export function WatchShell({
       return;
     }
     const tickMs = 100 / speed;
+    speedRef.current = speed;
     const step = (ts: number) => {
       if (lastTsRef.current == null) lastTsRef.current = ts;
       const dt = ts - lastTsRef.current;
@@ -555,6 +559,7 @@ export function WatchShell({
                   mode={mode}
                   overlays={overlays}
                   vfx={vfx}
+                  subTick={playing ? subTick : undefined}
                 />
               </div>
 

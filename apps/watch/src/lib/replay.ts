@@ -7,8 +7,10 @@ import {
 } from "./skill-meta";
 import { autoProjectileKey, skillVfxRecipe } from "./skill-vfx";
 import { DUMMY_MAX_HP, spawnPose, unitId } from "./spawn";
+import { ULT_AFTER_HIT_S, ULT_PRE_HIT_MAX_S, ULT_RULES } from "./ult-vfx";
 import type {
   HitFlashFx,
+  KillBurstFx,
   MatchEffects,
   MatchViewState,
   ProjectileFx,
@@ -18,6 +20,7 @@ import type {
   StatusIconFx,
   Team,
   TelegraphFx,
+  UltFx,
   UltPulseFx,
   UnitId,
   UnitView,
@@ -119,6 +122,8 @@ function cloneEffects(e: MatchEffects): MatchEffects {
     skillTags: e.skillTags.map((x) => ({ ...x })),
     ultPulses: e.ultPulses.map((x) => ({ ...x })),
     casterFlashes: e.casterFlashes.map((x) => ({ ...x })),
+    ults: e.ults.map((x) => ({ ...x })),
+    killBursts: e.killBursts.map((x) => ({ ...x })),
   };
 }
 
@@ -131,6 +136,8 @@ function emptyEffects(): MatchEffects {
     skillTags: [],
     ultPulses: [],
     casterFlashes: [],
+    ults: [],
+    killBursts: [],
   };
 }
 
@@ -151,6 +158,8 @@ function cloneState(s: MatchViewState): MatchViewState {
     fightBlue: s.fightBlue ? { ...s.fightBlue } : null,
     fightRed: s.fightRed ? { ...s.fightRed } : null,
     effects: cloneEffects(s.effects),
+    streaks: { ...s.streaks },
+    lastKillT: { ...s.lastKillT },
   };
 }
 
@@ -166,6 +175,8 @@ export function activeEffectsAt(
   skillTags: SkillTagFx[];
   ultPulses: UltPulseFx[];
   casterFlashes: import("./types").CasterFlashFx[];
+  ults: UltFx[];
+  killBursts: KillBurstFx[];
 } {
   const live = <T extends { startedAt: number; endsAt: number }>(list: T[]) =>
     list.filter((x) => x.startedAt <= t && t < x.endsAt);
@@ -179,6 +190,8 @@ export function activeEffectsAt(
     skillTags: live(effects.skillTags),
     ultPulses: live(effects.ultPulses),
     casterFlashes: live(effects.casterFlashes),
+    ults: live(effects.ults),
+    killBursts: live(effects.killBursts),
   };
 }
 
@@ -237,6 +250,8 @@ function emptyState(): MatchViewState {
     fightBlue: null,
     fightRed: null,
     effects: emptyEffects(),
+    streaks: {},
+    lastKillT: {},
   };
 }
 
@@ -316,6 +331,7 @@ function applyEvent(
       u.castSkill = typeof ev.skill_id === "string" ? ev.skill_id : "";
       u.castDur = typeof ev.cast_time === "number" ? ev.cast_time : 0.4;
       applyCastStartFx(state, u, ev);
+      applyUltCastStart(state, u, ev);
       break;
     }
     case "cast_cancel": {
@@ -325,13 +341,16 @@ function applyEvent(
       u.castSkill = null;
       u.castDur = 0;
       applyCastCancelFx(state, u.id, ev.t);
+      cancelPendingUlt(state, u.id, ev.t);
       break;
     }
     case "cast_end": {
+      applyUltCastEnd(state, ev);
       applyCastEndFx(state, ev);
       break;
     }
     case "projectile_spawn": {
+      applyUltLand(state, ev);
       applyProjectileSpawnFx(state, ev);
       break;
     }
@@ -359,6 +378,8 @@ function applyEvent(
       u.hitStartedAt = null;
       endStatusesOnUnit(state, u.id, ev.t);
       applyCastCancelFx(state, u.id, ev.t);
+      cancelPendingUlt(state, u.id, ev.t);
+      applyKillBurst(state, u, ev);
       break;
     }
     case "respawn": {
@@ -615,6 +636,118 @@ function applyCastStartFx(
   }
 }
 
+/** Signature ult: open an instance at cast_start (handoff anchor rules). */
+function applyUltCastStart(
+  state: MatchViewState,
+  u: UnitView,
+  ev: SimEvent,
+): void {
+  const rule = ULT_RULES[u.champ];
+  if (!rule) return;
+  const skillId = typeof ev.skill_id === "string" ? ev.skill_id : "";
+  if (skillMetaByName(skillId)?.key !== "R") return;
+  const target = getUnit(state, ev.target_id);
+  const aimX = typeof ev.x === "number" ? ev.x : (target?.x ?? u.x);
+  const aimY = typeof ev.y === "number" ? ev.y : (target?.y ?? u.y);
+  const anchor =
+    rule.anchor === "caster"
+      ? { x: u.x, y: u.y }
+      : rule.anchor === "target" && target
+        ? { x: target.x, y: target.y }
+        : { x: aimX, y: aimY };
+  const dirX = aimX - u.x;
+  const dirY = aimY - u.y;
+  state.effects.ults.push({
+    id: `ultfx:${u.id}:${ev.seq}`,
+    unitId: u.id,
+    champ: u.champ,
+    team: u.team,
+    startedAt: ev.t,
+    endsAt: ev.t + ULT_PRE_HIT_MAX_S + ULT_AFTER_HIT_S,
+    hitT: null,
+    anchorX: anchor.x,
+    anchorY: anchor.y,
+    dirX,
+    dirY,
+    facingLeft: Math.abs(dirX) > 0.05 ? dirX < 0 : u.facing === "left",
+    targetId: target?.id ?? null,
+  });
+}
+
+function pendingUlt(state: MatchViewState, unitId: unknown): UltFx | null {
+  for (let i = state.effects.ults.length - 1; i >= 0; i--) {
+    const fx = state.effects.ults[i]!;
+    if (fx.unitId === unitId && fx.hitT == null) return fx;
+  }
+  return null;
+}
+
+/** Instant ults hit on cast_end; anchors resolve to where bodies are now. */
+function applyUltCastEnd(state: MatchViewState, ev: SimEvent): void {
+  const fx = pendingUlt(state, ev.unit_id);
+  if (!fx) return;
+  const skillId = typeof ev.skill_id === "string" ? ev.skill_id : "";
+  if (skillId && skillMetaByName(skillId)?.key !== "R") return;
+  const rule = ULT_RULES[fx.champ];
+  const caster = getUnit(state, fx.unitId);
+  const target = getUnit(state, fx.targetId);
+  if (rule?.anchor === "caster" && caster) {
+    fx.anchorX = caster.x;
+    fx.anchorY = caster.y;
+  } else if (rule?.anchor === "target" && target) {
+    fx.anchorX = target.x;
+    fx.anchorY = target.y;
+  }
+  // Delayed lands (Isra, Tolle) take their hit time from projectile_spawn.
+  if (fx.champ === "isra" || fx.champ === "tolle") return;
+  fx.hitT = ev.t;
+  fx.endsAt = ev.t + ULT_AFTER_HIT_S;
+}
+
+function applyUltLand(state: MatchViewState, ev: SimEvent): void {
+  if (typeof ev.land_t !== "number") return;
+  const fx = pendingUlt(state, ev.unit_id);
+  if (!fx || (fx.champ !== "isra" && fx.champ !== "tolle")) return;
+  if (typeof ev.x === "number") fx.anchorX = ev.x;
+  if (typeof ev.y === "number") fx.anchorY = ev.y;
+  fx.hitT = ev.land_t;
+  fx.endsAt = ev.land_t + ULT_AFTER_HIT_S;
+}
+
+function cancelPendingUlt(state: MatchViewState, unitId: UnitId, t: number): void {
+  const fx = pendingUlt(state, unitId);
+  if (fx) fx.endsAt = t;
+}
+
+/** Shared kill burst. Shutdown: victim on a 3+ streak, or killer's 2nd kill in 4 s. */
+const SHUTDOWN_STREAK = 3;
+const MULTI_KILL_S = 4;
+const KILL_BURST_S = 0.7;
+
+function applyKillBurst(state: MatchViewState, victim: UnitView, ev: SimEvent): void {
+  const killer = getUnit(state, ev.killer_id);
+  const victimStreak = state.streaks[victim.id] ?? 0;
+  const last = killer ? state.lastKillT[killer.id] : undefined;
+  const shutdown =
+    victimStreak >= SHUTDOWN_STREAK ||
+    (last !== undefined && ev.t - last <= MULTI_KILL_S);
+  state.streaks[victim.id] = 0;
+  if (killer) {
+    state.streaks[killer.id] = (state.streaks[killer.id] ?? 0) + 1;
+    state.lastKillT[killer.id] = ev.t;
+  }
+  state.effects.killBursts.push({
+    id: `kill:${ev.seq}`,
+    victimId: victim.id,
+    team: killer?.team ?? (victim.team === "blue" ? "red" : "blue"),
+    shutdown,
+    x: victim.x,
+    y: victim.y,
+    startedAt: ev.t,
+    endsAt: ev.t + KILL_BURST_S,
+  });
+}
+
 function applyCastCancelFx(
   state: MatchViewState,
   unitId: UnitId,
@@ -831,9 +964,11 @@ function applyStatusApplyFx(state: MatchViewState, ev: SimEvent): void {
       s.endsAt = ev.t;
     }
   }
+  const source = getUnit(state, ev.source_id);
   state.effects.statuses.push({
     id,
     targetId: target.id,
+    sourceId: source?.id ?? null,
     kind,
     startedAt: ev.t,
     endsAt: ev.t + Math.max(dur, 0.05),

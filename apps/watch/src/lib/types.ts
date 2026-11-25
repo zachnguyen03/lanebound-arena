@@ -119,6 +119,8 @@ export interface HitFlashFx {
 export interface StatusIconFx {
   id: string;
   targetId: UnitId;
+  /** Who applied it (status_apply.source_id) — caster ring / snap line. */
+  sourceId?: UnitId | null;
   kind: string;
   startedAt: number;
   endsAt: number;
@@ -156,6 +158,42 @@ export interface CasterFlashFx {
   endsAt: number;
 }
 
+/**
+ * One signature ult cast (vfx-ults v1/v2 art). Positions are sim tiles.
+ * `hitT` is null until cast_end / projectile_spawn makes it authoritative;
+ * the renderer predicts it from the strip's cast_s + land_delay_s meanwhile.
+ */
+export interface UltFx {
+  id: string;
+  unitId: UnitId;
+  champ: string;
+  team: Team;
+  startedAt: number;
+  endsAt: number;
+  hitT: number | null;
+  /** Floor anchor in tiles (aim, target foot or caster foot, per champion). */
+  anchorX: number;
+  anchorY: number;
+  /** Cast vector in tiles (dash start → target, caster → aim). */
+  dirX: number;
+  dirY: number;
+  /** Strips face right; mirror when the cast goes left. */
+  facingLeft: boolean;
+  targetId: string | null;
+}
+
+export interface KillBurstFx {
+  id: string;
+  victimId: UnitId;
+  /** Killer's team — the burst core colour. */
+  team: Team;
+  shutdown: boolean;
+  x: number;
+  y: number;
+  startedAt: number;
+  endsAt: number;
+}
+
 export interface MatchEffects {
   telegraphs: TelegraphFx[];
   projectiles: ProjectileFx[];
@@ -164,6 +202,8 @@ export interface MatchEffects {
   skillTags: SkillTagFx[];
   ultPulses: UltPulseFx[];
   casterFlashes: CasterFlashFx[];
+  ults: UltFx[];
+  killBursts: KillBurstFx[];
 }
 
 /** Champ ids with a body sheet shipped under arena-sandbox/. */
@@ -200,6 +240,10 @@ export interface MatchViewState {
   fightRed: FightCallView | null;
   /** Deterministic VFX intervals derived from the event log. */
   effects: MatchEffects;
+  /** Kills since last death, per unit (kill-burst shutdown read). */
+  streaks: Record<string, number>;
+  /** Last kill time per killer (multi-kill read). */
+  lastKillT: Record<string, number>;
 }
 
 export type Speed = 0.5 | 1 | 2 | 4 | 8;

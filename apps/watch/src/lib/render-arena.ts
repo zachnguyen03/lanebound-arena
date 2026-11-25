@@ -9,6 +9,7 @@ import { sortDrawItems } from "./draw-order";
 import { ARENA_INTRINSIC } from "./hud-layout";
 import { renderVfx, ultShakeAt } from "./render-vfx";
 import { padGroundPx } from "./spawn";
+import { renderUltPass, type SanctuaryRect } from "./ult-vfx";
 import type { MatchViewState, UnitView } from "./types";
 
 const TILE_W = 44;
@@ -159,6 +160,10 @@ export function renderArena(
     }
   }
 
+  // Signature ult ground layers (and Helvar air-back) sit under the bodies.
+  const sanctuaries = sanctuaryRects(assets);
+  if (showVfx) renderUltPass(ctx, assets.ults, state, "ground", sanctuaries);
+
   const units = Object.values(state.units);
   const items = sortDrawItems([
     ...units.map((unit) => ({
@@ -284,12 +289,30 @@ export function renderArena(
     }
   }
 
-  // Skill VFX over bodies, under / with status plates; shake already applied.
+  // Ult air layers + kill bursts over bodies, then the rest of the VFX
+  // (status plates last, so ult CC plates stay on top).
   if (showVfx) {
+    renderUltPass(ctx, assets.ults, state, "air", sanctuaries);
     renderVfx(ctx, assets, state, { height: H });
   }
 
   ctx.restore();
+}
+
+function sanctuaryRects(assets: WatchAssets): SanctuaryRect[] {
+  const out: SanctuaryRect[] = [];
+  for (const team of ["blue", "red"] as const) {
+    const s = assets.worldProps.sprites[`sanctuary-wash-${team}`];
+    if (!s?.place_terrain_px) continue;
+    out.push({
+      team,
+      x: s.place_terrain_px[0],
+      y: s.place_terrain_px[1],
+      w: s.rect[2],
+      h: s.rect[3],
+    });
+  }
+  return out;
 }
 
 function clipDuration(clip: BodyAnimClip | undefined, fallback: number): number {
