@@ -39,11 +39,14 @@ export const TEAMFIGHT_R3: NonNullable<MatchConfig["teamfight"]> = {
 
 /**
  * Sandbox scoring (exp, lab/sandbox-sweep scoring grid): first to 28, majority
- * tick 15 s, every takedown still 1 point. Median ~200 s, objectives ~38% of
+ * tick 15 s, every takedown still 1 point; skillshot hit coefficient 0.002. Median ~200 s, objectives ~38% of
  * the winner's score. Used by Watch "Three points", batch --sandbox and the sweep.
  */
 export const SANDBOX_CONSTANTS: Record<string, number> = {
   SCORE_TO_WIN: 28,
   MAJORITY_TICK_S: 15,
   KILLS_PER_POINT: 1,
+  // +30 Aim / Reflexes moved team win % by +27 / +29 pp at the spec 0.01; 0.002
+  // gives +5 / +6 pp (target +3..+6). lab/sandbox-sweep/ATTRIBUTES.md.
+  HIT_COEF: 0.002,
 };
