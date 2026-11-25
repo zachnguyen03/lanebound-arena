@@ -1,6 +1,6 @@
 # Lanebreak Manager — Game Design Document
 
-Updated 2026-11-20 (v0.6). This file is updated every time a feature lands. The parity plan against the LEM feature summary is in `PLAN.md`.
+Updated 2026-11-25 (v0.7, Lanebound engine). This file is updated every time a feature lands. The parity plan against the LEM feature summary is in `PLAN.md`.
 
 ## Overview & pillars
 
@@ -19,124 +19,48 @@ The live match is the only step where time runs inside a game. Everything else i
 
 ## Match engine
 
-The engine advances in fixed ticks of 0.1 s of game time. Each champion re-plans on its own decision tick and executes its current intent on every tick in between. The same seed and inputs always replay the same match.
+Every full-engine game runs on the Lanebound sim (`sim/simulate.ts`) through the adapter `js/engine.ts`. `runFull(teamA, teamB, seed, opts)` builds a MatchConfig (Blue = teamA) in the sandbox mode the Watch app ships: three capture points (`objectives: points`), the round-3 teamfight AI, the sandbox constants (first to 28) and the sandbox kit patch, AI on, fixed draft, no forced clock end. It runs `simulate` and converts the result into the career's match summary. The same seed and inputs always give the same summary, and `summary.config` re-simulates the game exactly (for the Watch view later).
 
-**Decision tick.** The interval shrinks with Decision Making. On each tick the champion scores every intent (lane, jungle, gank, fight, objective, push, group, defend, retreat, recall) and takes the best. Scores combine game state with the team's current-phase plan, plus noise that also shrinks with Decision Making. Every 2 s a shot-caller may call an objective or a push.
+**Scoring.** A team scores 1 point per kill, 1 point every 15 s while it owns two of the three points (majority), and 1 point for a fight claim. First to 28 wins; a game still running at 4:00 goes to the leader, then to point control time and takedowns. Measured: games average 3:18 (198 ± 25 s), the loser scores 18.7 on average, about two thirds of the points come from kills, and 6% of games reach the clock.
 
-**Phases.** Early runs 0:00–3:00, mid 3:00–6:00, late from 6:00. A game is capped at 10:00, then decided by structures, kills, then gold. About 75% of games end on a Core kill, average length 8:30–8:50, about 16–18 kills.
-
-**Combat.** Auto-attacks roll hit chance from Mechanics. Each champion has a skill with a cooldown, an ultimate that unlocks at level 6, and a passive (see the champion table). Damage scales with level, items, Shrine stacks, Mechanics × champion mastery × the day's form roll, and the multipliers below.
-
-**Smart casting.** Abilities declare when they are worth using (engage, area, burst, execute, save, buff). Decision Making judges the moment: on a good moment the cast fires with chance 0.3 + Decision/140; on a bad one it misfires only with chance (100 − Decision)/8000. Weak Mechanics fumble a cast (40% strength). Crowd-control skills are held for a priority target with chance Decision/110. Clutch boosts ultimate damage by (Clutch − 50)/400 × (1 + stakes). About 15 ultimates a game, 93% on good moments.
-
-**Compositions.** Each side's champions give trait bonuses at 2/3/4 champions sharing a trait, and a composition tag (needs 2+ champions with the same tag, otherwise mixed). Counter triangle: engage beats poke, poke beats protect, protect beats engage, for +8% damage (wins 53–59% between equal teams). A pick comp gets +4% against isolated targets; a split comp +6% against structures.
-
-**Attributes in the engine (9).** Rebalanced in v0.5 so that Mechanics no longer decides games alone. Measured on the full engine with a whole team +15 in one attribute (60 → 75), 800 games each: Mechanics 65%, Positioning 60%, Vision 54–60%, Decision Making 59%, Laning 54–58%, Teamwork 54–60%, Aggression 53%, Resilience and Clutch about 50% (both situational). Before v0.5 only Mechanics (71%) moved results.
+**Attributes in the engine.** The sim reads six attributes per player: Aim, Reflexes, Execution, Decision Making, Positioning and Teamwork. Career attributes keep the 1–99 scale and enter the sim 1:1 plus 10, so a 60-rated player is the sim's even 70. Before that, the career applies what it always did: traits, morale, condition, playing out of position and team chemistry (`calendar.enginePlayer`), then the adapter applies the day's form roll to Aim, Reflexes, Execution and Teamwork, and the coach rating adds (coach − 10) × 0.6 to Decision Making. Champion mastery maps to the sim's 0–100 mastery as 50 + (mastery − 0.85) × 200; the sim turns it into up to ±8 Aim and Execution. Attribute gaps move results only modestly in this sim: a whole team 16 points better wins about 58% (600 games); 85-rated players beat 35-rated ones in 17 of 24 test games.
 
 | Attribute | Effect |
 |---|---|
-| Decision Making | Decision interval and quality (less noise); smart casting; +(D − 50)/500 damage to champions (focus fire); coach rating adds (coach − 10) × 0.6 |
-| Mechanics | Damage × (0.83 + M/300), hit chance, ability fumbles; multiplied by champion mastery |
-| Laning | +(L − 50)/85 damage to champions in the laning phase; minion damage 1.3 + L/100 (farming) |
-| Positioning | Takes (P − 50)/255 less damage; ranged champions kite and are harder to reach |
-| Vision | Damage edge of (team vision gap)/290 in fights; spots roams; lowers gank success against the player; boosts objective damage; vision score about 2 per minute |
-| Aggression | +(A − 50)/425 damage in the laning phase; retreat threshold and engage range (over-extends more) |
-| Teamwork | +(T − 50)/190 damage and (T − 50)/300 less damage taken with 2+ allies near |
-| Resilience | Narrows the form roll (spread 0.13 − 0.0008 × Resilience); reduces the tilt penalty when 3+ kills behind |
-| Clutch | Extra damage in the late phase and on ultimates, scaled by the game's stakes (playoffs, finals, deciders, rivalries) |
+| Aim, Reflexes, Execution, Decision Making, Positioning, Teamwork | Passed to the sim as the player's attributes (see the sim's build spec for what each drives) |
+| Aggression | Team mean shifts the plan's posture one step: tactics aggression = posture (−1/0/+1) + (mean − 60)/20, rounded and clamped |
+| Resilience | Narrows the form roll: spread 0.13 − 0.0008 × Resilience |
+| Clutch | Form bonus (Clutch − 50)/400 × stakes (playoffs, finals, deciders, rivalries) |
 
-Mids no longer roam to gank (it left the lane and lost games); junglers do. Team chemistry adds to Teamwork and Decision Making (see People).
+**Game plan.** A plan is a sim tactics preset plus posture, target focus and carry protection: Hold the pit (group on the centre point), Hunt (chase fights, take enemy-held points) or Starve (spread over the points and avoid fights); posture aggressive / balanced / defensive; focus auto or an enemy role; protect the carry on or off. Presets: Standard (hold, balanced), Early aggression (hunt, aggressive, no peel), Scale and teamfight (hold, defensive, focus the carry), Split map (starve, balanced), Objective control (starve, defensive). The plan is fixed for the game: the sim has no phases and no mid-game plan change.
 
-**Teamfight roles.** Each player has a role (Frontline, Initiator, Midline, Backline, Assassin), defaulting from the champion class and settable on Lineup or Tactics. It changes target choice in fights; a Frontline also takes 8% less damage with allies near.
+The arena, movement and capture points are the sim's (`sim/map.ts`, `sim/objectives.ts`); the career has no map code of its own.
 
-**Items.** Champions bank gold and shop at the fountain on respawn, on recall or while passing through. Each class buys a fixed 6-item build from 12 items (blade, vest, quiver, tome, bulwark, reaver, storm, staff, edge, censer, aegis, crown) giving fractional attack, HP, attack speed, cooldown reduction, damage reduction, lifesteal and heal amp. A recall intent fires when the bank covers the next item. About 3 items per champion by game end.
+**Event stream.** The summary keeps kills (killer, victim, assists, first blood, shutdown, streak), deaths with no killer, aces, point captures, majority ticks and claims, plus a score timeline. There are no positions or frames; a replay re-simulates from the config.
 
-**Economy.** Last hit 20 gold (1 CS), camp 60 (3 CS), champion kill 300 (assists share 150), tower 150 to each teammate, passive 2 gold/s. Levels 1–12. Respawn 6 s + 1.5 s per level + 1 s per minute.
-
-**Objectives.** The Titan (top pit) spawns at 4:00 and gives +20% damage for 60 s. The Shrine (bottom pit) spawns at 2:00 and gives a permanent +5% stat stack, up to four.
-
-**Game plan** (replaces the old four tactic selects). Per phase: posture (aggressive / balanced / defensive) and style (teamfight / split push / macro). Plus target focus (nearest / weakest / carries), jungle focus (any / top / mid / bot), objective priority (Titan / Shrine / towers) and adapt-when-behind. Presets: Standard, Early aggression, Scale and teamfight, Split map, Objective control. A change made during a live game is queued and applies at the next reset: when the whole team is back within 12 units of the fountain, or after 60 s. AI coaches adapt at half time when behind or far ahead.
-
-**Event stream.** Every game records kills (killer, victim, assists, position, first blood, shutdown, streak), deaths, Titan, Shrine, towers, Core and aces; a gold timeline and all ten positions plus structure states every 5 s; and every plan change. This feeds the live feed, gold graph, post-game, match report and map-at-minute view.
-
-**Fast engine** (`js/fastsim.js`). Background games use a statistical model with the same output shape: a logistic on the effective-strength gap (logit = 0.067·d + 0.00012·d³, refitted after the attribute rebalance), plus +2.6 strength for the side whose composition counters the other and the patch's champion changes, then stat lines drawn from per-role per-minute means measured on the full engine, a gold random walk ending at the final difference, and generated kill and objective events. With a uniform attribute gap of 4/8/16 the full engine wins 59/63/86% and the fast engine 56/64/83% (500–1,500 games each). The manager's games always use the full engine. Setting "Full engine for top leagues" runs top-league and international AI games on the full engine in a Web Worker pool.
-
-## Map & movement
-
-The arena (design handoff §6) is 108 × 62 units, Blue on the left and Red on the right, mirrored left-right and top-bottom.
-
-- **Lanes.** Octagonal top and bottom lanes, a straight mid lane through a central plaza ring.
-- **Terrain.** Flat-top hexagon clusters: one big and two small per quarter.
-- **Structures per side.** Two towers per lane (outer 1,500 HP, inner 2,000 HP), a base tower (2,200 HP) and a hex Core (2,500 HP). Outer before inner; an inner before the base tower; the base tower before the Core.
-- **Camps** two per quarter. Titan pit top-centre, Shrine pit bottom-centre.
-- **Movement.** A 1-unit blocked grid and a waypoint graph (nodes every 4 units, all-pairs next hops). Champions walk straight with line of sight, otherwise skip ahead along the route.
-
-The renderer draws hex Cores, square towers (⊠ when destroyed), pits with a gold diamond and respawn timer, champion dots with a side ring, HP arc and initial, 2-second movement trails, dashed rings at base for dead champions, and kill ✕ markers that fade over 8 s.
+**Fast engine** (`js/fastsim.js`). Background games use a statistical model with the same summary shape. Each lineup's strength is its role-weighted sim attributes (expected form, coach, mastery on Aim and Execution); the winner comes from a logistic on the gap d, logit = 0.0321 + 0.0194·d, fitted on 2,400 full-engine games (`test/fit.mjs`). With a uniform attribute gap of 0/4/8/16 the stronger side wins 51/52/56/58% on the full engine and 51/53/55/59% on the fast engine. Scores, kill points, captures and stat lines are drawn around per-role per-minute means measured on the full engine. Patches are not modelled in the fast engine. The manager's games always use the full engine. Setting "Full engine for top leagues" runs top-league and international AI games on the full engine too.
 
 ## 5v5 format, roles & champions
 
-One player per role: Top, Jungle, Mid, Carry, Support. A champion outside its listed roles plays at 85% mastery. 40 champions (Top 12, Jungle 12, Mid 11, Carry 9, Support 13 counting secondary roles). Each has a skill, an ultimate (level 6), a passive, one or two traits and a composition tag. The 16 added in v0.5 use declarative effect lists (damage, execute, stun, slow, pull, shield, heal, buff, zone, untargetable) aimed at a target, self, the lowest foe or ally, or the biggest cluster.
+One player per role: Top, Jungle, Mid, Carry, Support (the sim's top, jungle, mid, adc, support). The 14 champions are the sim's (`data/champions/defs.ts`); each has one role, its default slot. A champion played outside its role plays at 85% mastery. The sim owns every stat and kit: the career has no traits, passives, composition tags or counter triangle.
 
-**Traits** (bonus at 2/3/4 champions): Vanguard max HP 5/9/14%, Brawler damage reduction 4/7/10%, Arcane ability damage 8/14/20%, Sharpshooter attack speed 6/10/15%, Shadow attack 5/9/13%, Warden heal and shield power 12/20/30%, Wild move speed 4/7/10% plus lifesteal, Mystic cooldown reduction 6/10/14%. Enchanters also get +25% heal power.
+| Role | Champions |
+|---|---|
+| Top | Rhedan (Fighter), Brannoch (Tank) |
+| Jungle | Sedge (Mage), Torun (Tank), Tolle (Tank) |
+| Mid | Helvar (Mage), Calder (Mage), Kerrig (Assassin), Mirren (Mage) |
+| Carry | Huntress, Maelis, Isra (Marksmen) |
+| Support | Ysol (Enchanter), Saelo (Mage) |
 
-**Passives** (12): thick hide, lifesteal, spellweave, guardian, swift, giant, executioner, siege, opener, hunter, bloodlust, farmer.
+Top and Support have two champions each, so most drafts put someone off-role.
 
-| Champion | Roles | Class | Tag | Traits | Skill | Ultimate (level 6) | Passive |
-|---|---|---|---|---|---|---|---|
-| Bulwark | Top, Support | Tank | protect | Vanguard, Warden | Shield self, taunt nearby foes | Iron Bastion: Shield all nearby allies | Thick hide: 6% damage reduction |
-| Vanguard | Top | Bruiser | engage | Brawler, Vanguard | Hit all adjacent foes, heal per champion hit | Charge: Dash in, stun and hit a group | Bloodlust: up to +20% damage as own HP drops |
-| Duelist | Top, Mid | Fighter | split | Brawler, Shadow | Dash onto target, heavy hit | Riposte: +30% attack, 40% damage reduction for 3s | Opener: +20% damage to targets above 80% HP |
-| Reaper | Top, Jungle | Bruiser | split | Shadow, Wild | Execute that scales with missing HP | Reap: Execute: damage scales hard with missing HP | Executioner: +12% damage to champions under 35% HP |
-| Stalker | Jungle | Assassin | pick | Shadow, Wild | Blink to the weakest foe, burst | Vanish: Turn untargetable, strike the weakest foe | Executioner: +12% damage to champions under 35% HP |
-| Ravager | Jungle | Fighter | engage | Wild, Brawler | +50% attack speed for 4s | Bloodrage: +20% attack, +40% attack speed for 5s | Bloodthirst: 8% lifesteal |
-| Thornback | Jungle, Support | Tank | engage | Vanguard, Wild | Stun nearby foes for 1s | Quake: Leap into a group and stun it | Giant: 8% max HP |
-| Phantom | Mid, Jungle | Assassin | pick | Shadow, Arcane | Dash, burst, 1s untargetable | Blade Storm: Dash into a group, heavy area damage | Swift: 8% move speed |
-| Hexer | Mid | Mage | poke | Arcane, Mystic | Area burst around target | Overload: Massive area burst | Spellweave: 10% cooldown reduction |
-| Stormcaller | Mid, Support | Mage | poke | Arcane, Warden | Area damage and 40% slow | Eye of the Storm: Storm zone: damage and slow for 5s | Opener: +20% damage to targets above 80% HP |
-| Ranger | Carry | Marksman | poke | Sharpshooter, Wild | Empowered shot | Rain of Arrows: Area damage and slow | Farmer: +25% damage to minions |
-| Longbow | Carry | Marksman | poke | Sharpshooter, Shadow | Long-range shot on lowest-HP foe | Skyshot: Map-wide shot on the weakest foe | Opener: +20% damage to targets above 80% HP |
-| Blaster | Carry, Mid | Marksman | poke | Sharpshooter, Arcane | Splash shot around target | Rocket: Explosive rocket | Siege: +30% damage to structures |
-| Mender | Support | Enchanter | protect | Warden, Mystic | Heal the most-wounded ally | Sanctuary: Big heal on all nearby allies | Guardian: heals and shields 20% stronger |
-| Warden | Support | Tank | engage | Vanguard, Warden | Stun target, shield nearest ally | Lockdown: Stun a group for 1.5s | Thick hide: 6% damage reduction |
-| Oracle | Support | Enchanter | protect | Warden, Arcane | Shield all nearby allies | Foresight: Shield and speed up nearby allies | Guardian: heals and shields 20% stronger |
-| Ironclad | Top | Tank | engage | Vanguard, Brawler | Take 40% less damage for 3s, taunt adjacent foes | Juggernaut: Charge a target, stun it, 40% damage reduction | Giant: 8% max HP |
-| Berserker | Top, Jungle | Fighter | split | Brawler, Wild | Leap onto a distant target, 40% slow | Undying Rage: Heal, +30% attack and attack speed | Bloodlust: up to +20% damage as own HP drops |
-| Spellblade | Mid, Top | Fighter | pick | Arcane, Shadow | Blink behind target, heavy strike | Arc Slash: Dash through a group | Spellweave: 10% cooldown reduction |
-| Wraith | Jungle | Assassin | pick | Shadow, Mystic | Pounce on a weak foe, short stun | Haunt: Dive the weakest foe: execute and stun | Executioner: +12% damage to champions under 35% HP |
-| Pyromancer | Mid | Mage | poke | Arcane, Mystic | Set target ablaze: damage over 4s | Firestorm: Burning zone for 4s | Spellweave: 10% cooldown reduction |
-| Gunslinger | Carry | Marksman | pick | Sharpshooter, Shadow | Shoot the three nearest foes | Dead or Alive: Long shot that executes | Swift: 8% move speed |
-| Trapper | Carry, Support | Marksman | pick | Sharpshooter, Warden | Root target for 1.5s, bonus damage | Net Field: Root a group for 1s | Opener: +20% damage to targets above 80% HP |
-| Chanter | Support | Enchanter | protect | Warden, Mystic | Allies heal and gain 30% move and attack speed | Anthem: Allies gain attack, attack and move speed | Guardian: heals and shields 20% stronger |
-| Bastion | Top, Support | Tank | engage | Vanguard, Brawler | Rampart: Shield self, slow nearby foes | Earthbreaker: Leap into a group, stun 1.5s | Thick hide: 6% damage reduction |
-| Warlord | Top | Bruiser | split | Brawler, Wild | Rend: Heavy hit and slow | Warcry: +30% attack, 20% damage reduction for 6s | Bloodlust: up to +20% damage as own HP drops |
-| Sentinel | Top, Jungle | Tank | protect | Vanguard, Warden | Shockwave: Hit and slow nearby foes | Unbreakable: 50% damage reduction for 4s | Giant: 8% max HP |
-| Duskblade | Jungle, Mid | Assassin | pick | Shadow, Arcane | Night Cut: Dash and slash | Eclipse: Untargetable dive that executes the weakest foe | Executioner: +12% damage to champions under 35% HP |
-| Huntress | Jungle | Fighter | pick | Wild, Sharpshooter | Spear Throw: Ranged spear | Wild Hunt: Allies gain move speed and attack | Hunter: +25% damage to camps, Titan and Shrine |
-| Gravewalker | Jungle | Bruiser | engage | Mystic, Brawler | Drain: Hit and heal | Tombstorm: Damage zone around self for 4s | Bloodthirst: 8% lifesteal |
-| Arcanist | Mid | Mage | poke | Arcane, Mystic | Arcane Bolt: Long-range bolt | Meteor: Area burst, short stun | Spellweave: 10% cooldown reduction |
-| Frostweaver | Mid, Support | Mage | protect | Arcane, Warden | Frost Lance: Damage and 50% slow | Glacier: Freeze a group | Opener: +20% damage to targets above 80% HP |
-| Voidcaller | Mid | Mage | poke | Arcane, Shadow | Rift Orb: Area burst | Singularity: Slowing void zone | Executioner: +12% damage to champions under 35% HP |
-| Deadeye | Carry | Marksman | poke | Sharpshooter, Shadow | Pierce: Piercing shot | Final Shot: Very long shot that executes | Opener: +20% damage to targets above 80% HP |
-| Skirmisher | Carry | Marksman | protect | Sharpshooter, Wild | Tumble: +40% attack speed for 3s | Bullet Storm: +60% attack speed, +15% attack for 5s | Swift: 8% move speed |
-| Siegebreaker | Carry, Top | Marksman | split | Sharpshooter, Vanguard | Cannon: Splash shot | Barrage: Shell zone for 5s | Siege: +30% damage to structures |
-| Stormarcher | Carry | Marksman | poke | Sharpshooter, Mystic | Chain Shot: Arcing shot that splashes | Thunderhead: Area burst and slow | Farmer: +25% damage to minions |
-| Lifebinder | Support | Enchanter | protect | Warden, Mystic | Bloom: Heal the most-wounded ally | Rebirth: Big heal and shield on nearby allies | Guardian: heals and shields 20% stronger |
-| Shieldmaiden | Support, Top | Tank | protect | Vanguard, Warden | Shield Bash: Dash, hit and stun | Phalanx: Shield allies, 20% damage reduction | Giant: 8% max HP |
-| Hookmaster | Support, Jungle | Tank | pick | Brawler, Shadow | Hook: Pull a foe in and stun it | Chainline: Chain a group: stun 1.5s | Thick hide: 6% damage reduction |
-
-**Balance.** A tuned per-champion HP/attack table (`BAL` in `data.js`) keeps every champion at 46–54% win rate over 5,400 full-engine games with equal 60-rated players (`node test/balance.mjs`, report in `test/balance.txt`).
-
-**Patches.** Three a season: pre-season, 6 July (summer split) and 24 September (before the Grand Convergence). Each nerfs the 2–4 strongest champions by presence and win rate in top-league and international games and buffs the 2–4 weakest: 5–12% to HP, attack or cooldown, cumulative, capped at ±25%; unchanged mods decay ×0.7 a patch. Patch notes arrive in the inbox; the Meta tab (Competitions) shows the notes and an S/A/B/C tier list by role. AI clubs practise buffed champions for their role; players with comfort picks in the meta ask for more in transfers.
+**Patches.** Three a season: pre-season, 6 July (summer split) and 24 September (before the Grand Convergence). Each nerfs the 1–2 strongest champions by presence and win rate in top-league and international games and buffs the 1–2 weakest: 5–12% to HP, attack or cooldowns, cumulative, capped at ±25%; unchanged mods decay ×0.7 a patch. They reach the sim as a kit patch on top of the sandbox kit patch (HP; attack and power; Q, W and R cooldowns). Patch notes arrive in the inbox; the Meta tab shows the notes and an S/A/B/C tier list by role. AI clubs practise buffed champions for their role.
 
 ## Draft
 
-**Standard (20 steps):** bans B R B R B R, picks B R R B B R, bans R B R B, picks R B B R. The higher seed is Blue in game 1; sides alternate within a series.
+**Order (12 steps):** one ban each (Blue, Red), then picks B R R B B R R B B R. The higher seed is Blue in game 1; sides alternate within a series. There is no Fearless mode: 14 champions can't support it.
 
-**Fearless (setting, off by default; Bo3/Bo5 only).** Champions a team played in the previous game are locked for that team. Uses the full 20-step order (the 40-champion pool leaves enough choice).
-
-**Draft screen (04).** Series header with score and turn, a 30-second turn clock (the analyst locks in its suggestion when it runs out), role filters, search, "hide unavailable" with a count, the analyst's pick marked ◆ with a one-line reason, locked tiles greyed with a tooltip reason (banned, picked by Blue/Red, Fearless), "Used this series" pools per team with W/L, the selected champion's detail with mastery, tag, traits and kit, a composition box per side (tag, active traits, counter warning), the opponent's scouting panel (form, plan, chemistry, recent picks, comfort picks once scouted), a team talk once the draft is done, and champion trading between your own players after the draft (click two slots).
-
-**AI drafting.** Bans target the opponent's comfort picks plus the patch's strongest champions. Picks score mastery for the best open slot, plus small leans for completing a trait, matching the club's drafting plan (auto, engage, poke, pick, split, protect; set on Tactics for the manager) and countering the opponent's tag, minus a lean when countered; penalties for no frontline or no ranged damage; Fearless locks respected. The analyst's suggestion shows the reason.
+**AI drafting.** Bans take the opponent's best comfort pick for a role they still have to fill, weighted by the patch. Picks take the best mastery for an open slot (off-role at 85%) plus the patch's meta value. The analyst's suggestion shows the reason.
 
 ## Career mode
 
@@ -183,15 +107,15 @@ One player per role: Top, Jungle, Mid, Carry, Support. A champion outside its li
 
 ## Players, squad & development
 
-**Profile.** Name, region, age, main and secondary role, the 9 attributes (1–99), potential, traits, professionalism (1–20), morale, condition (20–100), form (last 5 ratings), champion mastery per champion (S ≥ 1.08, A ≥ 0.98, B ≥ 0.85, else C), wage and contract end.
+**Profile.** Name, region, age, main and secondary role, the 9 attributes (1–99: Aim, Reflexes, Execution, Decision Making, Positioning, Teamwork, Aggression, Resilience, Clutch), potential, traits, professionalism (1–20), morale, condition (20–100), form (last 5 ratings), champion mastery per champion (S ≥ 1.08, A ≥ 0.98, B ≥ 0.85, else C), wage and contract end.
 
-**Traits** modify attributes in the engine: Aggressive laner, Tilts when behind, Clutch performer, Shotcaller, Ward master, Team player, Hot-headed, Ice cold, Inconsistent, Professional (grows faster).
+**Traits** modify attributes in the engine: Aggressive, Tilts when behind, Clutch performer, Shotcaller, Sharpshooter (+8 Aim), Team player, Hot-headed, Ice cold, Inconsistent, Professional (grows faster).
 
 **Squad.** Up to 10 first-team and 10 academy players, at least 5 first-team. Starters play at 95% in their secondary role and 88% elsewhere; morale and condition scale attributes. Promote and demote between academy and first team.
 
 **Condition.** Each training session costs condition by drill; weekends and Rest restore it; every game costs 7. Professionalism scales the fatigue.
 
-**Training (08).** A weekly plan of 10 sessions (Mon–Fri, AM/PM) chosen from nine drills, each with attributes it trains and a fatigue cost: Laning drills, Mechanics, Teamfight scrim, VOD review, Macro rotations, Mental coaching, Skirmish drills, Champion practice, Rest. Each player can also have one focus: an attribute (2 points) or a champion (1 point) from 15 focus points. The screen shows a 7-day condition forecast per player.
+**Training (08).** A weekly plan of 10 sessions (Mon–Fri, AM/PM) chosen from nine drills, each with attributes it trains and a fatigue cost: Aim drills (Aim, Execution), Mechanics (Execution, Reflexes), Teamfight scrim (Teamwork, Positioning), VOD review (Decision, Positioning), Macro rotations (Decision, Teamwork), Mental coaching (Resilience, Clutch), Skirmish drills (Aggression, Reflexes), Champion practice, Rest. Each player can also have one focus: an attribute (2 points) or a champion (1 point) from 15 focus points. The screen shows a 7-day condition forecast per player.
 
 **Development** (weekly). Growth depends on age (fast to 21, slow to 25, flat to 28, then decline), the gap to potential, the training or academy facility, the development coach, professionalism, starting, the week's drills, the focus, and personality (lazy −15%; academy players grow 15% faster with a mentor in the first team).
 
@@ -265,17 +189,21 @@ One player per role: Top, Jungle, Mid, Carry, Support. A champion outside its li
 
 ## Statistics
 
-**Per game:** K/D/A (deaths include executions by towers and minions, about 0.4 per kill; team deaths are the sum of player deaths), CS (minions and camps), gold, damage, damage taken, healing, tower damage, objectives, vision score, damage share and a 1–10 rating; plus the draft (picks and bans), gold and objective totals.
+**Per game:** score and its split (kill points, objective points), kills, point captures, first blood, length and how the game ended (score or clock); per player K/D/A (deaths with no killer count, but none occurred in 2,400 measured games), level, damage, damage taken, healing, seconds on capture points (`obj`), damage share and a 1–10 rating; plus the draft and a score timeline. Rating = 5 + 0.22 K + 0.1 A − 0.25 D + 5 × (damage share − 0.2) + 2 × (share of the game on points), +0.5 for a win, −0.3 for a loss, clamped to 1–10. Winners average 6.9, losers 5.4; carries rate highest (7.8 against 5.5–6.1). The MVP is the best rating on the winning side. `sd60` is the score difference at 1:00.
 
-**Stats centre (14).** Scope bar: Season, Career, Archive (any past year), Exhibitions (empty for now), This series (only the games of your latest series). Player rows show the role played most and the club of the latest game in scope. Champion K/D/A comes only from games with player lines (top leagues, internationals and your own games); otherwise it shows –. Filters: region, tier, role, minimum games. Tabs: Overview (leaders and top champions and teams), Players, Champions (picks, bans, presence, pick %, ban %, win %, KDA), Teams, Games (with report links), Economy (the club ledger). Every table sorts by any column and exports to CSV.
+**Measured per-minute means** (full engine, per player): Top 0.67 K / 1.11 D / 1.91 A, 1,440 damage, 9.6 s on points; Jungle 0.56 / 0.97 / 2.22, 1,200, 20.5 s; Mid 0.88 / 1.12 / 2.22, 1,630, 15.3 s; Carry 1.93 / 0.60 / 2.10, 2,820, 12.5 s; Support 0.72 / 0.95 / 2.15, 1,220, 6.1 s, 227 healing.
 
-**Replays and highlights (P6).** Stats › Replays lists every kept report (your games and finals, latest 40) with its two best moments. Full-engine games play back on the report's map at 20× (play/pause, scrub, jump to a highlight). Highlights get a one-line title: multi-kills with context ("Triple kill with Ranger under the enemy tower", "…to force an ace", "…to open up the Titan", "…in the laning phase", "…including a shutdown"), solo outplays ("1v2 outplay: solo double kill with Wraith"), ultimates catching 3+ champions and the kills that follow, aces ("Ace to close the game"), shutdowns, solo first bloods, comebacks from 2.5k+ gold down, and Titans. Every Monday the inbox gets the Top 5 plays of the week (best play per kept game) as in mockup 17b: rank, champion, title, player · champion · match · minute, Watch ▸ opening the replay 5 s before.
+**Stats centre (14).** Scope bar: Season, Career, Archive (any past year), Exhibitions (empty for now), This series (only the games of your latest series). Player rows (K/D/A, KDA, point seconds a minute, damage a minute, rating, MVPs) show the role played most and the club of the latest game in scope. Team rows: kills and deaths a game, captures a game, first-blood %, length, score and score difference a game. Champion K/D/A comes only from games with player lines (top leagues, internationals and your own games); otherwise it shows –. Filters: region, tier, role, minimum games. Every table sorts by any column and exports to CSV.
 
-**Result mails.** Each game of a finished series gets a recap (winner, score, length, peak gold lead, first blood, key moment, MVP line) and a small gold-lead graph; the match report header shows the same recap.
+**Replays and highlights.** Full-engine games store their MatchConfig, so a replay re-simulates them. Highlights get a one-line title: multi-kills with context ("…including a shutdown", "…to force an ace", "…to take a point", "…in the opening minute"), solo outplays, aces ("Ace to close the game"), shutdowns, solo first bloods and comebacks from 6+ points down. Every Monday the inbox gets the Top 5 plays of the week.
 
-**Match report (15).** Per-game tabs within the series, the gold timeline with a minute marker, the map at any minute (scrub in 5 s steps) for full-engine games, highlight chips, both teams' stat lines and bans, the phase plans used, and the key events.
+**Result mails.** Each game of a finished series gets a recap (winner, score, length, peak score lead, first blood, key moment, MVP line).
+
+**Award leaders** include KDA, damage share, point seconds a minute, champion pool and the best rookie.
 
 ## UI
+
+The screens below describe the v0.6 UI. It still expects the old engine (lane map, gold, items, phase plans, Fearless) and is rewritten in the next phase.
 
 Visual system from the design handoff (`tokens.css`, `base.css`): broadcast style, radius 0, gold primary action with a slant cut, blue and red only for sides, Saira Semi Condensed / Geist / Geist Mono. Pixel portraits and champion sprites are generated on a canvas; club crests are SVG shields in the club colour.
 
@@ -296,13 +224,13 @@ Visual system from the design handoff (`tokens.css`, `base.css`): broadcast styl
 | Inbox (17) | Categories (offers, scouting, news, squad, highlights, board), reader with accept/reject for offers, conversation choices, highlight links, archive |
 | Club (11) | Finances, facilities, staff, sponsors, Board card (confidence, goals, log, budget request), Manager card (reputation, approaches, history) |
 | Jobs | Out of work: offers that fit the manager's reputation, take a job, wait a week, retire |
-| Settings (13) | Live speed, sim detail, Fearless, pause triggers, confirm Continue, autosave, save to slot, download save (.json) |
+| Settings (13) | Live speed, sim detail, pause triggers, confirm Continue, autosave, save to slot, download save (.json) |
 
 **States.** Empty states for every list and table, a screen-error state, save error, legacy save found, unreadable save (falls back to the backup), offer rejected / countered, offer expired, scouting in progress, no fixture, playoffs and internationals not started. Checked at 1280 × 800 with no page scroll (long tables scroll inside their card).
 
 ## Technical architecture
 
-Plain JavaScript ES modules, no build step, no runtime dependencies (fonts from Google Fonts). Served as static files, for example `python3 -m http.server`.
+Plain JavaScript ES modules plus `js/engine.ts`, which imports the TypeScript sim; Node runs it through tsx, and the browser build is still to come (the UI is not yet ported to the new engine).
 
 **Saves.** IndexedDB with three slots plus an autosave (weekly or daily, and after every multi-day sim); each write keeps the previous version as a `.bak`. Saves are gzip-compressed with `CompressionStream` (about 5 MB of JSON per year of history becomes about 1 MB). No localStorage fallback (v0.5): saves can be downloaded as .json from Settings and imported from the main menu instead. `SAVE_VERSION` 4 with a migration chain (v0.4 saves gain the new champions' mastery, drafting plans, the board, the manager and goals; patches, personalities and chemistry fill in lazily); v0.3 saves can't be converted and get a clean "start new" prompt. Save failures open a modal: Try again, Download save, Keep playing.
 
@@ -310,11 +238,10 @@ Plain JavaScript ES modules, no build step, no runtime dependencies (fonts from 
 
 | Module | Responsibility |
 |---|---|
-| `js/data.js` | Champions, roles, attributes and weights, items and builds, teamfight roles, regions, tiers, name tables |
-| `js/map.js` | Arena geometry, structures, camps, pits, blocked grid, waypoint graph, line of sight |
-| `js/sim.js` | Full match engine, plans, items, event stream, summaries |
+| `js/data.js` | Champions, roles, attributes and weights, plan presets, regions, tiers, name tables |
+| `js/engine.ts` | Adapter to the Lanebound sim: MatchConfig from lineups, tactics, kit patch, summary |
 | `js/fastsim.js` | Statistical engine and `runPayload` (fast or full) |
-| `js/draft.js` | Standard and Fearless orders, locks, AI bans and picks |
+| `js/draft.js` | 12-step order, AI bans and picks |
 | `js/world.js` | World generation, players, clubs, staff, facilities, inbox, auto-starters |
 | `js/club.js` | Training, condition, development, contracts, scouting, negotiation, AI market, finances, newgens, retirement |
 | `js/calendar.js` | Dated schedule, leagues, brackets, internationals, promotion, games, awards, sim controls, season review |
@@ -330,7 +257,7 @@ Plain JavaScript ES modules, no build step, no runtime dependencies (fonts from 
 | `js/worker.js` | Web Worker running full-engine jobs |
 | `js/ui/*.js` | `app` (shell, router, menu, new career, settings, inbox, review), `screens` (club side), `comps` (competitions, stats), `matchday` (draft, live, post-game, report), `render` (canvas), `dom`, `state`, `store` |
 
-**Testing.** `node test/sim.test.mjs` (determinism, bookkeeping, items, events, Fearless), `node test/fastsim.test.mjs` (fast vs full win rates), `node test/news.test.mjs` (one season: story types, inbox cap, no broken text), `node test/people.test.mjs` (chemistry growth and engine effect, personalities, promises and conversations, talks, rivalries), `node test/balance.mjs` (champion win rates), `node test/stats.test.mjs` (stat invariants on both engines: kills, deaths with executions, gold, objectives, games and wins per player and team, series scores, champion totals, the series scope), `node test/career.test.mjs [years]` (full seasons on the fast engine: every competition completes with the right sizes, promotion keeps tier sizes, rosters stay legal, stats centre and CSV work, save size). A year simulates in about 1.4 s in Node. The UI is checked in headless Chrome with no console errors.
+**Testing.** Run with `npm run manager:test` (tsx resolves the sim's TypeScript). `test/engine.test.mjs` (champion table matches the sim, draft, determinism, replay from the config, bookkeeping, skill matters), `test/fastsim.test.mjs` (fast vs full win rates, same summary shape), `test/fit.mjs` (calibration, not a test), `node test/news.test.mjs` (one season: story types, inbox cap, no broken text), `node test/people.test.mjs` (chemistry growth and engine effect, personalities, promises and conversations, talks, rivalries), `test/stats.test.mjs` (stat invariants on both engines: kills, deaths, score split, captures, score timeline, games and wins per player and team, series scores, champion totals, the series scope), `node test/career.test.mjs [years]` (full seasons on the fast engine: every competition completes with the right sizes, promotion keeps tier sizes, rosters stay legal, stats centre and CSV work, save size). A year simulates in about 1.4 s in Node. The UI is checked in headless Chrome with no console errors.
 
 ## Roadmap / open work
 
@@ -341,10 +268,8 @@ Everything from P0–P8 (except P7), D0–D5 and News (v0.6) is built. What is l
 | 1 | Scouting report feeds the analyst's ban suggestions | S | Today the report is only a panel in the draft |
 | 2 | Exhibitions: friendly series on free days, with their own stats scope | S | Fills the empty Exhibitions scope |
 | 3 | AI clubs use team talks and scrims | S | Fairness: today only the user benefits |
-| 4 | Titan steals detected as highlights | S | Big moments are missing from the Top 5 |
-| 5 | Mid roams with a lane-safety check | M | Roams were removed because they lost games |
-| 6 | Media days on the schedule (pre-season and before finals): pick answers that move morale and board confidence | M | Ties into People and Career stakes |
-| 7 | P7 Ranked solo queue | L | Parked: little value until the rest is deep enough |
+| 4 | Media days on the schedule (pre-season and before finals): pick answers that move morale and board confidence | M | Ties into People and Career stakes |
+| 5 | P7 Ranked solo queue | L | Parked: little value until the rest is deep enough |
 
 Each item ends with passing tests, a headless-Chrome run with no console errors, a GDD update, and a `SAVE_VERSION` bump plus migration if the save shape changes.
 
@@ -369,6 +294,7 @@ Each item ends with passing tests, a headless-Chrome run with no console errors,
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-25 | v0.7 | Career logic on the Lanebound sim: `js/engine.ts` adapter, six sim attributes plus Aggression, Resilience and Clutch, the 14 sim champions, 12-step draft (Fearless removed), plans as sim tactics, patches as a kit patch, fast engine refitted on the sim. EMC lane engine, map, items and balance test removed. `SAVE_VERSION` 5 (no migration) |
 | 2026-11-20 | v0.6.1 | Tactic Cards groundwork (CARD_PLAN.md): `js/cards.js` with 6 sample cards and rules text generated from data; `js/ui/cards.js` pixel-art card renderer (full, hand and foil states, rarity borders); dev gallery at `#/dev/cards`. No gameplay effect yet |
 | 2026-11-20 | v0.6 | News: `js/news.js` with ten story types (results, streaks, title races, titles, internationals, transfers, milestones, patches, awards, your club), templates, weekly ranking (top 3 to the inbox, one per type), News card on Home, club and player links in the reader, media pressure on board confidence; `test/news.test.mjs` |
 | 2026-11-20 | v0.5.2 | Bracket redrawn to mockup 06 (positioned cards, connectors, gold path); highlight titles with context; Top 5 digest to mockup 17b; game recaps and gold graphs in result mails and the report |
