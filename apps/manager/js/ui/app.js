@@ -176,7 +176,7 @@ function newCareer(region) {
   }
   region = decodeURIComponent(region);
   const tiers = [0, 1, 2].map(t => leagueTeams(W, region, t).sort((a, b) => strength(W, b) - strength(W, a)));
-  let sel = tiers[0].at(-1).id, tierSel = 0;
+  let sel = tiers[0].at(-1).id, tierSel = 0, classic = false;
   const draw = () => {
     const t = team(W, sel);
     app.innerHTML = `<main class="focus"><div class="focus-head"><span class="caps">New career · step 2 of 2 · ${esc(REGION_INFO[region].league)}</span><h1 class="disp">Choose your club</h1></div>
@@ -191,11 +191,13 @@ function newCareer(region) {
             <h4 class="caps mt">Starting five</h4>
             ${t.starters.map(id => W.players[id]).map(p => `<div class="kv"><span>${p.role} · ${esc(p.name)}</span><b>${overall(p)}</b></div>`).join('')}
           </div>
-          <div class="mfoot"><button class="btn btn-primary btn-lg" id="start">Start career ▸</button></div></section>
+          <div class="mfoot"><label class="small">Tactic Cards ${seg('classic', [[false, 'On'], [true, 'Classic (off)']], classic)}</label><button class="btn btn-primary btn-lg" id="start">Start career ▸</button></div></section>
       </div><div class="focus-foot"><a class="btn btn-ghost" href="#/new">◂ Regions</a></div></main>`;
     on(app, '[data-club]', 'click', r => { sel = r.dataset.club; draw(); });
     on(app, '[data-tier]', 'click', b => { tierSel = +b.dataset.tier; sel = tiers[tierSel].at(-1).id; draw(); });
+    on(app, '[data-classic]', 'click', b => { classic = b.dataset.classic === 'true'; draw(); });
     $('#start', app).onclick = async () => {
+      if (classic) W.classic = true; // fixed for the career
       setUserTeam(W, sel);
       state.W = W; pending = null;
       const saves = await listSaves();
@@ -220,6 +222,7 @@ function settings(el) {
       <label>Pause when a scouting report arrives ${seg('pauseScouting', [[true, 'On'], [false, 'Off']], s.pauseScouting)}</label>
       <label>Confirm before Continue ${seg('confirmContinue', [[true, 'On'], [false, 'Off']], s.confirmContinue)}</label>
       <label>Autosave ${seg('autosave', [['weekly', 'Weekly'], ['daily', 'Daily']], s.autosave)}</label>
+      ${state.W ? `<div class="kv"><span>Tactic Cards</span><b>${state.W.classic ? 'Off (Classic mode)' : 'On'}</b></div>` : ''}
       ${state.W ? `<div class="row">Save to ${SLOTS.slice(0, 3).map(sl => `<button class="btn btn-secondary" data-save="${sl}">${SLOT_LABEL[sl]}${sl === state.slot ? ' (current)' : ''}</button>`).join('')}</div>
       <div class="row"><button class="btn btn-ghost" id="export">Download save (.json)</button><a class="btn btn-ghost" href="#/menu" id="quit">Main menu</a></div>` : '<a class="btn btn-ghost" href="#/menu">◂ Main menu</a>'}
     </div>`)}</div>`;

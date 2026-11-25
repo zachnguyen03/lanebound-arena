@@ -10,13 +10,28 @@ import { ArenaCanvas } from '@watch/components/ArenaCanvas';
 import { TopHud } from '@watch/components/TopHud';
 import { TeamRail } from '@watch/components/TeamRail';
 import { KillBanner } from '@watch/components/KillBanner';
+import { cardView } from '../cards.js';
+import { cardArt } from './cards.js';
 import './watch.css';
 
 export const STAGE = { w: 1280, h: 572 };
 let assetsP = null;
 const L = HUD_720, [mx, my, mw, mh] = L.arena_map;
 
-function Stage({ assets, engine, tick, next, subTick, names, tags, players }) {
+// Tactic Card reveal: shown for 4 s after a card_fire (the card's art, owner side, rules text).
+function CardBanner({ fires, tick, config, names }) {
+  const f = fires.findLast(e => e.tick <= tick && e.tick > tick - 40);
+  if (!f) return null;
+  const spec = config.cards?.[f.team]?.find(c => c.id === f.card_id), v = cardView({ id: f.card_id, rarity: spec?.rarity ?? 'common', champ: spec?.trigger?.champ });
+  return (
+    <div className={`watch-card ${f.team}`} role="status">
+      <img src={cardArt(v.id, v.sky, v.art)} alt="" />
+      <div><span>{names[f.team === 'blue' ? 0 : 1]} reveal</span><b>{v.name}</b><span>{v.then.replace(/\[\[|\]\]/g, '')}</span></div>
+    </div>
+  );
+}
+
+function Stage({ assets, engine, tick, next, subTick, names, tags, players, fires, config }) {
   const state = engine.stateAt(tick);
   return (
     <div className="watch-stage relative bg-field" style={{ width: STAGE.w, height: STAGE.h }}>
@@ -30,6 +45,7 @@ function Stage({ assets, engine, tick, next, subTick, names, tags, players }) {
         {assets ? <ArenaCanvas assets={assets} state={state} mode="720" vfx subTick={subTick} next={next} /> : <div className="p-4 text-dim">Loading arena…</div>}
         <KillBanner events={engine.events} currentTick={tick} state={state} portraits={assets?.portraits} />
       </div>
+      <CardBanner fires={fires} tick={tick} config={config} names={names} />
     </div>
   );
 }
@@ -37,7 +53,8 @@ function Stage({ assets, engine, tick, next, subTick, names, tags, players }) {
 // Mounts the view in el. opts: { names: [blue, red], tags: [blue, red], speed, paused, startT, scale, onTick(t), onEnd() }.
 // Returns a controller: setSpeed(n) (0 pauses), seek(t), toEnd(), destroy(). t is in seconds.
 export function mountMatch(el, config, opts = {}) {
-  const engine = new ReplayEngine(simulate({ ...config, debug_pos: true }).events, new Set([...CHAMP_ART, ...config.blue.picks, ...config.red.picks]));
+  const events = simulate({ ...config, debug_pos: true }).events, fires = events.filter(e => e.type === 'card_fire');
+  const engine = new ReplayEngine(events, new Set([...CHAMP_ART, ...config.blue.picks, ...config.red.picks]));
   const root = createRoot(el), players = { blue: config.blue.players.map(p => p.name), red: config.red.players.map(p => p.name) };
   let assets = null, tick = Math.min(engine.maxTick, Math.round((opts.startT ?? 0) * 10)), speed = opts.paused ? 0 : (opts.speed ?? 1), acc = 0, last = null, raf = 0, ended = false;
   if (opts.scale && opts.scale !== 1) Object.assign(el.style, { width: `${STAGE.w * opts.scale}px`, height: `${STAGE.h * opts.scale}px`, overflow: 'hidden' });
@@ -45,7 +62,7 @@ export function mountMatch(el, config, opts = {}) {
   const draw = () => {
     const playing = speed > 0 && tick < engine.maxTick;
     root.render(<div style={opts.scale ? { transform: `scale(${opts.scale})`, transformOrigin: 'top left' } : undefined}>
-      <Stage assets={assets} engine={engine} tick={tick} next={playing ? engine.stateAt(tick + 1) : null} subTick={playing ? subTick : undefined} names={opts.names ?? ['Blue', 'Red']} tags={opts.tags && { blue: opts.tags[0], red: opts.tags[1] }} players={players} />
+      <Stage assets={assets} engine={engine} tick={tick} next={playing ? engine.stateAt(tick + 1) : null} subTick={playing ? subTick : undefined} names={opts.names ?? ['Blue', 'Red']} tags={opts.tags && { blue: opts.tags[0], red: opts.tags[1] }} players={players} fires={fires} config={config} />
     </div>);
     opts.onTick?.(tick / 10);
     if (tick >= engine.maxTick && !ended) { ended = true; opts.onEnd?.(); }

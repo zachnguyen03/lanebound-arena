@@ -3,7 +3,9 @@
 import { ROLES, CHAMPS, CHAMP_IDS, fmt } from '../data.js';
 import { DRAFT_ORDER, newDraft, turn, draftDone, applyDraft, aiChoice, effProf } from '../draft.js';
 import { runPayload } from '../fastsim.js';
-import { team, userTeam, starterPlayers, engineTeam, nextGameSides, recordGame, stakesOf, draftPrefs, MASTERY, TALKS, teamTalk, isRivalry, scoutReport, highlights, gameSummary } from '../career.js';
+import { team, userTeam, starterPlayers, engineTeam, nextGameSides, recordGame, stakesOf, draftPrefs, MASTERY, TALKS, teamTalk, isRivalry, scoutReport, highlights, gameSummary, cardPool, usedCards, aiLoadout, loadCards } from '../career.js';
+import { CARDS, LOADOUT, bestLoadout, loadoutError, costOf, cardView, triggerStatus } from '../cards.js';
+import { cardHTML } from './cards.js';
 import { state, go, save } from './state.js';
 import { esc, $, on, crest, kfmt, empty, toast, card, ROLE_SHORT } from './dom.js';
 import { champSprite } from './screens.js';
@@ -14,7 +16,13 @@ const CLOCK = 30;
 
 function newGame(W, s) {
   const [blue, red] = nextGameSides(s);
-  md = { sid: s.id, blue, red, userSide: blue === W.userTeamId ? 0 : 1, phase: 'draft', draft: newDraft(), sel: null, role: '', q: '', hide: false, swap: null, clock: CLOCK, players: [blue, red].map(id => starterPlayers(W, team(W, id))) };
+  md = { sid: s.id, blue, red, userSide: blue === W.userTeamId ? 0 : 1, phase: W.classic ? 'draft' : 'cards', draft: newDraft(), sel: null, role: '', q: '', hide: false, swap: null, clock: CLOCK, players: [blue, red].map(id => starterPlayers(W, team(W, id))) };
+  if (W.classic) { md.load = [[], []]; return; }
+  // Both coaches pick before the draft: the analyst pre-selects the user's best loadout; the opponent's stays hidden.
+  const us = team(W, W.userTeamId), opp = team(W, blue === us.id ? red : blue);
+  md.pool = cardPool(W, us); md.used = usedCards(s, us.id);
+  md.mine = bestLoadout(md.pool, md.used, us.plan);
+  md.theirs = aiLoadout(W, s, opp);
 }
 
 export function match(app, sid) {
@@ -24,13 +32,40 @@ export function match(app, sid) {
     if (s.winner) return go('#/home');
     newGame(W, s);
   }
-  ({ draft: renderDraft, live: renderLive, post: renderPost })[md.phase](app);
+  ({ cards: renderCards, draft: renderDraft, live: renderLive, post: renderPost })[md.phase](app);
 }
 
 const sideName = side => (side ? 'Red' : 'Blue');
 function seriesHeader(W, s) {
   const c = W.comps[s.comp];
   return `${esc(c.name)} · ${esc(s.label)} · Game ${s.games.length + 1} of ${s.bestOf}`;
+}
+
+// ================= Card select (CARD_PLAN §3, §14) =================
+function renderCards(app) {
+  const W = state.W, s = W.series[md.sid], teams = [team(W, md.blue), team(W, md.red)], mine = md.mine;
+  const keys = mine.map(c => c.key), focus = mine.reduce((n, c) => n + costOf(c), 0), err = loadoutError(mine, md.used);
+  const col = (p, i) => `<section class="cs-col"><header><span class="caps">${ROLES[i]}</span><b>${esc(p.name)}</b></header>${md.pool.filter(c => c.slot === i).map(c => {
+    const v = cardView(c), used = md.used.includes(c.key), on = keys.includes(c.key);
+    return `<div class="cs-card ${on ? 'on' : ''} ${used ? 'used' : ''}" data-key="${c.key}" role="button" tabindex="0" aria-pressed="${on}" ${used ? 'aria-disabled="true" title="Loaded earlier this series"' : ''}>${cardHTML(c, 'hand')}
+      <div class="cs-text"><p><b>When</b> ${esc(v.when.replace(/\[\[|\]\]/g, ''))}</p><p><b>Then</b> ${esc(v.then.replace(/\[\[|\]\]/g, ''))}</p><span class="caps ${used ? 'bad' : 'dim'}">${used ? 'Used this series' : triggerStatus(c, md.draft, md.userSide)}</span></div></div>`;
+  }).join('')}</section>`;
+  app.innerHTML = `<div class="cards-select">
+    <header class="cs-head"><div><span class="dim small">${seriesHeader(W, s)} · <span class="blue">${esc(teams[0].name)}</span> v <span class="red">${esc(teams[1].name)}</span></span><h1 class="disp xl">Tactic Cards</h1>
+      <span class="small dim">Load up to ${LOADOUT.size} cards from your starters: at most ${LOADOUT.perPlayer} from one player, one Signature. Hidden until they fire; a loaded card can't be loaded again this series.</span></div>
+      <div class="cs-meter"><span class="caps">Focus</span><b class="disp score ${focus > LOADOUT.budget ? 'bad' : ''}">${focus}/${LOADOUT.budget}</b><span class="caps">${mine.length}/${LOADOUT.size} cards</span></div></header>
+    <div class="cs-cols">${md.players[md.userSide].map(col).join('')}</div>
+    <footer class="cs-foot"><span class="${err ? 'bad' : 'dim'} small">${err ?? (mine.length ? mine.map(c => esc(cardView(c).name)).join(' · ') : 'No cards loaded')}</span><span class="sp"></span>
+      <button class="btn btn-ghost" id="cardsauto">Analyst pick</button><button class="btn btn-ghost" id="cardsclear">Clear</button><button class="btn btn-blue btn-lg" id="lockcards" ${err ? 'disabled' : ''}>Lock cards ▸</button></footer></div>`;
+  on(app, '[data-key]', 'click', el => {
+    if (el.getAttribute('aria-disabled')) return toast(el.title, true);
+    const c = md.pool.find(x => x.key === el.dataset.key);
+    md.mine = keys.includes(c.key) ? mine.filter(x => x !== c) : [...mine, c];
+    renderCards(app);
+  });
+  $('#cardsauto', app).onclick = () => { md.mine = bestLoadout(md.pool, md.used, userTeam(W).plan); renderCards(app); };
+  $('#cardsclear', app).onclick = () => { md.mine = []; renderCards(app); };
+  $('#lockcards', app).onclick = () => { md.phase = 'draft'; md.load = md.userSide ? [md.theirs, md.mine] : [md.mine, md.theirs]; renderDraft(app); };
 }
 
 // ================= Draft (04) =================
@@ -50,7 +85,7 @@ function renderDraft(app) {
   const used = side => s.games.map(gid => W.games.find(g => g.id === gid)).filter(Boolean).map((g, i) => { const tid = side ? md.red : md.blue, sd = g.blue === tid ? 0 : 1; return `<div class="used"><span class="caps">G${i + 1}</span>${g.picks[sd].map(id => champSprite(id, 28)).join('')}<span class="f ${g.winner === tid ? 'w' : 'l'}">${g.winner === tid ? 'W' : 'L'}</span></div>`; }).join('');
   const bans = side => Array.from({ length: DRAFT_ORDER.filter(x => x[0] === side && x[1] === 'ban').length }, (_, i) => (d.bans[side][i] ? `<span class="ban">${champSprite(d.bans[side][i], 30)}</span>` : '<span class="ban empty"></span>')).join('');
   const col = side => `<aside class="d-col ${side ? 'rside' : ''}">${ROLES.map((role, i) => { const p = md.players[side][i], id = d.picks[side][i], me = side === us; const active = me && ((myTurn && cur[1] === 'pick' && md.slot === i) || md.swap === i); return `<div class="d-slot ${active ? 'active' : ''} ${cur && cur[0] === side && cur[1] === 'pick' && !id ? 'turn' : ''}" ${me ? `data-slot="${i}" role="button" tabindex="0"` : ''}>${id ? champSprite(id, 56) : `<span class="d-empty">${active ? '?' : ''}</span>`}<div><span class="caps">${role}${id ? ` · ${esc(p.name)}` : ''}</span><b class="${id ? 'disp lg' : ''}">${id ? esc(CHAMPS[id].name) : esc(p.name)}</b>${id && me ? `<span class="small dim">Mastery ${MASTERY(effProf(p, i, id))}</span>` : ''}</div></div>`; }).join('')}
-    ${side !== us ? intel(W, team(W, side ? md.red : md.blue)) : ''}<div class="d-used"><span class="caps">Used this series</span>${used(side) || '<span class="dim small">First game</span>'}</div></aside>`;
+    ${side !== us ? intel(W, team(W, side ? md.red : md.blue)) : md.load[us].length ? `<div class="d-used"><span class="caps">Your cards</span>${md.load[us].map(c => { const st = triggerStatus(c, d, us); return `<div class="small">${esc(cardView(c).name)} <b class="${st === 'Live' ? 'good' : st === 'Dead' ? 'bad' : 'dim'}">${st}</b></div>`; }).join('')}</div>` : ''}<div class="d-used"><span class="caps">Used this series</span>${used(side) || '<span class="dim small">First game</span>'}</div></aside>`;
   const list = CHAMP_IDS.filter(id => (!md.role || CHAMPS[id].roles.includes(md.role)) && (!md.q || CHAMPS[id].name.toLowerCase().includes(md.q.toLowerCase())) && (!md.hide || !lockReason(d, id)));
   const unavailable = CHAMP_IDS.filter(id => lockReason(d, id)).length;
   const selId = md.sel && !lockReason(d, md.sel) ? md.sel : suggestion?.id;
@@ -138,6 +173,7 @@ function feedLine(players, names, e, jump = false) {
   const nm = pid => esc(players.find(p => p.pid === pid)?.name ?? '?');
   const side = `class="${e.side ? 'red' : 'blue'}"`, at = `<span class="num dim">${fmt(e.t)}</span>`, attr = jump ? ` data-jump="${e.t}" role="button" tabindex="0"` : '';
   if (e.type === 'kill') return `<div class="feed-row"${attr}>${at}<b ${side}>${nm(e.k)}</b>${champSprite(e.kc, 20)}<span class="dim">›</span>${champSprite(e.vc, 20)}<span>${nm(e.v)}</span>${e.fb ? '<span class="pill">First blood</span>' : ''}${e.shutdown ? '<span class="pill hi">Shutdown</span>' : ''}${e.streak >= 3 ? `<span class="pill">${e.streak} streak</span>` : ''}</div>`;
+  if (e.type === 'card') return `<div class="feed-row"${attr}>${at}<span ${side}>▮</span><span>${esc(names[e.side])} revealed <b>${esc(CARDS[e.id]?.name ?? e.id)}</b>${e.score ? ` (+${e.score})` : ''}</span></div>`;
   const txt = { ace: `ACE for ${esc(names[e.side])}`, capture: `${esc(names[e.side])} captured ${esc(String(e.point ?? 'a point'))}`, claim: `${esc(names[e.side])} won a fight claim` }[e.type];
   return txt ? `<div class="feed-row"${attr}>${at}<span ${side}>◆</span><span>${txt}</span></div>` : '';
 }
@@ -147,7 +183,8 @@ const planText = tac => `${{ hold_the_pit: 'Hold the pit', hunt: 'Hunt', starve:
 function startLive(app) {
   const W = state.W, s = W.series[md.sid];
   const [b, r] = [md.blue, md.red].map(id => team(W, id));
-  md.sum = runPayload({ teamA: engineTeam(W, b, md.draft.picks[0]), teamB: engineTeam(W, r, md.draft.picks[1]), seed: Math.floor(Math.random() * 2 ** 31), fast: false, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } });
+  md.load.forEach((cs, side) => loadCards(s, side ? md.red : md.blue, cs));
+  md.sum = runPayload({ teamA: engineTeam(W, b, md.draft.picks[0], b.plan, md.load[0]), teamB: engineTeam(W, r, md.draft.picks[1], r.plan, md.load[1]), seed: Math.floor(Math.random() * 2 ** 31), fast: false, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } });
   md.phase = 'live'; md.speed = state.settings.speed; md.paused = false;
   renderLive(app);
 }
@@ -207,10 +244,11 @@ function renderPost(app) {
       <section class="card potg"><div class="ch"><h3>Player of the game</h3></div><div class="pad-s row">${champSprite(mvp.champ, 72)}<div><h2 class="disp xl">${esc(mvp.name)}</h2><span class="dim">${esc(CHAMPS[mvp.champ].name)} · rating <b>${mvp.rating}</b></span><p class="small">${potgReason(mvp)}</p></div></div></section>
       <section class="card"><div class="ch"><h3>Team comparison</h3><span class="meta"><span class="blue">${esc(teams[0].tag)}</span> v <span class="red">${esc(teams[1].tag)}</span></span></div><div class="pad-s">${compareBars(sum)}</div></section>
       <section class="card"><div class="ch"><h3>Score lead</h3></div><div class="pad-s">${scoreGraph(sum.timeline)}</div></section></div>
+    ${md.load[0].length + md.load[1].length ? `<div class="post-cards small">${[md.userSide, 1 - md.userSide].map(side => { const fired = sum.events.filter(e => e.type === 'card' && e.side === side); const shown = side === md.userSide ? md.load[side] : md.load[side].filter(c => fired.some(e => e.id === c.id && e.pid === c.pid)); return `<span class="caps ${side ? 'red' : 'blue'}">${side === md.userSide ? 'Your cards' : 'Revealed'}</span>${shown.map(c => { const f = fired.find(e => e.id === c.id && e.pid === c.pid); return `<span class="pill ${f ? 'hi' : ''}">${esc(cardView(c).name)} · ${f ? `fired ${fmt(f.t)}` : 'not fired'}</span>`; }).join('') || '<span class="dim">none</span>'}`; }).join('')}</div>` : ''}
     <div class="g2 mt">${[0, 1].map(side => `<section class="card"><div class="ch"><h3 class="${side ? 'red' : 'blue'}">${esc(teams[side].name)}</h3><span class="meta">${sum.score[side]} points · ${sum.kills[side]} kills · ${sum.caps[side]} captures</span></div><div class="scroll">${statTable(sum, side)}</div></section>`).join('')}</div>
     <div class="post-foot"><a class="btn btn-secondary" href="#/report/${md.gid}">Match report</a>${done ? `<b>${esc(team(W, s.winner).name)} take the series ${s.wins[s.winner]}–${s.wins[s.winner === s.a ? s.b : s.a]}.</b><button class="btn btn-primary btn-lg" id="done">Finish ▸</button>` : '<button class="btn btn-primary btn-lg" id="next">Next game ▸</button>'}</div></div>`;
   $('#done', app)?.addEventListener('click', () => { md = null; go('#/home'); });
-  $('#next', app)?.addEventListener('click', () => { newGame(W, s); renderDraft(app); });
+  $('#next', app)?.addEventListener('click', () => { newGame(W, s); (md.phase === 'cards' ? renderCards : renderDraft)(app); });
 }
 
 // ================= Match report (15) =================

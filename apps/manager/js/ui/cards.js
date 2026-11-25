@@ -1,5 +1,5 @@
 // Tactic Card rendering: pixel art drawn on a canvas, frame and text in HTML/CSS. Dev gallery at #/dev/cards.
-import { cardView, GLOSSARY } from '../cards.js';
+import { cardView, GLOSSARY, CARD_IDS, CARDS } from '../cards.js';
 import { esc } from './dom.js';
 
 // ---------- Pixel art: a night scene per card plus a hand-drawn icon ----------
@@ -80,8 +80,8 @@ export function cardHTML(held, size = 'full', opts = {}) {
 
 // ---------- Dev gallery ----------
 const SAMPLE = [
-  { id: 'ward-river', rarity: 'common' }, { id: 'clear-speed', rarity: 'common' }, { id: 'called-shot', rarity: 'rare' },
-  { id: 'bounty-hunter', rarity: 'epic' }, { id: 'never-say-die', rarity: 'epic' }, { id: 'huntress-specialist' },
+  { id: 'hold-the-line', rarity: 'common' }, { id: 'clear-speed', rarity: 'common' }, { id: 'called-shot', rarity: 'rare' },
+  { id: 'bounty-hunter', rarity: 'epic' }, { id: 'never-say-die', rarity: 'epic' }, { id: 'specialist', champ: 'huntress' },
 ];
 export function devCards(el) {
   el.innerHTML = `<main class="pad tc-gallery">
@@ -89,5 +89,6 @@ export function devCards(el) {
     <h2 class="caps mt">Full card</h2><div class="tc-row">${SAMPLE.map(c => cardHTML(c)).join('')}</div>
     <h2 class="caps mt">Hand / loadout · 120 px</h2><div class="tc-row">${SAMPLE.map(c => cardHTML(c, 'hand')).join('')}</div>
     <h2 class="caps mt">Hover / focus · foil sheen (Epic and Signature only)</h2><div class="tc-row">${SAMPLE.slice(3).map(c => cardHTML(c, 'full', { foil: true })).join('')}</div>
+    <h2 class="caps mt">Every card · Common</h2><div class="tc-row">${CARD_IDS.map(id => cardHTML({ id, rarity: CARDS[id].signature ? 'signature' : 'common' })).join('')}</div>
   </main>`;
 }

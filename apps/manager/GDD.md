@@ -1,6 +1,6 @@
 # Lanebreak Manager — Game Design Document
 
-Updated 2026-11-25 (v0.7, Lanebound engine). This file is updated every time a feature lands. The parity plan against the LEM feature summary is in `PLAN.md`.
+Updated 2026-11-25 (v0.8, Lanebound engine, Tactic Cards). This file is updated every time a feature lands. The parity plan against the LEM feature summary is in `PLAN.md`.
 
 ## Overview & pillars
 
@@ -70,6 +70,57 @@ Top and Support have two champions each, so most drafts put someone off-role.
 **Order (12 steps):** one ban each (Blue, Red), then picks B R R B B R R B B R. The higher seed is Blue in game 1; sides alternate within a series. There is no Fearless mode: 14 champions can't support it.
 
 **AI drafting.** Bans take the opponent's best comfort pick for a role they still have to fill, weighted by the patch. Picks take the best mastery for an open slot (off-role at 85%) plus the patch's meta value. The analyst's suggestion shows the reason.
+
+## Tactic Cards
+
+*Built in v0.8 (`js/cards.js`, sim `sim/cards.ts`). Design: CARD_PLAN.md, translated from the lane engine to points mode.* Every starter brings 2–3 cards; before each game both coaches secretly load up to 3. A card fires when its trigger happens in the game and applies a short effect. Cards are hidden until they fire.
+
+**Rules.** Loadout: at most 3 cards, total cost ≤ 6 Focus, at most 2 from one player, at most one Signature. Cost = base cost (1–2) + 1 for Epic (max 3); Signature cards cost 3. Each card fires once a game unless it is marked Repeat. **Fearless cards:** a card loaded in a game of a series (fired or not) can't be loaded again in that series (`s.cards[teamId]` holds the used `pid:cardId` keys). Classic mode (new-career setting, fixed for the career, `W.classic`) turns cards off.
+
+**Where cards come from** (`playerCards`, derived from the player every time, so no save field). Slot 1: a role card (two per role, picked by the player's id). Slot 2: the first trait card (Aggressive, Hot-headed, Clutch performer, Shotcaller, Team player, Ice cold, Professional, Sharpshooter), else the card of the best attribute. Slot 3 at overall 70+: Franchise (Signature) at 80+, a {Champion} Specialist (Signature) at 75+ with a role champion at mastery ≥ 1.10, otherwise the next trait/attribute card. Rarity: overall < 60 all Common; 60–69 slot 2 Rare; 70–79 slot 2 Epic, others Rare; 80+ all Epic. Rarity scales every numeric effect: Common ×1, Rare ×1.3, Epic ×1.6 (score bonuses are not scaled). The player page shows a player's cards.
+
+**Triggers** (`sim/cards.ts`, checked every tick from the tick's events and the state): first capture of the game, we take the majority (2 of 3 points), the enemy takes a point we held, we hold the majority for N s, we trail / lead by N points, the score is within N at a time, the clock reaches a time, first blood for us / for them, the holder reaches N kills, the holder (or our / their role) has died N times, an ally scores N kills within 10 s, the holder hasn't died by a time, the enemy drafts N+ of a class (at 0:00), the holder plays a champion (at 0:00). **Effects:** damage dealt, damage taken, move speed, cooldown recovery, capture speed and respawn timers as multipliers for N s (or the game), a one-shot shield (fraction of max HP), +N score, and a tactic override (preset, aggression, focus) for N s. Targets: the holder, the team or the enemy team. A firing emits `card_fire {team, card_id, owner, score?}`; the summary turns it into a `card` event (`side, id, pid`).
+
+**AI coaches** load the 3 legal cards with the highest measured win-chance gain still unused in the series (+0.5% for each card whose tags fit the club's plan: Early aggression likes early/fight cards, Scale likes scale/comeback, Split and Objective control like objective cards). The user's card select starts from the same analyst pick.
+
+**Fast engine.** Each loaded card adds its measured win-chance gain to the side's strength (dd = 4·gain / 0.1089). Draft triggers are resolved from the picks: gain / fire rate when met, 0 when not. Synthetic `card` events are drawn with the measured fire rate (at the trigger's time for clock triggers, otherwise anywhere in the game), so feeds and stats see cards in background games.
+
+**UI.** Card select before the draft (the five starters' cards with rules text, Focus meter, per-player limit, cards used this series greyed out, the measured fire rate per card); in the draft the user's column lists the loaded cards as Live / Dead (draft triggers) or Likely with the fire rate; the live view shows a reveal banner (card art, side, effect) for 4 s and a feed line; the post-game lists your cards as fired (with the time) or not fired, and the opponent's revealed cards. Dev gallery at `#/dev/cards`.
+
+**Measured effect** (`test/card-fit.mjs`: even teams, the card on one side alternating Blue and Red, paired against the same games without cards; win-chance gain in points with a 95% interval; fire rate at Common):
+
+| Card | Fire | Common | Epic | Fit (C / E) |
+|---|---|---|---|---|
+| island-lord | 60% | +2.0 ± 4.5 | +0.8 ± 4.6 | 0.9 / 1.5 |
+| stubborn | 95% | +1.0 ± 4.1 | +1.8 ± 4.5 | 1.1 / 1.7 |
+| clear-speed | 50% | -1.5 ± 4.2 | -1.0 ± 4.3 | 0.5 / 0.8 |
+| bounty-hunter | 63% | +1.3 ± 3.7 | +2.5 ± 3.3 | 1.5 / 2.4 |
+| triple-threat | 60% | -1.5 ± 3.3 | +3.3 ± 3.7 | 1.1 / 1.7 |
+| called-shot | 99% | +1.8 ± 5.7 | +2.8 ± 6.1 | 1.8 / 2.8 |
+| hypercarry | 80% | +0.5 ± 3.8 | -0.3 ± 4.2 | 0.5 / 0.8 |
+| second-wind | 62% | +1.0 ± 3.3 | +3.0 ± 3.9 | 1.6 / 2.6 |
+| hold-the-line | 100% | +5.3 ± 5.6 | +5.8 ± 5.5 | 2.5 / 4.0 |
+| peel | 88% | +1.5 ± 4.8 | +4.3 ± 5.3 | 2.4 / 3.8 |
+| spoils-of-war | 51% | +3.0 ± 4.2 | +0.8 ± 4.6 | 1.2 / 1.9 |
+| shake-it-off | 50% | +1.5 ± 4.2 | +3.0 ± 4.3 | 1.8 / 2.8 |
+| never-say-die | 50% | -1.0 ± 3.0 | +1.0 ± 3.0 | 0.5 / 0.8 |
+| call-it | 93% | -1.5 ± 4.9 | +1.5 ± 5.1 | 0.5 / 0.8 |
+| press-the-claim | 99% | -0.3 ± 4.1 | +2.5 ± 4.2 | 1.0 / 1.7 |
+| blood-in-the-water | 88% | +1.5 ± 5.0 | +0.8 ± 5.1 | 0.8 / 1.2 |
+| dead-heat | 43% | +1.3 ± 3.5 | +3.5 ± 3.6 | 1.9 / 3.1 |
+| long-game | 100% | +7.8 ± 4.1 | +1.5 ± 4.2 | 2.5 / 4.0 |
+| closing-argument | 49% | +1.8 ± 3.1 | +3.0 ± 2.9 | 1.9 / 3.0 |
+| last-stand | 30% | +1.3 ± 1.6 | +2.3 ± 1.5 | 1.4 / 2.2 |
+| first-claim | 50% | +2.5 ± 4.3 | +5.3 ± 4.4 | 2.5 / 4.0 |
+| closing-time | 61% | +2.8 ± 1.6 | +2.8 ± 1.6 | 2.0 / 3.3 |
+| can-opener | 31% | +1.3 ± 3.4 | +4.5 ± 3.3 | 2.4 / 3.8 |
+| mage-hunter | 61% | +1.5 ± 4.8 | +3.0 ± 4.9 | 1.8 / 2.8 |
+| specialist (Sig.) | 100% | +4.5 ± 5.9 | — | 4.0 |
+| franchise (Sig.) | 100% | +5.5 ± 5.2 | — | 4.0 |
+
+Raw gains are noisy (400 paired games each); the fast engine uses the fitted column. Hold the Line (Repeat) and Long Game measure highest and are the first candidates for a further trim.
+
+**Cut from CARD_PLAN:** card levels and XP, card drill, awards-based Signatures, transfers and ageing (C5); marks, rally, synergy levels and counter / reveal cards (C3); personality cards (slot 2 uses traits and attributes, so nothing depends on the hidden personality); scouting "card habits" and AI draft bias toward their own triggers (C4); nearest-miss text; gold, vision, towers and Titan triggers (no such things in points mode). Aces never happen in measured games, so there is no ace trigger.
 
 ## Career mode
 
@@ -260,13 +311,13 @@ Plain JavaScript ES modules plus `js/engine.ts`, which imports the TypeScript si
 | `js/people.js` | Personalities, chemistry, status and promises, conversations, team talks, rivalries |
 | `js/scrims.js` | Scrims and the opponent scouting report |
 | `js/highlights.js` | Highlight detection and the weekly Top 5 digest |
-| `js/cards.js` | Tactic Card definitions, rarity scaling and rules text (runtime comes in CARD_PLAN C1) |
+| `js/cards.js` | Tactic Cards: definitions, ownership from standing, loadout rules, AI loadouts, measured stats, sim specs, rules text (runtime `sim/cards.ts`) |
 | `js/news.js` | News stories: triggers, templates, weekly ranking, inbox and Home feed |
 | `js/career.js` | Facade re-exporting the career modules |
 | `js/worker.js` | Web Worker running full-engine jobs |
 | `js/ui/*.js` | `app` (shell, router, menu, new career, settings, inbox, review), `screens` (club side), `comps` (competitions, stats), `matchday` (draft, live, post-game, report), `render` (canvas), `dom`, `state`, `store` |
 
-**Testing.** Run with `npm run manager:test` (tsx resolves the sim's TypeScript). `test/engine.test.mjs` (champion table matches the sim, draft, determinism, replay from the config, bookkeeping, skill matters), `test/fastsim.test.mjs` (fast vs full win rates, same summary shape), `test/fit.mjs` (calibration, not a test), `node test/news.test.mjs` (one season: story types, inbox cap, no broken text), `node test/people.test.mjs` (chemistry growth and engine effect, personalities, promises and conversations, talks, rivalries), `test/stats.test.mjs` (stat invariants on both engines: kills, deaths, score split, captures, score timeline, games and wins per player and team, series scores, champion totals, the series scope), `node test/career.test.mjs [years]` (full seasons on the fast engine: every competition completes with the right sizes, promotion keeps tier sizes, rosters stay legal, stats centre and CSV work, save size). A year simulates in about 1.4 s in Node. The UI is checked in headless Chrome with no console errors.
+**Testing.** Run with `npm run manager:test` (tsx resolves the sim's TypeScript). `test/engine.test.mjs` (champion table matches the sim, draft, determinism, replay from the config, bookkeeping, skill matters), `test/fastsim.test.mjs` (fast vs full win rates, same summary shape), `test/fit.mjs` (calibration, not a test), `node test/news.test.mjs` (one season: story types, inbox cap, no broken text), `node test/people.test.mjs` (chemistry growth and engine effect, personalities, promises and conversations, talks, rivalries), `test/stats.test.mjs` (stat invariants on both engines: kills, deaths, score split, captures, score timeline, games and wins per player and team, series scores, champion totals, the series scope), `test/cards.test.mjs` (ownership, loadout rules, Fearless cards, AI loadouts, Classic mode, fast-engine card edge, a full-engine card firing), `test/card-fit.mjs` (card measurements, not a test), `node test/career.test.mjs [years]` (full seasons on the fast engine: every competition completes with the right sizes, promotion keeps tier sizes, rosters stay legal, stats centre and CSV work, save size). A year simulates in about 1.4 s in Node. The UI is checked in headless Chrome with no console errors.
 
 ## Roadmap / open work
 
@@ -303,6 +354,7 @@ Each item ends with passing tests, a headless-Chrome run with no console errors,
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-25 | v0.8 | Tactic Cards end to end: sim runtime behind `MatchConfig.cards` (trigger and effect tables, `card_fire`), 26 cards with ownership from role, traits, attributes and overall, loadout rules (3 cards, 6 Focus, 2 per player, Fearless within a series), AI loadouts, Classic mode, measured per-card effects feeding the fast engine, card select step, draft card status, reveal banner, feed lines and post-game card list |
 | 2026-11-25 | v0.7 | Career logic on the Lanebound sim: `js/engine.ts` adapter, six sim attributes plus Aggression, Resilience and Clutch, the 14 sim champions, 12-step draft (Fearless removed), plans as sim tactics, patches as a kit patch, fast engine refitted on the sim. EMC lane engine, map, items and balance test removed. `SAVE_VERSION` 5 (no migration) |
 | 2026-11-20 | v0.6.1 | Tactic Cards groundwork (CARD_PLAN.md): `js/cards.js` with 6 sample cards and rules text generated from data; `js/ui/cards.js` pixel-art card renderer (full, hand and foil states, rarity borders); dev gallery at `#/dev/cards`. No gameplay effect yet |
 | 2026-11-20 | v0.6 | News: `js/news.js` with ten story types (results, streaks, title races, titles, internationals, transfers, milestones, patches, awards, your club), templates, weekly ranking (top 3 to the inbox, one per type), News card on Home, club and player links in the reader, media pressure on board confidence; `test/news.test.mjs` |

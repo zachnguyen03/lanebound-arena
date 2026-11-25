@@ -229,3 +229,13 @@ a.bx-wrap:hover .bx{border-color:var(--c-text)}
   background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 42%,rgba(176,63,194,.12) 50%,rgba(95,211,191,.10) 58%,transparent 70%);mix-blend-mode:screen}
 .tc-epic:hover::after,.tc-epic:focus-visible::after,.tc-epic.foil-on::after,.tc-signature:hover::after,.tc-signature:focus-visible::after,.tc-signature.foil-on::after{opacity:1}
 @media (prefers-reduced-motion:reduce){.tc::after{transition:none}}
+.cards-select{flex:1;display:flex;flex-direction:column;min-height:0;padding:16px 24px;gap:12px}
+.cs-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px} .cs-meter{display:flex;flex-direction:column;align-items:flex-end}
+.cs-cols{flex:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;min-height:0;overflow:auto}
+.cs-col{display:flex;flex-direction:column;gap:8px} .cs-col header{display:flex;flex-direction:column;border-bottom:1px solid var(--c-line);padding-bottom:4px}
+.cs-card{display:flex;gap:8px;padding:4px;border:1px solid transparent;cursor:pointer} .cs-card:hover{border-color:var(--c-line-2)}
+.cs-card.on{border-color:var(--c-action);background:#2a2410} .cs-card.used{opacity:.4;cursor:not-allowed}
+.cs-card .tc-hand{flex:none;width:104px}
+.cs-text{font-size:11px;line-height:1.35;color:var(--c-dim);display:flex;flex-direction:column;gap:4px;min-width:0} .cs-text p{margin:0} .cs-text b{color:var(--c-text);font:700 9px/1 var(--f-mono);text-transform:uppercase}
+.cs-foot{display:flex;align-items:center;gap:12px;border-top:1px solid var(--c-line);padding-top:12px}
+.post-cards{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:12px}

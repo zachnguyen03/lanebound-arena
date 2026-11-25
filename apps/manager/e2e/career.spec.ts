@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// New career -> every tab -> one match through draft, live, post-game and report -> rest of season -> review.
+// New career -> every tab -> one match through card select, draft, live, post-game and report -> rest of season -> review.
 // Set SHOTS=<dir> to save screenshots of the key screens.
 const SHOTS = process.env.SHOTS;
 const shot = async (page: Page, name: string) => { if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}.png` }); };
@@ -47,6 +47,13 @@ test("career: tabs, a full match, the rest of the season", async ({ page }) => {
   }
   await page.locator("#continue").click();
   for (let game = 0; game < 5; game++) {
+    // Tactic Cards: the analyst pre-loads a legal loadout; cards loaded earlier in the series are greyed out.
+    await expect(page.locator(".cards-select")).toBeVisible();
+    await fits(page, "card select");
+    if (game === 0) await shot(page, "cards");
+    expect(await page.locator(".cs-card.on").count()).toBeGreaterThan(0);
+    if (game > 0) expect(await page.locator(".cs-card.used").count()).toBeGreaterThan(0);
+    await page.locator("#lockcards").click();
     await expect(page.locator(".draft")).toBeVisible();
     if (game === 0) await shot(page, "draft");
     while (!(await page.locator("#start").count())) {
@@ -62,6 +69,7 @@ test("career: tabs, a full match, the rest of the season", async ({ page }) => {
     if (game === 0) await shot(page, "live");
     await page.locator("#skip").click();
     await expect(page.locator(".post-head")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".post-cards")).toBeVisible();
     await fits(page, "post-game");
     if (game === 0) {
       await shot(page, "post-game");
