@@ -19,7 +19,30 @@ import {
 } from "./status.js";
 // isLocked covers Lock category (stun/fear/hex/…) — cancel windups under Lock.
 import { retreatImmobile, retreatSuppressesCombat } from "./retreat_combat.js";
-import type { MatchState, UnitId, UnitState } from "./types.js";
+import type { AttrScaling, MatchState, UnitId, UnitState } from "./types.js";
+
+/** Default MatchConfig.attr_scaling coefficients (tuned with apps/manager/test/attr-fit.mjs). */
+export const ATTR_SCALING: AttrScaling = {
+  aim: 0.09, execution: 0.22, decision: 0.18, teamwork: 0.11, positioning: 0.18, reflexes: 0.09, teamwork_in: 0.11,
+};
+
+/** Attribute damage multiplier for one packet (experiment; 1 when attr_scaling is off). */
+export function attrDamageMult(state: MatchState, source: UnitState, target: UnitState): number {
+  const cfg = state.config?.attr_scaling;
+  if (!cfg) return 1;
+  const k = cfg === true ? ATTR_SCALING : { ...ATTR_SCALING, ...cfg };
+  const d = (u: UnitState, a: keyof UnitState["attrs"]) => (u.attrs[a] - 70) / 100;
+  const near = (u: UnitState) =>
+    state.units.some((o) => o !== u && o.alive && o.team === u.team && dist(o.x, o.y, u.x, u.y) <= 5);
+  const focus = target.damage_log.some(
+    (e) => e.source_id !== source.id && e.t >= state.t - 2 && e.source_id.startsWith(`${source.team}:`),
+  );
+  const out = 1 + k.aim * d(source, "aim") + k.execution * d(source, "execution") +
+    (focus ? k.decision * d(source, "decision") : 0) + (near(source) ? k.teamwork * d(source, "teamwork") : 0);
+  const inn = 1 - k.positioning * d(target, "positioning") - k.reflexes * d(target, "reflexes") -
+    (near(target) ? k.teamwork_in * d(target, "teamwork") : 0);
+  return Math.max(0.2, out * inn);
+}
 
 /** Marksman-like dummy L1 stats (Huntress numbers from build-spec §7.1). */
 export const DUMMY_MARKSMAN = {
@@ -345,6 +368,7 @@ export function resolvePendingDamage(
       (p as { raw: number }).raw = rawFlank;
     }
 
+    mitigated *= attrDamageMult(state, source, target);
     const abs = absorbDamage(target.status, mitigated, state.t, {
       pierceSpawnShield: scriptedPierce,
     });

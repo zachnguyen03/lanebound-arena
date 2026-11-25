@@ -18,7 +18,7 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 export interface EnginePlayer { id: string; name: string; champ: string; prof: number; [attr: string]: number | string }
 export interface Plan { name?: string; preset?: Tactics["preset"]; posture?: string; focus?: string; protect?: boolean }
 export interface EngineTeam { name: string; plan?: Plan; coach?: number; lineup: EnginePlayer[] }
-export interface Opts { stakes?: number; patch?: Record<string, { hp?: number; atk?: number; cd?: number }> }
+export interface Opts { stakes?: number; attr_scaling?: MatchConfig["attr_scaling"]; patch?: Record<string, { hp?: number; atk?: number; cd?: number }> }
 
 export function rngFrom(seed: number): () => number { // mulberry32
   let a = seed >>> 0;
@@ -79,7 +79,7 @@ export function matchConfig(teamA: EngineTeam, teamB: EngineTeam, seed: number, 
     tactics: simTactics(t.plan, t.lineup),
   });
   return {
-    seed, blue: side(teamA), red: side(teamB), objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 },
+    seed, blue: side(teamA), red: side(teamB), objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 }, attr_scaling: opts.attr_scaling ?? true,
     constants: { ...SANDBOX_CONSTANTS }, kit_patch: kitPatch(opts.patch), ai_enabled: true, draft_mode: "fixed", forced_clock_end: false,
   };
 }

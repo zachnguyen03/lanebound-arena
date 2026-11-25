@@ -120,6 +120,22 @@ export interface Objectives {
   mode: "points" | "pulse";
 }
 
+/**
+ * Per-point-around-70 damage coefficients (d = (attr - 70) / 100). Damage dealt ×
+ * (1 + aim·d + execution·d + decision·d if an ally hit the target in the last 2 s
+ * + teamwork·d with an ally within 5 tiles), damage taken × (1 − positioning·d −
+ * reflexes·d − teamwork_in·d with an ally near).
+ */
+export interface AttrScaling {
+  aim: number;
+  execution: number;
+  decision: number;
+  teamwork: number;
+  positioning: number;
+  reflexes: number;
+  teamwork_in: number;
+}
+
 export interface MatchConfig {
   seed: number;
   /** Experimental, see {@link Objectives}. */
@@ -130,6 +146,8 @@ export interface MatchConfig {
   teamfight?: Teamfight;
   /** Experimental, see {@link Cadence}. */
   cadence?: Cadence;
+  /** Experimental attribute damage scaling (sim/combat.ts ATTR_SCALING); absent = spec combat. */
+  attr_scaling?: true | Partial<AttrScaling>;
   constants?: Partial<Record<string, unknown>>;
   blue: SideConfig;
   red: SideConfig;

@@ -5,23 +5,23 @@
 import { ROLES, ROLE_WEIGHTS } from './data.js';
 import { runFull, rngFrom, simPlayer, rate, SIM_ATTRS } from './engine.ts';
 
-// Measured on the full engine (test/fit.mjs, 2,400 games at uniform career-attribute gaps 0/4/8/16, 600 each):
+// Measured on the full engine with attr_scaling on (test/fit.mjs, 2,400 games at uniform career-attribute gaps 0/4/8/16, 600 each):
 // per-role per-minute means; obj = seconds on capture points. No game had a death without a killer.
 const RM = {
-  Top: { k: 0.671, d: 1.106, a: 1.906, dmg: 1441, taken: 2135, heal: 16, obj: 9.6 },
-  Jungle: { k: 0.556, d: 0.971, a: 2.217, dmg: 1200, taken: 2056, heal: 108, obj: 20.5 },
-  Mid: { k: 0.875, d: 1.123, a: 2.223, dmg: 1626, taken: 1653, heal: 40, obj: 15.3 },
-  Carry: { k: 1.933, d: 0.599, a: 2.101, dmg: 2817, taken: 1076, heal: 9, obj: 12.5 },
-  Support: { k: 0.719, d: 0.954, a: 2.146, dmg: 1222, taken: 1386, heal: 227, obj: 6.1 },
+  Top: { k: 0.666, d: 1.107, a: 1.916, dmg: 1439, taken: 2134, heal: 15, obj: 9.6 },
+  Jungle: { k: 0.557, d: 0.973, a: 2.209, dmg: 1200, taken: 2057, heal: 109, obj: 20.6 },
+  Mid: { k: 0.863, d: 1.118, a: 2.242, dmg: 1627, taken: 1650, heal: 40, obj: 15.4 },
+  Carry: { k: 1.946, d: 0.603, a: 2.119, dmg: 2822, taken: 1081, heal: 9, obj: 12.6 },
+  Support: { k: 0.729, d: 0.960, a: 2.156, dmg: 1224, taken: 1391, heal: 227, obj: 6.1 },
 };
 const KPM = Object.values(RM).reduce((n, m) => n + m.k, 0); // team kills per minute
-// Logistic fit (Newton, per-game strength gap d): logit p(blue wins) = 0.0321 + 0.0194·d. Win rate of the stronger side:
-//   gap 0: full 51.3%, fast 51.0% | gap 4: full 51.5%, fast 52.5% | gap 8: full 56.2%, fast 55.2% | gap 16: full 57.7%, fast 59.3%
-// (a uniform career gap g gives d ≈ g). Score: loser 18.7 ± 5.2 points, 0.238 points/s (duration 198 ± 25 s),
-// kill share of points 0.63 (winner) / 0.74 (loser), 4.48 captures a minute, 53.7% of them by the winner.
+// Logistic fit (Newton, per-game strength gap d): logit p(blue wins) = 0.0188 + 0.1089·d. Win rate of the stronger side:
+//   gap 0: full 49.3%, fast 50.3% | gap 4: full 62.2%, fast 62.2% | gap 8: full 72.2%, fast 71.7% | gap 16: full 83.8%, fast 85.8%
+// (a uniform career gap g gives d ≈ g). Score: loser 18.0 ± 5.5 points, 0.239 points/s (duration 194 ± 26 s),
+// kill share of points 0.63 (winner) / 0.75 (loser), 4.42 captures a minute, 54.3% of them by the winner.
 // 6.2% of games reach the 4:00 clock with nobody at 28 (loser 23.8 on average); the leader wins.
-const FIT = { c: 0.0321, k: 0.0194 };
-const LOSER = { mean: 18.7, sd: 5.2 }, P_CLOCK = 0.062, CLOCK_S = 240, PTS_PER_S = 0.2384, KILL_SHARE = [0.629, 0.737], CAPS_PER_MIN = 4.478, CAP_WIN_SHARE = 0.537;
+const FIT = { c: 0.0188, k: 0.1089 };
+const LOSER = { mean: 18.0, sd: 5.5 }, P_CLOCK = 0.062, CLOCK_S = 240, PTS_PER_S = 0.2386, KILL_SHARE = [0.628, 0.746], CAPS_PER_MIN = 4.419, CAP_WIN_SHARE = 0.543;
 
 // Effective sim strength of a lineup: role-weighted sim attributes (expected form, coach, mastery on Aim/Execution).
 export function strength(t, stakes = 0) {
