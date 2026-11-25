@@ -29,7 +29,7 @@ export function KillBanner({ events, currentTick, state, portraits }: Props) {
     if (!u) return null;
     const team = id.split(":")[0] as Team;
     const img = portraits?.[u.champ]?.[team];
-    const ring = team === "blue" ? "border-team-blue" : "border-team-red";
+    const ring = team === "blue" ? "border-team-blue shadow-[0_0_3px_#4da3ff]" : "border-team-red shadow-[0_0_3px_#f5477a]";
     return img ? (
       <img src={img.src} alt={u.champ} className={`h-6 w-6 border ${ring} object-cover`} />
     ) : (
@@ -42,7 +42,15 @@ export function KillBanner({ events, currentTick, state, portraits }: Props) {
   return (
     <div data-testid="kill-banner" className="pointer-events-none absolute right-1.5 top-1.5 z-10 flex flex-col items-end gap-1">
       {rows.map((e) => (
-        <div key={e.seq} className="flex items-center gap-1 bg-panel/80 p-0.5">
+        <div
+          key={e.seq}
+          className="flex items-center gap-1 px-1.5 py-0.5"
+          style={{
+            background: "linear-gradient(#1c2230, #121722)",
+            boxShadow: "inset 0 1px 0 rgba(90,104,136,0.55), inset 0 -1px 0 #3a4660",
+            clipPath: "polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)",
+          }}
+        >
           {face(e.killer_id)}
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 text-paper" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
             <path d="M3 3l10 10M13 3L3 13M2 11l3 3M14 11l-3 3" />
