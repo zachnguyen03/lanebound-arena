@@ -53,7 +53,7 @@ export function TopBar({
       <div
         className="pointer-events-auto absolute inset-y-0 right-3 flex items-center gap-2"
       >
-        <div className="hud-in text-[10px] uppercase tracking-wider text-dim" style={{ fontFamily: "HudInter, Barlow, sans-serif" }}>
+        <div className="hud-in text-[10px] uppercase tracking-wider text-dim">
           {statusLine(state)}
         </div>
         {onToggleVfx ? (

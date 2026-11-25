@@ -1,11 +1,4 @@
 /* Top HUD v3-C (floating cluster). Tokens and timings from the v3-C handoff. */
-@font-face { font-family: "Oxanium"; font-weight: 800; src: url("/hud/fonts/Oxanium-ExtraBold.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "Oxanium"; font-weight: 700; src: url("/hud/fonts/Oxanium-Bold.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "Tomorrow"; font-weight: 700; src: url("/hud/fonts/Tomorrow-Bold.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "Tomorrow"; font-weight: 600; src: url("/hud/fonts/Tomorrow-SemiBold.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "HudInter"; font-weight: 400; src: url("/hud/fonts/Inter-Regular.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "HudInter"; font-weight: 600; src: url("/hud/fonts/Inter-SemiBold.ttf") format("truetype"); font-display: swap; }
-
 .hud {
   --plate-top: #1c2230;
   --plate-bot: #121722;
@@ -33,9 +26,9 @@
 }
 .hud.compact { filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6)); }
 
-.hud-ox { font-family: "Oxanium", "Barlow Condensed", sans-serif; }
-.hud-tm { font-family: "Tomorrow", "Barlow Condensed", sans-serif; }
-.hud-in { font-family: "HudInter", "Barlow", sans-serif; }
+.hud-ox { font-family: "Oxanium", "Inter", sans-serif; }
+.hud-tm { font-family: "Tomorrow", "Inter", sans-serif; }
+.hud-in { font-family: "Inter", sans-serif; }
 
 /* Plate segments share one gradient so the cluster reads as one piece. */
 .hud-seg {

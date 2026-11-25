@@ -238,7 +238,7 @@ export function renderArena(
       const left = Math.ceil(b.nextSpawnAt - state.t);
       const soon = left <= 10;
       const label = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
-      ctx.font = `bold ${soon ? 16 : 12}px 'Barlow Condensed', sans-serif`;
+      ctx.font = `bold ${soon ? 16 : 12}px Tomorrow, sans-serif`;
       ctx.textAlign = "center";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(11, 14, 20, 0.9)";
@@ -495,7 +495,7 @@ function drawUnit(
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fillStyle = "#EEF2F8";
-    ctx.font = "bold 8px Barlow, sans-serif";
+    ctx.font = "bold 8px Inter, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(unit.champ.slice(0, 4).toUpperCase(), px, py - 16);

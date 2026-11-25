@@ -958,7 +958,7 @@ function drawSkillTags(
     return (ua?.y ?? 0) - (ub?.y ?? 0) || (ua?.x ?? 0) - (ub?.x ?? 0);
   });
   ctx.save();
-  ctx.font = "bold 14px Barlow, sans-serif";
+  ctx.font = "bold 14px Inter, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "bottom";
   for (const tag of tags) {
