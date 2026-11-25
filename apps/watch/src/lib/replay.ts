@@ -46,10 +46,15 @@ export class ReplayEngine {
   /** Slugs that have a body sheet. Everyone else stays a labelled circle. */
   readonly knownArt: ReadonlySet<string>;
 
+  private scoreToWin = 10;
+
   constructor(events: SimEvent[], knownArt: ReadonlySet<string> = CHAMP_ART) {
     this.knownArt = knownArt;
     this.events = Object.freeze(events.slice());
     this.digest = digestEvents(this.events as CoreSimEvent[]);
+    // Known from tick 0 so the top bar never shows the default first.
+    const init = this.events.find((e) => e.type === "objectives_init");
+    if (typeof init?.score_to_win === "number") this.scoreToWin = init.score_to_win;
     let maxTick = 0;
     const byTick = new Map<number, SimEvent[]>();
     const bySeq = new Map<number, number>();
@@ -88,6 +93,7 @@ export class ReplayEngine {
       cursor = this.cache.cursor;
     } else {
       state = emptyState();
+      state.scoreToWin = this.scoreToWin;
       cursor = 0;
     }
     while (cursor < this.events.length) {
@@ -234,6 +240,7 @@ function emptyState(): MatchViewState {
     t: 0,
     seed: null,
     constantsHash: null,
+    scoreToWin: 10,
     scoreBlue: 0,
     scoreRed: 0,
     ended: false,

@@ -27,7 +27,7 @@ function clockCaption(state: MatchViewState | null): string {
   // SUDDEN DEATH only while live between 4:00 and 4:30.
   if (t >= 240 && t < 270) return "SUDDEN DEATH";
   if (t >= 180) return "FINAL MINUTE · 4:00";
-  return "FIRST TO 10 · 4:00";
+  return `FIRST TO ${state.scoreToWin} · 4:00`;
 }
 
 function statusLine(state: MatchViewState | null): string {

@@ -222,6 +222,8 @@ export interface MatchViewState {
   t: number;
   seed: number | null;
   constantsHash: string | null;
+  /** First-to target; 10 unless the match says otherwise (points mode). */
+  scoreToWin: number;
   scoreBlue: number;
   scoreRed: number;
   ended: boolean;
