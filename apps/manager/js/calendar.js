@@ -7,7 +7,7 @@ import {
   START_YEAR, dayOfDate, weekday, fmtDate, team, userTeam, teamPlayers, allPlayers, leagueTeams, overall, mail, ordinal, tierName, TRAITS, autoStarters,
 } from './world.js';
 import { newPatch } from './meta.js';
-import { poolOf, bestLoadout, cardSpec } from './cards.js';
+import { poolOf, bestLoadout, cardSpec, CARDS, RARITY } from './cards.js';
 import { newsSeries, newsChampion, newsIntlStart, newsAward } from './news.js';
 import { chemBonus, chemAfterGame, has, isRivalry, addRivalry, coolRivalries, pruneChem } from './people.js';
 import { initManager, boardSeries, boardSplit, boardWeekly, boardReview, setGoals } from './board.js';
@@ -241,12 +241,20 @@ export function engineTeam(W, t, picks, plan = t.plan, cards = []) {
 }
 // ---------- Tactic Cards (js/cards.js): pool of the starters, Fearless within a series, rest after a match, AI loadouts ----------
 export const cardPool = (W, t) => poolOf(starterPlayers(W, t));
-/** Cards a team can't load: used this series (Fearless) plus those it loaded in its previous game (resting). */
-export const usedCards = (s, t) => [...new Set([...(s.cards?.[t.id] ?? []), ...(t.restCards ?? [])])];
+/** Resting cards of a team: { 'pid:cardId': games still to sit out }. */
+export const restOf = t => (t.rest ??= {});
+/** Cards a team can't load: used this series (Fearless) plus resting ones. */
+export const usedCards = (s, t) => [...new Set([...(s.cards?.[t.id] ?? []), ...Object.keys(restOf(t))])];
 /** The AI coach's loadout: the best measured cards still legal this series, nudged toward the club's plan. Classic mode: none. */
 export const aiLoadout = (W, s, t) => (W.classic ? [] : bestLoadout(cardPool(W, t), usedCards(s, t), t.plan));
-/** Mark a loadout used for the rest of the series (Fearless cards) and resting for the team's next game. */
-export function loadCards(s, t, cards) { const keys = cards.map(c => c.key); (s.cards ??= {})[t.id] = [...(s.cards[t.id] ?? []), ...keys]; t.restCards = keys; return cards; }
+/** Mark a loadout used for the rest of the series (Fearless cards); it then rests for the team's next 1 (Common), 2 (Rare) or 3 (Epic, Signature) games. Called once per team game. */
+export function loadCards(s, t, cards) {
+  const rest = restOf(t);
+  for (const k in rest) if (--rest[k] <= 0) delete rest[k];
+  for (const c of cards) rest[c.key] = RARITY[CARDS[c.id].signature ? 'signature' : c.rarity].rest;
+  (s.cards ??= {})[t.id] = [...(s.cards[t.id] ?? []), ...cards.map(c => c.key)];
+  return cards;
+}
 export function stakesOf(W, s) {
   const c = W.comps[s.comp];
   const rival = isRivalry(W, s.a, s.b) ? 0.3 : 0;

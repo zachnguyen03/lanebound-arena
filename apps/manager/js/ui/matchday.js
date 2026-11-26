@@ -3,7 +3,7 @@
 import { ROLES, CHAMPS, CHAMP_IDS, fmt } from '../data.js';
 import { DRAFT_ORDER, newDraft, turn, draftDone, applyDraft, aiChoice, effProf } from '../draft.js';
 import { runPayload } from '../fastsim.js';
-import { team, userTeam, starterPlayers, engineTeam, nextGameSides, recordGame, stakesOf, draftPrefs, MASTERY, TALKS, teamTalk, isRivalry, scoutReport, highlights, gameSummary, cardPool, usedCards, aiLoadout, loadCards } from '../career.js';
+import { team, userTeam, starterPlayers, engineTeam, nextGameSides, recordGame, stakesOf, draftPrefs, MASTERY, TALKS, teamTalk, isRivalry, scoutReport, highlights, gameSummary, cardPool, usedCards, restOf, aiLoadout, loadCards } from '../career.js';
 import { CARDS, LOADOUT, bestLoadout, loadoutError, costOf, cardView, triggerStatus } from '../cards.js';
 import { cardHTML } from './cards.js';
 import { state, go, save } from './state.js';
@@ -20,7 +20,7 @@ function newGame(W, s) {
   if (W.classic) { md.load = [[], []]; return; }
   // Both coaches pick before the draft: the analyst pre-selects the user's best loadout; the opponent's stays hidden.
   const us = team(W, W.userTeamId), opp = team(W, blue === us.id ? red : blue);
-  md.pool = cardPool(W, us); md.used = usedCards(s, us); md.rest = us.restCards ?? [];
+  md.pool = cardPool(W, us); md.used = usedCards(s, us); md.rest = restOf(us);
   md.mine = bestLoadout(md.pool, md.used, us.plan);
   md.theirs = aiLoadout(W, s, opp);
 }
@@ -48,11 +48,11 @@ function renderCards(app) {
   const col = (p, i) => `<section class="cs-col"><header><span class="caps">${ROLES[i]}</span><b>${esc(p.name)}</b></header>${md.pool.filter(c => c.slot === i).map(c => {
     const v = cardView(c), used = md.used.includes(c.key), on = keys.includes(c.key);
     return `<div class="cs-card ${on ? 'on' : ''} ${used ? 'used' : ''}" data-key="${c.key}" role="button" tabindex="0" aria-pressed="${on}" ${used ? 'aria-disabled="true" title="Loaded earlier this series or in the last match"' : ''}>${cardHTML(c, 'hand')}
-      <div class="cs-text"><p><b>When</b> ${esc(v.when.replace(/\[\[|\]\]/g, ''))}</p><p><b>Then</b> ${esc(v.then.replace(/\[\[|\]\]/g, ''))}</p><span class="caps ${used ? 'bad' : 'dim'}">${used ? (md.rest.includes(c.key) ? 'Resting' : 'Used this series') : triggerStatus(c, md.draft, md.userSide)}</span></div></div>`;
+      <div class="cs-text"><p><b>When</b> ${esc(v.when.replace(/\[\[|\]\]/g, ''))}</p><p><b>Then</b> ${esc(v.then.replace(/\[\[|\]\]/g, ''))}</p><span class="caps ${used ? 'bad' : 'dim'}">${used ? (md.rest[c.key] ? `Resting · ${md.rest[c.key]}` : 'Used this series') : triggerStatus(c, md.draft, md.userSide)}</span></div></div>`;
   }).join('')}</section>`;
   app.innerHTML = `<div class="cards-select">
     <header class="cs-head"><div><span class="dim small">${seriesHeader(W, s)} · <span class="blue">${esc(teams[0].name)}</span> v <span class="red">${esc(teams[1].name)}</span></span><h1 class="disp xl">Tactic Cards</h1>
-      <span class="small dim">Load up to ${LOADOUT.size} cards from your starters: at most ${LOADOUT.perPlayer} from one player, one Signature. Hidden until they fire; a loaded card can't be loaded again this series, and rests for your next match.</span></div>
+      <span class="small dim">Load up to ${LOADOUT.size} cards from your starters: at most ${LOADOUT.perPlayer} from one player, one Signature. Hidden until they fire; a loaded card can't be loaded again this series, and rests for your next 1 (Common), 2 (Rare) or 3 (Epic, Signature) matches.</span></div>
       <div class="cs-meter"><span class="caps">Focus</span><b class="disp score ${focus > LOADOUT.budget ? 'bad' : ''}">${focus}/${LOADOUT.budget}</b><span class="caps">${mine.length}/${LOADOUT.size} cards</span></div></header>
     <div class="cs-cols">${md.players[md.userSide].map(col).join('')}</div>
     <footer class="cs-foot"><span class="${err ? 'bad' : 'dim'} small">${err ?? (mine.length ? mine.map(c => esc(cardView(c).name)).join(' · ') : 'No cards loaded')}</span><span class="sp"></span>
@@ -148,7 +148,7 @@ function aiStep(app) {
 function intel(W, t) {
   const r = scoutReport(W, t);
   return `<div class="d-comp small"><span class="caps">Scouting</span><div>Form <b>${r.form || '–'}</b> · plan <b>${esc(r.plan)}</b> · chemistry <b>${r.chem}</b></div>
-    ${!W.classic ? `<div>Resting cards ${(t.restCards ?? []).map(k => esc(CARDS[k.split(':')[1]].name)).join(', ') || 'none'}</div>` : ''}
+    ${!W.classic ? `<div>Resting cards ${Object.entries(restOf(t)).map(([k, n]) => `${esc(CARDS[k.split(':')[1]].name)} (${n})`).join(', ') || 'none'}</div>` : ''}
     ${r.recent.length ? `<div>Recent picks ${r.recent.map(x => `${esc(CHAMPS[x.id].name)}×${x.n}`).join(', ')}</div>` : ''}
     ${r.known ? r.players.map(p => `<div>${ROLE_SHORT[p.role]} ${esc(p.name)}: ${p.comfort.map(c => esc(CHAMPS[c].name)).join(', ') || '–'}</div>`).join('') : '<div class="dim">Comfort picks unknown. Scrim them, or build a level-4 analytics room.</div>'}</div>`;
 }

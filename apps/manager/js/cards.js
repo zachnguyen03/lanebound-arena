@@ -4,10 +4,10 @@
 import { CHAMPS, ATTRS, overall } from './data.js';
 
 export const RARITY = {
-  common: { label: 'Common', mult: 1, pips: 1, cost: 0 },
-  rare: { label: 'Rare', mult: 1.3, pips: 2, cost: 0 },
-  epic: { label: 'Epic', mult: 1.6, pips: 3, cost: 1 },
-  signature: { label: 'Signature', mult: 1, pips: 3, cost: 0 },
+  common: { label: 'Common', mult: 1, pips: 1, cost: 0, rest: 1 },
+  rare: { label: 'Rare', mult: 1.3, pips: 2, cost: 0, rest: 2 },
+  epic: { label: 'Epic', mult: 1.6, pips: 3, cost: 1, rest: 3 },
+  signature: { label: 'Signature', mult: 1, pips: 3, cost: 0, rest: 3 },
 };
 export const SLOTS = ['top', 'jungle', 'mid', 'adc', 'support'];
 export const LOADOUT = { size: 3, budget: 6, perPlayer: 2 };
