@@ -73,7 +73,7 @@ export const CARDS = {
   momentum: { name: 'Momentum', cost: 1, tags: ['early', 'fight'], art: 'boot', sky: 'olive',
     trigger: { on: 'first_blood', us: true }, effects: [{ stat: 'refund', v: 0.3, target: 'owner' }] },
   unshakeable: { name: 'Unshakeable', cost: 1, tags: ['comeback'], art: 'shield', sky: 'teal',
-    trigger: { on: 'behind', x: 4 }, effects: [{ stat: 'tenacity', v: 0.5, ...T('owner', 90) }] },
+    trigger: { on: 'behind', x: 4 }, effects: [{ stat: 'taken', v: -0.15, ...T('owner', 60) }, { stat: 'tenacity', v: 0.5, ...T('owner', 60) }] },
   'giant-slayer': { name: 'Giant Slayer', cost: 1, tags: ['draft'], art: 'crosshair', sky: 'moss',
     trigger: { on: 'enemy_class', cls: 'Tank', n: 1 }, effects: [{ stat: 'vs_class', v: 0.15, cls: 'Tank', target: 'owner' }] },
   // Signature cards (slot 3, one per player)
@@ -139,7 +139,7 @@ export function bestLoadout(pool, used = [], plan) {
 // [fire rate, win-chance gain at Common, at Epic]: one slope per card fitted from both rarities (Epic = 1.6 x Common),
 // clamped to 0.5-2.5 points (Signature 0.5-4), since single measurements are +-4 points. Rare is interpolated.
 export const CARD_STATS = {
-  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.02, 0.032], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.58, 0.025, 0.04], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.019, 0.031], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.51, 0.025, 0.04], "call-it": [0.93, 0.025, 0.04], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.013, 0.021], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "executioner": [0.78, 0.023, 0.038], "bloodthirst": [0.91, 0.025, 0.04], "momentum": [0.49, 0.022, 0.035], "unshakeable": [0.61, 0.006, 0.01], "giant-slayer": [0.82, 0.024, 0.038], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
+  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.02, 0.032], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.58, 0.025, 0.04], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.019, 0.031], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.51, 0.025, 0.04], "call-it": [0.93, 0.025, 0.04], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.013, 0.021], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "executioner": [0.78, 0.023, 0.038], "bloodthirst": [0.91, 0.025, 0.04], "momentum": [0.49, 0.022, 0.035], "unshakeable": [0.61, 0.018, 0.028], "giant-slayer": [0.82, 0.024, 0.038], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
 };
 export function winGain(c) {
   const [, lo, hi] = CARD_STATS[c.id];
