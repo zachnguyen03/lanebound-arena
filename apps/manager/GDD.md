@@ -93,22 +93,22 @@ Top and Support have two champions each, so most drafts put someone off-role.
 |---|---|---|---|---|
 | island-lord | 60% | +2.0 ± 4.5 | +0.8 ± 4.6 | 0.9 / 1.5 |
 | stubborn | 95% | +1.0 ± 4.1 | +1.8 ± 4.5 | 1.1 / 1.7 |
-| clear-speed | 50% | -1.5 ± 4.2 | -1.0 ± 4.3 | 0.5 / 0.8 |
+| clear-speed | 50% | +1.6 ± 2.2 | +3.4 ± 2.2 | 2.0 / 3.2 |
 | bounty-hunter | 63% | +1.3 ± 3.7 | +2.5 ± 3.3 | 1.5 / 2.4 |
-| triple-threat | 60% | -1.5 ± 3.3 | +3.3 ± 3.7 | 1.1 / 1.7 |
+| triple-threat | 58% | +2.4 ± 1.8 | +4.9 ± 1.8 | 2.5 / 4.0 |
 | called-shot | 99% | +1.8 ± 5.7 | +2.8 ± 6.1 | 1.8 / 2.8 |
 | hypercarry | 80% | +0.5 ± 3.8 | -0.3 ± 4.2 | 0.5 / 0.8 |
 | second-wind | 62% | +1.0 ± 3.3 | +3.0 ± 3.9 | 1.6 / 2.6 |
-| hold-the-line | 100% | +5.3 ± 5.6 | +5.8 ± 5.5 | 2.5 / 4.0 |
+| hold-the-line | 100% | +1.6 ± 2.8 | +3.3 ± 2.8 | 1.9 / 3.1 |
 | peel | 88% | +1.5 ± 4.8 | +4.3 ± 5.3 | 2.4 / 3.8 |
 | spoils-of-war | 51% | +3.0 ± 4.2 | +0.8 ± 4.6 | 1.2 / 1.9 |
 | shake-it-off | 50% | +1.5 ± 4.2 | +3.0 ± 4.3 | 1.8 / 2.8 |
-| never-say-die | 50% | -1.0 ± 3.0 | +1.0 ± 3.0 | 0.5 / 0.8 |
-| call-it | 93% | -1.5 ± 4.9 | +1.5 ± 5.1 | 0.5 / 0.8 |
+| never-say-die | 51% | +2.2 ± 1.7 | +4.9 ± 1.9 | 2.5 / 4.0 |
+| call-it | 93% | +2.5 ± 2.6 | +4.9 ± 2.6 | 2.5 / 4.0 |
 | press-the-claim | 99% | -0.3 ± 4.1 | +2.5 ± 4.2 | 1.0 / 1.7 |
 | blood-in-the-water | 88% | +1.5 ± 5.0 | +0.8 ± 5.1 | 0.8 / 1.2 |
 | dead-heat | 43% | +1.3 ± 3.5 | +3.5 ± 3.6 | 1.9 / 3.1 |
-| long-game | 100% | +7.8 ± 4.1 | +1.5 ± 4.2 | 2.5 / 4.0 |
+| long-game | 100% | +3.1 ± 2.2 | +1.0 ± 2.1 | 1.3 / 2.1 |
 | closing-argument | 49% | +1.8 ± 3.1 | +3.0 ± 2.9 | 1.9 / 3.0 |
 | last-stand | 30% | +1.3 ± 1.6 | +2.3 ± 1.5 | 1.4 / 2.2 |
 | first-claim | 50% | +2.5 ± 4.3 | +5.3 ± 4.4 | 2.5 / 4.0 |
@@ -118,7 +118,7 @@ Top and Support have two champions each, so most drafts put someone off-role.
 | specialist (Sig.) | 100% | +4.5 ± 5.9 | — | 4.0 |
 | franchise (Sig.) | 100% | +5.5 ± 5.2 | — | 4.0 |
 
-Raw gains are noisy (400 paired games each); the fast engine uses the fitted column. Hold the Line (Repeat) and Long Game measure highest and are the first candidates for a further trim.
+Raw gains are noisy (400 paired games each, ±3–6 points); the fast engine uses the fitted column. Clear Speed, Triple Threat, Hold the Line, Never Say Die, Call It and Long Game were re-measured over 1,600 games (±2–3 points). At 400 games Hold the Line (+5.3) and Long Game (+7.8) looked strongest; at 1,600 Hold the Line was about 0 and Long Game about +2. Hold the Line, Clear Speed, Triple Threat and Never Say Die were then buffed, and Call It lost its forced Hunt override (it cost more than it gave), to the values in `cards.js`.
 
 **Cut from CARD_PLAN:** card levels and XP, card drill, awards-based Signatures, transfers and ageing (C5); marks, rally, synergy levels and counter / reveal cards (C3); personality cards (slot 2 uses traits and attributes, so nothing depends on the hidden personality); scouting "card habits" and AI draft bias toward their own triggers (C4); nearest-miss text; gold, vision, towers and Titan triggers (no such things in points mode). Aces never happen in measured games, so there is no ace trigger.
 

@@ -21,11 +21,11 @@ export const CARDS = {
   stubborn: { name: 'Stubborn', cost: 1, role: 'Top', tags: ['comeback'], art: 'shield', sky: 'ember',
     trigger: { on: 'deaths', n: 2 }, effects: [{ stat: 'taken', v: -0.08, ...T('owner', 45) }] },
   'clear-speed': { name: 'Clear Speed', cost: 1, role: 'Jungle', tags: ['early', 'objective'], art: 'boot', sky: 'moss',
-    trigger: { on: 'first_capture' }, effects: [{ stat: 'ms', v: 0.1, ...T('team', 45) }, { stat: 'cap', v: 0.35, ...T('team', 45) }] },
+    trigger: { on: 'first_capture' }, effects: [{ stat: 'ms', v: 0.15, ...T('team', 45) }, { stat: 'cap', v: 0.7, ...T('team', 45) }, { stat: 'dmg', v: 0.05, ...T('team', 45) }] },
   'bounty-hunter': { name: 'Bounty Hunter', cost: 2, role: 'Jungle', tags: ['fight'], art: 'bounty', sky: 'olive',
     trigger: { on: 'deaths', role: 'adc', enemy: true, n: 2 }, effects: [{ stat: 'dmg', v: 0.02, ...T('team', 45) }, { stat: 'respawn', v: 0.05, ...T('enemy', 45) }] },
   'triple-threat': { name: 'Triple Threat', cost: 1, role: 'Mid', tags: ['fight'], art: 'crosshair', sky: 'dusk',
-    trigger: { on: 'kills', n: 3 }, effects: [{ stat: 'dmg', v: 0.2, ...T('owner', 45) }] },
+    trigger: { on: 'kills', n: 3 }, effects: [{ stat: 'dmg', v: 0.3, ...T('owner', 60) }, { stat: 'cd', v: 0.15, ...T('owner', 60) }] },
   'called-shot': { name: 'Called Shot', cost: 2, role: 'Mid', tags: ['objective', 'fight'], art: 'crosshair', sky: 'teal',
     trigger: { on: 'majority' }, effects: [{ stat: 'tactic', tactic: { focus: 'adc' }, ...T('team', 45) }, { stat: 'dmg', v: 0.02, ...T('team', 45) }] },
   hypercarry: { name: 'Hypercarry', cost: 2, role: 'Carry', tags: ['scale', 'fight'], art: 'crosshair', sky: 'ember',
@@ -33,7 +33,7 @@ export const CARDS = {
   'second-wind': { name: 'Second Wind', cost: 1, role: 'Carry', tags: ['comeback'], art: 'boot', sky: 'dusk',
     trigger: { on: 'deaths', n: 2 }, effects: [{ stat: 'respawn', v: -0.06, ...T('team', 30) }, { stat: 'dmg', v: 0.02, ...T('owner', 60) }] },
   'hold-the-line': { name: 'Hold the Line', cost: 1, role: 'Support', tags: ['objective', 'comeback'], art: 'ward', sky: 'teal', repeat: true,
-    trigger: { on: 'point_lost' }, effects: [{ stat: 'taken', v: -0.02, ...T('team', 10) }] },
+    trigger: { on: 'point_lost' }, effects: [{ stat: 'taken', v: -0.03, ...T('team', 12) }] },
   peel: { name: 'Peel', cost: 2, role: 'Support', tags: ['scale'], art: 'shield', sky: 'forest',
     trigger: { on: 'deaths', role: 'adc', n: 1 }, effects: [{ stat: 'shield', v: 0.08, ...T('team', 8) }] },
   // Trait and attribute cards (slot 2, and slot 3 for 70+)
@@ -42,9 +42,9 @@ export const CARDS = {
   'shake-it-off': { name: 'Shake It Off', cost: 1, tags: ['comeback'], art: 'shield', sky: 'dusk',
     trigger: { on: 'first_blood', us: false }, effects: [{ stat: 'dmg', v: 0.065, ...T('team', 45) }] },
   'never-say-die': { name: 'Never Say Die', cost: 2, tags: ['comeback'], art: 'shield', sky: 'ember',
-    trigger: { on: 'behind', x: 5 }, effects: [{ stat: 'taken', v: -0.025, ...T('team', 60) }, { stat: 'dmg', v: 0.02, ...T('team', 60) }] },
+    trigger: { on: 'behind', x: 5 }, effects: [{ stat: 'taken', v: -0.06, ...T('team', 60) }, { stat: 'dmg', v: 0.05, ...T('team', 60) }] },
   'call-it': { name: 'Call It', cost: 2, tags: ['objective', 'fight'], art: 'crosshair', sky: 'olive',
-    trigger: { on: 'hold', s: 20 }, effects: [{ stat: 'tactic', tactic: { preset: 'hunt', aggression: 1 }, ...T('team', 45) }, { stat: 'dmg', v: 0.02, ...T('team', 45) }] },
+    trigger: { on: 'hold', s: 20 }, effects: [{ stat: 'dmg', v: 0.05, ...T('team', 45) }] },
   'press-the-claim': { name: 'Press the Claim', cost: 1, tags: ['objective'], art: 'ward', sky: 'moss',
     trigger: { on: 'majority' }, effects: [{ stat: 'cap', v: 0.3, ...T('team', 45) }] },
   'blood-in-the-water': { name: 'Blood in the Water', cost: 1, tags: ['fight'], art: 'bounty', sky: 'ember',
@@ -128,7 +128,7 @@ export function bestLoadout(pool, used = [], plan) {
 // [fire rate, win-chance gain at Common, at Epic]: one slope per card fitted from both rarities (Epic = 1.6 x Common),
 // clamped to 0.5-2.5 points (Signature 0.5-4), since single measurements are +-4 points. Rare is interpolated.
 export const CARD_STATS = {
-  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.005, 0.008], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.6, 0.011, 0.017], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.025, 0.04], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.5, 0.005, 0.008], "call-it": [0.93, 0.005, 0.008], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.025, 0.04], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
+  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.02, 0.032], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.58, 0.025, 0.04], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.019, 0.031], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.51, 0.025, 0.04], "call-it": [0.93, 0.025, 0.04], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.013, 0.021], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
 };
 export function winGain(c) {
   const [, lo, hi] = CARD_STATS[c.id];
