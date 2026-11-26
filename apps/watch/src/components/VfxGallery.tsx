@@ -78,6 +78,7 @@ function isolate(effects: MatchEffects, unitId: string): MatchEffects {
     casterFlashes: mine(effects.casterFlashes),
     ults: mine(effects.ults),
     killBursts: [],
+    damageNums: [],
   };
 }
 

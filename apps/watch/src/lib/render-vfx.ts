@@ -6,11 +6,10 @@ import type { WatchAssets } from "./assets";
 import { activeEffectsAt } from "./replay";
 import { tuneFor } from "./vfx-tuning";
 import { skillMetaByName } from "./skill-meta";
-import { drawCasterRing, hasUltArt, ultForStatus } from "./ult-vfx";
+import { hasUltArt } from "./ult-vfx";
 import {
   lookupVfx,
   smearFrames,
-  statusVfxKeys,
   type ResolvedSprite,
   type VfxEntry,
 } from "./vfx-atlas";
@@ -210,7 +209,6 @@ function blitTinted(
 }
 
 /** Slow / root ground marker colours (distinct from both team colours). */
-const STATUS_HEX = { slow: "#8FE3F2", root: "#F2C14E" } as const;
 
 function blitSpriteAt(
   ctx: CanvasRenderingContext2D,
@@ -736,195 +734,71 @@ function drawHitFlashes(
 
 const HIT_FLASH_FALLBACK = 0.22;
 
+const STATUS_TEXT: Record<string, [string, string]> = {
+  stun: ["STUN", "#F2C14E"],
+  root: ["ROOT", "#F2C14E"],
+  sleep: ["SLEEP", "#F2C14E"],
+  taunt: ["TAUNT", "#F2C14E"],
+  knockup: ["AIRBORNE", "#F2C14E"],
+  slow: ["SLOW", "#8FE3F2"],
+  silence: ["SILENCE", "#C9A2FF"],
+  blind: ["BLIND", "#C9A2FF"],
+  shield: ["SHIELD", "#E6ECF5"],
+};
+
+/** Status labels: small outlined text under the unit's feet, one line per unit. */
 function drawStatusIcons(
   ctx: CanvasRenderingContext2D,
-  assets: WatchAssets,
   state: MatchViewState,
   active: ReturnType<typeof activeEffectsAt>,
 ): void {
-  // Group by target for stacking.
-  const byTarget = new Map<string, typeof active.statuses>();
-  for (const s of active.statuses) {
-    const list = byTarget.get(s.targetId) ?? [];
-    list.push(s);
-    byTarget.set(s.targetId, list);
+  const byTarget = new Map<string, Set<string>>();
+  for (const st of active.statuses) {
+    const kinds = byTarget.get(st.targetId) ?? new Set<string>();
+    kinds.add(st.kind);
+    byTarget.set(st.targetId, kinds);
   }
-  for (const [targetId, list] of byTarget) {
-    const unit = state.units[targetId as keyof typeof state.units] as
-      | UnitView
-      | undefined;
+  ctx.save();
+  ctx.font = "bold 10px Inter, sans-serif";
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  for (const [targetId, kinds] of byTarget) {
+    const unit = state.units[targetId as keyof typeof state.units] as UnitView | undefined;
     if (!unit || !unit.alive) continue;
     const { px, py } = world(unit.x, unit.y);
-    let slot = 0;
-    for (const st of list) {
-      let drawn = false;
-      for (const key of statusVfxKeys(st.kind)) {
-        // Prefer the target champ's plate, then any loaded plate of that key.
-        const tryChamps = [unit.champ, ...Object.keys(assets.vfxAtlases)];
-        for (const champ of tryChamps) {
-          const resolved = resolveEntrySprite(
-            assets,
-            champ,
-            key,
-            unit.team,
-            unit.facing,
-          );
-          if (!resolved?.image) continue;
-          const ox = slot * 22 - ((list.length - 1) * 22) / 2;
-          // Sleep to the right of HP bar per Sedge notes; others above head.
-          const headY =
-            st.kind === "sleep"
-              ? py - ANCHOR_Y + 4
-              : st.kind === "root" || st.kind === "slow"
-                ? py - 2
-                : py - ANCHOR_Y - 8;
-          const headX = st.kind === "sleep" ? px + 22 : px + ox;
-          const age = state.t - st.startedAt;
-          const fi = Math.floor(age * 8);
-          const ground = st.kind === "root" || st.kind === "slow";
-          // Ground markers stay at art size (1x) under the feet; head icons at 2x.
-          const scale = ground ? 1 : VFX_SCALE;
-          const sprite = {
-            ...resolved.sprite,
-            offset_from_foot:
-              st.kind === "root"
-                ? ([-6, -2] as [number, number])
-                : st.kind === "slow"
-                  ? ([-6, -2] as [number, number])
-                  : resolved.sprite.offset_from_foot ??
-                    ([-8, -14] as [number, number]),
-          };
-          if (ground) {
-            const imgEl = resolved.image;
-            const w = imgEl.naturalWidth || imgEl.width;
-            const h = imgEl.naturalHeight || imgEl.height;
-            // slow/root are one shared 4-frame strip; some atlases list it
-            // without its cell, which drew all four frames side by side.
-            const strip = sprite.cell
-              ? { cell: sprite.cell, frames: sprite.frames ?? 1 }
-              : sharedStripCell(assets, key);
-            const cell = strip?.cell;
-            const fw = cell ? cell[0] : w;
-            const fh = cell ? cell[1] : h;
-            const sx = cell ? (fi % (strip?.frames ?? 1)) * fw : 0;
-            const dx = Math.round(
-              headX + (sprite.offset_from_foot?.[0] ?? -fw / 2) * scale,
-            );
-            const dy = Math.round(
-              headY + (sprite.offset_from_foot?.[1] ?? -fh) * scale,
-            );
-            const dw = fw * scale;
-            const dh = fh * scale;
-            ctx.save();
-            ctx.globalAlpha *= 0.85;
-            blitTinted(ctx, imgEl, sx, 0, fw, fh, dx, dy, dw, dh, STATUS_HEX[st.kind as "slow" | "root"]);
-            ctx.restore();
-          } else {
-            blitSpriteAt(ctx, resolved.image, headX, headY, sprite, fi, scale);
-            const ult = ultForStatus(state, st.sourceId, st.startedAt);
-            if (ult) {
-              const im = resolved.image;
-              const w = (sprite.cell?.[0] ?? im.naturalWidth ?? im.width) * scale;
-              const h = (sprite.cell?.[1] ?? im.naturalHeight ?? im.height) * scale;
-              const ox = sprite.offset_from_foot?.[0] ?? -w / scale / 2;
-              const oy = sprite.offset_from_foot?.[1] ?? -h / scale + 2;
-              drawCasterRing(
-                ctx,
-                ult.team,
-                headX + ox * scale + w / 2,
-                headY + oy * scale + h / 2,
-                Math.max(w, h) / 2,
-              );
-            }
-          }
-          drawn = true;
-          break;
-        }
-        if (drawn) break;
-      }
-      if (!drawn) {
-        // Procedural fallback glyph.
-        const ox = slot * 22 - ((list.length - 1) * 22) / 2;
-        drawProceduralStatus(ctx, px + ox, py - ANCHOR_Y - 10, st.kind, unit.team);
-      }
-      slot += 1;
-    }
+    const parts: Array<[string, string]> = [...kinds].map((k) => STATUS_TEXT[k] ?? [k.toUpperCase(), "#E6ECF5"]);
+    const gap = 5;
+    const widths = parts.map(([t]) => ctx.measureText(t).width);
+    let x = px - (widths.reduce((a, b) => a + b, 0) + gap * (parts.length - 1)) / 2;
+    parts.forEach(([text, color], i) => {
+      ctx.lineWidth = 3;
+      drawOutlinedText(ctx, text, Math.round(x), Math.round(py + 3), color);
+      x += widths[i]! + gap;
+    });
   }
+  ctx.restore();
 }
 
-function sharedStripCell(
-  assets: WatchAssets,
-  key: string,
-): { cell: [number, number]; frames: number } | null {
-  for (const block of Object.values(assets.vfxAtlases)) {
-    const e = block[key] as { cell?: [number, number]; frames?: number } | undefined;
-    if (e?.cell && e.frames) return { cell: e.cell, frames: e.frames };
-  }
-  return null;
-}
-
-function drawProceduralStatus(
+/** Floating damage numbers for skill hits; ults larger and gold. */
+function drawDamageNums(
   ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  kind: string,
-  team: Team,
+  state: MatchViewState,
+  active: ReturnType<typeof activeEffectsAt>,
 ): void {
   ctx.save();
-  ctx.translate(Math.round(x), Math.round(y));
-  const color = TEAM_HEX[team];
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = 3;
-  switch (kind) {
-    case "stun":
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-5, 0);
-      ctx.lineTo(5, 0);
-      ctx.moveTo(0, -5);
-      ctx.lineTo(0, 5);
-      ctx.stroke();
-      break;
-    case "slow":
-      ctx.beginPath();
-      ctx.moveTo(-8, 3);
-      ctx.lineTo(-2, -3);
-      ctx.lineTo(4, 3);
-      ctx.lineTo(9, -2);
-      ctx.stroke();
-      break;
-    case "root":
-      ctx.beginPath();
-      ctx.ellipse(0, 4, 9, 4, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      break;
-    case "silence":
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-5, 5);
-      ctx.lineTo(5, -5);
-      ctx.stroke();
-      break;
-    case "taunt":
-      ctx.beginPath();
-      ctx.moveTo(-6, 5);
-      ctx.lineTo(0, -6);
-      ctx.lineTo(6, 5);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-    case "shield":
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 9, 10, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      break;
-    default:
-      ctx.fillRect(-5, -5, 10, 10);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  const stack = new Map<string, number>();
+  for (const d of active.damageNums) {
+    const unit = state.units[d.targetId];
+    if (!unit) continue;
+    const { px, py } = world(unit.x, unit.y);
+    const age = (state.t - d.startedAt) / (d.endsAt - d.startedAt);
+    const n = stack.get(d.targetId) ?? 0;
+    stack.set(d.targetId, n + 1);
+    ctx.globalAlpha = age < 0.6 ? 1 : 1 - (age - 0.6) / 0.4;
+    ctx.font = d.ult ? "900 18px Inter, sans-serif" : "bold 12px Inter, sans-serif";
+    drawOutlinedText(ctx, String(d.amount), px + 14 + (n % 2) * 8, py - ANCHOR_Y - 10 - age * 16 - n * 6, d.ult ? "#F2C14E" : "#FFFFFF");
   }
   ctx.restore();
 }
@@ -1144,8 +1018,9 @@ export function renderVfx(
   drawMeleeSmears(ctx, assets, state, active);
   drawProjectiles(ctx, assets, state, active);
   drawHitFlashes(ctx, assets, state, active);
-  drawStatusIcons(ctx, assets, state, active);
+  drawStatusIcons(ctx, state, active);
   drawSkillTags(ctx, state, active);
+  drawDamageNums(ctx, state, active);
 }
 
 /** Count active effects — for e2e / debug attributes. */

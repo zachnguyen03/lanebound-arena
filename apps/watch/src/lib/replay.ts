@@ -132,6 +132,7 @@ function cloneEffects(e: MatchEffects): MatchEffects {
     casterFlashes: e.casterFlashes.map((x) => ({ ...x })),
     ults: e.ults.map((x) => ({ ...x })),
     killBursts: e.killBursts.map((x) => ({ ...x })),
+    damageNums: e.damageNums.map((x) => ({ ...x })),
   };
 }
 
@@ -146,6 +147,7 @@ function emptyEffects(): MatchEffects {
     casterFlashes: [],
     ults: [],
     killBursts: [],
+    damageNums: [],
   };
 }
 
@@ -187,6 +189,7 @@ export function activeEffectsAt(
   casterFlashes: import("./types").CasterFlashFx[];
   ults: UltFx[];
   killBursts: KillBurstFx[];
+  damageNums: import("./types").DamageNumFx[];
 } {
   const live = <T extends { startedAt: number; endsAt: number }>(list: T[]) =>
     list.filter((x) => x.startedAt <= t && t < x.endsAt);
@@ -202,6 +205,7 @@ export function activeEffectsAt(
     casterFlashes: live(effects.casterFlashes),
     ults: live(effects.ults),
     killBursts: live(effects.killBursts),
+    damageNums: live(effects.damageNums),
   };
 }
 
@@ -349,7 +353,12 @@ function applyEvent(
     case "hit": {
       const u = getUnit(state, ev.target_id);
       if (u) {
-        if (typeof ev.hp_after === "number") u.hp = ev.hp_after;
+        if (typeof ev.hp_after === "number") {
+          // A burst of hits within 0.8 s shows as one damage chunk on the HP bar.
+          if (!(u.chipAt !== undefined && ev.t - u.chipAt < 0.8)) u.chipHp = u.hp;
+          u.chipAt = ev.t;
+          u.hp = ev.hp_after;
+        }
         if (u.alive) u.hitStartedAt = ev.t;
       }
       const src = getUnit(state, ev.source_id);
@@ -973,6 +982,18 @@ function applyHitFx(state: MatchViewState, ev: SimEvent): void {
   }
 
   if (isAuto) return;
+
+  const amount = Math.round(typeof ev.mitigated === "number" ? ev.mitigated : 0);
+  if (amount > 0 && !ev.miss) {
+    state.effects.damageNums.push({
+      id: `dmg:${ev.seq}`,
+      targetId: target.id,
+      amount,
+      ult: skillMetaByName(skillId)?.key === "R",
+      startedAt: ev.t,
+      endsAt: ev.t + 0.9,
+    });
+  }
 
   const recipe = source
     ? skillVfxRecipe(source.champ, skillId)

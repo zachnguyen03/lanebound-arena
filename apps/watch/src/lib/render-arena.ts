@@ -502,15 +502,25 @@ function drawUnit(
   }
 
   if (unit.alive) {
-    const barW = 28;
-    const barH = 3;
+    const barW = 36;
+    const barH = 5;
     const bx = Math.round(px - barW / 2);
-    const by = Math.round(py - ANCHOR_Y - 6);
+    const by = Math.round(py - ANCHOR_Y - 8);
     ctx.fillStyle = "#0B0E14";
-    ctx.fillRect(bx, by, barW, barH);
+    ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
     const frac = Math.max(0, Math.min(1, unit.hp / unit.maxHp));
     ctx.fillStyle = teamColor;
     ctx.fillRect(bx, by, Math.round(barW * frac), barH);
+    // Recent damage: a white chunk that holds 0.5 s after the last hit, then fades.
+    const since = state.t - (unit.chipAt ?? -9);
+    if (unit.chipHp !== undefined && unit.chipHp > unit.hp && since >= 0 && since < 0.9) {
+      const chip = Math.max(0, Math.min(1, unit.chipHp / unit.maxHp));
+      ctx.save();
+      ctx.globalAlpha = since < 0.5 ? 0.95 : 0.95 * (1 - (since - 0.5) / 0.4);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(bx + Math.round(barW * frac), by, Math.max(1, Math.round(barW * (chip - frac))), barH);
+      ctx.restore();
+    }
   }
 }
 

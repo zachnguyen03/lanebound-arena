@@ -47,6 +47,9 @@ export interface UnitView {
   kda: { k: number; d: number; a: number };
   /** exp cadence: sim t the flank buff expires (0 / undefined = none). */
   buffUntil?: number;
+  /** HP before the current burst of hits and when the last one landed (HP bar damage chunk). */
+  chipHp?: number;
+  chipAt?: number;
 }
 
 export interface OrbView {
@@ -184,6 +187,16 @@ export interface UltFx {
   targetId: string | null;
 }
 
+/** Floating damage number over a skill hit's target (ults larger). */
+export interface DamageNumFx {
+  id: string;
+  targetId: UnitId;
+  amount: number;
+  ult: boolean;
+  startedAt: number;
+  endsAt: number;
+}
+
 export interface KillBurstFx {
   id: string;
   victimId: UnitId;
@@ -206,6 +219,7 @@ export interface MatchEffects {
   casterFlashes: CasterFlashFx[];
   ults: UltFx[];
   killBursts: KillBurstFx[];
+  damageNums: DamageNumFx[];
 }
 
 /** Champ ids with a body sheet shipped under arena-sandbox/. */
