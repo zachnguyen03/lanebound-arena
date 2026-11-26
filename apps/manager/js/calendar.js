@@ -14,7 +14,7 @@ import { initManager, boardSeries, boardSplit, boardWeekly, boardReview, setGoal
 import { dailyCondition, matchFatigue, weekly, scoutingTick, expireOffers, money, offseasonPlayers, aiMarket, fillAndStart, boardTarget } from './club.js';
 
 // Settings the UI sets (global, not per save).
-export const CFG = { simDetail: 'fast' }; // simDetail: fast | top (top-league AI games on the full engine)
+export const CFG = { simDetail: 'top' }; // simDetail: fast | top (top-league and international AI games on the full engine) | all
 
 const PRIZES = {
   playoffs: [200, 100, 60, 60, 30, 30],
@@ -269,7 +269,7 @@ export function gameJob(W, s) {
   const [blue, red] = nextGameSides(s).map(id => team(W, id));
   const c = W.comps[s.comp];
   const d = autoDraft(starterPlayers(W, blue), starterPlayers(W, red), Math.random, { prefs: [draftPrefs(W), draftPrefs(W)] });
-  const full = involvesUser(W, s) || (CFG.simDetail === 'top' && (c.tier === 0 || c.kind === 'intl'));
+  const full = involvesUser(W, s) || CFG.simDetail === 'all' || (CFG.simDetail === 'top' && (c.tier === 0 || c.kind === 'intl'));
   const [cb, cr] = [blue, red].map(t => loadCards(s, t, aiLoadout(W, s, t)));
   return { s, blue: blue.id, red: red.id, draft: { picks: d.picks, bans: d.bans }, payload: { teamA: engineTeam(W, blue, d.picks[0], blue.plan, cb), teamB: engineTeam(W, red, d.picks[1], red.plan, cr), seed: Math.floor(Math.random() * 2 ** 31), fast: !full, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } } };
 }

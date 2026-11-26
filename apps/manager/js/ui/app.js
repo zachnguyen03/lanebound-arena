@@ -215,7 +215,7 @@ function settings(el) {
   el.innerHTML = `<div class="pad g2">
     ${card('Match', '', `<div class="pad-s form">
       <label>Default live speed ${seg('speed', [[1, '1×'], [2, '2×'], [4, '4×']], s.speed)}</label>
-      <label>Background sim detail ${seg('simDetail', [['fast', 'Fast (statistical)'], ['top', 'Full engine for top leagues']], s.simDetail)}<small class="dim">Full engine is much slower: about 0.25 s per game in a worker, minutes for a season.</small></label>
+      <label>Background sim detail ${seg('simDetail', [['fast', 'Fast (statistical)'], ['top', 'Full engine for top leagues'], ['all', 'Full engine for every game']], s.simDetail)}<small class="dim">The full engine takes about 0.3 s a game in a worker: Top leagues adds about 1 s per week of fixtures, Every game 5–10 s. Lower tiers on Fast use a statistical engine calibrated to the full one.</small></label>
     </div>`)}
     ${card('Sim and saving', '', `<div class="pad-s form">
       <label>Pause when a new offer arrives ${seg('pauseOffers', [[true, 'On'], [false, 'Off']], s.pauseOffers)}</label>

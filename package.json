@@ -30,7 +30,8 @@
     "manager:test": "for t in apps/manager/test/*.test.mjs; do tsx $t || exit 1; done",
     "manager:dev": "vite --config apps/manager/vite.config.ts",
     "manager:build": "vite build --config apps/manager/vite.config.ts",
-    "manager:e2e": "playwright test --config apps/manager/playwright.config.ts"
+    "manager:e2e": "playwright test --config apps/manager/playwright.config.ts",
+    "manager:refit": "node apps/manager/test/refit.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

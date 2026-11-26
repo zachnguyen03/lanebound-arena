@@ -7,7 +7,7 @@ const LEGACY_KEY = 'lanebreak-career'; // v0.3 single save
 
 // ---------- Settings ----------
 const SETTINGS_KEY = 'lanebreak-settings';
-export const DEFAULT_SETTINGS = { speed: 2, simDetail: 'fast', confirmContinue: false, pauseOffers: true, pauseScouting: false, autosave: 'weekly' };
+export const DEFAULT_SETTINGS = { speed: 2, simDetail: 'top', confirmContinue: false, pauseOffers: true, pauseScouting: false, autosave: 'weekly' };
 export function loadSettings() { try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)) }; } catch { return { ...DEFAULT_SETTINGS }; } }
 export function saveSettings(s) { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch { /* settings stay in memory */ } }
 

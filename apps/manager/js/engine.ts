@@ -110,18 +110,18 @@ export interface Line {
 }
 export type Ev = { t: number; type: string; side: number; [k: string]: unknown };
 
-// Measured on the full engine with attr_scaling on (test/fit.mjs, 2,400 games at uniform career-attribute gaps 0/4/8/16, 600 each):
+// Measured on the full engine, career config with milestones (npm run manager:refit, 3,000 games at gaps 0/4/8/16 + patched):
 // per-role per-minute means; obj = seconds on capture points. No game had a death without a killer.
 export const ROLE_MEANS: Record<string, { k: number; d: number; a: number; dmg: number; taken: number; heal: number; obj: number }> = {
-  Top: { k: 0.666, d: 1.107, a: 1.916, dmg: 1439, taken: 2134, heal: 15, obj: 9.6 },
-  Jungle: { k: 0.557, d: 0.973, a: 2.209, dmg: 1200, taken: 2057, heal: 109, obj: 20.6 },
-  Mid: { k: 0.863, d: 1.118, a: 2.242, dmg: 1627, taken: 1650, heal: 40, obj: 15.4 },
-  Carry: { k: 1.946, d: 0.603, a: 2.119, dmg: 2822, taken: 1081, heal: 9, obj: 12.6 },
-  Support: { k: 0.729, d: 0.960, a: 2.156, dmg: 1224, taken: 1391, heal: 227, obj: 6.1 },
+  Top: { k: 0.644, d: 1.118, a: 1.887, dmg: 1437, taken: 2129, heal: 18, obj: 9.9 },
+  Jungle: { k: 0.557, d: 0.98, a: 2.122, dmg: 1224, taken: 2065, heal: 109, obj: 20.6 },
+  Mid: { k: 0.865, d: 1.051, a: 2.182, dmg: 1676, taken: 1678, heal: 39, obj: 15.6 },
+  Carry: { k: 1.718, d: 0.572, a: 2.137, dmg: 2573, taken: 1066, heal: 11, obj: 12.2 },
+  Support: { k: 0.797, d: 0.858, a: 2.182, dmg: 1463, taken: 1434, heal: 324, obj: 6.4 },
 };
 const DMG_SUM = Object.values(ROLE_MEANS).reduce((n, m) => n + m.dmg, 0);
-/** Centres each role's mean rating on 6 (measured on 2,400 even games with BASE_MODS: 5.87-6.15, MVP share Top 12%, others 21-23%). */
-const ROLE_ADJ: Record<string, number> = { Top: 0, Jungle: 0.04, Mid: -0.02, Carry: 0.34, Support: -0.58 };
+/** Centres each role's mean rating on 6 (re-centred after the milestones refit; check with test/fit.mjs run 0 ... ratings by slot). */
+const ROLE_ADJ: Record<string, number> = { Top: 0, Jungle: 0.03, Mid: 0.01, Carry: 0.02, Support: 0.02 };
 
 /** 1-10 rating against the role's average line (ROLE_MEANS), so every role can be player of the game:
  * K/D/A, damage share, healing, seconds on points, plus the result. */
