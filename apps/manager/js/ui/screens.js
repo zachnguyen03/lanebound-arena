@@ -9,7 +9,7 @@ import {
 } from '../career.js';
 import { state, go } from './state.js';
 import { playerCards } from '../cards.js';
-import { cardHTML } from './cards.js';
+import { cardMini } from './cards.js';
 import { esc, $, on, money, pct, num, crest, sprite, bar, condColor, spark, wl, seg, select, empty, card, table, wireTables, toast, modal, ROLE_SHORT } from './dom.js';
 
 const rr = () => state.rerender();
@@ -331,7 +331,7 @@ export function player(el, [pid]) {
   const comps = Object.entries(p.stats).map(([key, a]) => ({ key, name: W.comps[key]?.name ?? key, year: +key.slice(0, 4), ...a })).sort((a, b) => b.year - a.year);
   el.innerHTML = `<div class="pad split-wide">
     <div class="stack">
-      <section class="card"><div class="pp-head">${sprite(p.id, t?.color ?? '#556', 88)}<div><span class="caps">${p.role} (also ${p.role2}) · age ${p.age} · ${esc(p.region)}</span><h1 class="disp xxl">${esc(p.name)}</h1>${tLink(t)} ${p.retired ? '<span class="pill">Retired</span>' : ''}</div><span class="sp"></span>
+      <section class="card"><div class="pp-head">${sprite(p.id, t?.color ?? '#556', 88)}<div><span class="caps">${p.role} (also ${p.role2}) · age ${p.age} · ${esc(p.region)}</span><h1 class="disp xxl">${esc(p.name)}</h1>${tLink(t)} ${p.retired ? '<span class="pill">Retired</span>' : ''}</div><span class="sp"></span>${!W.classic && !p.retired ? `<div class="tc-minis" aria-label="Tactic Cards">${playerCards(p).map(cardMini).join('')}</div>` : ''}
         ${!own && !p.retired ? `<a class="btn btn-primary" href="#/negotiate/${p.id}">${t ? 'Make a bid' : 'Offer contract'}</a>` : ''}</div>
         <div class="pad-s row wrap"><span class="kvc"><span class="caps">Overall</span><b>${k.exact ? overall(p) : `${k.ability[0]}–${k.ability[1]}`}</b></span><span class="kvc"><span class="caps">Potential</span><b>${k.exact ? p.potential : `${k.potential[0]}–${k.potential[1]}`}</b></span>
         <span class="kvc"><span class="caps">Value</span><b>${money(valueOf(p))}</b></span><span class="kvc"><span class="caps">Wage</span><b>${money(p.wage)}</b></span><span class="kvc"><span class="caps">Contract</span><b>${p.contractEnd}</b></span><span class="kvc"><span class="caps">Form</span>${spark(p.form, 60, 18)}</span></div></section>
@@ -339,7 +339,6 @@ export function player(el, [pid]) {
       ${card('Recent games', '', p.history.length ? `<table><tbody>${p.history.map(h => `<tr><td class="dim">${fmtDate(h.year, h.day)}</td><td>vs ${esc(team(W, h.opp)?.name ?? '?')}</td><td><span class="tm">${champSprite(h.champ, 20)} ${CHAMPS[h.champ]?.name}</span></td><td class="n">${h.k}/${h.d}/${h.a}</td><td class="n">${h.rating}</td><td><span class="f ${h.win ? 'w' : 'l'}">${h.win ? 'W' : 'L'}</span></td><td>${W.reports[h.g] ? `<a href="#/report/${h.g}">Report</a>` : ''}</td></tr>`).join('')}</tbody></table>` : `<div class="pad-s">${empty('No games yet')}</div>`)}
     </div>
     <div class="stack">${k.exact || own ? playerPanel(W, p, t) : card('Attributes', 'Unknown', `<div class="pad-s">${empty('Scout to reveal attributes', `Ranges narrow over ${scoutDays(userTeam(W))} days of scouting.`, W.scouting[pid] ? '<span class="dim">Scouting in progress</span>' : `<button class="btn btn-secondary" id="sc">Scout (${money(SCOUT_COST)})</button>`)}</div>`)}
-      ${!W.classic && !p.retired ? card('Tactic Cards', 'From role, traits, best attribute and overall', `<div class="pad-s tc-row">${playerCards(p).map(c => cardHTML(c, 'hand')).join('')}</div>`) : ''}
       ${card('Awards and honours', '', `<div class="pad-s">${p.awards.map(a => `<div class="award">🏆 ${esc(a)}</div>`).join('') || '<span class="dim">None yet</span>'}</div>`)}</div></div>`;
   $('#sc', el)?.addEventListener('click', () => { const e = scout(W, pid); toast(e ?? 'Scouting started.', !!e); rr(); });
 }

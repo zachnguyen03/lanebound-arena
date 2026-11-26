@@ -72,11 +72,14 @@ export function cardHTML(held, size = 'full', opts = {}) {
   const lv = `<span class="tc-lv">Lv ${v.lv} <span aria-hidden="true">${pips(v.lv, 3, '●', '○')}</span></span>`;
   const tags = v.targets.map(t => `<span class="tc-tag">${TAG_ICON[t]}${size === 'full' ? TAG_LABEL[t] : `<span class="sr">${TAG_LABEL[t]}</span>`}</span>`).join('');
   const label = `${v.name}, ${v.R.label}, ${v.cost} Focus. When ${v.when.replace(/\[\[|\]\]/g, '')}. Then ${v.then.replace(/\[\[|\]\]/g, '')}.`;
-  return `<article class="tc tc-${v.rarity} tc-${size} ${opts.foil ? 'foil-on' : ''}" tabindex="0" aria-label="${esc(label)}">${art}
+  return `<article class="tc tc-${v.rarity} tc-${size} ${opts.foil ? 'foil-on' : ''}" ${opts.inert ? 'aria-hidden="true"' : `tabindex="0" aria-label="${esc(label)}"`}>${art}
     <div class="tc-body"><h4 class="tc-name">${esc(v.name)}</h4><span class="tc-rar">${v.R.label}</span>
       ${size === 'full' ? `<p class="tc-rule"><b>When</b> ${rules(v.when)}</p><p class="tc-rule"><b>Then</b> ${rules(v.then)}</p>` : ''}</div>
     <footer class="tc-foot"><span class="tc-tags">${tags}</span>${lv}</footer></article>`;
 }
+
+/** Small card; hover or focus shows the full card with its rules. */
+export const cardMini = held => `<span class="tc-pop">${cardHTML(held, 'mini')}<span class="tc-tip">${cardHTML(held, 'full', { inert: true })}</span></span>`;
 
 // ---------- Dev gallery ----------
 const SAMPLE = [

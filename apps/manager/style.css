@@ -224,6 +224,15 @@ a.bx-wrap:hover .bx{border-color:var(--c-text)}
 .tc-hand .tc-foot{padding:4px 6px}
 .tc-hand .tc-pips,.tc-hand .tc-cost{transform:scale(.85);transform-origin:top left}
 .tc-hand .tc-pips{transform-origin:top right}
+.tc-mini{width:64px;min-height:0;border-width:1px}
+.tc-mini .tc-body{padding:3px 4px}
+.tc-mini .tc-name{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-mini .tc-rar,.tc-mini .tc-foot,.tc-mini .tc-pips{display:none}
+.tc-mini .tc-cost{transform:scale(.7);transform-origin:top left;left:2px;top:2px}
+.tc-minis{display:flex;gap:6px}
+.tc-pop{position:relative;display:block}
+.tc-tip{position:absolute;right:0;top:calc(100% + 6px);z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.tc-pop:hover .tc-tip,.tc-pop:focus-within .tc-tip{display:block}
 /* Foil sheen: a static frame, Epic and Signature only */
 .tc-epic::after,.tc-signature::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity var(--dur) var(--ease);
   background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 42%,rgba(176,63,194,.12) 50%,rgba(95,211,191,.10) 58%,transparent 70%);mix-blend-mode:screen}
