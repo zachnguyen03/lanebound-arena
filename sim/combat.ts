@@ -369,7 +369,8 @@ export function resolvePendingDamage(
     }
 
     mitigated *= attrDamageMult(state, source, target);
-    if (source.card || target.card) mitigated *= (source.card?.dmg ?? 1) * (target.card?.taken ?? 1);
+    if (source.card || target.card) mitigated *= (source.card?.dmg ?? 1) * (target.card?.taken ?? 1) * (1 + (source.card?.vs?.[target.champ] ?? 0));
+    if (source.milestone || target.milestone) mitigated *= (source.milestone?.dmg ?? 1) * (target.milestone?.taken ?? 1);
     const abs = absorbDamage(target.status, mitigated, state.t, {
       pierceSpawnShield: scriptedPierce,
     });
@@ -403,6 +404,7 @@ export function resolvePendingDamage(
       shield_absorbed: abs.shieldAbsorbed,
       hp_after: Math.floor(exactHp),
     });
+    if (source.card) cardOnHit(state, source, target, abs.hpLoss + abs.shieldAbsorbed, emit);
 
     // Rewound Moment after HP drop
     const rw = tryRewoundMoment(target, state.t);
@@ -416,6 +418,22 @@ export function resolvePendingDamage(
         capped_to: sh.capped_to,
       });
     }
+  }
+}
+
+/** exp/cards holder effects after a hit: lifesteal heals the source, execute drops a target left under the threshold
+ * (last_hit_by = source, so the death phase credits the kill normally). */
+function cardOnHit(state: MatchState, source: UnitState, target: UnitState, dealt: number, emit: (type: string, payload: Record<string, unknown>) => void): void {
+  const ls = source.card!.lifesteal ?? 0, ex = source.card!.execute ?? 0;
+  if (ls > 0 && dealt > 0 && source.alive && source.hp > 0) {
+    const applied = Math.min(source.max_hp - source.hp, ls * dealt);
+    source.hp += applied;
+    emit("heal", { source_id: source.id, target_id: source.id, skill_id: "lifesteal", raw: ls * dealt, applied, combat_scaled: false });
+  }
+  if (ex > 0 && target.team !== source.team && target.hp > 0 && target.hp < ex * target.max_hp) {
+    emit("execute", { source_id: source.id, target_id: target.id, hp_before: Math.floor(target.hp) });
+    target.hp = 0;
+    target.last_hit_by = source.id;
   }
 }
 

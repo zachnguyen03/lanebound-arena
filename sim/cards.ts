@@ -40,10 +40,14 @@ export interface CardTrigger {
 }
 
 /** dmg, taken, ms, cd (cooldown recovery), cap (capture speed), respawn: multiplier 1 + v for dur s.
- * shield: v × max HP, one-shot (lasts dur s). score: +v points now. tactic: override the side's tactics for dur s. */
+ * shield: v × max HP, one-shot (lasts dur s). score: +v points now. tactic: override the side's tactics for dur s.
+ * Personal (per unit, for dur s): execute (a hit leaving an enemy under v of max HP kills it), lifesteal (heal v of
+ * damage dealt), refund (each takedown cuts current cooldowns by v), tenacity (incoming CC durations × 1 − v),
+ * vs_class (+v damage against enemies of class `cls`). */
 export interface CardEffect {
-  stat: "dmg" | "taken" | "ms" | "cd" | "cap" | "respawn" | "shield" | "score" | "tactic";
+  stat: "dmg" | "taken" | "ms" | "cd" | "cap" | "respawn" | "shield" | "score" | "tactic" | "execute" | "lifesteal" | "refund" | "tenacity" | "vs_class";
   v?: number;
+  cls?: string;
   target?: "owner" | "team" | "enemy";
   dur?: number;
   tactic?: Partial<Tactics>;
@@ -64,7 +68,7 @@ export interface Cards {
 }
 
 type UnitMods = NonNullable<UnitState["card"]>;
-interface Active { team: Team; unit: UnitId | null; stat: CardEffect["stat"]; v: number; until: number; tactic?: Partial<Tactics> }
+interface Active { team: Team; unit: UnitId | null; stat: CardEffect["stat"]; v: number; until: number; tactic?: Partial<Tactics>; cls?: string }
 export interface CardRuntime {
   seen: number;
   fired: Record<Team, boolean[]>;
@@ -109,6 +113,10 @@ function scan(state: MatchState, rt: CardRuntime, events: SimEvent[]) {
       if (!k) continue;
       const team = k.split(":")[0] as Team;
       rt.fb ??= team;
+      for (const id of [k, ...((e.assists as UnitId[]) ?? [])]) {
+        const u = state.units.find((x) => x.id === id), r = u?.card?.refund;
+        if (u && r) { u.cd_q *= 1 - r; u.cd_w *= 1 - r; u.cd_r *= 1 - r; }
+      }
       const ks = (rt.kills[k] ??= []);
       ks.push(state.t);
       multi[k] = ks.filter((t) => t >= state.t - 10 - 1e-9).length;
@@ -156,7 +164,7 @@ function fire(state: MatchState, rt: CardRuntime, team: Team, card: CardSpec, em
     else if (e.stat === "shield") for (const u of units) { if (u.alive) addShield(u.status, v * u.max_hp, u.max_hp, 1, e.dur ?? 6); }
     else {
       if (e.stat === "respawn") for (const u of units) if (!u.alive) u.respawn_at = state.t + (u.respawn_at - state.t) * (1 + v);
-      rt.active.push({ team: tt, unit: e.target === "owner" ? owner : null, stat: e.stat, v, until: state.t + (e.dur ?? 1e9), tactic: e.tactic });
+      rt.active.push({ team: tt, unit: e.target === "owner" ? owner : null, stat: e.stat, v, until: state.t + (e.dur ?? 1e9), tactic: e.tactic, cls: e.cls });
     }
   }
   if (score) {
@@ -181,9 +189,14 @@ function apply(state: MatchState, rt: CardRuntime): void {
     else for (const u of state.units) {
       if (u.team !== a.team || (a.unit && u.id !== a.unit)) continue;
       const m: UnitMods = (u.card ??= { dmg: 1, taken: 1, ms: 1, cd: 1 });
-      m[a.stat as keyof UnitMods] *= 1 + a.v;
+      if (a.stat === "execute") m.execute = Math.max(m.execute ?? 0, a.v);
+      else if (a.stat === "lifesteal" || a.stat === "refund" || a.stat === "tenacity") m[a.stat] = (m[a.stat] ?? 0) + a.v;
+      else if (a.stat === "vs_class") {
+        for (const o of state.units) if (o.team !== u.team && CHAMPIONS[o.champ]?.class === a.cls) (m.vs ??= {})[o.champ] = (m.vs?.[o.champ] ?? 0) + a.v;
+      } else m[a.stat as "dmg" | "taken" | "ms" | "cd"] *= 1 + a.v;
     }
   }
+  for (const u of state.units) if (u.card?.tenacity || u.status.tenacity) u.status.tenacity = Math.min(0.9, u.card?.tenacity ?? 0);
 }
 
 /** One tick of the card runtime. Returns true when a card scored. */

@@ -150,6 +150,8 @@ export interface MatchConfig {
   attr_scaling?: true | Partial<AttrScaling>;
   /** Experimental Tactic Cards (sim/cards.ts); absent = no card runtime. */
   cards?: import("./cards.js").Cards;
+  /** Experimental in-game milestones (sim/milestones.ts: streaks, shutdowns, anchor, sweep); absent = off. */
+  milestones?: true | Partial<import("./milestones.js").Milestones>;
   constants?: Partial<Record<string, unknown>>;
   blue: SideConfig;
   red: SideConfig;
@@ -298,7 +300,9 @@ export interface UnitState {
   /** Sim t at which a dead unit respawns at its own slot (Infinity while alive). */
   respawn_at: number;
   /** exp/cards: active card multipliers (absent = none). */
-  card?: { dmg: number; taken: number; ms: number; cd: number };
+  card?: { dmg: number; taken: number; ms: number; cd: number; execute?: number; lifesteal?: number; refund?: number; tenacity?: number; vs?: Record<string, number> };
+  /** exp/milestones: on-fire damage and anchor damage-taken multipliers (absent = none). */
+  milestone?: { dmg: number; taken: number };
   spawn_shield_until: number;
   auto_cd: number;
   /** Remaining windup time (s); 0 = not winding up. */
@@ -508,6 +512,8 @@ export interface MatchState {
   rng_counters?: Record<string, number>;
   /** exp/cards runtime (only when MatchConfig.cards is set). */
   cards?: import("./cards.js").CardRuntime;
+  /** exp/milestones runtime (only when MatchConfig.milestones is set). */
+  milestones?: import("./milestones.js").MilestoneRuntime;
 }
 
 export type EventPayload = Record<string, unknown>;

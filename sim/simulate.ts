@@ -54,6 +54,7 @@ import {
 } from "./arena.js";
 import { cancelRetreatWindupIfMoving } from "./retreat_combat.js";
 import { createCardRuntime, tickCards } from "./cards.js";
+import { createMilestoneRuntime, tickMilestones } from "./milestones.js";
 import type {
   MatchConfig,
   MatchState,
@@ -597,6 +598,7 @@ function simulateInner(config: MatchConfig): SimulateResult {
   };
   let scoredThisTick = false;
   const cardRt = config.cards ? (state.cards = createCardRuntime(state)) : null;
+  const msRt = config.milestones ? (state.milestones = createMilestoneRuntime(state)) : null;
 
   // Publish initial S3 public state (unowned zone, pads down until spawn).
   publishArena(state, arena, rng);
@@ -1024,6 +1026,7 @@ function simulateInner(config: MatchConfig): SimulateResult {
     }
 
     publishArena(state, arena, rng);
+    if (msRt && tickMilestones(state, msRt, events, emit)) scoredThisTick = true;
     if (cardRt && tickCards(state, cardRt, events, emit)) scoredThisTick = true;
 
     if (clockEndFlag) {

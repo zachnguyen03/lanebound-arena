@@ -44,6 +44,8 @@ export interface DrWindow {
 
 export interface StatusState {
   effects: StatusInstance[];
+  /** exp/cards: fraction cut from incoming CC durations (absent = none). */
+  tenacity?: number;
   dr: DrWindow[];
   /** Applied Lock durations in the last LOCK_BUDGET_S window: { t_apply, applied } */
   lock_applies: Array<{ t: number; applied: number }>;
@@ -160,6 +162,7 @@ export function applyCc(
 
   const dr = drFactor(st, category, opts.now, opts.dr_window, opts.dr_factor, opts.dr_floor);
   let applied = opts.raw_duration * dr;
+  if (st.tenacity) applied *= 1 - st.tenacity; // exp/cards tenacity
   let tapered = false;
 
   if (category === "lock") {
