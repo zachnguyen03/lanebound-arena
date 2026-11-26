@@ -52,6 +52,10 @@ W.series.x = s2;
 const job = gameJob(W, s2);
 assert.equal(job.payload.teamA.cards.length, 3);
 assert.equal(s2.cards[s.a].length + s2.cards[s.b].length, job.payload.teamA.cards.length + job.payload.teamB.cards.length);
+// Resting: the cards a team just loaded can't be loaded in its next game, even in a new series.
+const rested = team(W, s.a).restCards, s3 = { ...s2, cards: {} };
+assert.equal(rested.length, 3);
+assert.ok(aiLoadout(W, s3, team(W, s.a)).every(c => !rested.includes(c.key)), 'resting cards reloaded');
 delete W.series.x;
 
 // Fast engine: card events and a positive edge for a loaded side.

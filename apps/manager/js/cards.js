@@ -103,7 +103,7 @@ export function loadoutError(cards, used = []) {
   if (cards.reduce((n, c) => n + costOf(c), 0) > LOADOUT.budget) return `Over the ${LOADOUT.budget} Focus budget`;
   if (cards.some(c => cards.filter(x => x.pid === c.pid).length > LOADOUT.perPlayer)) return `At most ${LOADOUT.perPlayer} cards from one player`;
   if (cards.filter(c => c.rarity === 'signature').length > 1) return 'At most one Signature card';
-  if (cards.some(c => used.includes(c.key))) return 'Already loaded this series';
+  if (cards.some(c => used.includes(c.key))) return 'Already loaded this series or resting from the last match';
   return null;
 }
 

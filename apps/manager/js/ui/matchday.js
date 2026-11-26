@@ -20,7 +20,7 @@ function newGame(W, s) {
   if (W.classic) { md.load = [[], []]; return; }
   // Both coaches pick before the draft: the analyst pre-selects the user's best loadout; the opponent's stays hidden.
   const us = team(W, W.userTeamId), opp = team(W, blue === us.id ? red : blue);
-  md.pool = cardPool(W, us); md.used = usedCards(s, us.id);
+  md.pool = cardPool(W, us); md.used = usedCards(s, us); md.rest = us.restCards ?? [];
   md.mine = bestLoadout(md.pool, md.used, us.plan);
   md.theirs = aiLoadout(W, s, opp);
 }
@@ -47,12 +47,12 @@ function renderCards(app) {
   const keys = mine.map(c => c.key), focus = mine.reduce((n, c) => n + costOf(c), 0), err = loadoutError(mine, md.used);
   const col = (p, i) => `<section class="cs-col"><header><span class="caps">${ROLES[i]}</span><b>${esc(p.name)}</b></header>${md.pool.filter(c => c.slot === i).map(c => {
     const v = cardView(c), used = md.used.includes(c.key), on = keys.includes(c.key);
-    return `<div class="cs-card ${on ? 'on' : ''} ${used ? 'used' : ''}" data-key="${c.key}" role="button" tabindex="0" aria-pressed="${on}" ${used ? 'aria-disabled="true" title="Loaded earlier this series"' : ''}>${cardHTML(c, 'hand')}
-      <div class="cs-text"><p><b>When</b> ${esc(v.when.replace(/\[\[|\]\]/g, ''))}</p><p><b>Then</b> ${esc(v.then.replace(/\[\[|\]\]/g, ''))}</p><span class="caps ${used ? 'bad' : 'dim'}">${used ? 'Used this series' : triggerStatus(c, md.draft, md.userSide)}</span></div></div>`;
+    return `<div class="cs-card ${on ? 'on' : ''} ${used ? 'used' : ''}" data-key="${c.key}" role="button" tabindex="0" aria-pressed="${on}" ${used ? 'aria-disabled="true" title="Loaded earlier this series or in the last match"' : ''}>${cardHTML(c, 'hand')}
+      <div class="cs-text"><p><b>When</b> ${esc(v.when.replace(/\[\[|\]\]/g, ''))}</p><p><b>Then</b> ${esc(v.then.replace(/\[\[|\]\]/g, ''))}</p><span class="caps ${used ? 'bad' : 'dim'}">${used ? (md.rest.includes(c.key) ? 'Resting' : 'Used this series') : triggerStatus(c, md.draft, md.userSide)}</span></div></div>`;
   }).join('')}</section>`;
   app.innerHTML = `<div class="cards-select">
     <header class="cs-head"><div><span class="dim small">${seriesHeader(W, s)} · <span class="blue">${esc(teams[0].name)}</span> v <span class="red">${esc(teams[1].name)}</span></span><h1 class="disp xl">Tactic Cards</h1>
-      <span class="small dim">Load up to ${LOADOUT.size} cards from your starters: at most ${LOADOUT.perPlayer} from one player, one Signature. Hidden until they fire; a loaded card can't be loaded again this series.</span></div>
+      <span class="small dim">Load up to ${LOADOUT.size} cards from your starters: at most ${LOADOUT.perPlayer} from one player, one Signature. Hidden until they fire; a loaded card can't be loaded again this series, and rests for your next match.</span></div>
       <div class="cs-meter"><span class="caps">Focus</span><b class="disp score ${focus > LOADOUT.budget ? 'bad' : ''}">${focus}/${LOADOUT.budget}</b><span class="caps">${mine.length}/${LOADOUT.size} cards</span></div></header>
     <div class="cs-cols">${md.players[md.userSide].map(col).join('')}</div>
     <footer class="cs-foot"><span class="${err ? 'bad' : 'dim'} small">${err ?? (mine.length ? mine.map(c => esc(cardView(c).name)).join(' · ') : 'No cards loaded')}</span><span class="sp"></span>
@@ -148,6 +148,7 @@ function aiStep(app) {
 function intel(W, t) {
   const r = scoutReport(W, t);
   return `<div class="d-comp small"><span class="caps">Scouting</span><div>Form <b>${r.form || '–'}</b> · plan <b>${esc(r.plan)}</b> · chemistry <b>${r.chem}</b></div>
+    ${!W.classic ? `<div>Resting cards ${(t.restCards ?? []).map(k => esc(CARDS[k.split(':')[1]].name)).join(', ') || 'none'}</div>` : ''}
     ${r.recent.length ? `<div>Recent picks ${r.recent.map(x => `${esc(CHAMPS[x.id].name)}×${x.n}`).join(', ')}</div>` : ''}
     ${r.known ? r.players.map(p => `<div>${ROLE_SHORT[p.role]} ${esc(p.name)}: ${p.comfort.map(c => esc(CHAMPS[c].name)).join(', ') || '–'}</div>`).join('') : '<div class="dim">Comfort picks unknown. Scrim them, or build a level-4 analytics room.</div>'}</div>`;
 }
@@ -183,7 +184,7 @@ const planText = tac => `${{ hold_the_pit: 'Hold the pit', hunt: 'Hunt', starve:
 function startLive(app) {
   const W = state.W, s = W.series[md.sid];
   const [b, r] = [md.blue, md.red].map(id => team(W, id));
-  md.load.forEach((cs, side) => loadCards(s, side ? md.red : md.blue, cs));
+  md.load.forEach((cs, side) => loadCards(s, team(W, side ? md.red : md.blue), cs));
   md.sum = runPayload({ teamA: engineTeam(W, b, md.draft.picks[0], b.plan, md.load[0]), teamB: engineTeam(W, r, md.draft.picks[1], r.plan, md.load[1]), seed: Math.floor(Math.random() * 2 ** 31), fast: false, opts: { stakes: stakesOf(W, s), patch: W.patch?.mods } });
   md.phase = 'live'; md.speed = state.settings.speed; md.paused = false;
   renderLive(app);
