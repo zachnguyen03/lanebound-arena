@@ -21,7 +21,7 @@ for (const [name, list] of Object.entries(engines)) for (const s of list) {
     const mine = s.players.filter(p => p.side === side), sum = k => mine.reduce((t, p) => t + p[k], 0);
     assert.equal(sum('k'), s.kills[side], `${name}: team kills = player kills`);
     assert.equal(sum('d'), s.kills[1 - side] + execs.filter(e => e.side === side).length, `${name}: deaths = enemy kills + deaths with no killer`);
-    assert.ok(s.split[side].kills <= s.kills[side], `${name}: one point per kill (a kill on the final tick may score nothing)`);
+    assert.ok(s.split[side].kills <= s.kills[side] + sum('sd'), `${name}: one point per kill plus shutdown bounties (a kill on the final tick may score nothing)`);
     assert.equal(s.split[side].kills + s.split[side].obj, s.score[side], `${name}: score = kill points + objective points`);
     assert.equal(s.events.filter(e => e.type === 'capture' && e.side === side).length, s.caps[side], `${name}: capture events`);
     for (const p of mine) assert.ok(p.a <= s.kills[side] && p.obj <= s.duration, `${name}: assists <= team kills, point time <= game time`);

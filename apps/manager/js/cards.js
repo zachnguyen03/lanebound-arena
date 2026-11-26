@@ -65,6 +65,17 @@ export const CARDS = {
     trigger: { on: 'enemy_class', cls: 'Tank', n: 2 }, effects: [{ stat: 'dmg', v: 0.02, target: 'team' }] },
   'mage-hunter': { name: 'Mage Hunter', cost: 1, tags: ['draft'], art: 'shield', sky: 'teal',
     trigger: { on: 'enemy_class', cls: 'Mage', n: 2 }, effects: [{ stat: 'taken', v: -0.01, target: 'team' }] },
+  // Personal cards: the effect sits on the holder only.
+  executioner: { name: 'Executioner', cost: 2, tags: ['fight', 'scale'], art: 'crosshair', sky: 'ember',
+    trigger: { on: 'kills', n: 2 }, effects: [{ stat: 'execute', v: 0.1, target: 'owner' }] },
+  bloodthirst: { name: 'Bloodthirst', cost: 1, tags: ['comeback', 'fight'], art: 'bounty', sky: 'dusk',
+    trigger: { on: 'deaths', n: 2 }, effects: [{ stat: 'lifesteal', v: 0.3, ...T('owner', 60) }] },
+  momentum: { name: 'Momentum', cost: 1, tags: ['early', 'fight'], art: 'boot', sky: 'olive',
+    trigger: { on: 'first_blood', us: true }, effects: [{ stat: 'refund', v: 0.3, target: 'owner' }] },
+  unshakeable: { name: 'Unshakeable', cost: 1, tags: ['comeback'], art: 'shield', sky: 'teal',
+    trigger: { on: 'behind', x: 4 }, effects: [{ stat: 'tenacity', v: 0.5, ...T('owner', 90) }] },
+  'giant-slayer': { name: 'Giant Slayer', cost: 1, tags: ['draft'], art: 'crosshair', sky: 'moss',
+    trigger: { on: 'enemy_class', cls: 'Tank', n: 1 }, effects: [{ stat: 'vs_class', v: 0.15, cls: 'Tank', target: 'owner' }] },
   // Signature cards (slot 3, one per player)
   specialist: { name: 'Specialist', cost: 3, signature: true, tags: ['draft', 'scale'], art: 'holder', sky: 'forest',
     trigger: { on: 'owner_champ' }, effects: [{ stat: 'dmg', v: 0.04, target: 'owner' }, { stat: 'cd', v: 0.06, target: 'owner' }] },
@@ -76,7 +87,7 @@ export const CARD_IDS = Object.keys(CARDS);
 // ---------- Ownership (CARD_PLAN §8): role card, then trait › best attribute, a third card at 70+ ----------
 const ROLE_CARDS = { Top: ['island-lord', 'stubborn'], Jungle: ['clear-speed', 'bounty-hunter'], Mid: ['triple-threat', 'called-shot'], Carry: ['hypercarry', 'second-wind'], Support: ['hold-the-line', 'peel'] };
 const TRAIT_CARD = { Aggressive: 'spoils-of-war', 'Hot-headed': 'blood-in-the-water', 'Clutch performer': 'never-say-die', Shotcaller: 'call-it', 'Team player': 'press-the-claim', 'Ice cold': 'dead-heat', Professional: 'long-game', Sharpshooter: 'closing-time' };
-const ATTR_CARDS = { aim: ['first-claim', 'triple-threat'], reflexes: ['shake-it-off'], execution: ['closing-argument'], decision: ['can-opener', 'mage-hunter', 'dead-heat'], positioning: ['last-stand'], teamwork: ['press-the-claim'], aggression: ['spoils-of-war', 'blood-in-the-water'], resilience: ['long-game', 'hold-the-line'], clutch: ['never-say-die'] };
+const ATTR_CARDS = { aim: ['first-claim', 'triple-threat', 'giant-slayer'], reflexes: ['shake-it-off', 'unshakeable'], execution: ['executioner', 'closing-argument'], decision: ['can-opener', 'mage-hunter', 'giant-slayer', 'dead-heat'], positioning: ['last-stand', 'bloodthirst'], teamwork: ['press-the-claim'], aggression: ['spoils-of-war', 'blood-in-the-water', 'momentum'], resilience: ['long-game', 'unshakeable', 'hold-the-line'], clutch: ['never-say-die'] };
 const hash = s => [...s].reduce((h, ch) => (Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0), 2166136261);
 
 /** A player's cards: [{ id, rarity, champ? }]. Derived from role, traits, attributes and overall, so they change as the player does. */
@@ -128,7 +139,7 @@ export function bestLoadout(pool, used = [], plan) {
 // [fire rate, win-chance gain at Common, at Epic]: one slope per card fitted from both rarities (Epic = 1.6 x Common),
 // clamped to 0.5-2.5 points (Signature 0.5-4), since single measurements are +-4 points. Rare is interpolated.
 export const CARD_STATS = {
-  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.02, 0.032], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.58, 0.025, 0.04], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.019, 0.031], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.51, 0.025, 0.04], "call-it": [0.93, 0.025, 0.04], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.013, 0.021], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
+  "island-lord": [0.6, 0.009, 0.015], "stubborn": [0.95, 0.011, 0.017], "clear-speed": [0.5, 0.02, 0.032], "bounty-hunter": [0.63, 0.015, 0.024], "triple-threat": [0.58, 0.025, 0.04], "called-shot": [0.99, 0.018, 0.028], "hypercarry": [0.8, 0.005, 0.008], "second-wind": [0.62, 0.016, 0.026], "hold-the-line": [1.0, 0.019, 0.031], "peel": [0.88, 0.024, 0.038], "spoils-of-war": [0.51, 0.012, 0.019], "shake-it-off": [0.5, 0.018, 0.028], "never-say-die": [0.51, 0.025, 0.04], "call-it": [0.93, 0.025, 0.04], "press-the-claim": [0.99, 0.01, 0.017], "blood-in-the-water": [0.88, 0.008, 0.012], "dead-heat": [0.43, 0.019, 0.031], "long-game": [1.0, 0.013, 0.021], "closing-argument": [0.49, 0.019, 0.03], "last-stand": [0.3, 0.014, 0.022], "first-claim": [0.5, 0.025, 0.04], "closing-time": [0.61, 0.02, 0.033], "can-opener": [0.31, 0.024, 0.038], "mage-hunter": [0.61, 0.018, 0.028], "executioner": [0.78, 0.023, 0.038], "bloodthirst": [0.91, 0.025, 0.04], "momentum": [0.49, 0.022, 0.035], "unshakeable": [0.61, 0.006, 0.01], "giant-slayer": [0.82, 0.024, 0.038], "specialist": [1.0, 0.04, 0.04], "franchise": [1.0, 0.04, 0.04]
 };
 export function winGain(c) {
   const [, lo, hi] = CARD_STATS[c.id];
@@ -199,6 +210,11 @@ function effText(e) {
     case 'respawn': return `respawn timers ${pct(e.v)}`;
     case 'shield': return `a shield of ${Math.round(e.v * 100)}% max HP`;
     case 'score': return `+${e.v} point`;
+    case 'execute': return `executes enemies below ${Math.round(e.v * 100)}% HP`;
+    case 'lifesteal': return `heals ${Math.round(e.v * 100)}% of damage dealt`;
+    case 'refund': return `refunds ${Math.round(e.v * 100)}% of cooldowns on each takedown`;
+    case 'tenacity': return `suffers ${Math.round(e.v * 100)}% shorter crowd control`;
+    case 'vs_class': return `${pct(e.v)} damage to ${e.cls}s`;
     case 'tactic': return `switches to ${[e.tactic.preset && TACTIC[e.tactic.preset], e.tactic.aggression > 0 && 'aggressive', e.tactic.focus && `focus the enemy ${ROLE_OF[e.tactic.focus]}`].filter(Boolean).join(', ')}`;
   }
   return '';

@@ -90,7 +90,7 @@ export function fastMatch(teamA, teamB, seed = 1, opts = {}) {
   const mvp = rate(players, winner, duration), at60 = timeline.filter(x => x.t <= 60).at(-1).s;
   return {
     winner, duration, score, split, caps, kills, fbSide: events.find(e => e.type === 'kill')?.side ?? -1, endReason: clock ? 'clock' : 'score',
-    players, mvp, sd60: at60[0] - at60[1], timeline, events, config: null, fast: true,
+    players, mvp, sd60: at60[0] - at60[1], timeline, events, config: null, fast: true, sweeps: [0, 0], // no milestones in the fast engine
   };
 }
 
