@@ -98,4 +98,15 @@ describe("kill-feed-format", () => {
       ),
     ).not.toContain("B ?");
   });
+
+  it("labels shutdowns and sweeps with the scoreline", () => {
+    const evs = [
+      ev({ seq: 1, type: "takedown_score", team: "blue", score_after: 1 }),
+      ev({ seq: 2, type: "shutdown", team: "blue", killer_id: "blue:mid", victim_id: "red:adc", streak: 3, score_after: 2 }),
+      ev({ seq: 3, type: "sweep", team: "red", score_after: 1 }),
+    ];
+    const lines = scorelines(evs);
+    expect(formatKillFeedRow(evs[1]!, false, lines.get(2))).toBe("BLUE SHUTDOWN B MID ends R ADC's 3 streak +1 · 2–0");
+    expect(formatKillFeedRow(evs[2]!, false, lines.get(3))).toBe("RED SWEEP all 3 points +1 · 2–1");
+  });
 });

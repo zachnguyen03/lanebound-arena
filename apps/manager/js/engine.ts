@@ -21,7 +21,7 @@ export interface Plan { name?: string; preset?: Tactics["preset"]; posture?: str
 /** Loaded Tactic Cards (js/cards.js cardSpec): the sim spec plus rarity and the holder's id. */
 export type TeamCard = CardSpec & { rarity?: string; pid?: string };
 export interface EngineTeam { name: string; plan?: Plan; coach?: number; lineup: EnginePlayer[]; cards?: TeamCard[] }
-export interface Opts { stakes?: number; attr_scaling?: MatchConfig["attr_scaling"]; patch?: Record<string, { hp?: number; atk?: number; cd?: number }> }
+export interface Opts { stakes?: number; attr_scaling?: MatchConfig["attr_scaling"]; milestones?: MatchConfig["milestones"] | false; patch?: Record<string, { hp?: number; atk?: number; cd?: number }> }
 
 export function rngFrom(seed: number): () => number { // mulberry32
   let a = seed >>> 0;
@@ -96,6 +96,7 @@ export function matchConfig(teamA: EngineTeam, teamB: EngineTeam, seed: number, 
   });
   return {
     seed, blue: side(teamA), red: side(teamB), objectives: { mode: "points" }, teamfight: { ...TEAMFIGHT_R3 }, attr_scaling: opts.attr_scaling ?? true,
+    ...(opts.milestones === false ? {} : { milestones: opts.milestones ?? true }),
     constants: { ...SANDBOX_CONSTANTS }, kit_patch: kitPatch(opts.patch), ai_enabled: true, draft_mode: "fixed", forced_clock_end: false,
     ...(teamA.cards?.length || teamB.cards?.length ? { cards: { blue: teamA.cards ?? [], red: teamB.cards ?? [] } } : {}),
   };
@@ -104,6 +105,8 @@ export function matchConfig(teamA: EngineTeam, teamB: EngineTeam, seed: number, 
 export interface Line {
   pid: string; name: string; side: number; role: string; champ: string; level: number;
   k: number; d: number; a: number; obj: number; dmg: number; taken: number; heal: number; share: number; rating: number;
+  /** Milestones: sprees reached (3 and 5 kill streaks), shutdowns made, seconds anchored on a point. */
+  sp: number; sd: number; anc: number;
 }
 export type Ev = { t: number; type: string; side: number; [k: string]: unknown };
 
@@ -142,8 +145,9 @@ export function runFull(teamA: EngineTeam, teamB: EngineTeam, seed: number, opts
   const sideOf = (team: unknown) => (team === "red" ? 1 : 0);
   const players: Line[] = [teamA, teamB].flatMap((t, side) => t.lineup.map((p, i) => ({
     pid: p.id, name: p.name, side, role: ROLES[i]!, champ: p.champ, level: st.units[side * 5 + i]?.level ?? 1,
-    k: 0, d: 0, a: 0, obj: Math.round(r.player_stats?.[side * 5 + i]?.zone_seconds ?? 0), dmg: 0, taken: 0, heal: 0, share: 0, rating: 0,
+    k: 0, d: 0, a: 0, obj: Math.round(r.player_stats?.[side * 5 + i]?.zone_seconds ?? 0), dmg: 0, taken: 0, heal: 0, share: 0, rating: 0, sp: 0, sd: 0, anc: 0,
   })));
+  const sweeps = [0, 0], anchored: Record<string, number> = {};
   const kills = [0, 0], caps = [0, 0], split = [{ kills: 0, obj: 0 }, { kills: 0, obj: 0 }], score = [0, 0];
   const events: Ev[] = [], timeline = [{ t: 0, s: [0, 0] }], streak = Array(10).fill(0), dead = Array(10).fill(false);
   const point = (side: number, part: "kills" | "obj", t: number) => { split[side]![part]++; score[side]!++; timeline.push({ t, s: [...score] }); };
@@ -169,6 +173,11 @@ export function runFull(teamA: EngineTeam, teamB: EngineTeam, seed: number, opts
       case "zone_tick": point(sideOf(e.team), "obj", t); events.push({ t, type: "majority", side: sideOf(e.team) }); break;
       case "claim_award": point(sideOf(e.team), "obj", t); events.push({ t, type: "claim", side: sideOf(e.team) }); break;
       case "point_capture": caps[sideOf(e.team)]!++; events.push({ t, type: "capture", side: sideOf(e.team), point: e.point }); break;
+      case "spree": players[idx(e.unit_id)]!.sp++; break;
+      case "shutdown": players[idx(e.killer_id)]!.sd++; point(sideOf(String(e.killer_id).split(":")[0]), "kills", t); break;
+      case "sweep": sweeps[sideOf(e.team)]!++; point(sideOf(e.team), "obj", t); events.push({ t, type: "sweep", side: sideOf(e.team) }); break;
+      case "anchor_start": anchored[String(e.unit_id)] = e.t; break;
+      case "anchor_end": players[idx(e.unit_id)]!.anc += e.t - (anchored[String(e.unit_id)] ?? e.t); delete anchored[String(e.unit_id)]; break;
       case "card_fire": {
         const side = sideOf(e.team);
         events.push({ t, type: "card", side, id: e.card_id, pid: players[idx(e.owner)]!.pid, ...(e.score ? { score: e.score } : {}) });
@@ -177,12 +186,13 @@ export function runFull(teamA: EngineTeam, teamB: EngineTeam, seed: number, opts
       }
     }
   }
-  for (const x of players) for (const f of ["dmg", "taken", "heal"] as const) x[f] = Math.round(x[f]);
+  for (const [u, t0] of Object.entries(anchored)) players[idx(u)]!.anc += st.t - t0;
+  for (const x of players) for (const f of ["dmg", "taken", "heal", "anc"] as const) x[f] = Math.round(x[f]);
   const winner = st.winner === "red" ? 1 : st.winner === "blue" ? 0 : st.score_red > st.score_blue ? 1 : 0;
   const duration = Math.round(st.t * 10) / 10, mvp = rate(players, winner, duration);
   const at60 = timeline.filter((x) => x.t <= 60).at(-1)!.s;
   return {
     winner, duration, score: [st.score_blue, st.score_red], split, caps, kills, fbSide: events.find((e) => e.type === "kill")?.side ?? -1,
-    endReason: st.end_reason === "first_to_10" ? "score" : st.end_reason ?? "", players, mvp, sd60: at60[0]! - at60[1]!, timeline, events, config,
+    endReason: st.end_reason === "first_to_10" ? "score" : st.end_reason ?? "", players, mvp, sd60: at60[0]! - at60[1]!, timeline, events, config, sweeps,
   };
 }

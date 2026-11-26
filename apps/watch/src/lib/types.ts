@@ -317,4 +317,10 @@ export const UNRENDERED_EVENT_TYPES = new Set([
   "takedown_score",
   "fight_call",
   "peel_start",
+  "spree",
+  "shutdown",
+  "anchor_start",
+  "anchor_end",
+  "sweep",
+  "execute",
 ]);

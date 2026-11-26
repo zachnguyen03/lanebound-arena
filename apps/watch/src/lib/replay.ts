@@ -454,7 +454,8 @@ function applyEvent(
       if (typeof ev.y === "number") u.y = ev.y;
       break;
     }
-    case "takedown_score": {
+    case "takedown_score":
+    case "shutdown": {
       addSplit(state, ev, "kills");
       if (ev.team === "blue" && typeof ev.score_after === "number") {
         state.scoreBlue = ev.score_after;
@@ -465,7 +466,8 @@ function applyEvent(
       break;
     }
     case "zone_tick":
-    case "claim_award": {
+    case "claim_award":
+    case "sweep": {
       addSplit(state, ev, "obj");
       if (ev.team === "blue" && typeof ev.score_after === "number") {
         state.scoreBlue = ev.score_after;

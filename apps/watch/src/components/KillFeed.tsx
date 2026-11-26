@@ -22,6 +22,8 @@ export function KillFeed({ events, currentTick, rect, onJump, onDeath }: Props) 
         (e) =>
           (e.type === "death" ||
             e.type === "takedown_score" ||
+            e.type === "shutdown" ||
+            e.type === "sweep" ||
             (e.type === "zone_tick" && e.point === "majority")) &&
           e.tick <= currentTick,
       )

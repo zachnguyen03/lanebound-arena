@@ -49,7 +49,7 @@ export function fastMatch(teamA, teamB, seed = 1, opts = {}) {
   const kills = split.map(x => x.kills);
 
   const players = teams.flatMap((t, side) => t.lineup.map((p, i) => ({
-    pid: p.id, name: p.name, side, role: ROLES[i], champ: p.champ, level: 0, k: 0, d: 0, a: 0, obj: 0, dmg: 0, taken: 0, heal: 0, share: 0, rating: 0, _p: p,
+    pid: p.id, name: p.name, side, role: ROLES[i], champ: p.champ, level: 0, k: 0, d: 0, a: 0, obj: 0, dmg: 0, taken: 0, heal: 0, share: 0, rating: 0, sp: 0, sd: 0, anc: 0, _p: p,
   })));
   const pick = (list, w) => { const tot = list.reduce((n, x) => n + w(x), 0); let r = rng() * tot; for (const x of list) if ((r -= w(x)) <= 0) return x; return list.at(-1); };
   const at = () => Math.round((2 + rng() * (duration - 4)) * 10) / 10;

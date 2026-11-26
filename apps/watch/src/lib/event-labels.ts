@@ -31,6 +31,12 @@ const LABELS: Record<string, string> = {
   takedown_score: "Takedown score",
   fight_call: "Fight call",
   peel_start: "Peel start",
+  spree: "Kill spree",
+  shutdown: "Shutdown",
+  anchor_start: "Anchor",
+  anchor_end: "Anchor end",
+  sweep: "Sweep",
+  execute: "Execute",
 };
 
 export function eventTypeLabel(type: string): string {

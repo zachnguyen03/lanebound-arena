@@ -36,7 +36,7 @@ export function scorelines(events: readonly SimEvent[]): Map<number, Scoreline> 
   const cur = { blue: 0, red: 0 };
   for (const e of events) {
     if (
-      (e.type === "takedown_score" || e.type === "zone_tick" || e.type === "claim_award") &&
+      (e.type === "takedown_score" || e.type === "zone_tick" || e.type === "claim_award" || e.type === "shutdown" || e.type === "sweep") &&
       (e.team === "blue" || e.team === "red") &&
       typeof e.score_after === "number"
     ) {
@@ -62,7 +62,11 @@ export function formatTakedownScoreRow(e: SimEvent, line?: Scoreline): string {
     blue = line.blue;
     red = line.red;
   }
-  const what = e.type === "zone_tick" && e.point === "majority" ? "majority +1" : "scores";
+  const what =
+    e.type === "zone_tick" && e.point === "majority" ? "majority +1"
+    : e.type === "shutdown" ? `SHUTDOWN ${shortUnitId(e.killer_id)} ends ${shortUnitId(e.victim_id)}'s ${e.streak} streak +1`
+    : e.type === "sweep" ? "SWEEP all 3 points +1"
+    : "scores";
   return `${team} ${what} · ${blue ?? "?"}–${red ?? "?"}`;
 }
 
@@ -85,6 +89,6 @@ export function buffedDeathSeqs(events: readonly SimEvent[]): Set<number> {
 
 export function formatKillFeedRow(e: SimEvent, buffed = false, line?: Scoreline): string {
   if (e.type === "death") return formatDeathRow(e) + (buffed ? " · BUFF DOWN" : "");
-  if (e.type === "takedown_score" || e.type === "zone_tick") return formatTakedownScoreRow(e, line);
+  if (e.type === "takedown_score" || e.type === "zone_tick" || e.type === "shutdown" || e.type === "sweep") return formatTakedownScoreRow(e, line);
   return e.type;
 }
